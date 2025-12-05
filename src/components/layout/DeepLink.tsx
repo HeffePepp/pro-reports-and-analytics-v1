@@ -1,0 +1,21 @@
+import React from "react";
+import { Link } from "react-router-dom";
+
+interface DeepLinkProps {
+  to: string;
+  label: string;
+}
+
+const DeepLink: React.FC<DeepLinkProps> = ({ to, label }) => (
+  <div className="pt-2 mt-1">
+    <Link
+      to={to}
+      className="inline-flex items-center text-[11px] font-medium text-sky-600 hover:text-sky-700"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {label} →
+    </Link>
+  </div>
+);
+
+export default DeepLink;
