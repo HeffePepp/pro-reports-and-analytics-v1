@@ -224,6 +224,11 @@ const DEEP_LINK_MAP: Record<string, { to: string; label: string }> = {
   "valid-address": { to: "/reports/valid-address", label: "Open Valid Address" },
   "product-sales": { to: "/reports/product-sales", label: "Open Product Sales" },
   "pos-data-lapse": { to: "/reports/pos-data-lapse", label: "Open POS Data Lapse" },
+  "suggested-services": { to: "/reports/suggested-services", label: "Open Suggested Services" },
+  "roas": { to: "/reports/roas", label: "Open ROAS" },
+  "coupon-discount-analysis": { to: "/reports/coupon-discount-analysis", label: "Open Coupon Analysis" },
+  "valid-email-capture": { to: "/reports/valid-email-capture", label: "Open Valid Email Capture" },
+  "billing-campaign-tracking": { to: "/reports/billing-campaign-tracking", label: "Open Billing Tracking" },
 };
 
 const Index: React.FC = () => {
