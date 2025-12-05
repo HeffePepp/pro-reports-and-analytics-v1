@@ -1,117 +1,235 @@
-import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile, BarStack } from "@/components/layout";
+import React, { useState, useMemo } from "react";
+import { ShellLayout, MetricTile, SummaryTile } from "@/components/layout";
 
-type SuggestedServicesSummary = {
+type SuggestedServiceSummary = {
   storeName: string;
   periodLabel: string;
-  totalSsSent: number;
-  ssAcceptedCount: number;
-  ssRevenue: number;
-  avgSsTicket: number;
+  messagesSent: number;
+  customersReached: number;
+  clicks: number;
+  responses: number;
+  revenue: number;
 };
 
-type StoreRow = {
-  storeName: string;
-  ssSent: number;
-  ssAccepted: number;
-  acceptanceRate: number;
-  ssRevenue: number;
-  avgTicket: number;
+type SuggestedServiceRow = {
+  serviceName: string;
+  sent: number;
+  clicks: number;
+  responses: number;
+  revenue: number;
 };
 
-const summary: SuggestedServicesSummary = {
-  storeName: "All Stores",
+const ssSummary: SuggestedServiceSummary = {
+  storeName: "Vallejo, CA",
   periodLabel: "Last 90 days",
-  totalSsSent: 4820,
-  ssAcceptedCount: 1108,
-  ssRevenue: 18400,
-  avgSsTicket: 16.6,
+  messagesSent: 4200,
+  customersReached: 3100,
+  clicks: 780,
+  responses: 520,
+  revenue: 18400,
 };
 
-const storeRows: StoreRow[] = [
-  { storeName: "Vallejo, CA", ssSent: 1840, ssAccepted: 460, acceptanceRate: 25.0, ssRevenue: 7820, avgTicket: 17.0 },
-  { storeName: "Napa, CA", ssSent: 1520, ssAccepted: 334, acceptanceRate: 22.0, ssRevenue: 5510, avgTicket: 16.5 },
-  { storeName: "Fairfield, CA", ssSent: 1460, ssAccepted: 314, acceptanceRate: 21.5, ssRevenue: 5070, avgTicket: 16.1 },
+const ssRows: SuggestedServiceRow[] = [
+  {
+    serviceName: "Engine air filter",
+    sent: 2100,
+    clicks: 420,
+    responses: 210,
+    revenue: 5400,
+  },
+  {
+    serviceName: "Cabin air filter",
+    sent: 1900,
+    clicks: 320,
+    responses: 165,
+    revenue: 4800,
+  },
+  {
+    serviceName: "Tire rotation",
+    sent: 2600,
+    clicks: 260,
+    responses: 95,
+    revenue: 3600,
+  },
+  {
+    serviceName: "Wiper blades",
+    sent: 1800,
+    clicks: 180,
+    responses: 50,
+    revenue: 2600,
+  },
 ];
 
 const SuggestedServicesPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
-    "Suggested Services acceptance rate averages about 23% across all stores.",
-    "Vallejo leads with 25% acceptance; stores below 20% are candidates for technician coaching.",
-    "SS-driven revenue is $18.4k this period — a meaningful upsell channel worth optimizing.",
+    "Engine and cabin air filters generate the highest Suggested Services revenue.",
+    "Tire rotation has room to grow: high impressions but lower acceptance.",
+    "Wipers perform best when paired with rainy-season campaigns or safety messaging.",
   ]);
 
-  const acceptanceRate = useMemo(() => Math.round((summary.ssAcceptedCount / summary.totalSsSent) * 100), []);
+  const acceptRate = useMemo(
+    () => (ssSummary.responses / ssSummary.customersReached) * 100,
+    []
+  );
+  const clickRate = useMemo(
+    () => (ssSummary.clicks / ssSummary.messagesSent) * 100,
+    []
+  );
+  const revPerThousand = useMemo(
+    () => (ssSummary.revenue / ssSummary.messagesSent) * 1000,
+    []
+  );
+  const revPerResponse = useMemo(
+    () => (ssSummary.revenue / ssSummary.responses) || 0,
+    []
+  );
+
+  const maxRevenue = useMemo(
+    () => Math.max(...ssRows.map((r) => r.revenue), 1),
+    []
+  );
 
   const regenerateInsights = () => {
+    const top = ssRows.reduce((best, r) =>
+      !best || r.revenue > best.revenue ? r : best
+    );
+    const weakest = ssRows.reduce((worst, r) =>
+      !worst || r.revenue < worst.revenue ? r : worst
+    );
+
     setInsights([
-      `${acceptanceRate}% of Suggested Services are accepted, generating ~$${summary.ssRevenue.toLocaleString()} in added revenue.`,
-      "Top-performing stores have higher acceptance rates; share their scripts and techniques with lower performers.",
-      "Consider testing different service recommendations by vehicle age or mileage to improve relevance.",
+      `${top.serviceName} is currently the strongest Suggested Service by revenue ($${top.revenue.toLocaleString()}).`,
+      `${weakest.serviceName} is underperforming; consider different copy, timing or a stronger offer.`,
+      `Overall acceptance is ${acceptRate.toFixed(
+        1
+      )}% with about $${revPerThousand.toFixed(
+        0
+      )} in revenue per 1,000 messages.`,
     ]);
   };
 
-  const breadcrumb = [
-    { label: "Home", to: "/" },
-    { label: "Reports & Insights", to: "/" },
-    { label: "Suggested Services" },
-  ];
-
-  const rightInfo = (
-    <>
-      <span>Store: <span className="font-medium">{summary.storeName}</span></span>
-      <span>Period: <span className="font-medium">{summary.periodLabel}</span></span>
-    </>
-  );
-
   return (
-    <ShellLayout breadcrumb={breadcrumb} rightInfo={rightInfo}>
+    <ShellLayout
+      breadcrumb={[
+        { label: "Home", to: "/" },
+        { label: "Reports & Insights", to: "/" },
+        { label: "Suggested Services" },
+      ]}
+      rightInfo={
+        <>
+          <span>
+            Store: <span className="font-medium">{ssSummary.storeName}</span>
+          </span>
+          <span>
+            Period:{" "}
+            <span className="font-medium">{ssSummary.periodLabel}</span>
+          </span>
+        </>
+      }
+    >
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Suggested Services</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
+            Suggested Services
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Track how educational Suggested Services convert into upsell revenue across stores and technicians.
+            Performance of educational Suggested Services emails and how they
+            translate into upsell revenue.
           </p>
         </div>
         <div className="flex gap-3 text-xs">
-          <div className="px-3 py-2 rounded-xl bg-white border border-slate-200 shadow-sm">
-            <div className="text-slate-400">SS sent</div>
-            <div className="mt-0.5 text-base font-semibold">{summary.totalSsSent.toLocaleString()}</div>
-          </div>
-          <div className="px-3 py-2 rounded-xl bg-white border border-slate-200 shadow-sm">
-            <div className="text-slate-400">SS revenue</div>
-            <div className="mt-0.5 text-base font-semibold">${summary.ssRevenue.toLocaleString()}</div>
-          </div>
+          <SummaryTile
+            label="Messages sent"
+            value={ssSummary.messagesSent.toLocaleString()}
+          />
+          <SummaryTile
+            label="SS revenue"
+            value={`$${ssSummary.revenue.toLocaleString()}`}
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <MetricTile label="SS acceptance rate" value={`${acceptanceRate}%`} helper={`${summary.ssAcceptedCount.toLocaleString()} accepted`} tone="positive" />
-        <MetricTile label="SS revenue" value={`$${summary.ssRevenue.toLocaleString()}`} helper="Upsell from SS" />
-        <MetricTile label="Avg SS ticket" value={`$${summary.avgSsTicket.toFixed(2)}`} helper="Per accepted service" />
-        <MetricTile label="SS sent" value={summary.totalSsSent.toLocaleString()} helper="Total recommendations" />
-        <MetricTile label="Conversion potential" value="+$8k" helper="If 5pt acceptance lift" />
+        <MetricTile
+          label="Acceptance rate"
+          value={`${acceptRate.toFixed(1)}%`}
+          helper={`${ssSummary.responses} responses`}
+        />
+        <MetricTile
+          label="Click-through rate"
+          value={`${clickRate.toFixed(1)}%`}
+          helper={`${ssSummary.clicks} clicks`}
+        />
+        <MetricTile
+          label="Revenue / 1,000 msgs"
+          value={`$${revPerThousand.toFixed(0)}`}
+          helper="SS revenue efficiency"
+        />
+        <MetricTile
+          label="Rev per SS response"
+          value={`$${revPerResponse.toFixed(0)}`}
+          helper="Avg upsell value"
+        />
+        <MetricTile
+          label="Customers reached"
+          value={ssSummary.customersReached.toLocaleString()}
+        />
       </div>
 
       <section className="mt-2 grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-slate-800">Acceptance by store</h2>
-            <span className="text-[11px] text-slate-400">% of SS recommendations accepted</span>
+        {/* Per-service performance */}
+        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <h2 className="text-sm font-semibold text-slate-800">
+              Performance by Suggested Service
+            </h2>
+            <span className="text-[11px] text-slate-400">
+              Revenue and acceptance by service (dummy data)
+            </span>
           </div>
-          <BarStack
-            segments={storeRows.map((row) => ({
-              label: row.storeName,
-              value: row.acceptanceRate,
-              color: row.acceptanceRate >= 24 ? "bg-emerald-400" : row.acceptanceRate >= 21 ? "bg-sky-400" : "bg-amber-400",
-            }))}
-          />
+          <div className="space-y-2">
+            {ssRows.map((row) => {
+              const rate = (row.responses / row.sent) * 100;
+              return (
+                <div key={row.serviceName} className="space-y-1">
+                  <div className="flex justify-between text-[11px] text-slate-600">
+                    <span>{row.serviceName}</span>
+                    <span>
+                      {rate.toFixed(1)}% acc · $
+                      {row.revenue.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-500"
+                        style={{
+                          width: `${(row.revenue / maxRevenue) * 100}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-slate-400 w-20 text-right">
+                      {row.responses} resp
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
+        {/* Insights */}
         <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex flex-col">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">AI insights (mock)</h2>
-            <button onClick={regenerateInsights} className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600">Refresh</button>
+            <h2 className="text-sm font-semibold text-slate-800">
+              AI insights (mock)
+            </h2>
+            <button
+              onClick={regenerateInsights}
+              className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600"
+            >
+              Refresh
+            </button>
           </div>
           <ul className="space-y-1 text-xs text-slate-600">
             {insights.map((line, idx) => (
@@ -122,41 +240,9 @@ const SuggestedServicesPage: React.FC = () => {
             ))}
           </ul>
           <p className="mt-3 text-[11px] text-slate-400">
-            In the full app, this panel will call Lovable/OpenAI with live SS metrics to generate store-specific coaching recommendations.
+            In the full app, this panel will call Lovable/OpenAI with live SS
+            stats to generate store- and vendor-specific recommendations.
           </p>
-        </div>
-      </section>
-
-      <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <h2 className="text-sm font-semibold text-slate-800">Stores overview</h2>
-          <span className="text-[11px] text-slate-400">SS sent, accepted, revenue by store</span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-xs">
-            <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                <th className="py-2 pr-3">Store</th>
-                <th className="py-2 pr-3 text-right">SS sent</th>
-                <th className="py-2 pr-3 text-right">SS accepted</th>
-                <th className="py-2 pr-3 text-right">Acceptance %</th>
-                <th className="py-2 pr-3 text-right">SS revenue</th>
-                <th className="py-2 pr-3 text-right">Avg ticket</th>
-              </tr>
-            </thead>
-            <tbody>
-              {storeRows.map((row) => (
-                <tr key={row.storeName} className="border-t border-slate-100">
-                  <td className="py-2 pr-3 text-slate-700">{row.storeName}</td>
-                  <td className="py-2 pr-3 text-right">{row.ssSent.toLocaleString()}</td>
-                  <td className="py-2 pr-3 text-right">{row.ssAccepted.toLocaleString()}</td>
-                  <td className="py-2 pr-3 text-right text-emerald-600">{row.acceptanceRate.toFixed(1)}%</td>
-                  <td className="py-2 pr-3 text-right text-emerald-600">${row.ssRevenue.toLocaleString()}</td>
-                  <td className="py-2 pr-3 text-right">${row.avgTicket.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </section>
     </ShellLayout>
