@@ -16,7 +16,7 @@ import SuggestedServicesPage from "./pages/SuggestedServicesPage";
 import RoasPage from "./pages/RoasPage";
 import CouponDiscountPage from "./pages/CouponDiscountPage";
 import ValidEmailCapturePage from "./pages/ValidEmailCapturePage";
-import BillingCampaignPage from "./pages/BillingCampaignPage";
+import BillingCampaignTrackingPage from "./pages/BillingCampaignTrackingPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,7 +41,7 @@ const App = () => (
           <Route path="/reports/roas" element={<RoasPage />} />
           <Route path="/reports/coupon-discount-analysis" element={<CouponDiscountPage />} />
           <Route path="/reports/valid-email-capture" element={<ValidEmailCapturePage />} />
-          <Route path="/reports/billing-campaign-tracking" element={<BillingCampaignPage />} />
+          <Route path="/reports/billing-campaign-tracking" element={<BillingCampaignTrackingPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
