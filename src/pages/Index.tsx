@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 type CategoryId = "all" | "marketing" | "sales" | "customers" | "vendors" | "internal";
 
@@ -387,12 +388,13 @@ const Index: React.FC = () => {
                   const catStyle = categoryColors[primaryCat];
                   const catLabel =
                     CATEGORIES.find((c) => c.id === primaryCat)?.label ?? primaryCat;
+                  const isServiceIntervals = report.id === "service-intervals";
 
                   return (
-                    <button
+                    <div
                       key={report.id}
+                      className="text-left rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col p-4 gap-3 cursor-pointer"
                       onClick={() => setSelectedReportId(report.id)}
-                      className="text-left rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col p-4 gap-3"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span
@@ -417,7 +419,18 @@ const Index: React.FC = () => {
                           {report.previewMetric}
                         </div>
                       )}
-                    </button>
+                      {isServiceIntervals && (
+                        <div className="pt-2 mt-1">
+                          <Link
+                            to="/reports/service-intervals"
+                            className="inline-flex items-center text-[11px] font-medium text-sky-600 hover:text-sky-700"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Open Service Intervals →
+                          </Link>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
