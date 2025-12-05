@@ -208,6 +208,28 @@ const typeLabel: Record<ReportType, string> = {
   mixed: "Charts & table",
 };
 
+const REPORT_SUMMARIES: Record<string, string> = {
+  "service-intervals": "71% current · 14% at-risk · 15% lost",
+  "oil-type-sales": "Synthetic share 69% units · 83% revenue",
+  "data-capture-ltv": "Multi-channel +$56 per visit vs blank",
+  "customer-journey": "Journey ROAS 12.4x · 64% of car count",
+  "one-off-campaign-tracker": "8 campaigns · Avg ROAS 9.7x",
+  "suggested-services": "SS acceptance 23% · $18.4k SS rev",
+  "roas": "Overall ROAS 14.8x",
+  "coupon-discount-analysis": "Discount rate 12.3% of revenue",
+  "product-sales": "Royal Purple 32% of oil revenue",
+  "oil-type-invoices": "View 248 invoices with vendor oils",
+  "customer-data": "4,582 active customers",
+  "valid-address": "Mail reach 86% · Email reach 74%",
+  "valid-email-capture": "228 new valid emails last 7 days",
+  "call-back-report": "34 callbacks queued",
+  "billing-campaign-tracking": "Last month: $42k billed · ROAS 11.3x",
+  "active-locations": "28 active · 2 launching",
+  "pos-data-lapse": "3 stores with >3 days lapse",
+  "cost-projections": "Projected monthly cost $12.8k",
+  "comprehensive-account-audit": "Audit score 92/100",
+};
+
 const categoryColors: Record<Exclude<CategoryId, "all">, string> = {
   marketing: "bg-emerald-50 text-emerald-700 ring-emerald-100",
   sales: "bg-sky-50 text-sky-700 ring-sky-100",
