@@ -414,6 +414,10 @@ const Index: React.FC = () => {
                   const isCustomerJourney = report.id === "customer-journey";
                   const isOilTypeSales = report.id === "oil-type-sales";
                   const isDataCaptureLtv = report.id === "data-capture-ltv";
+                  const isCustomerData = report.id === "customer-data";
+                  const isValidAddress = report.id === "valid-address";
+                  const isProductSales = report.id === "product-sales";
+                  const isPosDataLapse = report.id === "pos-data-lapse";
                   const previewMetric = REPORT_SUMMARIES[report.id] ?? report.previewMetric;
 
                   return (
@@ -486,6 +490,50 @@ const Index: React.FC = () => {
                             onClick={(e) => e.stopPropagation()}
                           >
                             Open Data Capture LTV →
+                          </Link>
+                        </div>
+                      )}
+                      {isCustomerData && (
+                        <div className="pt-2 mt-1">
+                          <Link
+                            to="/reports/customer-data"
+                            className="inline-flex items-center text-[11px] font-medium text-sky-600 hover:text-sky-700"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Open Customer Data →
+                          </Link>
+                        </div>
+                      )}
+                      {isValidAddress && (
+                        <div className="pt-2 mt-1">
+                          <Link
+                            to="/reports/valid-address"
+                            className="inline-flex items-center text-[11px] font-medium text-sky-600 hover:text-sky-700"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Open Valid Address →
+                          </Link>
+                        </div>
+                      )}
+                      {isProductSales && (
+                        <div className="pt-2 mt-1">
+                          <Link
+                            to="/reports/product-sales"
+                            className="inline-flex items-center text-[11px] font-medium text-sky-600 hover:text-sky-700"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Open Product Sales →
+                          </Link>
+                        </div>
+                      )}
+                      {isPosDataLapse && (
+                        <div className="pt-2 mt-1">
+                          <Link
+                            to="/reports/pos-data-lapse"
+                            className="inline-flex items-center text-[11px] font-medium text-sky-600 hover:text-sky-700"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Open POS Data Lapse →
                           </Link>
                         </div>
                       )}
