@@ -412,6 +412,7 @@ const Index: React.FC = () => {
                     CATEGORIES.find((c) => c.id === primaryCat)?.label ?? primaryCat;
                   const isServiceIntervals = report.id === "service-intervals";
                   const isCustomerJourney = report.id === "customer-journey";
+                  const isOilTypeSales = report.id === "oil-type-sales";
                   const previewMetric = REPORT_SUMMARIES[report.id] ?? report.previewMetric;
 
                   return (
@@ -462,6 +463,17 @@ const Index: React.FC = () => {
                             onClick={(e) => e.stopPropagation()}
                           >
                             Open Customer Journey →
+                          </Link>
+                        </div>
+                      )}
+                      {isOilTypeSales && (
+                        <div className="pt-2 mt-1">
+                          <Link
+                            to="/reports/oil-type-sales"
+                            className="inline-flex items-center text-[11px] font-medium text-sky-600 hover:text-sky-700"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Open Oil Type Sales →
                           </Link>
                         </div>
                       )}
