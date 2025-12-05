@@ -8,6 +8,10 @@ import ServiceIntervals from "./pages/ServiceIntervals";
 import CustomerJourney from "./pages/CustomerJourney";
 import OilTypeSales from "./pages/OilTypeSales";
 import DataCaptureLtv from "./pages/DataCaptureLtv";
+import CustomerDataPage from "./pages/CustomerDataPage";
+import ValidAddressPage from "./pages/ValidAddressPage";
+import ProductSalesPage from "./pages/ProductSalesPage";
+import PosDataLapsePage from "./pages/PosDataLapsePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +28,10 @@ const App = () => (
           <Route path="/reports/customer-journey" element={<CustomerJourney />} />
           <Route path="/reports/oil-type-sales" element={<OilTypeSales />} />
           <Route path="/reports/data-capture-ltv" element={<DataCaptureLtv />} />
+          <Route path="/reports/customer-data" element={<CustomerDataPage />} />
+          <Route path="/reports/valid-address" element={<ValidAddressPage />} />
+          <Route path="/reports/product-sales" element={<ProductSalesPage />} />
+          <Route path="/reports/pos-data-lapse" element={<PosDataLapsePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
