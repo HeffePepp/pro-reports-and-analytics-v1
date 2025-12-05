@@ -231,10 +231,10 @@ const DEEP_LINK_MAP: Record<string, { to: string; label: string }> = {
   "billing-campaign-tracking": { to: "/reports/billing-campaign-tracking", label: "Open Billing Tracking" },
   "active-locations": { to: "/reports/active-locations", label: "Open Active Locations" },
   "cost-projections": { to: "/reports/cost-projections", label: "Open Cost Projections" },
-  "comprehensive-account-audit": { to: "/reports/comprehensive-account-audit", label: "Open Account Audit" },
+  "comprehensive-account-audit": { to: "/reports/comprehensive-account-audit", label: "Open Comprehensive Account Audit" },
   "call-back-report": { to: "/reports/call-back-report", label: "Open Call Back Report" },
-  "one-off-campaign-tracker": { to: "/reports/one-off-campaign-tracker", label: "Open Campaign Tracker" },
-  "oil-type-invoices": { to: "/reports/oil-type-invoices", label: "Open Oil Type Invoices" },
+  "one-off-campaign-tracker": { to: "/reports/one-off-campaign-tracker", label: "Open One-Off Campaign Tracker" },
+  "oil-type-invoices": { to: "/reports/oil-type-invoices", label: "Open Oil Type – Invoices" },
 };
 
 const Index: React.FC = () => {
