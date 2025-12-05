@@ -413,6 +413,7 @@ const Index: React.FC = () => {
                   const isServiceIntervals = report.id === "service-intervals";
                   const isCustomerJourney = report.id === "customer-journey";
                   const isOilTypeSales = report.id === "oil-type-sales";
+                  const isDataCaptureLtv = report.id === "data-capture-ltv";
                   const previewMetric = REPORT_SUMMARIES[report.id] ?? report.previewMetric;
 
                   return (
@@ -474,6 +475,17 @@ const Index: React.FC = () => {
                             onClick={(e) => e.stopPropagation()}
                           >
                             Open Oil Type Sales →
+                          </Link>
+                        </div>
+                      )}
+                      {isDataCaptureLtv && (
+                        <div className="pt-2 mt-1">
+                          <Link
+                            to="/reports/data-capture-ltv"
+                            className="inline-flex items-center text-[11px] font-medium text-sky-600 hover:text-sky-700"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Open Data Capture LTV →
                           </Link>
                         </div>
                       )}
