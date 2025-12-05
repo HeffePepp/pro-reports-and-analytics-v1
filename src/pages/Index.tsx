@@ -411,6 +411,7 @@ const Index: React.FC = () => {
                   const catLabel =
                     CATEGORIES.find((c) => c.id === primaryCat)?.label ?? primaryCat;
                   const isServiceIntervals = report.id === "service-intervals";
+                  const previewMetric = REPORT_SUMMARIES[report.id] ?? report.previewMetric;
 
                   return (
                     <div
@@ -436,9 +437,9 @@ const Index: React.FC = () => {
                           {report.purpose}
                         </p>
                       </div>
-                      {report.previewMetric && (
+                      {previewMetric && (
                         <div className="mt-auto pt-2 text-[11px] text-slate-500 border-t border-dashed border-slate-100">
-                          {report.previewMetric}
+                          {previewMetric}
                         </div>
                       )}
                       {isServiceIntervals && (
