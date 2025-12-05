@@ -17,6 +17,12 @@ import RoasPage from "./pages/RoasPage";
 import CouponDiscountPage from "./pages/CouponDiscountPage";
 import ValidEmailCapturePage from "./pages/ValidEmailCapturePage";
 import BillingCampaignTrackingPage from "./pages/BillingCampaignTrackingPage";
+import ActiveLocationsPage from "./pages/ActiveLocationsPage";
+import CostProjectionsPage from "./pages/CostProjectionsPage";
+import ComprehensiveAccountAuditPage from "./pages/ComprehensiveAccountAuditPage";
+import CallBackReportPage from "./pages/CallBackReportPage";
+import OneOffCampaignTrackerPage from "./pages/OneOffCampaignTrackerPage";
+import OilTypeInvoicesPage from "./pages/OilTypeInvoicesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +49,12 @@ const App: React.FC = () => {
           <Route path="/reports/coupon-discount-analysis" element={<CouponDiscountPage />} />
           <Route path="/reports/valid-email-capture" element={<ValidEmailCapturePage />} />
           <Route path="/reports/billing-campaign-tracking" element={<BillingCampaignTrackingPage />} />
+          <Route path="/reports/active-locations" element={<ActiveLocationsPage />} />
+          <Route path="/reports/cost-projections" element={<CostProjectionsPage />} />
+          <Route path="/reports/comprehensive-account-audit" element={<ComprehensiveAccountAuditPage />} />
+          <Route path="/reports/call-back-report" element={<CallBackReportPage />} />
+          <Route path="/reports/one-off-campaign-tracker" element={<OneOffCampaignTrackerPage />} />
+          <Route path="/reports/oil-type-invoices" element={<OilTypeInvoicesPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
