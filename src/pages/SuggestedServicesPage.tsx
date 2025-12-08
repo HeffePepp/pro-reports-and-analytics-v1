@@ -8,6 +8,7 @@ type SuggestedServicesSummary = {
   emailsSent: number;
   vehiclesWithSs: number;
   ssRevenue: number;
+  totalInvoiceRevenue: number;
   acceptanceRate: number;
   avgTicketLift: number;
 };
@@ -33,6 +34,7 @@ const ssSummary: SuggestedServicesSummary = {
   emailsSent: 18200,
   vehiclesWithSs: 4620,
   ssRevenue: 186400,
+  totalInvoiceRevenue: 742000,
   acceptanceRate: 23.8,
   avgTicketLift: 22,
 };
@@ -103,7 +105,7 @@ const SuggestedServicesPage: React.FC = () => {
     ]);
   };
 
-  const totalAccepted = useMemo(
+  const totalResponses = useMemo(
     () => ssTypes.reduce((sum, s) => sum + s.acceptedCount, 0),
     []
   );
@@ -145,23 +147,27 @@ const SuggestedServicesPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles – now using RESP language */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* KPI tiles – updated labels & extra tile */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
             <MetricTile
-              label="SS messages sent"
+              label="SS Messages Sent"
               value={ssSummary.emailsSent.toLocaleString()}
             />
             <MetricTile
-              label="Responded jobs"
-              value={totalAccepted.toLocaleString()}
+              label="SS Responses"
+              value={totalResponses.toLocaleString()}
             />
             <MetricTile
               label="Resp %"
               value={`${ssSummary.acceptanceRate.toFixed(1)}%`}
             />
             <MetricTile
-              label="Revenue from responded jobs"
+              label="SS Revenue"
               value={`$${ssSummary.ssRevenue.toLocaleString()}`}
+            />
+            <MetricTile
+              label="Total Invoice Revenue"
+              value={`$${ssSummary.totalInvoiceRevenue.toLocaleString()}`}
             />
           </div>
 
