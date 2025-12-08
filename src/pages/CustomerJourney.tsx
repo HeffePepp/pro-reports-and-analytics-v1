@@ -129,27 +129,23 @@ const CustomerJourneyPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* LEFT: all journey tiles and tables */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Updated KPI tiles */}
+          {/* KPI tiles (no bottom descriptions) */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricTile
               label="Vehicles"
               value={journeyVehicles.toLocaleString()}
-              helper="# of vehicles included based on timeline"
             />
             <MetricTile
               label="Avg ROAS"
               value={`${avgStepRoas.toFixed(1)}x`}
-              helper="Across all customer journey touch points"
             />
             <MetricTile
               label="Average response rate"
               value={`${avgRespRate.toFixed(1)}%`}
-              helper="All customer journey touch points"
             />
             <MetricTile
               label="Total comms sent"
               value={totalSent.toLocaleString()}
-              helper="All customer journey touch points"
             />
           </div>
 
