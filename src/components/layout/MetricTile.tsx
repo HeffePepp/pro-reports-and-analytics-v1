@@ -14,17 +14,15 @@ const MetricTile: React.FC<MetricTileProps> = ({
   highlight = false,
 }) => {
   const valueClass = highlight
-    ? // highlight version: slightly larger, bold pill
-      "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-lg md:text-xl font-semibold tracking-tight"
-    : // normal version: bigger number than last iteration
-      "text-lg md:text-xl font-semibold text-slate-900 tracking-tight";
+    ? "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-lg md:text-xl font-semibold tracking-tight"
+    : "text-lg md:text-xl font-semibold text-slate-900 tracking-tight";
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full">
       <div className="flex flex-col items-start justify-start h-full px-3 py-3 md:px-4 md:py-4 min-h-[96px]">
         {/* Label area – fixed height so values line up across tiles */}
         <div className="w-full h-[32px]">
-          <div className="text-[11px] font-medium text-slate-500 leading-snug">
+          <div className="text-xs font-medium text-slate-500 leading-snug">
             {label}
           </div>
         </div>
