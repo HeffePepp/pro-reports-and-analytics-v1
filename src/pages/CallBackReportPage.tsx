@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { ShellLayout, SummaryTile } from "@/components/layout";
-import MetricTile from "@/components/layout/MetricTile";
+import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type CallBackSummary = {
   storeGroupName: string;
@@ -105,6 +104,7 @@ const CallBackReportPage: React.FC = () => {
         </>
       }
     >
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
@@ -123,120 +123,95 @@ const CallBackReportPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <MetricTile
-          label="Due today"
-          value={callBackSummary.dueToday.toString()}
-          tone="warn"
-        />
-        <MetricTile
-          label="Overdue"
-          value={callBackSummary.overdue.toString()}
-          tone="negative"
-        />
-        <MetricTile
-          label="Completed this week"
-          value={callBackSummary.completedThisWeek.toString()}
-          tone="positive"
-        />
-        <MetricTile
-          label="Priority focus"
-          value="High"
-          helper="High-priority, overdue first"
-        />
-        <MetricTile
-          label="Owner"
-          value="Store / call center"
-          helper="Shared responsibility"
-        />
-      </div>
-
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
-        {/* Insights */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">
-              AI insights (mock)
-            </h2>
-            <button
-              onClick={regenerateInsights}
-              className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600"
-            >
-              Refresh
-            </button>
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <MetricTile
+              label="Due today"
+              value={callBackSummary.dueToday.toString()}
+              tone="warn"
+            />
+            <MetricTile
+              label="Overdue"
+              value={callBackSummary.overdue.toString()}
+              tone="negative"
+            />
+            <MetricTile
+              label="Completed this week"
+              value={callBackSummary.completedThisWeek.toString()}
+              tone="positive"
+            />
+            <MetricTile
+              label="Priority focus"
+              value="High"
+              helper="High-priority, overdue first"
+            />
+            <MetricTile
+              label="Owner"
+              value="Store / call center"
+              helper="Shared responsibility"
+            />
           </div>
-          <ul className="space-y-1 text-xs text-slate-600">
-            {insights.map((line, i) => (
-              <li key={i} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-rose-500" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-[11px] text-slate-400">
-            In production, this panel could suggest callback scripts or SMS
-            follow-ups based on the reason and customer history.
-          </p>
+
+          {/* Table */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Callback queue
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Customers awaiting follow-up (dummy data)
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
+                    <th className="py-2 pr-3">Customer</th>
+                    <th className="py-2 pr-3">Vehicle</th>
+                    <th className="py-2 pr-3">Store</th>
+                    <th className="py-2 pr-3">Reason</th>
+                    <th className="py-2 pr-3">Priority</th>
+                    <th className="py-2 pr-3">Due date</th>
+                    <th className="py-2 pr-3">Requested by</th>
+                    <th className="py-2 pr-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {callBackRows.map((row, idx) => (
+                    <tr key={idx} className="border-t border-slate-100">
+                      <td className="py-2 pr-3 text-slate-800">
+                        {row.customerName}
+                      </td>
+                      <td className="py-2 pr-3 text-slate-600">{row.vehicle}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.storeName}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.reason}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.priority}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.dueDate}</td>
+                      <td className="py-2 pr-3 text-slate-600">
+                        {row.requestedBy}
+                      </td>
+                      <td className="py-2 pr-3 text-slate-600">{row.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
-        {/* Guidance */}
-        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm p-4 text-xs text-slate-600 space-y-2">
-          <h2 className="text-sm font-semibold text-slate-800">
-            How to use this report
-          </h2>
-          <ul className="list-disc pl-4 space-y-1">
-            <li>Work overdue callbacks first.</li>
-            <li>Then handle due-today and high-priority callbacks.</li>
-            <li>Use this in morning huddles to plan workload.</li>
-          </ul>
+        {/* RIGHT: AI panel */}
+        <div className="lg:col-span-1">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on callback queue data"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
         </div>
-      </section>
-
-      {/* Table */}
-      <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-slate-800">
-            Callback queue
-          </h2>
-          <span className="text-[11px] text-slate-400">
-            Customers awaiting follow-up (dummy data)
-          </span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-xs">
-            <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                <th className="py-2 pr-3">Customer</th>
-                <th className="py-2 pr-3">Vehicle</th>
-                <th className="py-2 pr-3">Store</th>
-                <th className="py-2 pr-3">Reason</th>
-                <th className="py-2 pr-3">Priority</th>
-                <th className="py-2 pr-3">Due date</th>
-                <th className="py-2 pr-3">Requested by</th>
-                <th className="py-2 pr-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {callBackRows.map((row, idx) => (
-                <tr key={idx} className="border-t border-slate-100">
-                  <td className="py-2 pr-3 text-slate-700">
-                    {row.customerName}
-                  </td>
-                  <td className="py-2 pr-3 text-slate-600">{row.vehicle}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.storeName}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.reason}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.priority}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.dueDate}</td>
-                  <td className="py-2 pr-3 text-slate-600">
-                    {row.requestedBy}
-                  </td>
-                  <td className="py-2 pr-3 text-slate-600">{row.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      </div>
     </ShellLayout>
   );
 };
