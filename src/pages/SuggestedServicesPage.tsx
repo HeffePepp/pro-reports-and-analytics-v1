@@ -185,7 +185,7 @@ const SuggestedServicesPage: React.FC = () => {
               value={`${ssSummary.validEmailOnSsInvoicesPct.toFixed(1)}%`}
             />
             <MetricTile
-              label="% Invoices with a Suggested Service included"
+              label="% Invoices with a Suggested Service item included"
               value={`${ssSummary.invoicesWithSsItemPct.toFixed(1)}%`}
             />
           </div>
