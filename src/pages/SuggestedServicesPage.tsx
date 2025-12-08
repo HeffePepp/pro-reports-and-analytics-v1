@@ -130,29 +130,23 @@ const SuggestedServicesPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPIs */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+          {/* KPI tiles – now using RESP language */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricTile
-              label="Emails sent"
+              label="SS messages sent"
               value={ssSummary.emailsSent.toLocaleString()}
-              helper="Suggested Services touchpoints"
             />
             <MetricTile
-              label="Vehicles with Suggested Services"
-              value={ssSummary.vehiclesWithSs.toLocaleString()}
+              label="Responded jobs"
+              value={totalAccepted.toLocaleString()}
             />
             <MetricTile
-              label="Suggested Services acceptance"
+              label="Resp %"
               value={`${ssSummary.acceptanceRate.toFixed(1)}%`}
-              helper={`${totalAccepted.toLocaleString()} accepted jobs`}
             />
             <MetricTile
-              label="Suggested Services revenue"
+              label="Revenue from responded jobs"
               value={`$${ssSummary.ssRevenue.toLocaleString()}`}
-            />
-            <MetricTile
-              label="Avg ticket lift"
-              value={`$${ssSummary.avgTicketLift.toFixed(0)}`}
             />
           </div>
 
