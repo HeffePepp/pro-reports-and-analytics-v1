@@ -153,12 +153,12 @@ const CustomerJourneyPage: React.FC = () => {
             />
           </div>
 
-          {/* Customer journey: touch point + response rate + ROAS */}
+          {/* Journey steps by response and ROAS */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-1">
               <div>
                 <h2 className="text-sm font-semibold text-slate-900">
-                  Customer journey: touch point + response rate + ROAS
+                  Journey steps by response and ROAS
                 </h2>
                 <p className="text-[11px] text-slate-600">
                   Relative performance (dummy data)
@@ -185,7 +185,7 @@ const CustomerJourneyPage: React.FC = () => {
                     </div>
 
                     <div className="text-right text-slate-600 min-w-[80px]">
-                      <div>{step.responseRate.toFixed(1)}% resp</div>
+                      <div>{step.responseRate.toFixed(1)}% RESP</div>
                       <div>{step.roas.toFixed(1)}x ROAS</div>
                     </div>
                   </div>
