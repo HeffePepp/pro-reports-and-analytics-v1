@@ -1,88 +1,115 @@
-import React, { useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { ShellLayout, MetricTile, SummaryTile, AIInsightsTile } from "@/components/layout";
 
-type CustomerJourneySummary = {
-  storeGroupName: string;
-  periodLabel: string;
-  journeyRoas: number;
-  activeCustomers: number;
-  carCount: number;
-  journeyRevenue: number;
-  touchesPerCustomer: number;
-};
-
-type JourneyStepRow = {
+type JourneyStepDetail = {
   name: string;
   interval: string;
   channel: string;
   sent: number;
   vehicles: number;
-  revenue: number;
+  responseRate: number;
+  roas: number;
 };
 
-const cjSummary: CustomerJourneySummary = {
-  storeGroupName: "North Bay Group",
-  periodLabel: "Last 12 months",
-  journeyRoas: 14.8,
-  activeCustomers: 12400,
-  carCount: 18500,
-  journeyRevenue: 864000,
-  touchesPerCustomer: 6.2,
-};
-
-const cjSteps: JourneyStepRow[] = [
+const JOURNEY_STEPS: JourneyStepDetail[] = [
   {
     name: "Thank You Email",
     interval: "1 day after service",
     channel: "Email",
-    sent: 11800,
-    vehicles: 7600,
-    revenue: 0,
+    sent: 1850,
+    vehicles: 420,
+    responseRate: 22.7,
+    roas: 9.5,
   },
   {
-    name: "Suggested Services",
-    interval: "1–6 months after",
+    name: "Suggested Services – 1 week",
+    interval: "7 days after service",
     channel: "Email",
-    sent: 9200,
-    vehicles: 2100,
-    revenue: 148000,
+    sent: 1760,
+    vehicles: 310,
+    responseRate: 17.6,
+    roas: 12.1,
+  },
+  {
+    name: "Suggested Services – 1 month",
+    interval: "30 days after service",
+    channel: "Email",
+    sent: 1640,
+    vehicles: 240,
+    responseRate: 14.6,
+    roas: 11.2,
   },
   {
     name: "Reminder 1",
     interval: "5k after last service",
-    channel: "Postcard + Email/MMS",
-    sent: 8600,
-    vehicles: 3100,
-    revenue: 394000,
+    channel: "Postcard + Email + SMS",
+    sent: 1380,
+    vehicles: 280,
+    responseRate: 20.3,
+    roas: 16.4,
   },
   {
     name: "Reminder 2",
-    interval: "30 days after reminder 1",
-    channel: "Postcard + Email/MMS",
-    sent: 5400,
-    vehicles: 1520,
-    revenue: 184000,
+    interval: "30 days after Reminder 1",
+    channel: "Postcard + Email + SMS",
+    sent: 980,
+    vehicles: 142,
+    responseRate: 14.5,
+    roas: 10.7,
   },
   {
-    name: "Reactivation",
-    interval: "12–24 months after",
+    name: "Reactivation – 12 months",
+    interval: "12 months after service",
     channel: "Email",
-    sent: 4300,
-    vehicles: 580,
-    revenue: 138000,
+    sent: 620,
+    vehicles: 86,
+    responseRate: 13.9,
+    roas: 8.2,
   },
 ];
 
 const CustomerJourneyPage: React.FC = () => {
   const totalSent = useMemo(
-    () => cjSteps.reduce((sum, s) => sum + s.sent, 0),
+    () => JOURNEY_STEPS.reduce((sum, s) => sum + s.sent, 0),
     []
   );
-  const totalVehicles = useMemo(
-    () => cjSteps.reduce((sum, s) => sum + s.vehicles, 0),
+  const journeyVehicles = useMemo(
+    () => JOURNEY_STEPS.reduce((sum, s) => sum + s.vehicles, 0),
+    []
+  );
+  const avgStepRoas = useMemo(
+    () =>
+      JOURNEY_STEPS.reduce((sum, s) => sum + s.roas, 0) /
+      JOURNEY_STEPS.length,
+    []
+  );
+  const bestStep = useMemo(
+    () =>
+      JOURNEY_STEPS.reduce((best, s) =>
+        !best || s.responseRate > best.responseRate ? s : best
+      ),
+    []
+  );
+  const maxResponseRate = useMemo(
+    () => Math.max(...JOURNEY_STEPS.map((s) => s.responseRate), 1),
     []
   );
 
+  const [aiInsights, setAiInsights] = useState<string[]>([
+    "Reminder 1 is the strongest step, with the highest ROAS and vehicles per 1,000 sent.",
+    "Suggested Services at 1 week and 1 month are solid performers and help keep customers engaged between visits.",
+    "Reactivation at 12 months is weaker but still profitable – consider testing stronger offers or SMS for this step.",
+  ]);
+
+  const handleRefreshAi = () => {
+    setAiInsights([
+      `"${bestStep.name}" currently has the highest response rate (${bestStep.responseRate.toFixed(
+        1
+      )}% resp, ${bestStep.roas.toFixed(1)}x ROAS).`,
+      "Small A/B tests on subject lines and offers around 3–6 months can push more volume into Reminder 1.",
+      "Use ROAS and Coupon / Discount Analysis to verify that journey offers are profitable for each store.",
+    ]);
+  };
 
   return (
     <ShellLayout
@@ -94,142 +121,177 @@ const CustomerJourneyPage: React.FC = () => {
       rightInfo={
         <>
           <span>
-            Group:{" "}
-            <span className="font-medium">{cjSummary.storeGroupName}</span>
+            Store group: <span className="font-medium">North Bay Group</span>
           </span>
           <span>
-            Period:{" "}
-            <span className="font-medium">{cjSummary.periodLabel}</span>
+            Period: <span className="font-medium">Last 12 months</span>
           </span>
         </>
       }
     >
-      {/* Header row */}
+      {/* Title + description */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-foreground">
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
             Customer Journey
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Step-by-step performance of your full lifecycle journey (thank-you,
-            Suggested Services, reminders, reactivation).
+          <p className="mt-1 text-sm text-slate-500">
+            Performance of the standard Throttle journey steps for this store:
+            thank-you, suggested services, reminders and reactivation.
           </p>
         </div>
-        <div className="flex gap-3 text-xs">
+      </div>
+
+      {/* TOP HIGHLIGHT TILES */}
+      <div className="mt-4 flex flex-col lg:flex-row gap-4">
+        {/* Left: yellow metric tiles */}
+        <div className="flex-1 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+          <MetricTile
+            label="Journey vehicles"
+            value={journeyVehicles.toLocaleString()}
+            helper="Visits attributed to journey steps"
+          />
+          <MetricTile
+            label="Avg step ROAS"
+            value={`${avgStepRoas.toFixed(1)}x`}
+            helper="Across all journey steps"
+          />
+          <MetricTile
+            label="Best-performing step"
+            value={bestStep.name}
+            helper={`${bestStep.vehicles.toLocaleString()} vehicles`}
+          />
+          <MetricTile
+            label="Emails per customer"
+            value="~6"
+            helper="Typical journey coverage"
+          />
+          <MetricTile
+            label="Postcards / SMS per customer"
+            value="2–3"
+            helper="Reminder & reactivation touches"
+          />
+        </div>
+
+        {/* Right: white summary tiles */}
+        <div className="w-full lg:w-56 space-y-3 text-xs">
           <SummaryTile
-            label="Journey ROAS"
-            value={`${cjSummary.journeyRoas.toFixed(1)}x`}
+            label="Total comms sent"
+            value={totalSent.toLocaleString()}
           />
           <SummaryTile
-            label="Journey revenue"
-            value={`$${cjSummary.journeyRevenue.toLocaleString()}`}
+            label="Vehicles from journey"
+            value={journeyVehicles.toLocaleString()}
           />
         </div>
       </div>
 
-      {/* KPI + AI band under the header */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left: all journey tiles */}
-        <div className="lg:col-span-3">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            <MetricTile
-              label="Active journey customers"
-              value={cjSummary.activeCustomers.toLocaleString()}
-              helper={`${cjSummary.carCount.toLocaleString()} cars`}
-            />
-            <MetricTile
-              label="Touches per customer"
-              value={cjSummary.touchesPerCustomer.toFixed(1)}
-              helper="Avg journey touches"
-            />
-            <MetricTile
-              label="Messages sent (12m)"
-              value={totalSent.toLocaleString()}
-            />
-            <MetricTile
-              label="Vehicles from journey"
-              value={totalVehicles.toLocaleString()}
-            />
-          </div>
-        </div>
+      {/* YELLOW BAND: Journey steps + AI tile */}
+      <section className="mt-4 rounded-2xl bg-yellow-50 border border-yellow-100 shadow-sm p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Left: journey steps by response & ROAS */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900">
+                  Journey steps by response and ROAS
+                </h2>
+                <p className="text-[11px] text-slate-600">
+                  Relative performance (dummy data)
+                </p>
+              </div>
+              <span className="hidden text-[11px] text-slate-500 lg:inline">
+                {journeyVehicles.toLocaleString()} journey vehicles ·{" "}
+                {totalSent.toLocaleString()} comms sent
+              </span>
+            </div>
 
-        {/* Right: AI Insights tile */}
-        <AIInsightsTile
-          subtitle="Based on last 12 months of journey performance"
-          bullets={[
-            "Reminder 1 & 2 generate the majority of journey revenue and vehicles.",
-            "Suggested Services emails are a key upsell between visits.",
-            "Consider testing subject lines and offers at 3 & 6 months to feed more cars into Reminder 1."
-          ]}
-        />
-      </div>
-
-      {/* Journey steps + channel mix (simple drill-down) */}
-      <section className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Steps list */}
-        <div className="rounded-2xl bg-card border border-border shadow-sm p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-card-foreground">
-              Journey steps and performance
-            </h2>
-            <span className="text-[11px] text-muted-foreground">
-              Dummy data for prototype
-            </span>
-          </div>
-          <div className="space-y-2 text-xs text-muted-foreground">
-            {cjSteps.map((step) => (
-              <div
-                key={step.name}
-                className="border-b border-border pb-2 last:border-0 last:pb-0"
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="font-medium text-card-foreground">
-                      {step.name}
-                    </div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {step.interval} · {step.channel}
-                    </div>
+            <div className="mt-3 space-y-2 text-xs text-slate-700">
+              {JOURNEY_STEPS.map((step, idx) => (
+                <div key={step.name}>
+                  <div className="flex justify-between text-[11px]">
+                    <span>
+                      {idx + 1}. {step.name}
+                    </span>
+                    <span>
+                      {step.responseRate.toFixed(1)}% resp ·{" "}
+                      {step.roas.toFixed(1)}x ROAS
+                    </span>
                   </div>
-                  <div className="text-right text-[11px]">
-                    <div>{step.vehicles.toLocaleString()} vehicles</div>
-                    {step.revenue > 0 && (
-                      <div className="text-primary">
-                        ${step.revenue.toLocaleString()} rev
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="flex-1 h-2 rounded-full bg-yellow-100 overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-500"
+                        style={{
+                          width: `${
+                            (step.responseRate / maxResponseRate) * 100
+                          }%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-slate-500 w-36 text-right">
+                      {step.interval}
+                    </span>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
+          {/* Right: AI tile */}
+          <AIInsightsTile
+            title="AI insights (mock)"
+            subtitle="Based on last 12 months journey data"
+            bullets={aiInsights}
+            onRefresh={handleRefreshAi}
+          />
+        </div>
+      </section>
+
+      {/* YELLOW BAND: Step details table */}
+      <section className="mt-3 rounded-2xl bg-yellow-50 border border-yellow-100 shadow-sm p-4">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm font-semibold text-slate-900">Step details</h2>
+          <span className="text-[11px] text-slate-600">
+            Sent, vehicles, response and ROAS by journey step
+          </span>
         </div>
 
-        {/* How to use / drill into other reports */}
-        <div className="rounded-2xl bg-card border border-border shadow-sm p-4 text-xs text-muted-foreground space-y-2">
-          <h2 className="text-sm font-semibold text-card-foreground">
-            Make this report actionable
-          </h2>
-          <ul className="list-disc pl-4 space-y-1">
-            <li>
-              Use <span className="font-medium">ROAS</span> to compare journey
-              performance vs one-off campaigns.
-            </li>
-            <li>
-              Pair with{" "}
-              <span className="font-medium">Coupon / Discount Analysis</span> to
-              spot over- or under-discounted journey offers.
-            </li>
-            <li>
-              Jump to <span className="font-medium">Service Intervals</span> to
-              compare "coverage" (who's on the journey) vs actual due dates.
-            </li>
-          </ul>
-          <p className="mt-2 text-[11px] text-muted-foreground">
-            In the full Throttle Pro app, these links can become one-click
-            pivots into the related reports with the same filters (store,
-            period, audience) applied.
-          </p>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-xs">
+            <thead>
+              <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
+                <th className="py-2 pr-3">Step</th>
+                <th className="py-2 pr-3">Interval</th>
+                <th className="py-2 pr-3">Channel</th>
+                <th className="py-2 pr-3 text-right">Sent</th>
+                <th className="py-2 pr-3 text-right">Vehicles</th>
+                <th className="py-2 pr-3 text-right">Response %</th>
+                <th className="py-2 pr-3 text-right">ROAS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {JOURNEY_STEPS.map((step) => (
+                <tr key={step.name} className="border-t border-yellow-100">
+                  <td className="py-2 pr-3 text-slate-800">{step.name}</td>
+                  <td className="py-2 pr-3 text-slate-700">{step.interval}</td>
+                  <td className="py-2 pr-3 text-slate-700">{step.channel}</td>
+                  <td className="py-2 pr-3 text-right">
+                    {step.sent.toLocaleString()}
+                  </td>
+                  <td className="py-2 pr-3 text-right">
+                    {step.vehicles.toLocaleString()}
+                  </td>
+                  <td className="py-2 pr-3 text-right">
+                    {step.responseRate.toFixed(1)}%
+                  </td>
+                  <td className="py-2 pr-3 text-right">
+                    {step.roas.toFixed(1)}x
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
     </ShellLayout>
