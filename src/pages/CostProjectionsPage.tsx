@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, SummaryTile, BarStack } from "@/components/layout";
-import MetricTile from "@/components/layout/MetricTile";
+import { ShellLayout, SummaryTile, BarStack, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type CostProjectionSummary = {
   storeGroupName: string;
@@ -119,6 +118,7 @@ const CostProjectionsPage: React.FC = () => {
         </>
       }
     >
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
@@ -141,103 +141,90 @@ const CostProjectionsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <MetricTile
-          label="Projected vehicles"
-          value={costSummary.projectedVehicles.toString()}
-        />
-        <MetricTile
-          label="Projected ROAS"
-          value={`${overallRoas.toFixed(1)}x`}
-        />
-        <MetricTile
-          label="Postcard-heavy?"
-          value="Yes"
-          helper="Most cost is postcards"
-        />
-        <MetricTile
-          label="Email/SMS cost"
-          value="Low"
-          helper="High ROAS potential"
-        />
-        <MetricTile
-          label="Scenario"
-          value="Standard"
-          helper="Demo only"
-        />
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <MetricTile
+              label="Projected vehicles"
+              value={costSummary.projectedVehicles.toString()}
+            />
+            <MetricTile
+              label="Projected ROAS"
+              value={`${overallRoas.toFixed(1)}x`}
+            />
+            <MetricTile
+              label="Postcard-heavy?"
+              value="Yes"
+              helper="Most cost is postcards"
+            />
+            <MetricTile
+              label="Email/SMS cost"
+              value="Low"
+              helper="High ROAS potential"
+            />
+            <MetricTile
+              label="Scenario"
+              value="Standard"
+              helper="Demo only"
+            />
+          </div>
+
+          {/* Cost mix */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Journey cost mix
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Share of projected cost by step
+              </span>
+            </div>
+            <BarStack segments={segments} />
+          </section>
+
+          {/* Step details */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Step projections
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Est. cost, vehicles & revenue
+              </span>
+            </div>
+            <div className="space-y-2 text-xs text-slate-600">
+              {costSteps.map((s) => {
+                const roas = s.estRevenue / s.estCost;
+                return (
+                  <div key={s.name} className="border-b border-slate-100 pb-1 last:border-0">
+                    <div className="flex justify-between">
+                      <span>{s.name}</span>
+                      <span>{s.channel}</span>
+                    </div>
+                    <div className="flex justify-between mt-1 text-[11px]">
+                      <span>Cost: ${s.estCost.toLocaleString()}</span>
+                      <span>Vehicles: {s.estVehicles}</span>
+                      <span>ROAS: {roas.toFixed(1)}x</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </div>
+
+        {/* RIGHT: AI panel */}
+        <div className="lg:col-span-1">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on cost projection data"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
+        </div>
       </div>
-
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
-        {/* Cost mix */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-slate-800">
-              Journey cost mix
-            </h2>
-            <span className="text-[11px] text-slate-400">
-              Share of projected cost by step
-            </span>
-          </div>
-          <BarStack segments={segments} />
-        </div>
-
-        {/* Step details */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-slate-800">
-              Step projections
-            </h2>
-            <span className="text-[11px] text-slate-400">
-              Est. cost, vehicles & revenue
-            </span>
-          </div>
-          <div className="space-y-2 text-xs text-slate-600">
-            {costSteps.map((s) => {
-              const roas = s.estRevenue / s.estCost;
-              return (
-                <div key={s.name} className="border-b border-slate-100 pb-1 last:border-0">
-                  <div className="flex justify-between">
-                    <span>{s.name}</span>
-                    <span>{s.channel}</span>
-                  </div>
-                  <div className="flex justify-between mt-1 text-[11px]">
-                    <span>Cost: ${s.estCost.toLocaleString()}</span>
-                    <span>Vehicles: {s.estVehicles}</span>
-                    <span>ROAS: {roas.toFixed(1)}x</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Insights */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">
-              AI insights (mock)
-            </h2>
-            <button
-              onClick={regenerateInsights}
-              className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600"
-            >
-              Refresh
-            </button>
-          </div>
-          <ul className="space-y-1 text-xs text-slate-600">
-            {insights.map((line, i) => (
-              <li key={i} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-[11px] text-slate-400">
-            In production, this report would recalc projections nightly based on
-            latest journey settings and store volumes.
-          </p>
-        </div>
-      </section>
     </ShellLayout>
   );
 };

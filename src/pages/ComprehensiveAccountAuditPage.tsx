@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { ShellLayout, SummaryTile } from "@/components/layout";
-import MetricTile from "@/components/layout/MetricTile";
+import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type AuditSummary = {
   accountName: string;
@@ -109,6 +108,7 @@ const ComprehensiveAccountAuditPage: React.FC = () => {
         </>
       }
     >
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
@@ -126,107 +126,82 @@ const ComprehensiveAccountAuditPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <MetricTile
-          label="Checks passed"
-          value={auditSummary.passedChecks.toString()}
-          tone="positive"
-        />
-        <MetricTile
-          label="Warnings"
-          value={auditSummary.warningChecks.toString()}
-          tone="warn"
-        />
-        <MetricTile
-          label="Failures"
-          value={auditSummary.failedChecks.toString()}
-          tone="negative"
-        />
-        <MetricTile
-          label="Total checks"
-          value={auditSummary.totalChecks.toString()}
-        />
-        <MetricTile
-          label="Priority area"
-          value="Data quality"
-          helper="Bad address rate high"
-        />
-      </div>
-
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
-        {/* Insights */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">
-              AI insights (mock)
-            </h2>
-            <button
-              onClick={regenerateInsights}
-              className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600"
-            >
-              Refresh
-            </button>
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <MetricTile
+              label="Checks passed"
+              value={auditSummary.passedChecks.toString()}
+              tone="positive"
+            />
+            <MetricTile
+              label="Warnings"
+              value={auditSummary.warningChecks.toString()}
+              tone="warn"
+            />
+            <MetricTile
+              label="Failures"
+              value={auditSummary.failedChecks.toString()}
+              tone="negative"
+            />
+            <MetricTile
+              label="Total checks"
+              value={auditSummary.totalChecks.toString()}
+            />
+            <MetricTile
+              label="Priority area"
+              value="Data quality"
+              helper="Bad address rate high"
+            />
           </div>
-          <ul className="space-y-1 text-xs text-slate-600">
-            {insights.map((line, i) => (
-              <li key={i} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-[11px] text-slate-400">
-            In production, this audit would be re-run automatically when settings
-            change or nightly for larger accounts.
-          </p>
+
+          {/* Table */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Audit checks
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Detailed pass/warn/fail by area
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
+                    <th className="py-2 pr-3">Area</th>
+                    <th className="py-2 pr-3">Check</th>
+                    <th className="py-2 pr-3">Status</th>
+                    <th className="py-2 pr-3">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {auditRows.map((row, idx) => (
+                    <tr key={idx} className="border-t border-slate-100">
+                      <td className="py-2 pr-3 text-slate-800">{row.area}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.check}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.status}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.notes}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
-        {/* How to use */}
-        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm p-4 text-xs text-slate-600 space-y-2">
-          <h2 className="text-sm font-semibold text-slate-800">
-            How to use this audit
-          </h2>
-          <ul className="list-disc pl-4 space-y-1">
-            <li>Review warnings and failures with account owners.</li>
-            <li>Capture follow-up tasks for data cleanup and compliance review.</li>
-            <li>Track improvement in audit score over time.</li>
-          </ul>
+        {/* RIGHT: AI panel */}
+        <div className="lg:col-span-1">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on audit results"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
         </div>
-      </section>
-
-      {/* Table */}
-      <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-slate-800">
-            Audit checks
-          </h2>
-          <span className="text-[11px] text-slate-400">
-            Detailed pass/warn/fail by area
-          </span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-xs">
-            <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                <th className="py-2 pr-3">Area</th>
-                <th className="py-2 pr-3">Check</th>
-                <th className="py-2 pr-3">Status</th>
-                <th className="py-2 pr-3">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {auditRows.map((row, idx) => (
-                <tr key={idx} className="border-t border-slate-100">
-                  <td className="py-2 pr-3 text-slate-700">{row.area}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.check}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.status}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.notes}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      </div>
     </ShellLayout>
   );
 };

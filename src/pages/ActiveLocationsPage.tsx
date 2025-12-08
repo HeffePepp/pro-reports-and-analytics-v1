@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { ShellLayout, SummaryTile } from "@/components/layout";
-import MetricTile from "@/components/layout/MetricTile";
+import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type ActiveLocationSummary = {
   groupName: string;
@@ -97,6 +96,7 @@ const ActiveLocationsPage: React.FC = () => {
         </>
       }
     >
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
@@ -115,117 +115,92 @@ const ActiveLocationsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <MetricTile
-          label="Active"
-          value={activeLocationSummary.activeCount.toString()}
-          tone="positive"
-        />
-        <MetricTile
-          label="Launching"
-          value={activeLocationSummary.launchingCount.toString()}
-        />
-        <MetricTile
-          label="Paused"
-          value={activeLocationSummary.pausedCount.toString()}
-          tone="warn"
-        />
-        <MetricTile
-          label="Suspended"
-          value={activeLocationSummary.suspendedCount.toString()}
-          tone="negative"
-        />
-        <MetricTile
-          label="Data freshness"
-          value="Good"
-          helper="Most stores sending POS data"
-        />
-      </div>
-
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
-        {/* Insights */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">
-              AI insights (mock)
-            </h2>
-            <button
-              onClick={regenerateInsights}
-              className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600"
-            >
-              Refresh
-            </button>
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <MetricTile
+              label="Active"
+              value={activeLocationSummary.activeCount.toString()}
+              tone="positive"
+            />
+            <MetricTile
+              label="Launching"
+              value={activeLocationSummary.launchingCount.toString()}
+            />
+            <MetricTile
+              label="Paused"
+              value={activeLocationSummary.pausedCount.toString()}
+              tone="warn"
+            />
+            <MetricTile
+              label="Suspended"
+              value={activeLocationSummary.suspendedCount.toString()}
+              tone="negative"
+            />
+            <MetricTile
+              label="Data freshness"
+              value="Good"
+              helper="Most stores sending POS data"
+            />
           </div>
-          <ul className="space-y-1 text-xs text-slate-600">
-            {insights.map((line, i) => (
-              <li key={i} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-[11px] text-slate-400">
-            In production, this panel would use live location and POS status to
-            drive alerts and rollout recommendations.
-          </p>
+
+          {/* Table */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Locations roster
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Status and POS freshness by store (dummy data)
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
+                    <th className="py-2 pr-3">Store</th>
+                    <th className="py-2 pr-3">Throttle ID</th>
+                    <th className="py-2 pr-3">City</th>
+                    <th className="py-2 pr-3">State</th>
+                    <th className="py-2 pr-3">Status</th>
+                    <th className="py-2 pr-3">Open date</th>
+                    <th className="py-2 pr-3">Last POS date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeLocationRows.map((row) => (
+                    <tr key={row.throttleId} className="border-t border-slate-100">
+                      <td className="py-2 pr-3 text-slate-800">{row.storeName}</td>
+                      <td className="py-2 pr-3 text-slate-600">
+                        {row.throttleId}
+                      </td>
+                      <td className="py-2 pr-3 text-slate-600">{row.city}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.state}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.status}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.openDate}</td>
+                      <td className="py-2 pr-3 text-slate-600">
+                        {row.lastPosDate}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
-        {/* Quick usage notes */}
-        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm p-4 text-xs text-slate-600 space-y-2">
-          <h2 className="text-sm font-semibold text-slate-800">
-            How to use this view
-          </h2>
-          <ul className="list-disc pl-4 space-y-1">
-            <li>Confirm which locations should be included in reports.</li>
-            <li>Check launch progress for new stores.</li>
-            <li>Ensure paused/suspended stores are excluded from campaigns.</li>
-          </ul>
+        {/* RIGHT: AI panel */}
+        <div className="lg:col-span-1">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on location status data"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
         </div>
-      </section>
-
-      {/* Table */}
-      <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-slate-800">
-            Locations roster
-          </h2>
-          <span className="text-[11px] text-slate-400">
-            Status and POS freshness by store (dummy data)
-          </span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-xs">
-            <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                <th className="py-2 pr-3">Store</th>
-                <th className="py-2 pr-3">Throttle ID</th>
-                <th className="py-2 pr-3">City</th>
-                <th className="py-2 pr-3">State</th>
-                <th className="py-2 pr-3">Status</th>
-                <th className="py-2 pr-3">Open date</th>
-                <th className="py-2 pr-3">Last POS date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {activeLocationRows.map((row) => (
-                <tr key={row.throttleId} className="border-t border-slate-100">
-                  <td className="py-2 pr-3 text-slate-700">{row.storeName}</td>
-                  <td className="py-2 pr-3 text-slate-600">
-                    {row.throttleId}
-                  </td>
-                  <td className="py-2 pr-3 text-slate-600">{row.city}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.state}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.status}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.openDate}</td>
-                  <td className="py-2 pr-3 text-slate-600">
-                    {row.lastPosDate}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      </div>
     </ShellLayout>
   );
 };
