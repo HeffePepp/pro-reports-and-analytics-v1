@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, SummaryTile } from "@/components/layout";
-import MetricTile from "@/components/layout/MetricTile";
+import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type OneOffSummary = {
   storeGroupName: string;
@@ -81,6 +80,11 @@ const OneOffCampaignTrackerPage: React.FC = () => {
     []
   );
 
+  const maxRoas = useMemo(
+    () => Math.max(...oneOffRows.map((c) => c.revenue / c.spend), 1),
+    []
+  );
+
   const regenerateInsights = () => {
     const best = oneOffRows.reduce((b, c) =>
       !b || c.revenue / c.spend > b.revenue / b.spend ? c : b
@@ -117,6 +121,7 @@ const OneOffCampaignTrackerPage: React.FC = () => {
         </>
       }
     >
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
@@ -127,138 +132,143 @@ const OneOffCampaignTrackerPage: React.FC = () => {
             ROAS.
           </p>
         </div>
-        <div className="flex gap-3 text-xs">
-          <SummaryTile
-            label="Campaigns"
-            value={oneOffSummary.campaigns.toString()}
-          />
-        </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <MetricTile
-          label="Total spend"
-          value={`$${oneOffSummary.totalSpend.toLocaleString()}`}
-        />
-        <MetricTile
-          label="Total revenue"
-          value={`$${oneOffSummary.totalRevenue.toLocaleString()}`}
-        />
-        <MetricTile
-          label="Overall ROAS"
-          value={`${overallRoas.toFixed(1)}x`}
-        />
-        <MetricTile
-          label="Total vehicles"
-          value={oneOffSummary.totalVehicles.toString()}
-        />
-        <MetricTile
-          label="Avg rev / campaign"
-          value={`$${(
-            oneOffSummary.totalRevenue / oneOffSummary.campaigns
-          ).toFixed(0)}`}
-        />
-      </div>
-
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
-        {/* Insights */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">
-              AI insights (mock)
-            </h2>
-            <button
-              onClick={regenerateInsights}
-              className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600"
-            >
-              Refresh
-            </button>
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <MetricTile
+              label="Campaigns"
+              value={oneOffSummary.campaigns.toString()}
+            />
+            <MetricTile
+              label="Total spend"
+              value={`$${oneOffSummary.totalSpend.toLocaleString()}`}
+            />
+            <MetricTile
+              label="Total revenue"
+              value={`$${oneOffSummary.totalRevenue.toLocaleString()}`}
+            />
+            <MetricTile
+              label="Overall ROAS"
+              value={`${overallRoas.toFixed(1)}x`}
+            />
+            <MetricTile
+              label="Total vehicles"
+              value={oneOffSummary.totalVehicles.toString()}
+            />
           </div>
-          <ul className="space-y-1 text-xs text-slate-600">
-            {insights.map((line, i) => (
-              <li key={i} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-[11px] text-slate-400">
-            In production, this report would pull directly from campaign and
-            invoice data to calculate ROAS.
-          </p>
-        </div>
 
-        {/* Quick notes */}
-        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm p-4 text-xs text-slate-600 space-y-2">
-          <h2 className="text-sm font-semibold text-slate-800">
-            When to run one-offs
-          </h2>
-          <ul className="list-disc pl-4 space-y-1">
-            <li>Seasonal spikes (tax time, back to school, holidays).</li>
-            <li>Vendor-funded pushes (synthetic, add-ons).</li>
-            <li>Special local events or store anniversaries.</li>
-          </ul>
-        </div>
-      </section>
-
-      {/* Table */}
-      <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-slate-800">
-            Campaign details
-          </h2>
-          <span className="text-[11px] text-slate-400">
-            One-off campaigns in this period
-          </span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-xs">
-            <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                <th className="py-2 pr-3">Campaign</th>
-                <th className="py-2 pr-3">Audience</th>
-                <th className="py-2 pr-3">Channel</th>
-                <th className="py-2 pr-3 text-right">Sent</th>
-                <th className="py-2 pr-3 text-right">Spend</th>
-                <th className="py-2 pr-3 text-right">Vehicles</th>
-                <th className="py-2 pr-3 text-right">Revenue</th>
-                <th className="py-2 pr-3 text-right">ROAS</th>
-              </tr>
-            </thead>
-            <tbody>
+          {/* ROAS by campaign */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-slate-900">
+                ROAS by campaign
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Relative ROAS performance
+              </span>
+            </div>
+            <div className="space-y-2 text-xs text-slate-700">
               {oneOffRows.map((c) => {
                 const roas = c.revenue / c.spend;
                 return (
-                  <tr key={c.campaignName} className="border-t border-slate-100">
-                    <td className="py-2 pr-3 text-slate-700">
-                      {c.campaignName}
-                    </td>
-                    <td className="py-2 pr-3 text-slate-600">
-                      {c.targetAudience}
-                    </td>
-                    <td className="py-2 pr-3 text-slate-600">{c.channel}</td>
-                    <td className="py-2 pr-3 text-right">
-                      {c.sent.toLocaleString()}
-                    </td>
-                    <td className="py-2 pr-3 text-right">
-                      ${c.spend.toFixed(0)}
-                    </td>
-                    <td className="py-2 pr-3 text-right">
-                      {c.vehicles.toLocaleString()}
-                    </td>
-                    <td className="py-2 pr-3 text-right">
-                      ${c.revenue.toLocaleString()}
-                    </td>
-                    <td className="py-2 pr-3 text-right">
-                      {roas.toFixed(1)}x
-                    </td>
-                  </tr>
+                  <div key={c.campaignName}>
+                    <div className="flex justify-between text-[11px]">
+                      <span>{c.campaignName}</span>
+                      <span>{roas.toFixed(1)}x ROAS</span>
+                    </div>
+                    <div className="mt-1 flex items-center gap-2">
+                      <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className="h-full bg-emerald-500"
+                          style={{
+                            width: `${(roas / maxRoas) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-500 w-28 text-right">
+                        {c.channel}
+                      </span>
+                    </div>
+                  </div>
                 );
               })}
-            </tbody>
-          </table>
+            </div>
+          </section>
+
+          {/* Table */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Campaign details
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                One-off campaigns in this period
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
+                    <th className="py-2 pr-3">Campaign</th>
+                    <th className="py-2 pr-3">Audience</th>
+                    <th className="py-2 pr-3">Channel</th>
+                    <th className="py-2 pr-3 text-right">Sent</th>
+                    <th className="py-2 pr-3 text-right">Spend</th>
+                    <th className="py-2 pr-3 text-right">Vehicles</th>
+                    <th className="py-2 pr-3 text-right">Revenue</th>
+                    <th className="py-2 pr-3 text-right">ROAS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {oneOffRows.map((c) => {
+                    const roas = c.revenue / c.spend;
+                    return (
+                      <tr key={c.campaignName} className="border-t border-slate-100">
+                        <td className="py-2 pr-3 text-slate-800">
+                          {c.campaignName}
+                        </td>
+                        <td className="py-2 pr-3 text-slate-600">
+                          {c.targetAudience}
+                        </td>
+                        <td className="py-2 pr-3 text-slate-600">{c.channel}</td>
+                        <td className="py-2 pr-3 text-right">
+                          {c.sent.toLocaleString()}
+                        </td>
+                        <td className="py-2 pr-3 text-right">
+                          ${c.spend.toFixed(0)}
+                        </td>
+                        <td className="py-2 pr-3 text-right">
+                          {c.vehicles.toLocaleString()}
+                        </td>
+                        <td className="py-2 pr-3 text-right">
+                          ${c.revenue.toLocaleString()}
+                        </td>
+                        <td className="py-2 pr-3 text-right">
+                          {roas.toFixed(1)}x
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
-      </section>
+
+        {/* RIGHT: AI panel */}
+        <div className="lg:col-span-1">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on one-off campaign data"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
+        </div>
+      </div>
     </ShellLayout>
   );
 };

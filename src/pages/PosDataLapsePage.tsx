@@ -1,122 +1,168 @@
-import React, { useState } from "react";
-import { ShellLayout, MetricTile } from "@/components/layout";
+import React, { useMemo, useState } from "react";
+import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type PosLapseRow = {
   storeName: string;
-  throttleId: string;
-  posName: string;
-  lastInvDate: string;
-  daysWithoutData: number;
-  contactName: string;
-  contactEmail: string;
+  lastPosDate: string;
+  daysSince: number;
 };
 
 const posLapseRows: PosLapseRow[] = [
-  { storeName: "Vallejo, CA", throttleId: "S17040", posName: "LubeSoft", lastInvDate: "2024-12-01", daysWithoutData: 2, contactName: "POS Support – LubeSoft", contactEmail: "support@lubesoft.com" },
-  { storeName: "Napa, CA", throttleId: "S18021", posName: "LubeSoft", lastInvDate: "2024-11-28", daysWithoutData: 5, contactName: "POS Support – LubeSoft", contactEmail: "support@lubesoft.com" },
-  { storeName: "Fairfield, CA", throttleId: "S19012", posName: "ShopWare", lastInvDate: "2024-11-26", daysWithoutData: 7, contactName: "ShopWare Support", contactEmail: "help@shopware.com" },
+  { storeName: "Vallejo, CA", lastPosDate: "2024-12-05", daysSince: 1 },
+  { storeName: "Napa, CA", lastPosDate: "2024-12-05", daysSince: 1 },
+  { storeName: "Fairfield, CA", lastPosDate: "2024-12-02", daysSince: 4 },
+  { storeName: "Vacaville, CA", lastPosDate: "2024-11-27", daysSince: 9 },
 ];
 
 const PosDataLapsePage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
-    "Three stores show recent POS data lapses; two are over 5 days without new invoices.",
-    "When POS data stops, all performance and journey reports for those stores become stale.",
-    "Reach out to POS vendors or store managers to restore the feed and prevent blind spots.",
+    "Most stores are sending POS data within the last 1–2 days.",
+    "A small number of locations are approaching or exceeding the 7-day lapse threshold.",
+    "Data lapses can cause under-reporting in all other reports, so they should be handled quickly.",
   ]);
 
-  const storesOver3Days = posLapseRows.filter((r) => r.daysWithoutData > 3).length;
-  const maxDays = Math.max(...posLapseRows.map((r) => r.daysWithoutData));
+  const maxDays = useMemo(
+    () => Math.max(...posLapseRows.map((r) => r.daysSince), 1),
+    []
+  );
 
   const regenerateInsights = () => {
+    const worst = posLapseRows.reduce((worst, r) =>
+      !worst || r.daysSince > worst.daysSince ? r : worst
+    );
     setInsights([
-      `${storesOver3Days} stores have more than 3 days without POS data; the longest gap is ${maxDays} days.`,
-      "Investigate whether the POS integration, SFTP/API credentials, or in-store networking is causing the lapse.",
-      "In the full app, this report would trigger alerts and temporarily flag reports that rely on invoice data for those stores.",
+      `"${worst.storeName}" has the oldest POS file (${worst.daysSince} days since last data).`,
+      "Investigate POS export / SFTP connectivity for any stores over 3 days.",
+      "Use this report in weekly ops huddles to confirm the data foundation before reviewing marketing results.",
     ]);
   };
 
-  const breadcrumb = [
-    { label: "Home", to: "/" },
-    { label: "Reports & Insights", to: "/" },
-    { label: "POS Data Lapse" },
-  ];
-
-  const rightInfo = (
-    <span>Period: <span className="font-medium">Last 14 days</span></span>
-  );
-
   return (
-    <ShellLayout breadcrumb={breadcrumb} rightInfo={rightInfo}>
+    <ShellLayout
+      breadcrumb={[
+        { label: "Home", to: "/" },
+        { label: "Reports & Insights", to: "/" },
+        { label: "POS Data Lapses" },
+      ]}
+      rightInfo={
+        <>
+          <span>
+            Stores:{" "}
+            <span className="font-medium">
+              {posLapseRows.length.toString()}
+            </span>
+          </span>
+        </>
+      }
+    >
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">POS Data Lapse</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
+            POS Data Lapses
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Monitor which stores have stopped sending POS data, how long the gap has been, and which vendor contacts to escalate with.
+            Monitor the freshness of POS files by store so reporting and
+            journeys stay accurate.
           </p>
-        </div>
-        <div className="flex gap-3 text-xs">
-          <MetricTile label="Stores with lapses" value={posLapseRows.length.toString()} />
-          <MetricTile label="Longest gap" value={`${maxDays} days`} />
         </div>
       </div>
 
-      {/* Insights + table */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Insights */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">AI insights (mock)</h2>
-            <button onClick={regenerateInsights} className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600">Refresh</button>
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* Summary tiles */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <MetricTile label="Total stores" value="4" />
+            <MetricTile label="0–2 days" value="2" />
+            <MetricTile label="3–7 days" value="1" />
+            <MetricTile label="> 7 days" value="1" />
           </div>
-          <ul className="space-y-1 text-xs text-slate-600">
-            {insights.map((line, idx) => (
-              <li key={idx} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-rose-500" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-[11px] text-slate-400">
-            In the full app, this panel will drive alerts and show which other reports are impacted by lapses at these stores.
-          </p>
+
+          {/* Bars by store */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Days since last POS file
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Threshold: 3 days (warning), 7 days (critical)
+              </span>
+            </div>
+            <div className="space-y-2 text-xs text-slate-700">
+              {posLapseRows.map((r) => (
+                <div key={r.storeName}>
+                  <div className="flex justify-between text-[11px]">
+                    <span>{r.storeName}</span>
+                    <span>{r.daysSince} days</span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-500"
+                        style={{
+                          width: `${(r.daysSince / maxDays) * 100}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-slate-500 w-32 text-right">
+                      Last file {r.lastPosDate}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Table */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Store details
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Last POS date by store
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
+                    <th className="py-2 pr-3">Store</th>
+                    <th className="py-2 pr-3">Last POS date</th>
+                    <th className="py-2 pr-3 text-right">Days since</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {posLapseRows.map((r) => (
+                    <tr key={r.storeName} className="border-t border-slate-100">
+                      <td className="py-2 pr-3 text-slate-800">
+                        {r.storeName}
+                      </td>
+                      <td className="py-2 pr-3 text-slate-700">
+                        {r.lastPosDate}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {r.daysSince}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
-        {/* Table */}
-        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">Stores with POS data gaps</h2>
-            <span className="text-[11px] text-slate-400">Days without data and vendor contacts</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-xs">
-              <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                  <th className="py-2 pr-3">Store</th>
-                  <th className="py-2 pr-3">Throttle ID</th>
-                  <th className="py-2 pr-3">POS</th>
-                  <th className="py-2 pr-3">Last invoice</th>
-                  <th className="py-2 pr-3 text-right">Days w/out data</th>
-                  <th className="py-2 pr-3">POS contact</th>
-                  <th className="py-2 pr-3">POS email</th>
-                </tr>
-              </thead>
-              <tbody>
-                {posLapseRows.map((row) => (
-                  <tr key={row.storeName} className="border-t border-slate-100">
-                    <td className="py-2 pr-3 text-slate-700">{row.storeName}</td>
-                    <td className="py-2 pr-3 text-slate-600">{row.throttleId}</td>
-                    <td className="py-2 pr-3 text-slate-600">{row.posName}</td>
-                    <td className="py-2 pr-3 text-slate-600">{row.lastInvDate}</td>
-                    <td className="py-2 pr-3 text-right text-rose-600">{row.daysWithoutData}</td>
-                    <td className="py-2 pr-3 text-slate-600">{row.contactName}</td>
-                    <td className="py-2 pr-3 text-slate-600">{row.contactEmail}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* RIGHT */}
+        <div className="lg:col-span-1">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on POS file freshness"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
         </div>
-      </section>
+      </div>
     </ShellLayout>
   );
 };

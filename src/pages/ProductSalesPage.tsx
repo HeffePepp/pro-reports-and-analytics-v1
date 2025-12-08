@@ -1,152 +1,187 @@
 import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type ProductSalesSummary = {
-  storeGroupName: string;
   periodLabel: string;
-  totalSales: number;
-  vendorName: string;
-  vendorRevenue: number;
-  vendorInvCount: number;
+  totalRevenue: number;
+  vendorSharePct: number;
+  houseBrandSharePct: number;
 };
 
-type ProductSalesRow = {
-  storeName: string;
-  month: string;
-  totalSales: number;
-  vendorRevenue: number;
-  vendorInvCount: number;
+type ProductVendorRow = {
+  vendor: string;
+  revenue: number;
+  invoices: number;
 };
 
-const productSummary: ProductSalesSummary = {
-  storeGroupName: "All Stores",
-  periodLabel: "Last 6 months",
-  totalSales: 640000,
-  vendorName: "Royal Purple",
-  vendorRevenue: 204000,
-  vendorInvCount: 4620,
+const productSalesSummary: ProductSalesSummary = {
+  periodLabel: "Last 90 days",
+  totalRevenue: 284600,
+  vendorSharePct: 58,
+  houseBrandSharePct: 42,
 };
 
-const productRows: ProductSalesRow[] = [
-  { storeName: "Vallejo, CA", month: "2024-07", totalSales: 112000, vendorRevenue: 38400, vendorInvCount: 980 },
-  { storeName: "Napa, CA", month: "2024-07", totalSales: 88000, vendorRevenue: 29400, vendorInvCount: 720 },
-  { storeName: "Fairfield, CA", month: "2024-07", totalSales: 76000, vendorRevenue: 25600, vendorInvCount: 640 },
+const productVendors: ProductVendorRow[] = [
+  { vendor: "Royal Purple", revenue: 91200, invoices: 820 },
+  { vendor: "Service Pro", revenue: 68400, invoices: 620 },
+  { vendor: "House Brand", revenue: 124000, invoices: 1480 },
 ];
 
 const ProductSalesPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
-    "Royal Purple represents roughly one-third of total oil-related revenue across this store group.",
-    "A few stores are driving outsized vendor performance and can be used as best-practice examples.",
-    "Under-penetrated stores are ideal candidates for joint upgrade campaigns with your distributor.",
+    "Vendor-branded products account for more than half of product revenue.",
+    "House brand products still represent a large share of tickets and margin.",
+    "Use this report with Oil Type – Invoices for vendor meetings and co-op justification.",
   ]);
 
-  const vendorSharePct = useMemo(() => Math.round((productSummary.vendorRevenue / productSummary.totalSales) * 100), []);
-  const avgTicketVendor = useMemo(() => productSummary.vendorInvCount ? productSummary.vendorRevenue / productSummary.vendorInvCount : 0, []);
+  const maxRevenue = useMemo(
+    () => Math.max(...productVendors.map((v) => v.revenue), 1),
+    []
+  );
 
   const regenerateInsights = () => {
+    const bestVendor = productVendors.reduce((best, v) =>
+      !best || v.revenue > best.revenue ? v : best
+    );
     setInsights([
-      `${productSummary.vendorName} is generating about ${vendorSharePct}% of oil-related revenue.`,
-      `Avg ticket for invoices including ${productSummary.vendorName} is roughly $${avgTicketVendor.toFixed(0)}.`,
-      "Use this report in vendor meetings to highlight growth, co-op wins and upgrade opportunities by store.",
+      `"${bestVendor.vendor}" currently has the highest product revenue ($${bestVendor.revenue.toLocaleString()}).`,
+      "Target stores with low vendor penetration for training and focused campaigns.",
+      "Pair this report with One-Off Campaign Tracker to show how vendor-funded pushes performed.",
     ]);
   };
 
-  const breadcrumb = [
-    { label: "Home", to: "/" },
-    { label: "Reports & Insights", to: "/" },
-    { label: "Product Sales" },
-  ];
-
-  const rightInfo = (
-    <>
-      <span>Store group: <span className="font-medium">{productSummary.storeGroupName}</span></span>
-      <span>Period: <span className="font-medium">{productSummary.periodLabel}</span></span>
-    </>
-  );
-
   return (
-    <ShellLayout breadcrumb={breadcrumb} rightInfo={rightInfo}>
-      {/* Title + tiles */}
+    <ShellLayout
+      breadcrumb={[
+        { label: "Home", to: "/" },
+        { label: "Reports & Insights", to: "/" },
+        { label: "Product Sales" },
+      ]}
+      rightInfo={
+        <>
+          <span>
+            Period:{" "}
+            <span className="font-medium">
+              {productSalesSummary.periodLabel}
+            </span>
+          </span>
+        </>
+      }
+    >
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Product Sales – {productSummary.vendorName}</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
+            Product Sales
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Vendor revenue and invoices by store and month. Use this view in distributor meetings to highlight growth and opportunities.
+            Monthly revenue and invoices by vendor/product group (e.g. Royal
+            Purple, house brand).
           </p>
-        </div>
-        <div className="flex gap-3 text-xs">
-          <div className="px-3 py-2 rounded-xl bg-white border border-slate-200 shadow-sm">
-            <div className="text-slate-400">Total sales</div>
-            <div className="mt-0.5 text-base font-semibold">${productSummary.totalSales.toLocaleString()}</div>
-          </div>
-          <div className="px-3 py-2 rounded-xl bg-white border border-slate-200 shadow-sm">
-            <div className="text-slate-400">{productSummary.vendorName} revenue</div>
-            <div className="mt-0.5 text-base font-semibold">${productSummary.vendorRevenue.toLocaleString()}</div>
-          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <MetricTile label={`${productSummary.vendorName} share`} value={`${vendorSharePct}%`} />
-        <MetricTile label="Vendor invoices" value={productSummary.vendorInvCount.toLocaleString()} />
-        <MetricTile label="Avg ticket (vendor)" value={`$${avgTicketVendor.toFixed(0)}`} />
-        <MetricTile label="Total stores (demo)" value="3" />
-        <MetricTile label="Period" value={productSummary.periodLabel} />
-      </div>
-
-      {/* Insights + table */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
-        {/* Insights */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">AI insights (mock)</h2>
-            <button onClick={regenerateInsights} className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600">Refresh</button>
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <MetricTile
+              label="Product revenue"
+              value={`$${productSalesSummary.totalRevenue.toLocaleString()}`}
+            />
+            <MetricTile
+              label="Vendor share"
+              value={`${productSalesSummary.vendorSharePct.toFixed(0)}%`}
+            />
+            <MetricTile
+              label="House brand share"
+              value={`${productSalesSummary.houseBrandSharePct.toFixed(0)}%`}
+            />
           </div>
-          <ul className="space-y-1 text-xs text-slate-600">
-            {insights.map((line, idx) => (
-              <li key={idx} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-[11px] text-slate-400">
-            In the full app, this panel will call Lovable/OpenAI with live vendor metrics to generate talking points and opportunity lists for vendor reps.
-          </p>
-        </div>
 
-        {/* Table */}
-        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">Store/month breakdown</h2>
-            <span className="text-[11px] text-slate-400">Vendor revenue and invoices by store (dummy data)</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-xs">
-              <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                  <th className="py-2 pr-3">Store</th>
-                  <th className="py-2 pr-3">Month</th>
-                  <th className="py-2 pr-3 text-right">Total sales</th>
-                  <th className="py-2 pr-3 text-right">{productSummary.vendorName} revenue</th>
-                  <th className="py-2 pr-3 text-right">{productSummary.vendorName} invoices</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productRows.map((row) => (
-                  <tr key={row.storeName + row.month} className="border-t border-slate-100">
-                    <td className="py-2 pr-3 text-slate-700">{row.storeName}</td>
-                    <td className="py-2 pr-3 text-slate-600">{row.month}</td>
-                    <td className="py-2 pr-3 text-right">${row.totalSales.toLocaleString()}</td>
-                    <td className="py-2 pr-3 text-right text-indigo-600">${row.vendorRevenue.toLocaleString()}</td>
-                    <td className="py-2 pr-3 text-right text-indigo-600">{row.vendorInvCount.toLocaleString()}</td>
+          {/* Vendor mix */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Revenue by vendor
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Compare vendor vs house brand
+              </span>
+            </div>
+            <div className="space-y-2 text-xs text-slate-700">
+              {productVendors.map((v) => (
+                <div key={v.vendor}>
+                  <div className="flex justify-between text-[11px]">
+                    <span>{v.vendor}</span>
+                    <span>
+                      ${v.revenue.toLocaleString()} ·{" "}
+                      {v.invoices.toLocaleString()} invoices
+                    </span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full bg-sky-500"
+                        style={{
+                          width: `${(v.revenue / maxRevenue) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Table */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Vendor details
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Product revenue and invoices by vendor
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
+                    <th className="py-2 pr-3">Vendor</th>
+                    <th className="py-2 pr-3 text-right">Invoices</th>
+                    <th className="py-2 pr-3 text-right">Revenue</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {productVendors.map((v) => (
+                    <tr key={v.vendor} className="border-t border-slate-100">
+                      <td className="py-2 pr-3 text-slate-800">{v.vendor}</td>
+                      <td className="py-2 pr-3 text-right">
+                        {v.invoices.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        ${v.revenue.toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
-      </section>
+
+        {/* RIGHT */}
+        <div className="lg:col-span-1">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on product & vendor sales"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
+        </div>
+      </div>
     </ShellLayout>
   );
 };

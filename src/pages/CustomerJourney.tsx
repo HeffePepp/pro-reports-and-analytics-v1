@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type JourneyStepDetail = {
@@ -69,6 +69,12 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
 ];
 
 const CustomerJourneyPage: React.FC = () => {
+  const [insights, setInsights] = useState<string[]>([
+    "The Thank You email sees strong engagement and sets up the relationship.",
+    "Reminder 1 (postcard + email + SMS) has the highest ROAS in the journey.",
+    "Consider stronger reactivation offers for the 12-month lapsed segment.",
+  ]);
+
   const totalSent = useMemo(
     () => JOURNEY_STEPS.reduce((sum, s) => sum + s.sent, 0),
     []
@@ -94,6 +100,17 @@ const CustomerJourneyPage: React.FC = () => {
     () => Math.max(...JOURNEY_STEPS.map((s) => s.responseRate), 1),
     []
   );
+
+  const regenerateInsights = () => {
+    const highestRoasStep = JOURNEY_STEPS.reduce((best, s) =>
+      !best || s.roas > best.roas ? s : best
+    );
+    setInsights([
+      `"${highestRoasStep.name}" has the highest ROAS at ${highestRoasStep.roas.toFixed(1)}x.`,
+      `Journey coverage is generating ${journeyVehicles.toLocaleString()} vehicles from ${totalSent.toLocaleString()} comms sent.`,
+      "Review underperforming steps for creative refresh or timing adjustments.",
+    ]);
+  };
 
   return (
     <ShellLayout
@@ -152,24 +169,9 @@ const CustomerJourneyPage: React.FC = () => {
               value={totalSent.toLocaleString()}
               helper="All journey communications"
             />
-            <MetricTile
-              label="Vehicles from journey"
-              value={journeyVehicles.toLocaleString()}
-              helper="Attributed to journey"
-            />
-            <MetricTile
-              label="Emails per customer"
-              value="~6"
-              helper="Typical journey coverage"
-            />
-            <MetricTile
-              label="Postcards / SMS per customer"
-              value="2–3"
-              helper="Reminder & reactivation touches"
-            />
           </div>
 
-          {/* Journey steps by response and ROAS (no yellow background) */}
+          {/* Journey steps by response and ROAS */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-1">
               <div>
@@ -218,7 +220,7 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Step details table (no yellow background) */}
+          {/* Step details table */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-sm font-semibold text-slate-900">
@@ -279,7 +281,8 @@ const CustomerJourneyPage: React.FC = () => {
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on 12 months data"
-            bullets={[]}
+            bullets={insights}
+            onRefresh={regenerateInsights}
           />
         </div>
       </div>
