@@ -116,7 +116,7 @@ const CustomerJourneyPage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            Customer Journey: touch point + response rate + ROAS
+            Customer Journey
           </h1>
           <p className="mt-1 text-sm text-slate-500">
             Performance of the standard Throttle journey steps for this store:
@@ -153,15 +153,21 @@ const CustomerJourneyPage: React.FC = () => {
             />
           </div>
 
-          {/* Journey steps by response and ROAS (updated layout, no top-right text) */}
+          {/* Customer journey: touch point + response rate + ROAS */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="mb-1">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Journey steps by response and ROAS
-              </h2>
-              <p className="text-[11px] text-slate-600">
-                Relative performance (dummy data)
-              </p>
+            <div className="flex items-center justify-between mb-1">
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900">
+                  Customer journey: touch point + response rate + ROAS
+                </h2>
+                <p className="text-[11px] text-slate-600">
+                  Relative performance (dummy data)
+                </p>
+              </div>
+              <span className="hidden text-[11px] text-slate-500 lg:inline">
+                {journeyVehicles.toLocaleString()} journey vehicles ·{" "}
+                {totalSent.toLocaleString()} comms sent
+              </span>
             </div>
 
             <div className="mt-3 space-y-3 text-xs text-slate-700">
