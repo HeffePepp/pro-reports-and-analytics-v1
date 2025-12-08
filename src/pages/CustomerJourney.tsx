@@ -176,7 +176,6 @@ const CustomerJourneyPage: React.FC = () => {
         <AIInsightsTile
           subtitle="Based on last 12 months of journey performance"
           bullets={aiInsights}
-          onRefresh={handleRefreshAi}
         />
       </div>
 
