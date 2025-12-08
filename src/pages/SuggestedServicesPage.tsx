@@ -201,24 +201,24 @@ const SuggestedServicesPage: React.FC = () => {
           </section>
 
           {/* Table */}
-          <section className="rounded-2xl bg-card border border-border shadow-sm p-4">
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-sm font-semibold text-slate-900">
-                Suggested Services details
+                Suggested service details
               </h2>
-              <span className="text-[11px] text-slate-500">
-                Totals and conversion by service
+              <span className="text-[11px] text-slate-600">
+                Sent, responded and revenue by service
               </span>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs">
                 <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
                     <th className="py-2 pr-3">Service</th>
-                    <th className="py-2 pr-3 text-right">Suggested</th>
-                    <th className="py-2 pr-3 text-right">Accepted</th>
-                    <th className="py-2 pr-3 text-right">Acceptance %</th>
-                    <th className="py-2 pr-3 text-right">Avg revenue</th>
+                    <th className="py-2 pr-3 text-right">Sent</th>
+                    <th className="py-2 pr-3 text-right">Responded</th>
+                    <th className="py-2 pr-3 text-right">Resp %</th>
+                    <th className="py-2 pr-3 text-right">Revenue</th>
                   </tr>
                 </thead>
                 <tbody>
