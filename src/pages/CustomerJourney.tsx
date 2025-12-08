@@ -2,19 +2,28 @@ import React, { useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type JourneyStepDetail = {
-  name: string;
-  interval: string;
-  channel: string;
+  name: string;         // Comm Name (no timing embedded)
+  interval: string;     // Interval Description / timing
+  channel: string;      // primary delivery method(s)
   sent: number;
   vehicles: number;
-  responseRate: number;
-  roas: number;
+  responseRate: number; // %
+  roas: number;         // x
 };
 
 const JOURNEY_STEPS: JourneyStepDetail[] = [
   {
-    name: "Thank You Email",
-    interval: "1 day after service",
+    name: "Thank You Text",
+    interval: "1 day after Service",
+    channel: "Text",
+    sent: 1850,
+    vehicles: 420,
+    responseRate: 22.7,
+    roas: 9.5,
+  },
+  {
+    name: "Thank You Eml",
+    interval: "1 day after Service",
     channel: "Email",
     sent: 1850,
     vehicles: 420,
@@ -22,8 +31,8 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     roas: 9.5,
   },
   {
-    name: "Suggested Services – 1 week",
-    interval: "7 days after service",
+    name: "Suggested Services",
+    interval: "1 week after Service",
     channel: "Email",
     sent: 1760,
     vehicles: 310,
@@ -31,8 +40,17 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     roas: 12.1,
   },
   {
-    name: "Suggested Services – 1 month",
-    interval: "30 days after service",
+    name: "2nd Vehicle Invitation",
+    interval: "10 days after Service",
+    channel: "Email",
+    sent: 900,
+    vehicles: 150,
+    responseRate: 16.7,
+    roas: 10.3,
+  },
+  {
+    name: "Suggested Services",
+    interval: "1 month after Service",
     channel: "Email",
     sent: 1640,
     vehicles: 240,
@@ -40,8 +58,35 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     roas: 11.2,
   },
   {
+    name: "Suggested Services",
+    interval: "3 months after Service",
+    channel: "Email",
+    sent: 1520,
+    vehicles: 230,
+    responseRate: 15.1,
+    roas: 10.9,
+  },
+  {
+    name: "Suggested Services",
+    interval: "6 months after Service",
+    channel: "Email",
+    sent: 1380,
+    vehicles: 210,
+    responseRate: 15.2,
+    roas: 10.8,
+  },
+  {
+    name: "Monthly Newsletter",
+    interval: "Once a month",
+    channel: "Email",
+    sent: 4200,
+    vehicles: 520,
+    responseRate: 12.4,
+    roas: 7.8,
+  },
+  {
     name: "Reminder 1",
-    interval: "5k after last service",
+    interval: "5k after last Service",
     channel: "Postcard + Email + SMS",
     sent: 1380,
     vehicles: 280,
@@ -58,13 +103,49 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     roas: 10.7,
   },
   {
-    name: "Reactivation – 12 months",
-    interval: "12 months after service",
+    name: "Reminder 3",
+    interval: "10k after last Service",
+    channel: "Postcard + Email + SMS",
+    sent: 860,
+    vehicles: 120,
+    responseRate: 14.0,
+    roas: 9.8,
+  },
+  {
+    name: "Reminder 4",
+    interval: "15k after last Service",
+    channel: "Postcard + Email + SMS",
+    sent: 740,
+    vehicles: 105,
+    responseRate: 14.2,
+    roas: 9.4,
+  },
+  {
+    name: "Reactivation",
+    interval: "12 months after Service",
     channel: "Email",
     sent: 620,
     vehicles: 86,
     responseRate: 13.9,
     roas: 8.2,
+  },
+  {
+    name: "Reactivation",
+    interval: "18 months after Service",
+    channel: "Email",
+    sent: 480,
+    vehicles: 64,
+    responseRate: 13.3,
+    roas: 7.5,
+  },
+  {
+    name: "Reactivation",
+    interval: "24 months after Service",
+    channel: "Email",
+    sent: 360,
+    vehicles: 46,
+    responseRate: 12.8,
+    roas: 7.1,
   },
 ];
 
