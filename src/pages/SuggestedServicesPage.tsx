@@ -177,7 +177,7 @@ const SuggestedServicesPage: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
             <MetricTile label="Suggested Services Messages Sent" value={ssSummary.emailsSent.toLocaleString()} />
             <MetricTile label="Suggested Services Responses" value={ssResponses.toLocaleString()} />
-            <MetricTile label="Resp %" value={`${ssSummary.acceptanceRate.toFixed(1)}%`} />
+            <MetricTile label="Response %" value={`${ssSummary.acceptanceRate.toFixed(1)}%`} />
             <MetricTile label="Suggested Services Revenue" value={`$${ssSummary.ssRevenue.toLocaleString()}`} />
             <MetricTile label="Total Invoice Revenue" value={`$${ssSummary.totalInvoiceRevenue.toLocaleString()}`} />
             <MetricTile
