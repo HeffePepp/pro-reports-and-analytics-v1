@@ -21,8 +21,8 @@ const MetricTile: React.FC<MetricTileProps> = ({
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full">
       <div className="flex flex-col items-start justify-start h-full px-3 py-3 md:px-4 md:py-4 min-h-[96px]">
         {/* Label area – fixed height so values line up across tiles */}
-        <div className="w-full h-[32px]">
-          <div className="text-xs font-medium text-slate-500 leading-snug">
+        <div className="w-full min-h-[32px] md:min-h-[40px] flex items-start">
+          <div className="font-medium text-slate-500 leading-snug text-[clamp(11px,0.9vw,14px)]">
             {label}
           </div>
         </div>
