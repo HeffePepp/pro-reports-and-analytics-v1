@@ -187,7 +187,7 @@ const CustomerJourneyPage: React.FC = () => {
       </div>
 
       {/* YELLOW BAND: Journey steps + AI tile */}
-      <section className="mt-4 rounded-2xl bg-yellow-50 border border-yellow-100 shadow-sm p-4">
+      <section className="mt-4 rounded-2xl bg-card border border-border shadow-sm p-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Left: journey steps by response & ROAS */}
           <div>
@@ -219,7 +219,7 @@ const CustomerJourneyPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-2 rounded-full bg-yellow-100 overflow-hidden">
+                    <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                       <div
                         className="h-full bg-emerald-500"
                         style={{
@@ -249,7 +249,7 @@ const CustomerJourneyPage: React.FC = () => {
       </section>
 
       {/* YELLOW BAND: Step details table */}
-      <section className="mt-3 rounded-2xl bg-yellow-50 border border-yellow-100 shadow-sm p-4">
+      <section className="mt-3 rounded-2xl bg-card border border-border shadow-sm p-4">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-sm font-semibold text-slate-900">Step details</h2>
           <span className="text-[11px] text-slate-600">
@@ -272,7 +272,7 @@ const CustomerJourneyPage: React.FC = () => {
             </thead>
             <tbody>
               {JOURNEY_STEPS.map((step) => (
-                <tr key={step.name} className="border-t border-yellow-100">
+                <tr key={step.name} className="border-t border-border">
                   <td className="py-2 pr-3 text-slate-800">{step.name}</td>
                   <td className="py-2 pr-3 text-slate-700">{step.interval}</td>
                   <td className="py-2 pr-3 text-slate-700">{step.channel}</td>
