@@ -171,7 +171,7 @@ const CustomerJourneyPage: React.FC = () => {
             />
           </div>
 
-          {/* Journey steps by response and ROAS */}
+          {/* Journey steps by response and ROAS (updated layout) */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-1">
               <div>
@@ -188,19 +188,28 @@ const CustomerJourneyPage: React.FC = () => {
               </span>
             </div>
 
-            <div className="mt-3 space-y-2 text-xs text-slate-700">
+            <div className="mt-3 space-y-3 text-xs text-slate-700">
               {JOURNEY_STEPS.map((step, idx) => (
                 <div key={step.name}>
-                  <div className="flex justify-between text-[11px]">
-                    <span>
-                      {idx + 1}. {step.name}
-                    </span>
-                    <span>
-                      {step.responseRate.toFixed(1)}% resp ·{" "}
-                      {step.roas.toFixed(1)}x ROAS
-                    </span>
+                  {/* Top row: step name + timing on left, stacked stats on right */}
+                  <div className="flex items-start justify-between gap-3 text-[11px]">
+                    <div className="text-slate-700">
+                      <span className="font-medium">
+                        {idx + 1}. {step.name}
+                      </span>{" "}
+                      <span className="text-slate-500">
+                        ({step.interval})
+                      </span>
+                    </div>
+
+                    <div className="text-right text-slate-600 min-w-[72px]">
+                      <div>{step.responseRate.toFixed(1)}% resp</div>
+                      <div>{step.roas.toFixed(1)}x ROAS</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-1">
+
+                  {/* Bar row */}
+                  <div className="mt-2 flex items-center gap-2">
                     <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                       <div
                         className="h-full bg-sky-500"
@@ -211,9 +220,6 @@ const CustomerJourneyPage: React.FC = () => {
                         }}
                       />
                     </div>
-                    <span className="text-[10px] text-slate-500 w-40 text-right">
-                      {step.interval}
-                    </span>
                   </div>
                 </div>
               ))}
