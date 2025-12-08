@@ -1,68 +1,85 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, SummaryTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type EmailCaptureSummary = {
-  storeGroupName: string;
-  periodLabel: string;
-  totalNewEmails: number;
-  uniqueCustomers: number;
-  stores: number;
+  totalCustomers: number;
+  withEmail: number;
+  validEmail: number;
+  bouncedEmail: number;
+  optedOut: number;
 };
 
-type EmailCaptureWeekRow = {
-  weekLabel: string;
-  newEmails: number;
-  atCounter: number;
-  viaWeb: number;
+type EmailCaptureRow = {
+  storeName: string;
+  customers: number;
+  validEmails: number;
+  captureRate: number; // %
 };
 
 const emailSummary: EmailCaptureSummary = {
-  storeGroupName: "All Stores",
-  periodLabel: "Last 8 weeks",
-  totalNewEmails: 228,
-  uniqueCustomers: 210,
-  stores: 3,
+  totalCustomers: 18500,
+  withEmail: 14200,
+  validEmail: 13400,
+  bouncedEmail: 800,
+  optedOut: 920,
 };
 
-const emailWeeks: EmailCaptureWeekRow[] = [
-  { weekLabel: "2024-W40", newEmails: 22, atCounter: 16, viaWeb: 6 },
-  { weekLabel: "2024-W41", newEmails: 28, atCounter: 20, viaWeb: 8 },
-  { weekLabel: "2024-W42", newEmails: 31, atCounter: 21, viaWeb: 10 },
-  { weekLabel: "2024-W43", newEmails: 26, atCounter: 18, viaWeb: 8 },
-  { weekLabel: "2024-W44", newEmails: 34, atCounter: 24, viaWeb: 10 },
-  { weekLabel: "2024-W45", newEmails: 37, atCounter: 26, viaWeb: 11 },
-  { weekLabel: "2024-W46", newEmails: 24, atCounter: 18, viaWeb: 6 },
-  { weekLabel: "2024-W47", newEmails: 26, atCounter: 19, viaWeb: 7 },
+const emailRows: EmailCaptureRow[] = [
+  {
+    storeName: "Vallejo, CA",
+    customers: 5200,
+    validEmails: 4100,
+    captureRate: 78.8,
+  },
+  {
+    storeName: "Napa, CA",
+    customers: 4200,
+    validEmails: 3400,
+    captureRate: 81.0,
+  },
+  {
+    storeName: "Fairfield, CA",
+    customers: 3100,
+    validEmails: 2320,
+    captureRate: 74.8,
+  },
+  {
+    storeName: "Vacaville, CA",
+    customers: 4000,
+    validEmails: 3580,
+    captureRate: 89.5,
+  },
 ];
 
 const ValidEmailCapturePage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
-    "Email capture is trending upward over the last 8 weeks.",
-    "Most emails are still captured at the counter; web and QR capture are secondary but growing.",
-    "One or two weeks show dips; these might line up with staffing changes or POS prompts being disabled.",
+    "Overall email capture is strong, but a few stores lag behind the group.",
+    "Reducing bounce volume will immediately improve deliverability and ROI on email-heavy campaigns.",
+    "Opt-out counts are within a normal range given total volume.",
   ]);
 
-  const maxWeekEmails = useMemo(
-    () => Math.max(...emailWeeks.map((w) => w.newEmails), 1),
+  const overallCaptureRate = useMemo(
+    () => (emailSummary.validEmail / emailSummary.totalCustomers) * 100,
     []
   );
 
-  const avgPerWeek = useMemo(
-    () => emailSummary.totalNewEmails / emailWeeks.length,
+  const maxCaptureRate = useMemo(
+    () => Math.max(...emailRows.map((r) => r.captureRate), 1),
     []
   );
 
   const regenerateInsights = () => {
-    const bestWeek = emailWeeks.reduce((best, w) =>
-      !best || w.newEmails > best.newEmails ? w : best
+    const worstStore = emailRows.reduce((worst, r) =>
+      !worst || r.captureRate < worst.captureRate ? r : worst
     );
-
     setInsights([
-      `Average capture is about ${avgPerWeek.toFixed(
+      `Overall valid email capture is ${overallCaptureRate.toFixed(
         1
-      )} new valid emails per week.`,
-      `${bestWeek.weekLabel} was the strongest week with ${bestWeek.newEmails} new emails.`,
-      "Scaling this across all stores would significantly grow journey + campaign reach over a full year.",
+      )}% across the account.`,
+      `"${worstStore.storeName}" has the lowest capture rate (${worstStore.captureRate.toFixed(
+        1
+      )}%) and is a good target for staff training.`,
+      "Consider tablet or QR-based capture at checkout to boost valid emails without slowing the lane.",
     ]);
   };
 
@@ -76,143 +93,145 @@ const ValidEmailCapturePage: React.FC = () => {
       rightInfo={
         <>
           <span>
-            Store group:{" "}
-            <span className="font-medium">{emailSummary.storeGroupName}</span>
-          </span>
-          <span>
-            Period:{" "}
-            <span className="font-medium">{emailSummary.periodLabel}</span>
+            Customers:{" "}
+            <span className="font-medium">
+              {emailSummary.totalCustomers.toLocaleString()}
+            </span>
           </span>
         </>
       }
     >
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
             Valid Email Capture
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            New valid emails captured over time – at the counter and via web /
-            landing pages.
+            Track email capture and validity so that lifecycle and campaign
+            reports reflect real reachable customers.
           </p>
         </div>
-        <div className="flex gap-3 text-xs">
-          <SummaryTile
-            label="New valid emails"
-            value={emailSummary.totalNewEmails.toString()}
-          />
-          <SummaryTile
-            label="Unique customers"
-            value={emailSummary.uniqueCustomers.toString()}
-          />
-        </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <MetricTile
-          label="Avg per week"
-          value={avgPerWeek.toFixed(1)}
-          helper="New emails"
-        />
-        <MetricTile
-          label="Stores (demo)"
-          value={emailSummary.stores.toString()}
-        />
-        <MetricTile
-          label="Main capture source"
-          value="Counter"
-          helper="POS prompts"
-        />
-        <MetricTile
-          label="Secondary source"
-          value="Web / QR"
-          helper="Landing pages"
-        />
-        <MetricTile
-          label="Potential per year"
-          value="~1,200+"
-          helper="If trend holds"
-        />
-      </div>
-
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
-        {/* Weekly bar list */}
-        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">
-              New emails by week
-            </h2>
-            <span className="text-[11px] text-slate-400">
-              Counter vs web capture
-            </span>
+      {/* Layout: left content + right AI tile */}
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <MetricTile
+              label="Total customers"
+              value={emailSummary.totalCustomers.toLocaleString()}
+            />
+            <MetricTile
+              label="With email on file"
+              value={emailSummary.withEmail.toLocaleString()}
+            />
+            <MetricTile
+              label="Valid email capture"
+              value={`${overallCaptureRate.toFixed(1)}%`}
+              helper={`${emailSummary.validEmail.toLocaleString()} valid`}
+            />
+            <MetricTile
+              label="Bounced emails"
+              value={emailSummary.bouncedEmail.toLocaleString()}
+            />
+            <MetricTile
+              label="Opted-out"
+              value={emailSummary.optedOut.toLocaleString()}
+            />
           </div>
-          <div className="space-y-2">
-            {emailWeeks.map((w) => (
-              <div key={w.weekLabel} className="space-y-1">
-                <div className="flex justify-between text-[11px] text-slate-600">
-                  <span>{w.weekLabel}</span>
-                  <span>{w.newEmails} new emails</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500"
-                        style={{
-                          width: `${(w.atCounter / maxWeekEmails) * 100}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-slate-400 w-16 text-right">
-                      Counter
-                    </span>
+
+          {/* Capture rate by store */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Capture rate by store
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Valid email % by location
+              </span>
+            </div>
+            <div className="space-y-2 text-xs text-slate-700">
+              {emailRows.map((r) => (
+                <div key={r.storeName}>
+                  <div className="flex justify-between text-[11px]">
+                    <span>{r.storeName}</span>
+                    <span>{r.captureRate.toFixed(1)}% valid</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mt-1">
                     <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                       <div
                         className="h-full bg-sky-500"
                         style={{
-                          width: `${(w.viaWeb / maxWeekEmails) * 100}%`,
+                          width: `${(r.captureRate / maxCaptureRate) * 100}%`,
                         }}
                       />
                     </div>
-                    <span className="text-[10px] text-slate-400 w-16 text-right">
-                      Web / QR
+                    <span className="text-[10px] text-slate-500 w-40 text-right">
+                      {r.validEmails.toLocaleString()} valid of{" "}
+                      {r.customers.toLocaleString()}
                     </span>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Table */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Email capture details
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Valid email rate by store
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
+                    <th className="py-2 pr-3">Store</th>
+                    <th className="py-2 pr-3 text-right">Customers</th>
+                    <th className="py-2 pr-3 text-right">Valid emails</th>
+                    <th className="py-2 pr-3 text-right">Capture %</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {emailRows.map((r) => (
+                    <tr key={r.storeName} className="border-t border-slate-100">
+                      <td className="py-2 pr-3 text-slate-800">
+                        {r.storeName}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {r.customers.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {r.validEmails.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {r.captureRate.toFixed(1)}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
-        {/* Insights */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">
-              AI insights (mock)
-            </h2>
-            <button
-              onClick={regenerateInsights}
-              className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600"
-            >
-              Refresh
-            </button>
-          </div>
-          <ul className="space-y-1 text-xs text-slate-600">
-            {insights.map((line, idx) => (
-              <li key={idx} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-sky-400" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-[11px] text-slate-400">
-            In the full app, this panel will call Lovable/OpenAI with live capture
-            stats to suggest coaching, contests or prompts for advisors.
-          </p>
+        {/* RIGHT: AI panel */}
+        <div className="lg:col-span-1">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on email capture & deliverability"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
         </div>
-      </section>
+      </div>
     </ShellLayout>
   );
 };
