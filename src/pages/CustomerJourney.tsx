@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type JourneyStepDetail = {
@@ -69,12 +69,6 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
 ];
 
 const CustomerJourneyPage: React.FC = () => {
-  const [insights, setInsights] = useState<string[]>([
-    "The Thank You email sees strong engagement and sets up the relationship.",
-    "Reminder 1 (postcard + email + SMS) has the highest ROAS in the journey.",
-    "Consider stronger reactivation offers for the 12-month lapsed segment.",
-  ]);
-
   const totalSent = useMemo(
     () => JOURNEY_STEPS.reduce((sum, s) => sum + s.sent, 0),
     []
@@ -89,28 +83,16 @@ const CustomerJourneyPage: React.FC = () => {
       JOURNEY_STEPS.length,
     []
   );
-  const bestStep = useMemo(
+  const avgRespRate = useMemo(
     () =>
-      JOURNEY_STEPS.reduce((best, s) =>
-        !best || s.responseRate > best.responseRate ? s : best
-      ),
+      JOURNEY_STEPS.reduce((sum, s) => sum + s.responseRate, 0) /
+      JOURNEY_STEPS.length,
     []
   );
   const maxResponseRate = useMemo(
     () => Math.max(...JOURNEY_STEPS.map((s) => s.responseRate), 1),
     []
   );
-
-  const regenerateInsights = () => {
-    const highestRoasStep = JOURNEY_STEPS.reduce((best, s) =>
-      !best || s.roas > best.roas ? s : best
-    );
-    setInsights([
-      `"${highestRoasStep.name}" has the highest ROAS at ${highestRoasStep.roas.toFixed(1)}x.`,
-      `Journey coverage is generating ${journeyVehicles.toLocaleString()} vehicles from ${totalSent.toLocaleString()} comms sent.`,
-      "Review underperforming steps for creative refresh or timing adjustments.",
-    ]);
-  };
 
   return (
     <ShellLayout
@@ -134,7 +116,7 @@ const CustomerJourneyPage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            Customer Journey
+            Customer Journey: touch point + response rate + ROAS
           </h1>
           <p className="mt-1 text-sm text-slate-500">
             Performance of the standard Throttle journey steps for this store:
@@ -147,51 +129,45 @@ const CustomerJourneyPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* LEFT: all journey tiles and tables */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Highlight metric tiles – all same size now */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+          {/* Updated KPI tiles */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricTile
-              label="Journey vehicles"
+              label="Vehicles"
               value={journeyVehicles.toLocaleString()}
-              helper="Visits attributed to journey steps"
+              helper="# of vehicles included based on timeline"
             />
             <MetricTile
-              label="Avg step ROAS"
+              label="Avg ROAS"
               value={`${avgStepRoas.toFixed(1)}x`}
-              helper="Across all journey steps"
+              helper="Across all customer journey touch points"
             />
             <MetricTile
-              label="Best-performing step"
-              value={bestStep.name}
-              helper={`${bestStep.vehicles.toLocaleString()} vehicles`}
+              label="Average response rate"
+              value={`${avgRespRate.toFixed(1)}%`}
+              helper="All customer journey touch points"
             />
             <MetricTile
               label="Total comms sent"
               value={totalSent.toLocaleString()}
-              helper="All journey communications"
+              helper="All customer journey touch points"
             />
           </div>
 
-          {/* Journey steps by response and ROAS (updated layout) */}
+          {/* Journey steps by response and ROAS (updated layout, no top-right text) */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-1">
-              <div>
-                <h2 className="text-sm font-semibold text-slate-900">
-                  Journey steps by response and ROAS
-                </h2>
-                <p className="text-[11px] text-slate-600">
-                  Relative performance (dummy data)
-                </p>
-              </div>
-              <span className="hidden text-[11px] text-slate-500 lg:inline">
-                {journeyVehicles.toLocaleString()} journey vehicles ·{" "}
-                {totalSent.toLocaleString()} comms sent
-              </span>
+            <div className="mb-1">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Journey steps by response and ROAS
+              </h2>
+              <p className="text-[11px] text-slate-600">
+                Relative performance (dummy data)
+              </p>
             </div>
 
             <div className="mt-3 space-y-3 text-xs text-slate-700">
               {JOURNEY_STEPS.map((step, idx) => (
                 <div key={step.name}>
-                  {/* Top row: step name + timing on left, stacked stats on right */}
+                  {/* Top row: touch point name + timing on left, stacked stats on right */}
                   <div className="flex items-start justify-between gap-3 text-[11px]">
                     <div className="text-slate-700">
                       <span className="font-medium">
@@ -202,7 +178,7 @@ const CustomerJourneyPage: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="text-right text-slate-600 min-w-[72px]">
+                    <div className="text-right text-slate-600 min-w-[80px]">
                       <div>{step.responseRate.toFixed(1)}% resp</div>
                       <div>{step.roas.toFixed(1)}x ROAS</div>
                     </div>
@@ -226,14 +202,14 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Step details table */}
+          {/* Step details -> Touch point details */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-sm font-semibold text-slate-900">
-                Step details
+                Touch point details
               </h2>
               <span className="text-[11px] text-slate-600">
-                Sent, vehicles, response and ROAS by journey step
+                Sent, responses and ROAS by touch point
               </span>
             </div>
 
@@ -241,12 +217,12 @@ const CustomerJourneyPage: React.FC = () => {
               <table className="min-w-full text-xs">
                 <thead>
                   <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-                    <th className="py-2 pr-3">Step</th>
-                    <th className="py-2 pr-3">Interval</th>
+                    <th className="py-2 pr-3">Touch Point</th>
+                    <th className="py-2 pr-3">Timing</th>
                     <th className="py-2 pr-3">Channel</th>
                     <th className="py-2 pr-3 text-right">Sent</th>
-                    <th className="py-2 pr-3 text-right">Vehicles</th>
-                    <th className="py-2 pr-3 text-right">Response %</th>
+                    <th className="py-2 pr-3 text-right">Responses</th>
+                    <th className="py-2 pr-3 text-right">Resp %</th>
                     <th className="py-2 pr-3 text-right">ROAS</th>
                   </tr>
                 </thead>
@@ -287,8 +263,7 @@ const CustomerJourneyPage: React.FC = () => {
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on 12 months data"
-            bullets={insights}
-            onRefresh={regenerateInsights}
+            bullets={[]} // empty = loading state
           />
         </div>
       </div>
