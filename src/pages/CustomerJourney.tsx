@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, SummaryTile, AIInsightsTile } from "@/components/layout";
+import React, { useMemo } from "react";
+import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type JourneyStepDetail = {
   name: string;
@@ -95,22 +95,6 @@ const CustomerJourneyPage: React.FC = () => {
     []
   );
 
-  const [aiInsights, setAiInsights] = useState<string[]>([
-    "Reminder 1 is the strongest step, with the highest ROAS and vehicles per 1,000 sent.",
-    "Suggested Services at 1 week and 1 month are solid performers and help keep customers engaged between visits.",
-    "Reactivation at 12 months is weaker but still profitable – consider testing stronger offers or SMS for this step.",
-  ]);
-
-  const handleRefreshAi = () => {
-    setAiInsights([
-      `"${bestStep.name}" currently has the highest response rate (${bestStep.responseRate.toFixed(
-        1
-      )}% resp, ${bestStep.roas.toFixed(1)}x ROAS).`,
-      "Small A/B tests on subject lines and offers around 3–6 months can push more volume into Reminder 1.",
-      "Use ROAS and Coupon / Discount Analysis to verify that journey offers are profitable for each store.",
-    ]);
-  };
-
   return (
     <ShellLayout
       breadcrumb={[
@@ -129,7 +113,7 @@ const CustomerJourneyPage: React.FC = () => {
         </>
       }
     >
-      {/* Title + description */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
@@ -142,55 +126,51 @@ const CustomerJourneyPage: React.FC = () => {
         </div>
       </div>
 
-      {/* TOP HIGHLIGHT TILES */}
-      <div className="mt-4 flex flex-col lg:flex-row gap-4">
-        {/* Left: yellow metric tiles */}
-        <div className="flex-1 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-          <MetricTile
-            label="Journey vehicles"
-            value={journeyVehicles.toLocaleString()}
-            helper="Visits attributed to journey steps"
-          />
-          <MetricTile
-            label="Avg step ROAS"
-            value={`${avgStepRoas.toFixed(1)}x`}
-            helper="Across all journey steps"
-          />
-          <MetricTile
-            label="Best-performing step"
-            value={bestStep.name}
-            helper={`${bestStep.vehicles.toLocaleString()} vehicles`}
-          />
-          <MetricTile
-            label="Emails per customer"
-            value="~6"
-            helper="Typical journey coverage"
-          />
-          <MetricTile
-            label="Postcards / SMS per customer"
-            value="2–3"
-            helper="Reminder & reactivation touches"
-          />
-        </div>
+      {/* Main layout: left content + right AI tile */}
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT: all journey tiles and tables */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* Highlight metric tiles – all same size now */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+            <MetricTile
+              label="Journey vehicles"
+              value={journeyVehicles.toLocaleString()}
+              helper="Visits attributed to journey steps"
+            />
+            <MetricTile
+              label="Avg step ROAS"
+              value={`${avgStepRoas.toFixed(1)}x`}
+              helper="Across all journey steps"
+            />
+            <MetricTile
+              label="Best-performing step"
+              value={bestStep.name}
+              helper={`${bestStep.vehicles.toLocaleString()} vehicles`}
+            />
+            <MetricTile
+              label="Total comms sent"
+              value={totalSent.toLocaleString()}
+              helper="All journey communications"
+            />
+            <MetricTile
+              label="Vehicles from journey"
+              value={journeyVehicles.toLocaleString()}
+              helper="Attributed to journey"
+            />
+            <MetricTile
+              label="Emails per customer"
+              value="~6"
+              helper="Typical journey coverage"
+            />
+            <MetricTile
+              label="Postcards / SMS per customer"
+              value="2–3"
+              helper="Reminder & reactivation touches"
+            />
+          </div>
 
-        {/* Right: white summary tiles */}
-        <div className="w-full lg:w-56 space-y-3 text-xs">
-          <SummaryTile
-            label="Total comms sent"
-            value={totalSent.toLocaleString()}
-          />
-          <SummaryTile
-            label="Vehicles from journey"
-            value={journeyVehicles.toLocaleString()}
-          />
-        </div>
-      </div>
-
-      {/* YELLOW BAND: Journey steps + AI tile */}
-      <section className="mt-4 rounded-2xl bg-card border border-border shadow-sm p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Left: journey steps by response & ROAS */}
-          <div>
+          {/* Journey steps by response and ROAS (no yellow background) */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-1">
               <div>
                 <h2 className="text-sm font-semibold text-slate-900">
@@ -219,9 +199,9 @@ const CustomerJourneyPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                       <div
-                        className="h-full bg-emerald-500"
+                        className="h-full bg-sky-500"
                         style={{
                           width: `${
                             (step.responseRate / maxResponseRate) * 100
@@ -229,71 +209,80 @@ const CustomerJourneyPage: React.FC = () => {
                         }}
                       />
                     </div>
-                    <span className="text-[10px] text-slate-500 w-36 text-right">
+                    <span className="text-[10px] text-slate-500 w-40 text-right">
                       {step.interval}
                     </span>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* Right: AI tile */}
+          {/* Step details table (no yellow background) */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Step details
+              </h2>
+              <span className="text-[11px] text-slate-600">
+                Sent, vehicles, response and ROAS by journey step
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
+                    <th className="py-2 pr-3">Step</th>
+                    <th className="py-2 pr-3">Interval</th>
+                    <th className="py-2 pr-3">Channel</th>
+                    <th className="py-2 pr-3 text-right">Sent</th>
+                    <th className="py-2 pr-3 text-right">Vehicles</th>
+                    <th className="py-2 pr-3 text-right">Response %</th>
+                    <th className="py-2 pr-3 text-right">ROAS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {JOURNEY_STEPS.map((step) => (
+                    <tr key={step.name} className="border-t border-slate-100">
+                      <td className="py-2 pr-3 text-slate-800">
+                        {step.name}
+                      </td>
+                      <td className="py-2 pr-3 text-slate-700">
+                        {step.interval}
+                      </td>
+                      <td className="py-2 pr-3 text-slate-700">
+                        {step.channel}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {step.sent.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {step.vehicles.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {step.responseRate.toFixed(1)}%
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {step.roas.toFixed(1)}x
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        {/* RIGHT: AI Insights tile, fixed 1/4-width column */}
+        <div className="lg:col-span-1">
           <AIInsightsTile
-            title="AI insights (mock)"
-            subtitle="Based on last 12 months journey data"
-            bullets={aiInsights}
-            onRefresh={handleRefreshAi}
+            title="AI Insights"
+            subtitle="Based on 12 months data"
+            bullets={[]}
           />
         </div>
-      </section>
-
-      {/* YELLOW BAND: Step details table */}
-      <section className="mt-3 rounded-2xl bg-card border border-border shadow-sm p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-slate-900">Step details</h2>
-          <span className="text-[11px] text-slate-600">
-            Sent, vehicles, response and ROAS by journey step
-          </span>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-xs">
-            <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-                <th className="py-2 pr-3">Step</th>
-                <th className="py-2 pr-3">Interval</th>
-                <th className="py-2 pr-3">Channel</th>
-                <th className="py-2 pr-3 text-right">Sent</th>
-                <th className="py-2 pr-3 text-right">Vehicles</th>
-                <th className="py-2 pr-3 text-right">Response %</th>
-                <th className="py-2 pr-3 text-right">ROAS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {JOURNEY_STEPS.map((step) => (
-                <tr key={step.name} className="border-t border-border">
-                  <td className="py-2 pr-3 text-slate-800">{step.name}</td>
-                  <td className="py-2 pr-3 text-slate-700">{step.interval}</td>
-                  <td className="py-2 pr-3 text-slate-700">{step.channel}</td>
-                  <td className="py-2 pr-3 text-right">
-                    {step.sent.toLocaleString()}
-                  </td>
-                  <td className="py-2 pr-3 text-right">
-                    {step.vehicles.toLocaleString()}
-                  </td>
-                  <td className="py-2 pr-3 text-right">
-                    {step.responseRate.toFixed(1)}%
-                  </td>
-                  <td className="py-2 pr-3 text-right">
-                    {step.roas.toFixed(1)}x
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      </div>
     </ShellLayout>
   );
 };
