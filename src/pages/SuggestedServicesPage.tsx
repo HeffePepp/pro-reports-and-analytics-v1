@@ -189,7 +189,7 @@ const SuggestedServicesPage: React.FC = () => {
         {/* LEFT: KPIs + tabbed service-type card */}
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
             <MetricTile
               label="SS Messages Sent"
               value={ssSummary.emailsSent.toLocaleString()}
@@ -209,6 +209,14 @@ const SuggestedServicesPage: React.FC = () => {
             <MetricTile
               label="Total Invoice Revenue"
               value={`$${ssSummary.totalInvoiceRevenue.toLocaleString()}`}
+            />
+            <MetricTile
+              label="% valid emails on SS invoices"
+              value={`${ssSummary.validEmailOnSsInvoicesPct.toFixed(1)}%`}
+            />
+            <MetricTile
+              label="% inv with SS item included"
+              value={`${ssSummary.invoicesWithSsItemPct.toFixed(1)}%`}
             />
           </div>
 
