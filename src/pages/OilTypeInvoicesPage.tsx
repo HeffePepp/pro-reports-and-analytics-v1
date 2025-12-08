@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, SummaryTile } from "@/components/layout";
-import MetricTile from "@/components/layout/MetricTile";
+import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type OilInvoiceSummary = {
   storeGroupName: string;
@@ -140,6 +139,7 @@ const OilTypeInvoicesPage: React.FC = () => {
         </>
       }
     >
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
@@ -150,144 +150,107 @@ const OilTypeInvoicesPage: React.FC = () => {
             coupons and ticket value.
           </p>
         </div>
-        <div className="flex gap-3 text-xs">
-          <SummaryTile
-            label="Total oil invoices"
-            value={oilInvoiceSummary.invoiceCount.toString()}
-          />
-          <SummaryTile
-            label={`${oilInvoiceSummary.vendorName} invoices`}
-            value={oilInvoiceSummary.vendorInvoices.toString()}
-          />
-        </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <MetricTile
-          label={`${oilInvoiceSummary.vendorName} share`}
-          value={`${vendorInvoicePct.toFixed(1)}%`}
-        />
-        <MetricTile
-          label="Vendor revenue"
-          value={`$${oilInvoiceSummary.vendorRevenue.toLocaleString()}`}
-        />
-        <MetricTile
-          label="Avg ticket – vendor"
-          value={`$${avgTicketVendor.toFixed(0)}`}
-        />
-        <MetricTile
-          label="Example coupons"
-          value="SYN20, OIL10"
-          helper="Vendor + house offers"
-        />
-        <MetricTile
-          label="Usage"
-          value="Vendor reporting"
-          helper="Invoice-level proof"
-        />
-      </div>
-
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
-        {/* Insights */}
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800">
-              AI insights (mock)
-            </h2>
-            <button
-              onClick={regenerateInsights}
-              className="text-[11px] px-2 py-1 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600"
-            >
-              Refresh
-            </button>
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <MetricTile
+              label="Total oil invoices"
+              value={oilInvoiceSummary.invoiceCount.toLocaleString()}
+            />
+            <MetricTile
+              label={`${oilInvoiceSummary.vendorName} invoices`}
+              value={oilInvoiceSummary.vendorInvoices.toLocaleString()}
+            />
+            <MetricTile
+              label={`${oilInvoiceSummary.vendorName} share`}
+              value={`${vendorInvoicePct.toFixed(1)}%`}
+            />
+            <MetricTile
+              label="Vendor revenue"
+              value={`$${oilInvoiceSummary.vendorRevenue.toLocaleString()}`}
+            />
+            <MetricTile
+              label="Avg ticket – vendor"
+              value={`$${avgTicketVendor.toFixed(0)}`}
+            />
           </div>
-          <ul className="space-y-1 text-xs text-slate-600">
-            {insights.map((line, i) => (
-              <li key={i} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-[11px] text-slate-400">
-            In production, this report would support CSV export and filtering by
-            vendor brand, coupon or oil type.
-          </p>
+
+          {/* Table */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Sample invoices
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Invoice-level view (dummy data)
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
+                    <th className="py-2 pr-3">Invoice</th>
+                    <th className="py-2 pr-3">Date</th>
+                    <th className="py-2 pr-3">Store</th>
+                    <th className="py-2 pr-3">Customer</th>
+                    <th className="py-2 pr-3">Vehicle</th>
+                    <th className="py-2 pr-3">Oil type</th>
+                    <th className="py-2 pr-3">Brand</th>
+                    <th className="py-2 pr-3 text-right">Invoice total</th>
+                    <th className="py-2 pr-3">Coupon</th>
+                    <th className="py-2 pr-3 text-right">Discount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {oilInvoiceRows.map((row) => (
+                    <tr
+                      key={row.invoiceNumber}
+                      className="border-t border-slate-100"
+                    >
+                      <td className="py-2 pr-3 text-slate-800">
+                        {row.invoiceNumber}
+                      </td>
+                      <td className="py-2 pr-3 text-slate-600">{row.date}</td>
+                      <td className="py-2 pr-3 text-slate-600">
+                        {row.storeName}
+                      </td>
+                      <td className="py-2 pr-3 text-slate-600">
+                        {row.customerName}
+                      </td>
+                      <td className="py-2 pr-3 text-slate-600">{row.vehicle}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.oilType}</td>
+                      <td className="py-2 pr-3 text-slate-600">{row.brand}</td>
+                      <td className="py-2 pr-3 text-right">
+                        ${row.invoiceTotal}
+                      </td>
+                      <td className="py-2 pr-3 text-slate-600">
+                        {row.couponCode ?? "–"}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        ${row.discountAmount}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
-        {/* Quick notes */}
-        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-200 shadow-sm p-4 text-xs text-slate-600 space-y-2">
-          <h2 className="text-sm font-semibold text-slate-800">
-            How vendors use this
-          </h2>
-          <ul className="list-disc pl-4 space-y-1">
-            <li>Validate that co-op campaigns are driving real tickets.</li>
-            <li>Review invoice examples and upsell patterns.</li>
-            <li>Spot stores with low vendor penetration for training or promos.</li>
-          </ul>
+        {/* RIGHT: AI panel */}
+        <div className="lg:col-span-1">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on oil invoice data"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
         </div>
-      </section>
-
-      {/* Table */}
-      <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-slate-800">
-            Sample invoices
-          </h2>
-          <span className="text-[11px] text-slate-400">
-            Invoice-level view (dummy data)
-          </span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-xs">
-            <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                <th className="py-2 pr-3">Invoice</th>
-                <th className="py-2 pr-3">Date</th>
-                <th className="py-2 pr-3">Store</th>
-                <th className="py-2 pr-3">Customer</th>
-                <th className="py-2 pr-3">Vehicle</th>
-                <th className="py-2 pr-3">Oil type</th>
-                <th className="py-2 pr-3">Brand</th>
-                <th className="py-2 pr-3 text-right">Invoice total</th>
-                <th className="py-2 pr-3">Coupon</th>
-                <th className="py-2 pr-3 text-right">Discount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {oilInvoiceRows.map((row) => (
-                <tr
-                  key={row.invoiceNumber}
-                  className="border-t border-slate-100"
-                >
-                  <td className="py-2 pr-3 text-slate-700">
-                    {row.invoiceNumber}
-                  </td>
-                  <td className="py-2 pr-3 text-slate-600">{row.date}</td>
-                  <td className="py-2 pr-3 text-slate-600">
-                    {row.storeName}
-                  </td>
-                  <td className="py-2 pr-3 text-slate-600">
-                    {row.customerName}
-                  </td>
-                  <td className="py-2 pr-3 text-slate-600">{row.vehicle}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.oilType}</td>
-                  <td className="py-2 pr-3 text-slate-600">{row.brand}</td>
-                  <td className="py-2 pr-3 text-right">
-                    ${row.invoiceTotal}
-                  </td>
-                  <td className="py-2 pr-3 text-slate-600">
-                    {row.couponCode ?? "–"}
-                  </td>
-                  <td className="py-2 pr-3 text-right">
-                    ${row.discountAmount}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      </div>
     </ShellLayout>
   );
 };
