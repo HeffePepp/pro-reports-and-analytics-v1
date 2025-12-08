@@ -181,7 +181,7 @@ const SuggestedServicesPage: React.FC = () => {
             <MetricTile label="Suggested Services Revenue" value={`$${ssSummary.ssRevenue.toLocaleString()}`} />
             <MetricTile label="Total Invoice Revenue" value={`$${ssSummary.totalInvoiceRevenue.toLocaleString()}`} />
             <MetricTile
-              label="% Valid emails on Suggested Services invoices"
+              label="Valid email % on Suggested Services invoices"
               value={`${ssSummary.validEmailOnSsInvoicesPct.toFixed(1)}%`}
             />
             <MetricTile
