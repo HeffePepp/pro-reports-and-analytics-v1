@@ -173,19 +173,38 @@ const SuggestedServicesPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* LEFT: KPIs + tabbed service-type card */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
-            <MetricTile label="Suggested Services Messages Sent" value={ssSummary.emailsSent.toLocaleString()} />
-            <MetricTile label="Suggested Services Responses" value={ssResponses.toLocaleString()} />
-            <MetricTile label="Response %" value={`${ssSummary.acceptanceRate.toFixed(1)}%`} />
-            <MetricTile label="Suggested Services Revenue" value={`$${ssSummary.ssRevenue.toLocaleString()}`} />
-            <MetricTile label="Total Invoice Revenue" value={`$${ssSummary.totalInvoiceRevenue.toLocaleString()}`} />
+          {/* KPI tiles – row 1 */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricTile
-              label="Valid email % on Suggested Services invoices"
+              label="SS msgs sent"
+              value={ssSummary.emailsSent.toLocaleString()}
+            />
+            <MetricTile
+              label="SS responses"
+              value={ssResponses.toLocaleString()}
+            />
+            <MetricTile
+              label="Resp %"
+              value={`${ssSummary.acceptanceRate.toFixed(1)}%`}
+            />
+            <MetricTile
+              label="SS revenue"
+              value={`$${ssSummary.ssRevenue.toLocaleString()}`}
+            />
+          </div>
+
+          {/* KPI tiles – row 2 */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <MetricTile
+              label="Total inv. rev."
+              value={`$${ssSummary.totalInvoiceRevenue.toLocaleString()}`}
+            />
+            <MetricTile
+              label="SS inv. valid email"
               value={`${ssSummary.validEmailOnSsInvoicesPct.toFixed(1)}%`}
             />
             <MetricTile
-              label="% Inv. w/ a Suggested Service item included"
+              label="Inv. w/ SS item"
               value={`${ssSummary.invoicesWithSsItemPct.toFixed(1)}%`}
             />
           </div>
