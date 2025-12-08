@@ -154,7 +154,7 @@ const CustomerJourneyPage: React.FC = () => {
             <div className="flex items-center justify-between mb-1">
               <div>
                 <h2 className="text-sm font-semibold text-slate-900">
-                  Journey steps by response and ROAS
+                  Customer journey: touch point + response rate + ROAS
                 </h2>
                 <p className="text-[11px] text-slate-600">
                   Relative performance (dummy data)
