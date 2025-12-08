@@ -83,7 +83,7 @@ const SuggestedServicesPage: React.FC = () => {
 
     setInsights([
       `"${best.serviceName}" has the highest acceptance rate among Suggested Services.`,
-      "Use video content in SS emails to educate customers and nudge acceptance on lower-performing services.",
+      "Use video content in Suggested Services emails to educate customers and nudge acceptance on lower-performing services.",
       "Pair this report with ROAS and Coupon / Discount Analysis to decide where to place stronger offers.",
     ]);
   };
@@ -120,7 +120,7 @@ const SuggestedServicesPage: React.FC = () => {
             Suggested Services
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Track how educational SS messages convert suggested services into
+            Track how educational Suggested Services messages convert suggested services into
             accepted work and revenue.
           </p>
         </div>
@@ -135,19 +135,19 @@ const SuggestedServicesPage: React.FC = () => {
             <MetricTile
               label="Emails sent"
               value={ssSummary.emailsSent.toLocaleString()}
-              helper="SS touchpoints"
+              helper="Suggested Services touchpoints"
             />
             <MetricTile
-              label="Vehicles with SS"
+              label="Vehicles with Suggested Services"
               value={ssSummary.vehiclesWithSs.toLocaleString()}
             />
             <MetricTile
-              label="SS acceptance"
+              label="Suggested Services acceptance"
               value={`${ssSummary.acceptanceRate.toFixed(1)}%`}
               helper={`${totalAccepted.toLocaleString()} accepted jobs`}
             />
             <MetricTile
-              label="SS revenue"
+              label="Suggested Services revenue"
               value={`$${ssSummary.ssRevenue.toLocaleString()}`}
             />
             <MetricTile
@@ -254,7 +254,7 @@ const SuggestedServicesPage: React.FC = () => {
         <div className="lg:col-span-1">
           <AIInsightsTile
             title="AI Insights"
-            subtitle="Based on SS performance data"
+            subtitle="Based on Suggested Services performance data"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
