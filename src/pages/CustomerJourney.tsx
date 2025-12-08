@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { ShellLayout, MetricTile, SummaryTile, AIInsightsTile } from "@/components/layout";
 
 type CustomerJourneySummary = {
@@ -74,28 +74,6 @@ const cjSteps: JourneyStepRow[] = [
 ];
 
 const CustomerJourneyPage: React.FC = () => {
-  const [aiInsights, setAiInsights] = useState<string[]>([
-    "Your full Throttle journey (thank-you, SS, reminders, reactivation) is active for this group.",
-    "Reminder 1 and 2 drive the majority of returning vehicles and revenue.",
-    "Suggested Services emails contribute meaningful upsell revenue between visits.",
-  ]);
-
-  const bestRevenueStep = useMemo(
-    () =>
-      cjSteps.reduce((best, step) =>
-        !best || step.revenue > best.revenue ? step : best
-      ),
-    []
-  );
-
-  const handleRefreshAi = () => {
-    setAiInsights([
-      `"${bestRevenueStep.name}" is currently the strongest step by revenue ($${bestRevenueStep.revenue.toLocaleString()}).`,
-      "Consider small A/B tests on subject lines and offers at 3 and 6 months to push more volume into Reminder 1.",
-      "Use this report with ROAS and Coupon/Discount Analysis to decide where to add or reduce touches.",
-    ]);
-  };
-
   const totalSent = useMemo(
     () => cjSteps.reduce((sum, s) => sum + s.sent, 0),
     []
@@ -104,6 +82,7 @@ const CustomerJourneyPage: React.FC = () => {
     () => cjSteps.reduce((sum, s) => sum + s.vehicles, 0),
     []
   );
+
 
   return (
     <ShellLayout
@@ -148,34 +127,40 @@ const CustomerJourneyPage: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI tiles + AI Insights tile in a shared band */}
+      {/* KPI + AI band under the header */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left: metric tiles */}
-        <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-3">
-          <MetricTile
-            label="Active journey customers"
-            value={cjSummary.activeCustomers.toLocaleString()}
-            helper={`${cjSummary.carCount.toLocaleString()} cars`}
-          />
-          <MetricTile
-            label="Touches per customer"
-            value={cjSummary.touchesPerCustomer.toFixed(1)}
-            helper="Avg journey touches"
-          />
-          <MetricTile
-            label="Messages sent (12m)"
-            value={totalSent.toLocaleString()}
-          />
-          <MetricTile
-            label="Vehicles from journey"
-            value={totalVehicles.toLocaleString()}
-          />
+        {/* Left: all journey tiles */}
+        <div className="lg:col-span-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            <MetricTile
+              label="Active journey customers"
+              value={cjSummary.activeCustomers.toLocaleString()}
+              helper={`${cjSummary.carCount.toLocaleString()} cars`}
+            />
+            <MetricTile
+              label="Touches per customer"
+              value={cjSummary.touchesPerCustomer.toFixed(1)}
+              helper="Avg journey touches"
+            />
+            <MetricTile
+              label="Messages sent (12m)"
+              value={totalSent.toLocaleString()}
+            />
+            <MetricTile
+              label="Vehicles from journey"
+              value={totalVehicles.toLocaleString()}
+            />
+          </div>
         </div>
 
-        {/* Right: AI Insights tile (fixed location across reports) */}
+        {/* Right: AI Insights tile */}
         <AIInsightsTile
           subtitle="Based on last 12 months of journey performance"
-          bullets={aiInsights}
+          bullets={[
+            "Reminder 1 & 2 generate the majority of journey revenue and vehicles.",
+            "Suggested Services emails are a key upsell between visits.",
+            "Consider testing subject lines and offers at 3 & 6 months to feed more cars into Reminder 1."
+          ]}
         />
       </div>
 
