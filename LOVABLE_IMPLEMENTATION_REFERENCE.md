@@ -7,6 +7,7 @@ This document provides the exact implementation details of the Throttle Pro Repo
 ## 1. Shell / Navigation Structure
 
 ### ShellLayout Component
+
 `src/components/layout/ShellLayout.tsx`
 
 ```tsx
@@ -82,6 +83,7 @@ export default ShellLayout;
 ```
 
 ### Sidebar Component
+
 `src/components/layout/Sidebar.tsx`
 
 ```tsx
@@ -430,6 +432,7 @@ const DEEP_LINK_MAP: Record<string, { to: string; label: string }> = {
 ## 3. Full Report Page Implementation
 
 ### Customer Journey Page
+
 `src/pages/CustomerJourney.tsx`
 
 ```tsx
@@ -670,7 +673,7 @@ const CustomerJourneyPage: React.FC = () => {
             <div className="flex items-center justify-between mb-1">
               <div>
                 <h2 className="text-sm font-semibold text-slate-900">
-                  Customer journey: touch point + response rate + ROAS
+                  Customer Journey: Touch Point + Response Rate + ROAS
                 </h2>
                 <p className="text-[11px] text-slate-600">
                   Relative performance (dummy data)
@@ -797,6 +800,7 @@ export default CustomerJourneyPage;
 ## 4. Shared Layout Components
 
 ### MetricTile
+
 `src/components/layout/MetricTile.tsx`
 
 ```tsx
@@ -840,6 +844,7 @@ export default MetricTile;
 ```
 
 ### AIInsightsTile
+
 `src/components/layout/AIInsightsTile.tsx`
 
 ```tsx
@@ -915,6 +920,7 @@ export default AIInsightsTile;
 ```
 
 ### SummaryTile
+
 `src/components/layout/SummaryTile.tsx`
 
 ```tsx
@@ -936,6 +942,7 @@ export default SummaryTile;
 ```
 
 ### DeepLink
+
 `src/components/layout/DeepLink.tsx`
 
 ```tsx
@@ -963,6 +970,7 @@ export default DeepLink;
 ```
 
 ### BarStack
+
 `src/components/layout/BarStack.tsx`
 
 ```tsx
@@ -1024,6 +1032,7 @@ export default BarStack;
 ```
 
 ### Component Exports
+
 `src/components/layout/index.ts`
 
 ```tsx
@@ -1236,6 +1245,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 ## 7. Common Conventions
 
 ### Typography Scale
+
 - `text-[10px]` – Footer fine print
 - `text-[11px]` – Labels, captions, table headers (uppercase + tracking-wide)
 - `text-xs` – Table cells, bullet lists, helper text
@@ -1244,22 +1254,26 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 - `text-xl md:text-2xl` – Page h1 headings
 
 ### Spacing Patterns
-- Card padding: `p-4` 
+
+- Card padding: `p-4`
 - Grid gaps: `gap-3` (KPI tiles), `gap-4` (sections)
 - Section spacing: `space-y-4` inside left column
 
 ### Card Styling
+
 - Rounded corners: `rounded-2xl`
 - Border: `border border-slate-200`
 - Shadow: `shadow-sm`
 - Background: `bg-white`
 
 ### Bar Visualization
+
 - Container: `h-2 rounded-full bg-slate-100 overflow-hidden`
 - Fill bar: `h-full bg-sky-500` (or `bg-emerald-500` for SS)
 - Width calculated as percentage of max value
 
 ### Table Styling
+
 - Header: `text-[11px] uppercase tracking-wide text-slate-500`
 - Cells: `py-2 pr-3 text-xs`
 - Row dividers: `border-t border-slate-100`
