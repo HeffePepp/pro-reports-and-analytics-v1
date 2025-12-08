@@ -127,10 +127,6 @@ const SuggestedServicesPage: React.FC = () => {
     "Wiper blades perform well as an add-on and help boost ticket without adding much bay time.",
   ]);
 
-  const maxRespPct = useMemo(
-    () => Math.max(...SS_SERVICE_TYPES.map((t) => t.respPct), 1),
-    []
-  );
 
   const regenerateInsights = () => {
     const best = SS_SERVICE_TYPES.reduce((best, s) =>
@@ -210,82 +206,129 @@ const SuggestedServicesPage: React.FC = () => {
             />
           </div>
 
-          {/* Performance by service type */}
-          <section className="rounded-2xl bg-card border border-border shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
+          {/* Performance by service type – tabbed Overview / Details */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between gap-3 mb-3">
               <div>
                 <h2 className="text-sm font-semibold text-slate-900">
                   Performance by service type
                 </h2>
                 <p className="text-[11px] text-slate-600">
-                  Sent vs responded, resp % and average revenue
+                  Suggested Services: RESP % and revenue by service
                 </p>
               </div>
+
+              {/* Tabs */}
+              <div className="inline-flex items-center rounded-full bg-slate-100 p-0.5 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setSsTab("overview")}
+                  className={
+                    "px-3 py-1 rounded-full font-medium transition " +
+                    (ssTab === "overview"
+                      ? "bg-white shadow-sm text-slate-900"
+                      : "text-slate-500 hover:text-slate-900")
+                  }
+                >
+                  Overview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSsTab("details")}
+                  className={
+                    "px-3 py-1 rounded-full font-medium transition " +
+                    (ssTab === "details"
+                      ? "bg-white shadow-sm text-slate-900"
+                      : "text-slate-500 hover:text-slate-900")
+                  }
+                >
+                  Details
+                </button>
+              </div>
             </div>
-            <div className="space-y-2 text-xs text-slate-700">
-              {SS_SERVICE_TYPES.map((s) => (
-                <div key={s.service}>
-                  <div className="flex justify-between text-[11px]">
-                    <span>{s.service}</span>
-                    <span>
-                      {s.respPct.toFixed(1)}% resp · ${s.avgRev.toFixed(0)} avg rev
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500"
-                        style={{
-                          width: `${(s.respPct / maxRespPct) * 100}%`,
-                        }}
-                      />
+
+            {/* OVERVIEW TAB – bars + quick stats */}
+            {ssTab === "overview" && (
+              <div className="space-y-3 text-xs text-slate-700">
+                {(() => {
+                  const maxResp = Math.max(
+                    ...SS_SERVICE_TYPES.map((r) => r.respPct),
+                    1
+                  );
+                  return SS_SERVICE_TYPES.map((row) => (
+                    <div key={row.service}>
+                      {/* Top row: service name + RESP/avg rev + counts */}
+                      <div className="flex items-start justify-between gap-3 text-[11px]">
+                        <div className="text-slate-700 font-medium">
+                          {row.service}
+                        </div>
+                        <div className="text-right text-slate-600 min-w-[120px]">
+                          <div>
+                            {row.respPct.toFixed(1)}% RESP · ${row.avgRev.toFixed(0)} avg rev
+                          </div>
+                          <div className="text-slate-500">
+                            {row.responded.toLocaleString()} of{" "}
+                            {row.sent.toLocaleString()} responded
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bar */}
+                      <div className="mt-2 flex items-center gap-2">
+                        <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                          <div
+                            className="h-full bg-emerald-500"
+                            style={{
+                              width: `${(row.respPct / maxResp) * 100}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-[10px] text-slate-500 w-40 text-right">
-                      {s.responded.toLocaleString()} of {s.sent.toLocaleString()} responded
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+                  ));
+                })()}
+              </div>
+            )}
 
-          {/* Suggested service details */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Suggested service details
-              </h2>
-              <span className="text-[11px] text-slate-600">
-                Sent, responded, resp % and revenue by service
-              </span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-                    <th className="py-2 pr-3">Service</th>
-                    <th className="py-2 pr-3 text-right">Sent</th>
-                    <th className="py-2 pr-3 text-right">Responded</th>
-                    <th className="py-2 pr-3 text-right">Resp %</th>
-                    <th className="py-2 pr-3 text-right">Avg Rev</th>
-                    <th className="py-2 pr-3 text-right">Revenue</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {SS_SERVICE_TYPES.map((row) => (
-                    <tr key={row.service} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">{row.service}</td>
-                      <td className="py-2 pr-3 text-right">{row.sent.toLocaleString()}</td>
-                      <td className="py-2 pr-3 text-right">{row.responded.toLocaleString()}</td>
-                      <td className="py-2 pr-3 text-right">{row.respPct.toFixed(1)}%</td>
-                      <td className="py-2 pr-3 text-right">${row.avgRev.toFixed(0)}</td>
-                      <td className="py-2 pr-3 text-right">${row.revenue.toLocaleString()}</td>
+            {/* DETAILS TAB – full table */}
+            {ssTab === "details" && (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-xs">
+                  <thead>
+                    <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
+                      <th className="py-2 pr-3">Service</th>
+                      <th className="py-2 pr-3 text-right">Sent</th>
+                      <th className="py-2 pr-3 text-right">Responded</th>
+                      <th className="py-2 pr-3 text-right">Resp %</th>
+                      <th className="py-2 pr-3 text-right">Avg rev</th>
+                      <th className="py-2 pr-3 text-right">Revenue</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {SS_SERVICE_TYPES.map((row) => (
+                      <tr key={row.service} className="border-t border-slate-100">
+                        <td className="py-2 pr-3 text-slate-800">{row.service}</td>
+                        <td className="py-2 pr-3 text-right">
+                          {row.sent.toLocaleString()}
+                        </td>
+                        <td className="py-2 pr-3 text-right">
+                          {row.responded.toLocaleString()}
+                        </td>
+                        <td className="py-2 pr-3 text-right">
+                          {row.respPct.toFixed(1)}%
+                        </td>
+                        <td className="py-2 pr-3 text-right">
+                          ${row.avgRev.toFixed(0)}
+                        </td>
+                        <td className="py-2 pr-3 text-right">
+                          ${row.revenue.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
 
           {/* Touch point details table – Suggested Services */}
