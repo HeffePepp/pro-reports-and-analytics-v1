@@ -134,17 +134,14 @@ const ComprehensiveAccountAuditPage: React.FC = () => {
             <MetricTile
               label="Checks passed"
               value={auditSummary.passedChecks.toString()}
-              tone="positive"
             />
             <MetricTile
               label="Warnings"
               value={auditSummary.warningChecks.toString()}
-              tone="warn"
             />
             <MetricTile
               label="Failures"
               value={auditSummary.failedChecks.toString()}
-              tone="negative"
             />
             <MetricTile
               label="Total checks"

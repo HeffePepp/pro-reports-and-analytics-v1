@@ -123,7 +123,6 @@ const ActiveLocationsPage: React.FC = () => {
             <MetricTile
               label="Active"
               value={activeLocationSummary.activeCount.toString()}
-              tone="positive"
             />
             <MetricTile
               label="Launching"
@@ -132,12 +131,10 @@ const ActiveLocationsPage: React.FC = () => {
             <MetricTile
               label="Paused"
               value={activeLocationSummary.pausedCount.toString()}
-              tone="warn"
             />
             <MetricTile
               label="Suspended"
               value={activeLocationSummary.suspendedCount.toString()}
-              tone="negative"
             />
             <MetricTile
               label="Data freshness"
