@@ -314,14 +314,14 @@ const SuggestedServicesPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Touch point performance */}
-          <section className="rounded-2xl bg-card border border-border shadow-sm p-4">
+          {/* Touch point details table – Suggested Services */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-sm font-semibold text-slate-900">
-                Touch point performance
+                Touch point details
               </h2>
               <span className="text-[11px] text-slate-600">
-                Sent, responses, resp % and ROAS by timing
+                Sent, responses, Resp % and ROAS by touch point
               </span>
             </div>
 
@@ -340,14 +340,24 @@ const SuggestedServicesPage: React.FC = () => {
                 </thead>
                 <tbody>
                   {SS_TOUCHPOINTS.map((tp) => (
-                    <tr key={tp.name} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">{tp.name}</td>
-                      <td className="py-2 pr-3 text-slate-600">{tp.timing}</td>
-                      <td className="py-2 pr-3 text-slate-600">{tp.channel}</td>
-                      <td className="py-2 pr-3 text-right">{tp.sent.toLocaleString()}</td>
-                      <td className="py-2 pr-3 text-right">{tp.responses.toLocaleString()}</td>
-                      <td className="py-2 pr-3 text-right">{tp.respPct.toFixed(1)}%</td>
-                      <td className="py-2 pr-3 text-right">{tp.roas.toFixed(1)}x</td>
+                    <tr key={tp.timing} className="border-t border-slate-100">
+                      <td className="py-2 pr-3 text-slate-800">
+                        Suggested Services
+                      </td>
+                      <td className="py-2 pr-3 text-slate-700">{tp.timing}</td>
+                      <td className="py-2 pr-3 text-slate-700">{tp.channel}</td>
+                      <td className="py-2 pr-3 text-right">
+                        {tp.sent.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {tp.responses.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {tp.respPct.toFixed(1)}%
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {tp.roas.toFixed(1)}x
+                      </td>
                     </tr>
                   ))}
                 </tbody>
