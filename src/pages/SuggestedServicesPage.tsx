@@ -14,7 +14,10 @@ type SuggestedServicesSummary = {
   emailsSent: number;          // SS messages sent
   ssRevenue: number;           // revenue from responded SS jobs
   totalInvoiceRevenue: number; // total invoice revenue in period
-  acceptanceRate: number;      // overall RESP % (still named acceptanceRate internally)
+  acceptanceRate: number;      // overall RESP %
+  totalInvoices: number;       // all invoices in period
+  validEmailOnSsInvoicesPct: number; // % valid emails on SS invoices
+  invoicesWithSsItemPct: number;     // % of all invoices with SS item
 };
 
 const ssSummary: SuggestedServicesSummary = {
@@ -24,6 +27,9 @@ const ssSummary: SuggestedServicesSummary = {
   ssRevenue: 186400,
   totalInvoiceRevenue: 742000,
   acceptanceRate: 23.8,
+  totalInvoices: 21500,             // dummy
+  validEmailOnSsInvoicesPct: 81.2,  // dummy
+  invoicesWithSsItemPct: 34.5,      // dummy
 };
 
 // ---- Performance by service type (Overview tab) ----
