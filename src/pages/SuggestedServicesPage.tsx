@@ -191,11 +191,11 @@ const SuggestedServicesPage: React.FC = () => {
           {/* KPI tiles */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
             <MetricTile
-              label="SS Messages Sent"
+              label="Suggested Services Messages Sent"
               value={ssSummary.emailsSent.toLocaleString()}
             />
             <MetricTile
-              label="SS Responses"
+              label="Suggested Services Responses"
               value={ssResponses.toLocaleString()}
             />
             <MetricTile
@@ -203,7 +203,7 @@ const SuggestedServicesPage: React.FC = () => {
               value={`${ssSummary.acceptanceRate.toFixed(1)}%`}
             />
             <MetricTile
-              label="SS Revenue"
+              label="Suggested Services Revenue"
               value={`$${ssSummary.ssRevenue.toLocaleString()}`}
             />
             <MetricTile
@@ -211,11 +211,11 @@ const SuggestedServicesPage: React.FC = () => {
               value={`$${ssSummary.totalInvoiceRevenue.toLocaleString()}`}
             />
             <MetricTile
-              label="% valid emails on SS invoices"
+              label="% valid emails on Suggested Services invoices"
               value={`${ssSummary.validEmailOnSsInvoicesPct.toFixed(1)}%`}
             />
             <MetricTile
-              label="% inv with SS item included"
+              label="% inv with Suggested Services item included"
               value={`${ssSummary.invoicesWithSsItemPct.toFixed(1)}%`}
             />
           </div>
