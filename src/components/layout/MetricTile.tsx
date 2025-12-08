@@ -19,13 +19,22 @@ const MetricTile: React.FC<MetricTileProps> = ({
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full">
-      <div className="flex flex-col justify-center h-full px-3 py-3 md:px-4 md:py-4 min-h-[88px]">
-        <div className="text-[11px] font-medium text-slate-500 leading-snug">
-          {label}
+      <div className="flex flex-col items-center justify-start h-full px-3 py-3 md:px-4 md:py-4">
+        {/* Label area – fixed height so labels align, values line up */}
+        <div className="w-full flex items-start justify-center min-h-[36px]">
+          <div className="text-[11px] font-medium text-slate-500 leading-snug text-center">
+            {label}
+          </div>
         </div>
-        <div className={`${valueClass} mt-1 leading-tight`}>{value}</div>
+
+        {/* Value */}
+        <div className={`${valueClass} mt-1 leading-tight text-center`}>
+          {value}
+        </div>
+
+        {/* Optional helper text */}
         {helper && (
-          <div className="mt-1 text-[11px] text-slate-500 leading-snug">
+          <div className="mt-1 text-[11px] text-slate-500 leading-snug text-center">
             {helper}
           </div>
         )}
