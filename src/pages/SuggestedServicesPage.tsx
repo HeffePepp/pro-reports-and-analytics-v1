@@ -73,6 +73,56 @@ const SS_ROWS: SSRow[] = [
   { serviceName: "Wiper Blades", sent: 4800, accepted: 940, acceptanceRate: 19.6, revenue: 35720 },
 ];
 
+// Touch point level data
+type SuggestedServicesTouchPoint = {
+  name: string;
+  timing: string;
+  channel: string;
+  sent: number;
+  responses: number;
+  respPct: number;
+  roas: number;
+};
+
+const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
+  {
+    name: "Suggested Services – 1 week",
+    timing: "1 week after Service",
+    channel: "Email",
+    sent: 1850,
+    responses: 420,
+    respPct: 22.7,
+    roas: 9.5,
+  },
+  {
+    name: "Suggested Services – 1 month",
+    timing: "1 month after Service",
+    channel: "Email",
+    sent: 1760,
+    responses: 310,
+    respPct: 17.6,
+    roas: 12.1,
+  },
+  {
+    name: "Suggested Services – 3 months",
+    timing: "3 months after Service",
+    channel: "Email",
+    sent: 1640,
+    responses: 240,
+    respPct: 14.6,
+    roas: 11.2,
+  },
+  {
+    name: "Suggested Services – 6 months",
+    timing: "6 months after Service",
+    channel: "Email",
+    sent: 1380,
+    responses: 280,
+    respPct: 20.3,
+    roas: 16.4,
+  },
+];
+
 const SuggestedServicesPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Cabin and engine air filters are the strongest Suggested Services, with solid response and high average revenue.",
@@ -257,6 +307,47 @@ const SuggestedServicesPage: React.FC = () => {
                       <td className="py-2 pr-3 text-right">
                         ${row.revenue.toLocaleString()}
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Touch point performance */}
+          <section className="rounded-2xl bg-card border border-border shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Touch point performance
+              </h2>
+              <span className="text-[11px] text-slate-600">
+                Sent, responses, resp % and ROAS by timing
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
+                    <th className="py-2 pr-3">Touch Point</th>
+                    <th className="py-2 pr-3">Timing</th>
+                    <th className="py-2 pr-3">Channel</th>
+                    <th className="py-2 pr-3 text-right">Sent</th>
+                    <th className="py-2 pr-3 text-right">Responses</th>
+                    <th className="py-2 pr-3 text-right">Resp %</th>
+                    <th className="py-2 pr-3 text-right">ROAS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {SS_TOUCHPOINTS.map((tp) => (
+                    <tr key={tp.name} className="border-t border-slate-100">
+                      <td className="py-2 pr-3 text-slate-800">{tp.name}</td>
+                      <td className="py-2 pr-3 text-slate-600">{tp.timing}</td>
+                      <td className="py-2 pr-3 text-slate-600">{tp.channel}</td>
+                      <td className="py-2 pr-3 text-right">{tp.sent.toLocaleString()}</td>
+                      <td className="py-2 pr-3 text-right">{tp.responses.toLocaleString()}</td>
+                      <td className="py-2 pr-3 text-right">{tp.respPct.toFixed(1)}%</td>
+                      <td className="py-2 pr-3 text-right">{tp.roas.toFixed(1)}x</td>
                     </tr>
                   ))}
                 </tbody>
