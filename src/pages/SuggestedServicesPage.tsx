@@ -120,6 +120,7 @@ const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
 ];
 
 const SuggestedServicesPage: React.FC = () => {
+  const [ssTab, setSsTab] = useState<"overview" | "details">("overview");
   const [insights, setInsights] = useState<string[]>([
     "Cabin and engine air filters are the strongest Suggested Services, with solid response and high average revenue.",
     "Fuel system cleaning has high revenue per job but lower acceptance; consider stronger education or offer.",
