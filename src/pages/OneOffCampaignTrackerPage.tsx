@@ -18,6 +18,8 @@ type OneOffRow = {
   spend: number;
   vehicles: number;
   revenue: number;
+  responseRate: number;
+  roas: number;
 };
 
 const oneOffSummary: OneOffSummary = {
@@ -29,7 +31,7 @@ const oneOffSummary: OneOffSummary = {
   totalVehicles: 520,
 };
 
-const oneOffRows: OneOffRow[] = [
+const ONE_OFF_CAMPAIGNS: OneOffRow[] = [
   {
     campaignName: "Don's Garage: Spring Has Sprung",
     targetAudience: "12–24 month inactive",
@@ -38,6 +40,8 @@ const oneOffRows: OneOffRow[] = [
     spend: 520,
     vehicles: 62,
     revenue: 8350,
+    responseRate: 4.1,
+    roas: 16.1,
   },
   {
     campaignName: "Summer A/C Tune-Up",
@@ -47,6 +51,8 @@ const oneOffRows: OneOffRow[] = [
     spend: 1400,
     vehicles: 76,
     revenue: 14200,
+    responseRate: 6.9,
+    roas: 10.1,
   },
   {
     campaignName: "Back to School",
@@ -56,6 +62,8 @@ const oneOffRows: OneOffRow[] = [
     spend: 2800,
     vehicles: 112,
     revenue: 21400,
+    responseRate: 6.2,
+    roas: 7.6,
   },
   {
     campaignName: "Black Friday Synthetic Push",
@@ -65,6 +73,8 @@ const oneOffRows: OneOffRow[] = [
     spend: 3200,
     vehicles: 158,
     revenue: 36800,
+    responseRate: 9.9,
+    roas: 11.5,
   },
 ];
 
@@ -81,12 +91,17 @@ const OneOffCampaignTrackerPage: React.FC = () => {
   );
 
   const maxRoas = useMemo(
-    () => Math.max(...oneOffRows.map((c) => c.revenue / c.spend), 1),
+    () => Math.max(...ONE_OFF_CAMPAIGNS.map((c) => c.revenue / c.spend), 1),
+    []
+  );
+
+  const maxCampaignResponseRate = useMemo(
+    () => Math.max(...ONE_OFF_CAMPAIGNS.map((c) => c.responseRate), 1),
     []
   );
 
   const regenerateInsights = () => {
-    const best = oneOffRows.reduce((b, c) =>
+    const best = ONE_OFF_CAMPAIGNS.reduce((b, c) =>
       !b || c.revenue / c.spend > b.revenue / b.spend ? c : b
     );
 
@@ -161,41 +176,54 @@ const OneOffCampaignTrackerPage: React.FC = () => {
             />
           </div>
 
-          {/* ROAS by campaign */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
-                ROAS by campaign
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Relative ROAS performance
-              </span>
+          {/* One-off campaign performance – updated layout */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-1">
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900">
+                  One-off campaign performance
+                </h2>
+                <p className="text-[11px] text-slate-600">
+                  Response rate and ROAS by campaign (dummy data)
+                </p>
+              </div>
             </div>
-            <div className="space-y-2 text-xs text-slate-700">
-              {oneOffRows.map((c) => {
-                const roas = c.revenue / c.spend;
-                return (
-                  <div key={c.campaignName}>
-                    <div className="flex justify-between text-[11px]">
-                      <span>{c.campaignName}</span>
-                      <span>{roas.toFixed(1)}x ROAS</span>
-                    </div>
-                    <div className="mt-1 flex items-center gap-2">
-                      <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                        <div
-                          className="h-full bg-emerald-500"
-                          style={{
-                            width: `${(roas / maxRoas) * 100}%`,
-                          }}
-                        />
-                      </div>
-                      <span className="text-[10px] text-slate-500 w-28 text-right">
-                        {c.channel}
+
+            <div className="mt-3 space-y-3 text-xs text-slate-700">
+              {ONE_OFF_CAMPAIGNS.map((campaign, idx) => (
+                <div key={campaign.campaignName}>
+                  {/* Top row: campaign name + channel (in parentheses), stacked stats on right */}
+                  <div className="flex items-start justify-between gap-3 text-[11px]">
+                    <div className="text-slate-700">
+                      <span className="font-medium">
+                        {idx + 1}. {campaign.campaignName}
+                      </span>{" "}
+                      <span className="text-slate-500">
+                        ({campaign.channel})
                       </span>
                     </div>
+
+                    <div className="text-right text-slate-600 min-w-[80px]">
+                      <div>{campaign.responseRate.toFixed(1)}% RESP</div>
+                      <div>{campaign.roas.toFixed(1)}x ROAS</div>
+                    </div>
                   </div>
-                );
-              })}
+
+                  {/* Bar row – scaled by response rate (same visual pattern as journey tile) */}
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full bg-sky-500"
+                        style={{
+                          width: `${
+                            (campaign.responseRate / maxCampaignResponseRate) * 100
+                          }%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
 
@@ -224,7 +252,7 @@ const OneOffCampaignTrackerPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {oneOffRows.map((c) => {
+                  {ONE_OFF_CAMPAIGNS.map((c) => {
                     const roas = c.revenue / c.spend;
                     return (
                       <tr key={c.campaignName} className="border-t border-slate-100">
