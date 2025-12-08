@@ -131,17 +131,14 @@ const CallBackReportPage: React.FC = () => {
             <MetricTile
               label="Due today"
               value={callBackSummary.dueToday.toString()}
-              tone="warn"
             />
             <MetricTile
               label="Overdue"
               value={callBackSummary.overdue.toString()}
-              tone="negative"
             />
             <MetricTile
               label="Completed this week"
               value={callBackSummary.completedThisWeek.toString()}
-              tone="positive"
             />
             <MetricTile
               label="Priority focus"
