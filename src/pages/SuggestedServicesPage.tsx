@@ -11,13 +11,13 @@ import AIInsightsTile from "@/components/layout/AIInsightsTile";
 type SuggestedServicesSummary = {
   storeGroupName: string;
   periodLabel: string;
-  emailsSent: number;          // SS messages sent
-  ssRevenue: number;           // revenue from responded SS jobs
+  emailsSent: number; // SS messages sent
+  ssRevenue: number; // revenue from responded SS jobs
   totalInvoiceRevenue: number; // total invoice revenue in period
-  acceptanceRate: number;      // overall RESP %
-  totalInvoices: number;       // all invoices in period
+  acceptanceRate: number; // overall RESP %
+  totalInvoices: number; // all invoices in period
   validEmailOnSsInvoicesPct: number; // % valid emails on SS invoices
-  invoicesWithSsItemPct: number;     // % of all invoices with SS item
+  invoicesWithSsItemPct: number; // % of all invoices with SS item
 };
 
 const ssSummary: SuggestedServicesSummary = {
@@ -27,17 +27,17 @@ const ssSummary: SuggestedServicesSummary = {
   ssRevenue: 186400,
   totalInvoiceRevenue: 742000,
   acceptanceRate: 23.8,
-  totalInvoices: 21500,             // dummy
-  validEmailOnSsInvoicesPct: 81.2,  // dummy
-  invoicesWithSsItemPct: 34.5,      // dummy
+  totalInvoices: 21500, // dummy
+  validEmailOnSsInvoicesPct: 81.2, // dummy
+  invoicesWithSsItemPct: 34.5, // dummy
 };
 
 // ---- Performance by service type (Overview tab) ----
 type SuggestedServiceTypeRow = {
   service: string;
-  invoices: number;       // invoices that include this SS job
-  validEmailPct: number;  // % of those invoices with a valid email
-  respPct: number;        // % of those customers that later RESP
+  invoices: number; // invoices that include this SS job
+  validEmailPct: number; // % of those invoices with a valid email
+  respPct: number; // % of those customers that later RESP
 };
 
 const SS_SERVICE_TYPES: SuggestedServiceTypeRow[] = [
@@ -120,11 +120,7 @@ const SuggestedServicesPage: React.FC = () => {
   const [ssTab, setSsTab] = useState<"overview" | "details">("overview");
 
   // KPI calcs
-  const ssResponses = useMemo(
-    () =>
-      Math.round(ssSummary.emailsSent * (ssSummary.acceptanceRate / 100)),
-    []
-  );
+  const ssResponses = useMemo(() => Math.round(ssSummary.emailsSent * (ssSummary.acceptanceRate / 100)), []);
 
   // AI Insights
   const [insights, setInsights] = useState<string[]>([
@@ -134,22 +130,15 @@ const SuggestedServicesPage: React.FC = () => {
   ]);
 
   const regenerateInsights = () => {
-    const bestService = SS_SERVICE_TYPES.reduce((best, row) =>
-      !best || row.respPct > best.respPct ? row : best
-    );
+    const bestService = SS_SERVICE_TYPES.reduce((best, row) => (!best || row.respPct > best.respPct ? row : best));
     setInsights([
-      `"${bestService.service}" currently has the highest RESP rate at ${bestService.respPct.toFixed(
-        1
-      )}%.`,
+      `"${bestService.service}" currently has the highest RESP rate at ${bestService.respPct.toFixed(1)}%.`,
       "Combine this service with early touch points (1 week and 1 month) to maximize conversion while the visit is fresh.",
       "Test different SS subject lines and video placements for weaker services to lift RESP without deep discounting.",
     ]);
   };
 
-  const maxRespService = useMemo(
-    () => Math.max(...SS_SERVICE_TYPES.map((r) => r.respPct), 1),
-    []
-  );
+  const maxRespService = useMemo(() => Math.max(...SS_SERVICE_TYPES.map((r) => r.respPct), 1), []);
 
   return (
     <ShellLayout
@@ -161,12 +150,10 @@ const SuggestedServicesPage: React.FC = () => {
       rightInfo={
         <>
           <span>
-            Store group:{" "}
-            <span className="font-medium">{ssSummary.storeGroupName}</span>
+            Store group: <span className="font-medium">{ssSummary.storeGroupName}</span>
           </span>
           <span>
-            Period:{" "}
-            <span className="font-medium">{ssSummary.periodLabel}</span>
+            Period: <span className="font-medium">{ssSummary.periodLabel}</span>
           </span>
         </>
       }
@@ -174,12 +161,10 @@ const SuggestedServicesPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            Suggested Services
-          </h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Suggested Services</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Track how Suggested Services communications drive completed jobs and
-            revenue by service type and touch point.
+            Track how Suggested Services communications drive completed jobs and revenue by service type and touch
+            point.
           </p>
         </div>
       </div>
@@ -190,32 +175,17 @@ const SuggestedServicesPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3">
-            <MetricTile
-              label="Suggested Services Messages Sent"
-              value={ssSummary.emailsSent.toLocaleString()}
-            />
-            <MetricTile
-              label="Suggested Services Responses"
-              value={ssResponses.toLocaleString()}
-            />
-            <MetricTile
-              label="Resp %"
-              value={`${ssSummary.acceptanceRate.toFixed(1)}%`}
-            />
-            <MetricTile
-              label="Suggested Services Revenue"
-              value={`$${ssSummary.ssRevenue.toLocaleString()}`}
-            />
-            <MetricTile
-              label="Total Invoice Revenue"
-              value={`$${ssSummary.totalInvoiceRevenue.toLocaleString()}`}
-            />
+            <MetricTile label="Suggested Services Messages Sent" value={ssSummary.emailsSent.toLocaleString()} />
+            <MetricTile label="Suggested Services Responses" value={ssResponses.toLocaleString()} />
+            <MetricTile label="Resp %" value={`${ssSummary.acceptanceRate.toFixed(1)}%`} />
+            <MetricTile label="Suggested Services Revenue" value={`$${ssSummary.ssRevenue.toLocaleString()}`} />
+            <MetricTile label="Total Invoice Revenue" value={`$${ssSummary.totalInvoiceRevenue.toLocaleString()}`} />
             <MetricTile
               label="% valid emails on Suggested Services invoices"
               value={`${ssSummary.validEmailOnSsInvoicesPct.toFixed(1)}%`}
             />
             <MetricTile
-              label="% inv with Suggested Services item included"
+              label="% Invoice with Suggested Services item included"
               value={`${ssSummary.invoicesWithSsItemPct.toFixed(1)}%`}
             />
           </div>
@@ -224,12 +194,8 @@ const SuggestedServicesPage: React.FC = () => {
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between gap-3 mb-3">
               <div>
-                <h2 className="text-sm font-semibold text-slate-900">
-                  Performance by service type
-                </h2>
-                <p className="text-[11px] text-slate-600">
-                  Suggested Services: invoices, valid emails and RESP %
-                </p>
+                <h2 className="text-sm font-semibold text-slate-900">Performance by service type</h2>
+                <p className="text-[11px] text-slate-600">Suggested Services: invoices, valid emails and RESP %</p>
               </div>
 
               {/* Tabs */}
@@ -239,9 +205,7 @@ const SuggestedServicesPage: React.FC = () => {
                   onClick={() => setSsTab("overview")}
                   className={
                     "px-3 py-1 rounded-full font-medium transition " +
-                    (ssTab === "overview"
-                      ? "bg-white shadow-sm text-slate-900"
-                      : "text-slate-500 hover:text-slate-900")
+                    (ssTab === "overview" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-900")
                   }
                 >
                   Overview
@@ -251,9 +215,7 @@ const SuggestedServicesPage: React.FC = () => {
                   onClick={() => setSsTab("details")}
                   className={
                     "px-3 py-1 rounded-full font-medium transition " +
-                    (ssTab === "details"
-                      ? "bg-white shadow-sm text-slate-900"
-                      : "text-slate-500 hover:text-slate-900")
+                    (ssTab === "details" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-900")
                   }
                 >
                   Details
@@ -268,12 +230,9 @@ const SuggestedServicesPage: React.FC = () => {
                   <div key={row.service}>
                     {/* Top row: service + right-aligned stats line */}
                     <div className="flex items-start justify-between gap-3 text-[11px]">
-                      <div className="text-slate-700 font-medium">
-                        {row.service}
-                      </div>
+                      <div className="text-slate-700 font-medium">{row.service}</div>
                       <div className="text-right text-slate-600 whitespace-nowrap">
-                        {row.invoices.toLocaleString()} invoices ·{" "}
-                        {row.validEmailPct.toFixed(1)}% valid emails ·{" "}
+                        {row.invoices.toLocaleString()} invoices · {row.validEmailPct.toFixed(1)}% valid emails ·{" "}
                         {row.respPct.toFixed(1)}% RESP
                       </div>
                     </div>
@@ -284,9 +243,7 @@ const SuggestedServicesPage: React.FC = () => {
                         <div
                           className="h-full bg-emerald-500"
                           style={{
-                            width: `${
-                              (row.respPct / maxRespService) * 100
-                            }%`,
+                            width: `${(row.respPct / maxRespService) * 100}%`,
                           }}
                         />
                       </div>
@@ -313,31 +270,14 @@ const SuggestedServicesPage: React.FC = () => {
                   </thead>
                   <tbody>
                     {SS_TOUCHPOINTS.map((tp) => (
-                      <tr
-                        key={tp.timing}
-                        className="border-t border-slate-100"
-                      >
-                        <td className="py-2 pr-3 text-slate-800">
-                          Suggested Services
-                        </td>
-                        <td className="py-2 pr-3 text-slate-700">
-                          {tp.timing}
-                        </td>
-                        <td className="py-2 pr-3 text-slate-700">
-                          {tp.channel}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          {tp.sent.toLocaleString()}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          {tp.responses.toLocaleString()}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          {tp.respPct.toFixed(1)}%
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          {tp.roas.toFixed(1)}x
-                        </td>
+                      <tr key={tp.timing} className="border-t border-slate-100">
+                        <td className="py-2 pr-3 text-slate-800">Suggested Services</td>
+                        <td className="py-2 pr-3 text-slate-700">{tp.timing}</td>
+                        <td className="py-2 pr-3 text-slate-700">{tp.channel}</td>
+                        <td className="py-2 pr-3 text-right">{tp.sent.toLocaleString()}</td>
+                        <td className="py-2 pr-3 text-right">{tp.responses.toLocaleString()}</td>
+                        <td className="py-2 pr-3 text-right">{tp.respPct.toFixed(1)}%</td>
+                        <td className="py-2 pr-3 text-right">{tp.roas.toFixed(1)}x</td>
                       </tr>
                     ))}
                   </tbody>
