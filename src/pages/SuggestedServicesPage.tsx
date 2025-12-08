@@ -19,6 +19,14 @@ type SuggestedServiceTypeRow = {
   avgRevenue: number;
 };
 
+type SSRow = {
+  serviceName: string;
+  sent: number;
+  accepted: number;
+  acceptanceRate: number;
+  revenue: number;
+};
+
 const ssSummary: SuggestedServicesSummary = {
   storeGroupName: "All Stores",
   periodLabel: "Last 12 months",
@@ -54,6 +62,13 @@ const ssTypes: SuggestedServiceTypeRow[] = [
     acceptedCount: 940,
     avgRevenue: 38,
   },
+];
+
+const SS_ROWS: SSRow[] = [
+  { serviceName: "Cabin Air Filter", sent: 5200, accepted: 1280, acceptanceRate: 24.6, revenue: 87040 },
+  { serviceName: "Engine Air Filter", sent: 6100, accepted: 1420, acceptanceRate: 23.3, revenue: 76680 },
+  { serviceName: "Fuel System Cleaning", sent: 2400, accepted: 420, acceptanceRate: 17.5, revenue: 46200 },
+  { serviceName: "Wiper Blades", sent: 4800, accepted: 940, acceptanceRate: 19.6, revenue: 35720 },
 ];
 
 const SuggestedServicesPage: React.FC = () => {
@@ -194,7 +209,7 @@ const SuggestedServicesPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Table */}
+          {/* Suggested service details – RESP wording */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-sm font-semibold text-slate-900">
@@ -204,40 +219,40 @@ const SuggestedServicesPage: React.FC = () => {
                 Sent, responded and revenue by service
               </span>
             </div>
+
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs">
                 <thead>
                   <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
                     <th className="py-2 pr-3">Service</th>
                     <th className="py-2 pr-3 text-right">Sent</th>
+                    {/* renamed */}
                     <th className="py-2 pr-3 text-right">Responded</th>
+                    {/* renamed */}
                     <th className="py-2 pr-3 text-right">Resp %</th>
                     <th className="py-2 pr-3 text-right">Revenue</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {ssTypes.map((s) => {
-                    const rate = (s.acceptedCount / s.suggestedCount) * 100;
-                    return (
-                      <tr key={s.serviceName} className="border-t border-border">
-                        <td className="py-2 pr-3 text-slate-800">
-                          {s.serviceName}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          {s.suggestedCount.toLocaleString()}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          {s.acceptedCount.toLocaleString()}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          {rate.toFixed(1)}%
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          ${s.avgRevenue.toFixed(0)}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {SS_ROWS.map((row) => (
+                    <tr key={row.serviceName} className="border-t border-slate-100">
+                      <td className="py-2 pr-3 text-slate-800">
+                        {row.serviceName}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {row.sent.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {row.accepted.toLocaleString()} {/* same metric, new label */}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {row.acceptanceRate.toFixed(1)}%
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        ${row.revenue.toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
