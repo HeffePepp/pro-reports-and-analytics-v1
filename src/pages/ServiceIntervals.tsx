@@ -156,16 +156,19 @@ const ServiceIntervalsPage: React.FC = () => {
               label="Current"
               value={siSummary.currentCount.toLocaleString()}
               helper={`${currentPct.toFixed(1)}%`}
+              tone="positive"
             />
             <MetricTile
               label="At-risk"
               value={siSummary.atRiskCount.toLocaleString()}
               helper={`${atRiskPct.toFixed(1)}%`}
+              tone="warn"
             />
             <MetricTile
               label="Lost"
               value={siSummary.lostCount.toLocaleString()}
               helper={`${lostPct.toFixed(1)}%`}
+              tone="negative"
             />
             <MetricTile
               label="Avg days since visit"
