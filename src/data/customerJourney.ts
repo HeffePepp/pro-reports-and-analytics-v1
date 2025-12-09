@@ -183,3 +183,73 @@ export const JOURNEY_TOUCH_POINTS: JourneyTouchPoint[] = [
 
 export const getJourneyTouchPointById = (id: string) =>
   JOURNEY_TOUCH_POINTS.find((tp) => tp.id === id);
+
+// ZIP-level statistics for touch point drill-downs
+export type JourneyZipStat = {
+  zip: string;
+  city: string;
+  state: string;
+  respPct: number;
+  responses: number;
+  activeCustomers: number;
+  loyalCustomers: number;
+  genderMalePct: number; // female = 100 - male
+  vehicleAgeMix: { label: string; pct: number }[];
+};
+
+export const makeZipStats = (
+  baseRespPct: number,
+  totalResponses: number
+): JourneyZipStat[] => {
+  const r1 = Math.round(totalResponses * 0.4);
+  const r2 = Math.round(totalResponses * 0.35);
+  const r3 = Math.max(totalResponses - r1 - r2, 0);
+
+  return [
+    {
+      zip: "94110",
+      city: "San Francisco",
+      state: "CA",
+      respPct: baseRespPct + 1.5,
+      responses: r1,
+      activeCustomers: 178,
+      loyalCustomers: 52,
+      genderMalePct: 53,
+      vehicleAgeMix: [
+        { label: "0–5 yrs", pct: 39 },
+        { label: "6–10 yrs", pct: 41 },
+        { label: "11+ yrs", pct: 20 },
+      ],
+    },
+    {
+      zip: "94901",
+      city: "San Rafael",
+      state: "CA",
+      respPct: baseRespPct,
+      responses: r2,
+      activeCustomers: 142,
+      loyalCustomers: 41,
+      genderMalePct: 49,
+      vehicleAgeMix: [
+        { label: "0–5 yrs", pct: 34 },
+        { label: "6–10 yrs", pct: 43 },
+        { label: "11+ yrs", pct: 23 },
+      ],
+    },
+    {
+      zip: "95401",
+      city: "Santa Rosa",
+      state: "CA",
+      respPct: baseRespPct - 1.8,
+      responses: r3,
+      activeCustomers: 121,
+      loyalCustomers: 33,
+      genderMalePct: 56,
+      vehicleAgeMix: [
+        { label: "0–5 yrs", pct: 29 },
+        { label: "6–10 yrs", pct: 46 },
+        { label: "11+ yrs", pct: 25 },
+      ],
+    },
+  ];
+};
