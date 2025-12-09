@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, ZipMapPlaceholder } from "@/components/layout";
 
 type SuggestedServicesSummary = {
   storeGroupName: string;
@@ -438,34 +438,8 @@ const SuggestedServicesPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Map placeholder */}
-                <div className="relative rounded-2xl border border-slate-100 bg-slate-50 h-72 md:h-80 overflow-hidden flex items-center justify-center">
-                  <div className="absolute top-3 left-3 flex flex-col gap-1 text-[10px] text-slate-600 bg-white/80 rounded-xl px-3 py-2 shadow-sm">
-                    <span className="font-medium text-[10px] text-slate-700">
-                      Channel legend
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded-full bg-sky-300" />
-                      Postcard
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                      Email
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded-full bg-violet-300" />
-                      Text Message
-                    </span>
-                  </div>
-
-                  <div className="absolute inset-x-0 bottom-3 flex justify-center text-[10px] text-slate-400">
-                    Google Map placeholder – tile ready for integration
-                  </div>
-
-                  <div className="text-[11px] text-slate-300">
-                    Map preview (dummy)
-                  </div>
-                </div>
+                {/* Map image */}
+                <ZipMapPlaceholder />
 
                 {/* ZIP selector + stats */}
                 <div className="space-y-3">
@@ -530,7 +504,7 @@ const SuggestedServicesPage: React.FC = () => {
                         </div>
 
                         {/* Column 3: Response + revenue metrics */}
-                        <div className="space-y-1 md:text-right">
+                        <div className="space-y-1">
                           <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
                             RESP % & SS metrics
                           </div>
