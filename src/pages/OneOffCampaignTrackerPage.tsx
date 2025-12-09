@@ -112,6 +112,44 @@ const ONE_OFF_CAMPAIGNS: OneOffCampaign[] = [
   },
 ];
 
+// Flattened drops array for the Drops tab
+type OneOffCampaignDrop = {
+  id: string;
+  campaign: string;
+  audience: string;
+  dropDateLabel: string;
+  channels: string;
+  sent: number;
+  responses: number;
+  respPct: number;
+  roas: number;
+  revenue: number;
+};
+
+const ONE_OFF_CAMPAIGN_DROPS: OneOffCampaignDrop[] = ONE_OFF_CAMPAIGNS.flatMap(
+  (campaign) =>
+    campaign.drops.map((drop, idx) => ({
+      id: `${campaign.id}-${idx}`,
+      campaign: campaign.name,
+      audience: campaign.audience,
+      dropDateLabel: drop.label,
+      channels: drop.channels
+        .map((ch) =>
+          ch === "postcard"
+            ? "Postcard"
+            : ch === "email"
+            ? "Email"
+            : "Text Message"
+        )
+        .join(" + "),
+      sent: drop.sent,
+      responses: drop.responses,
+      respPct: drop.respPct,
+      roas: drop.roas,
+      revenue: drop.revenue,
+    }))
+);
+
 // shared RESP color rules
 const getRespColorClass = (rate: number): string => {
   if (rate >= 15) return "text-emerald-600";
@@ -458,65 +496,69 @@ const OneOffCampaignTrackerPage: React.FC = () => {
                 <table className="min-w-full text-xs">
                   <thead>
                     <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-                      <th className="py-2 pr-3">Campaign</th>
-                      <th className="py-2 pr-3">Drop date</th>
-                      <th className="py-2 pr-3">Channels</th>
-                      <th className="py-2 pr-3 text-right">Sent</th>
-                      <th className="py-2 pr-3 text-right">
-                        Responses
-                      </th>
-                      <th className="py-2 pr-3 text-right">
-                        Resp %
-                      </th>
-                      <th className="py-2 pr-3 text-right">
-                        ROAS
-                      </th>
-                      <th className="py-2 pr-3 text-right">
-                        Revenue
-                      </th>
+                      <th className="py-2 pr-3 whitespace-nowrap">Campaign</th>
+                      <th className="py-2 pr-3 text-right whitespace-nowrap">Drop</th>
+                      <th className="py-2 pr-3 whitespace-nowrap">Channel</th>
+                      <th className="py-2 pr-3 text-right whitespace-nowrap">Sent</th>
+                      <th className="py-2 pr-3 text-right whitespace-nowrap">Resp</th>
+                      <th className="py-2 pr-3 text-right whitespace-nowrap">Resp %</th>
+                      <th className="py-2 pr-3 text-right whitespace-nowrap">ROAS</th>
+                      <th className="py-2 pr-0 text-right whitespace-nowrap">Revenue</th>
                     </tr>
                   </thead>
+
                   <tbody>
-                    {ONE_OFF_CAMPAIGNS.flatMap((campaign) =>
-                      campaign.drops.map((drop) => (
-                        <tr
-                          key={`${campaign.id}-${drop.date}`}
-                          className="border-t border-slate-100"
+                    {ONE_OFF_CAMPAIGN_DROPS.map((drop) => (
+                      <tr
+                        key={drop.id}
+                        className="border-t border-slate-100 align-top"
+                      >
+                        {/* CAMPAIGN + AUDIENCE (consolidated first column) */}
+                        <td className="py-3 pr-3">
+                          <div className="text-xs font-semibold text-slate-900">
+                            {drop.campaign}
+                          </div>
+                          {drop.audience && (
+                            <div className="mt-0.5 text-[11px] text-slate-500">
+                              {drop.audience}
+                            </div>
+                          )}
+                        </td>
+
+                        {/* DROP DATE */}
+                        <td className="py-3 pr-3 text-right text-slate-700 whitespace-nowrap">
+                          {drop.dropDateLabel}
+                        </td>
+
+                        {/* CHANNEL(S) */}
+                        <td className="py-3 pr-3 text-slate-700">
+                          <div className="text-[11px] whitespace-nowrap">
+                            {drop.channels}
+                          </div>
+                        </td>
+
+                        {/* NUMERIC STATS */}
+                        <td className="py-3 pr-3 text-right text-slate-800">
+                          {drop.sent.toLocaleString()}
+                        </td>
+                        <td className="py-3 pr-3 text-right text-slate-800">
+                          {drop.responses.toLocaleString()}
+                        </td>
+                        <td
+                          className={`py-3 pr-3 text-right font-semibold ${getRespColorClass(
+                            drop.respPct
+                          )}`}
                         >
-                          <td className="py-2 pr-3 text-slate-800">
-                            <div className="font-medium">
-                              {campaign.name}
-                            </div>
-                            <div className="text-[10px] text-slate-500">
-                              {campaign.audience}
-                            </div>
-                          </td>
-                          <td className="py-2 pr-3 text-slate-700">
-                            {drop.label}
-                          </td>
-                          <td className="py-2 pr-3 text-slate-700">
-                            {drop.channels
-                              .map((ch) => CHANNEL_META[ch].label)
-                              .join(" + ")}
-                          </td>
-                          <td className="py-2 pr-3 text-right">
-                            {drop.sent.toLocaleString()}
-                          </td>
-                          <td className="py-2 pr-3 text-right">
-                            {drop.responses.toLocaleString()}
-                          </td>
-                          <td className="py-2 pr-3 text-right">
-                            {drop.respPct.toFixed(1)}%
-                          </td>
-                          <td className="py-2 pr-3 text-right">
-                            {drop.roas.toFixed(1)}x
-                          </td>
-                          <td className="py-2 pr-3 text-right">
-                            ${drop.revenue.toLocaleString()}
-                          </td>
-                        </tr>
-                      ))
-                    )}
+                          {drop.respPct.toFixed(1)}%
+                        </td>
+                        <td className="py-3 pr-3 text-right text-slate-800">
+                          {drop.roas.toFixed(1)}x
+                        </td>
+                        <td className="py-3 pr-0 text-right text-slate-800">
+                          ${drop.revenue.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
