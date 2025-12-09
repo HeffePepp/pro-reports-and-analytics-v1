@@ -1,163 +1,121 @@
 // src/pages/OneOffCampaignTrackerPage.tsx
-import React, { useState } from "react";
-import { ShellLayout, AIInsightsTile } from "@/components/layout";
+import React, { useMemo, useState } from "react";
+import {
+  ShellLayout,
+  MetricTile,
+  AIInsightsTile,
+} from "@/components/layout";
 
-type Channel = "Postcard" | "Email" | "Text Message";
+type Channel = "postcard" | "email" | "sms";
 
-type OneOffCampaignOverview = {
+interface ChannelMix {
+  postcard: number; // 0–100
+  email: number;
+  sms: number;
+}
+
+interface Campaign {
   id: string;
   name: string;
   audience: string;
-  dropsLabel: string; // e.g. "1 drop · Last drop Mar 5, 2024"
-  channels: Channel[];
-  respPct: number;
-  roas: number;
-  sent: number;
-  revenue: number;
-};
-
-type OneOffCampaignDropRow = {
-  id: string;
-  name: string;
-  dropDate: string;
-  channels: Channel[];
+  dropsLabel: string;
+  lastDropDate: string;
   sent: number;
   responses: number;
-  respPct: number;
-  roas: number;
+  respPct: number; // %
+  roas: number; // x
   revenue: number;
-};
+  channels: Channel[];
+  channelMix: ChannelMix;
+}
 
-const OVERVIEW_CAMPAIGNS: OneOffCampaignOverview[] = [
+const CAMPAIGNS: Campaign[] = [
   {
     id: "spring-has-sprung",
     name: "Don's Garage: Spring Has Sprung",
     audience: "Current synthetic customers · last 9 months",
-    dropsLabel: "1 drop · Last drop Mar 5, 2024",
-    channels: ["Email"],
-    respPct: 6.9,
-    roas: 16.1,
-    sent: 2800,
-    revenue: 22400,
-  },
-  {
-    id: "summer-ac-tuneup-1",
-    name: "Summer A/C Tune-Up",
-    audience: "Vehicles in warm-weather ZIPs · last 18 months",
-    dropsLabel: "2 drops · Last drop May 24, 2024",
-    channels: ["Postcard", "Email", "Text Message"],
-    respPct: 6.8,
-    roas: 9.9,
-    sent: 5000,
-    revenue: 40900,
-  },
-  {
-    id: "back-to-school",
-    name: "Back to School",
-    audience: "Minivan/SUV households · schools within 10 miles",
-    dropsLabel: "1 drop · Last drop Aug 15, 2024",
-    channels: ["Postcard"],
-    respPct: 6.2,
-    roas: 7.6,
-    sent: 2600,
-    revenue: 19500,
-  },
-  {
-    id: "black-friday-synth",
-    name: "Black Friday Synthetic Push",
-    audience: "High-mileage synthetic customers · last 24 months",
-    dropsLabel: "2 drops · Last drop Nov 27, 2024",
-    channels: ["Postcard", "Email"],
-    respPct: 9.1,
-    roas: 10.7,
-    sent: 5500,
-    revenue: 64800,
-  },
-];
-
-const DROP_ROWS: OneOffCampaignDropRow[] = [
-  {
-    id: "spring-has-sprung-drop-1",
-    name: "Don's Garage: Spring Has Sprung",
-    dropDate: "Mar 5, 2024",
-    channels: ["Email"],
+    dropsLabel: "1 drop",
+    lastDropDate: "Last drop Mar 5, 2024",
     sent: 2800,
     responses: 194,
     respPct: 6.9,
     roas: 16.1,
     revenue: 22400,
+    channels: ["email"],
+    channelMix: { postcard: 0, email: 100, sms: 0 },
   },
   {
-    id: "summer-ac-tuneup-drop-1",
+    id: "summer-ac-tuneup-1",
     name: "Summer A/C Tune-Up",
-    dropDate: "May 10, 2024",
-    channels: ["Postcard", "Email", "Text Message"],
-    sent: 3200,
+    audience: "Vehicles in warm-weather ZIPs · last 18 months",
+    dropsLabel: "2 drops",
+    lastDropDate: "Last drop May 24, 2024",
+    sent: 5000,
     responses: 220,
-    respPct: 6.9,
-    roas: 10.1,
-    revenue: 26400,
+    respPct: 6.8,
+    roas: 9.9,
+    revenue: 40900,
+    channels: ["postcard", "email", "sms"],
+    channelMix: { postcard: 40, email: 30, sms: 30 },
   },
   {
-    id: "summer-ac-tuneup-drop-2",
-    name: "Summer A/C Tune-Up",
-    dropDate: "May 24, 2024",
-    channels: ["Email", "Text Message"],
-    sent: 1800,
-    responses: 121,
-    respPct: 6.7,
-    roas: 9.4,
-    revenue: 14500,
-  },
-  {
-    id: "back-to-school-drop-1",
+    id: "back-to-school",
     name: "Back to School",
-    dropDate: "Aug 15, 2024",
-    channels: ["Postcard"],
+    audience: "Minivan/SUV households · schools within 10 miles",
+    dropsLabel: "1 drop",
+    lastDropDate: "Last drop Aug 15, 2024",
     sent: 2600,
     responses: 162,
     respPct: 6.2,
     roas: 7.6,
     revenue: 19500,
+    channels: ["postcard"],
+    channelMix: { postcard: 100, email: 0, sms: 0 },
   },
   {
-    id: "bf-synth-drop-1",
+    id: "black-friday-synthetic",
     name: "Black Friday Synthetic Push",
-    dropDate: "Nov 20, 2024",
-    channels: ["Postcard", "Email"],
-    sent: 3400,
+    audience: "High-mileage synthetic customers · last 24 months",
+    dropsLabel: "2 drops",
+    lastDropDate: "Last drop Nov 27, 2024",
+    sent: 5500,
     responses: 337,
-    respPct: 9.9,
-    roas: 11.5,
-    revenue: 40800,
-  },
-  {
-    id: "bf-synth-drop-2",
-    name: "Black Friday Synthetic Push",
-    dropDate: "Nov 27, 2024",
-    channels: ["Email"],
-    sent: 2100,
-    responses: 166,
-    respPct: 7.9,
-    roas: 9.3,
-    revenue: 23600,
+    respPct: 9.1,
+    roas: 10.7,
+    revenue: 64800,
+    channels: ["postcard", "email"],
+    channelMix: { postcard: 60, email: 40, sms: 0 },
   },
 ];
 
 const channelColor: Record<Channel, string> = {
-  Postcard: "bg-sky-500",
-  Email: "bg-emerald-500",
-  "Text Message": "bg-violet-500",
-};
-
-const channelLabel: Record<Channel, string> = {
-  Postcard: "Postcard",
-  Email: "Email",
-  "Text Message": "Text Message",
+  postcard: "bg-sky-400",
+  email: "bg-emerald-400",
+  sms: "bg-indigo-400",
 };
 
 const OneOffCampaignTrackerPage: React.FC = () => {
   const [tab, setTab] = useState<"overview" | "drops">("overview");
+
+  const totalCampaigns = CAMPAIGNS.length;
+
+  const totalSent = useMemo(
+    () => CAMPAIGNS.reduce((sum, c) => sum + c.sent, 0),
+    []
+  );
+  const totalResponses = useMemo(
+    () => CAMPAIGNS.reduce((sum, c) => sum + c.responses, 0),
+    []
+  );
+  const avgRespPct = useMemo(
+    () => (totalResponses / Math.max(totalSent, 1)) * 100,
+    [totalResponses, totalSent]
+  );
+  const avgRoas = useMemo(
+    () =>
+      CAMPAIGNS.reduce((sum, c) => sum + c.roas, 0) / CAMPAIGNS.length,
+    []
+  );
 
   return (
     <ShellLayout
@@ -169,48 +127,77 @@ const OneOffCampaignTrackerPage: React.FC = () => {
       rightInfo={
         <>
           <span>
-            Store group: <span className="font-medium">All Stores</span>
+            Store group:{" "}
+            <span className="font-medium">All Stores</span>
           </span>
           <span>
-            Period: <span className="font-medium">Last 12 months</span>
+            Period:{" "}
+            <span className="font-medium">Last 12 months</span>
           </span>
         </>
       }
     >
-      {/* Page header */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
             One-Off Campaign Tracker
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Compare one-off campaigns on response rate, ROAS, revenue and drops.
+            Compare one-off campaigns on response rate, ROAS, revenue and
+            drops.
           </p>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* LEFT – main card */}
+        {/* LEFT: KPI tiles + main card */}
         <div className="lg:col-span-3 space-y-4">
+          {/* KPI tiles */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <MetricTile
+              label="Campaigns"
+              value={totalCampaigns.toString()}
+            />
+            <MetricTile
+              label="Total sent"
+              value={totalSent.toLocaleString()}
+            />
+            <MetricTile
+              label="Total responses"
+              value={totalResponses.toLocaleString()}
+            />
+            <MetricTile
+              label="Avg ROAS"
+              value={`${avgRoas.toFixed(1)}x`}
+            />
+          </div>
+
+          {/* Main card with tabs */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            {/* Card header + tabs */}
-            <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center justify-between gap-3 mb-3">
               <div>
-                <h2 className="text-base md:text-lg font-semibold text-slate-900">
+                <h2 className="text-sm font-semibold text-slate-900">
                   One-off campaign performance
                 </h2>
-                <p className="mt-1 text-[11px] text-slate-600">
+                <p className="text-[11px] text-slate-600">
                   Response rate, ROAS and revenue by campaign and drop.
                 </p>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  Channel bar shows mix of Postcard, Email and Text
+                  Message across all drops. Bar length shows resp % vs
+                  other campaigns.
+                </p>
               </div>
-              <div className="inline-flex items-center rounded-full bg-slate-50 p-1 text-[11px]">
+
+              <div className="inline-flex items-center rounded-full bg-slate-100 p-1 text-[11px]">
                 <button
                   type="button"
                   onClick={() => setTab("overview")}
                   className={`px-3 py-1 rounded-full ${
                     tab === "overview"
-                      ? "bg-white shadow-sm text-slate-900 font-medium"
-                      : "text-slate-500 hover:text-slate-700"
+                      ? "bg-white shadow-sm text-slate-900"
+                      : "text-slate-600"
                   }`}
                 >
                   Overview
@@ -220,8 +207,8 @@ const OneOffCampaignTrackerPage: React.FC = () => {
                   onClick={() => setTab("drops")}
                   className={`px-3 py-1 rounded-full ${
                     tab === "drops"
-                      ? "bg-white shadow-sm text-slate-900 font-medium"
-                      : "text-slate-500 hover:text-slate-700"
+                      ? "bg-white shadow-sm text-slate-900"
+                      : "text-slate-600"
                   }`}
                 >
                   Drops
@@ -230,155 +217,171 @@ const OneOffCampaignTrackerPage: React.FC = () => {
             </div>
 
             {tab === "overview" ? (
-              // ---------- OVERVIEW (bar layout) ----------
-              <div className="mt-2 space-y-6 text-xs text-slate-700">
-                <p className="text-[11px] text-slate-500">
-                  Channel bar shows mix of Postcard, Email and Text Message
-                  across all drops. Bar length shows resp % vs other campaigns.
-                </p>
-
-                {OVERVIEW_CAMPAIGNS.map((c, idx) => (
-                  <div key={c.id} className="space-y-2">
-                    {/* Top row: campaign name + stats */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="text-sm md:text-base font-semibold text-slate-900">
-                          {c.name}
-                        </div>
-                        <div className="mt-1 text-[11px] text-slate-500">
-                          {c.audience}
-                        </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500">
-                          {c.dropsLabel}
-                        </div>
-                      </div>
-                      <div className="text-right text-xs text-slate-700 min-w-[110px]">
-                        <div className="text-sm font-semibold text-amber-600">
-                          {c.respPct.toFixed(1)}% RESP
-                        </div>
-                        <div className="mt-0.5 text-sm font-semibold text-slate-900">
-                          {c.roas.toFixed(1)}x ROAS
-                        </div>
-                        <div className="mt-1 text-[11px] text-slate-500">
-                          {c.sent.toLocaleString()} sent ·{" "}
-                          {c.revenue.toLocaleString("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            maximumFractionDigits: 0,
-                          })}{" "}
-                          rev
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Channel mix bar */}
-                    <div className="mt-1">
-                      <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                        <div className="flex h-full w-full">
-                          {c.channels.map((ch, chIdx) => (
-                            <div
-                              key={`${c.id}-${ch}-${chIdx}`}
-                              className={`flex-1 ${channelColor[ch]}`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-slate-600">
-                        {(["Postcard", "Email", "Text Message"] as Channel[]).map(
-                          (ch) => (
-                            <span
-                              key={`${c.id}-${ch}-legend`}
-                              className="inline-flex items-center gap-1"
-                            >
-                              <span
-                                className={`h-2 w-2 rounded-full ${channelColor[ch]}`}
-                              />
-                              <span>{channelLabel[ch]}</span>
-                            </span>
-                          )
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Divider between campaigns */}
-                    {idx < OVERVIEW_CAMPAIGNS.length - 1 && (
-                      <div className="pt-4 border-b border-slate-100" />
-                    )}
-                  </div>
-                ))}
-              </div>
+              <OverviewList />
             ) : (
-              // ---------- DROPS (table) ----------
-              <div className="mt-3 overflow-x-auto">
-                <table className="min-w-full text-xs">
-                  <thead>
-                    <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-                      <th className="py-2 pr-3">Campaign</th>
-                      <th className="py-2 pr-3 text-right">Responses</th>
-                      <th className="py-2 pr-3 text-right">Resp %</th>
-                      <th className="py-2 pr-3 text-right">ROAS</th>
-                      <th className="py-2 pr-0 text-right">Revenue</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {DROP_ROWS.map((row) => (
-                      <tr
-                        key={row.id}
-                        className="border-t border-slate-100 align-top"
-                      >
-                        <td className="py-3 pr-3">
-                          <div className="text-sm md:text-base font-semibold text-slate-900">
-                            {row.name}
-                          </div>
-                          <div className="mt-1 text-[11px] text-slate-500">
-                            {row.dropDate} ·{" "}
-                            {row.channels
-                              .map((ch) => channelLabel[ch])
-                              .join(" + ")}
-                          </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            {row.sent.toLocaleString()} sent
-                          </div>
-                        </td>
-                        <td className="py-3 pr-3 text-right text-xs text-slate-700">
-                          {row.responses.toLocaleString()}
-                        </td>
-                        <td className="py-3 pr-3 text-right text-xs text-slate-700">
-                          {row.respPct.toFixed(1)}%
-                        </td>
-                        <td className="py-3 pr-3 text-right text-xs text-slate-700">
-                          {row.roas.toFixed(1)}x
-                        </td>
-                        <td className="py-3 pr-0 text-right text-xs text-slate-700">
-                          {row.revenue.toLocaleString("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            maximumFractionDigits: 0,
-                          })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DropsTable />
             )}
           </section>
         </div>
 
-        {/* RIGHT – AI Insights */}
+        {/* RIGHT: AI Insights */}
         <div className="lg:col-span-1">
           <AIInsightsTile
             title="AI Insights"
-            subtitle="Based on one-off campaign performance"
+            subtitle="Based on one-off campaigns"
             bullets={[
-              "Summer A/C Tune-Up and Black Friday Synthetic Push are your strongest performers on ROAS.",
-              "Use the Drops tab to compare individual drops and tune channel mix and timing.",
-              "Consider testing additional drops for high-ROAS campaigns with lower send volume.",
+              "Summer A/C Tune-Up and Black Friday have the strongest ROAS and RESP %, ideal patterns for future offers.",
+              "Back to School underperforms on RESP %; consider stronger offer or more SMS.",
+              "Use Drops view to compare multi-drop campaigns and tune channel mix.",
             ]}
           />
         </div>
       </div>
     </ShellLayout>
+  );
+};
+
+const OverviewList: React.FC = () => {
+  const maxResp = Math.max(...CAMPAIGNS.map((c) => c.respPct), 1);
+
+  return (
+    <div className="space-y-5">
+      {CAMPAIGNS.map((c) => (
+        <div key={c.id} className="border-t border-slate-100 pt-4 first:border-t-0 first:pt-0">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-base md:text-lg font-semibold text-slate-900">
+                {c.name}
+              </div>
+              <div className="mt-0.5 text-[11px] text-slate-500">
+                {c.audience}
+              </div>
+              <div className="mt-0.5 text-[11px] text-slate-500">
+                {c.dropsLabel} · {c.lastDropDate}
+              </div>
+            </div>
+
+            <div className="text-right text-xs md:text-sm text-slate-700 min-w-[120px]">
+              <div className="font-semibold text-amber-600 text-sm md:text-base">
+                {c.respPct.toFixed(1)}% RESP
+              </div>
+              <div className="font-semibold text-slate-900 text-sm md:text-base">
+                {c.roas.toFixed(1)}x ROAS
+              </div>
+              <div className="mt-1 text-[11px] text-slate-500">
+                {c.sent.toLocaleString()} sent · $
+                {c.revenue.toLocaleString()} rev
+              </div>
+            </div>
+          </div>
+
+          {/* Channel bar */}
+          <div className="mt-3">
+            <div className="h-2 rounded-full bg-slate-100 overflow-hidden flex">
+              {(["postcard", "email", "sms"] as const).map((ch) => {
+                const share = c.channelMix[ch];
+                if (!share) return null;
+                return (
+                  <div
+                    key={ch}
+                    className={channelColor[ch]}
+                    style={{ width: `${share}%` }}
+                  />
+                );
+              })}
+            </div>
+
+            <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-slate-600">
+              {c.channels.includes("postcard") && (
+                <LegendDot colorClass="bg-sky-400" label="Postcard" />
+              )}
+              {c.channels.includes("email") && (
+                <LegendDot
+                  colorClass="bg-emerald-400"
+                  label="Email"
+                />
+              )}
+              {c.channels.includes("sms") && (
+                <LegendDot
+                  colorClass="bg-indigo-400"
+                  label="Text Message"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* visual separator between campaigns */}
+          <div className="mt-4 border-b border-slate-100" />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const LegendDot: React.FC<{ colorClass: string; label: string }> = ({
+  colorClass,
+  label,
+}) => (
+  <span className="inline-flex items-center gap-1">
+    <span className={`h-2 w-2 rounded-full ${colorClass}`} />
+    <span>{label}</span>
+  </span>
+);
+
+const DropsTable: React.FC = () => {
+  return (
+    <div className="mt-2 overflow-x-auto">
+      <table className="min-w-full text-xs">
+        <thead>
+          <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
+            <th className="py-2 pr-3">Campaign & drop</th>
+            <th className="py-2 pr-3 text-right">Sent</th>
+            <th className="py-2 pr-3 text-right">Responses</th>
+            <th className="py-2 pr-3 text-right">Resp %</th>
+            <th className="py-2 pr-3 text-right">ROAS</th>
+            <th className="py-2 pr-3 text-right">Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          {CAMPAIGNS.map((c) => (
+            <tr key={c.id} className="border-t border-slate-100">
+              <td className="py-3 pr-3 align-top">
+                <div className="text-sm font-semibold text-slate-900">
+                  {c.name}
+                </div>
+                <div className="mt-0.5 text-[11px] text-slate-500">
+                  {c.dropsLabel} · {c.lastDropDate}
+                </div>
+                <div className="mt-0.5 text-[11px] text-slate-500">
+                  Channels:{" "}
+                  {c.channels
+                    .map((ch) =>
+                      ch === "sms" ? "Text Message" : ch[0].toUpperCase() + ch.slice(1)
+                    )
+                    .join(" · ")}{" "}
+                  · {c.sent.toLocaleString()} sent
+                </div>
+              </td>
+              <td className="py-3 pr-3 text-right align-top">
+                {c.sent.toLocaleString()}
+              </td>
+              <td className="py-3 pr-3 text-right align-top">
+                {c.responses.toLocaleString()}
+              </td>
+              <td className="py-3 pr-3 text-right align-top text-amber-600 font-semibold">
+                {c.respPct.toFixed(1)}%
+              </td>
+              <td className="py-3 pr-3 text-right align-top font-semibold text-slate-900">
+                {c.roas.toFixed(1)}x
+              </td>
+              <td className="py-3 pr-3 text-right align-top">
+                ${c.revenue.toLocaleString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
