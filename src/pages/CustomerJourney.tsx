@@ -11,6 +11,8 @@ type JourneyStepDetail = {
   roas: number;         // x
 };
 
+// Updated dummy data with a mix of RESP % buckets:
+// - 2 red (0–5%), 2 yellow (5–10%), 4 orange (10–15%), rest green (>=15)
 const JOURNEY_STEPS: JourneyStepDetail[] = [
   {
     name: "Thank You Text",
@@ -18,7 +20,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Text",
     sent: 1850,
     vehicles: 420,
-    responseRate: 22.7,
+    responseRate: 22.7, // green
     roas: 9.5,
   },
   {
@@ -27,7 +29,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 1850,
     vehicles: 420,
-    responseRate: 22.7,
+    responseRate: 22.7, // green
     roas: 9.5,
   },
   {
@@ -36,7 +38,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 1760,
     vehicles: 310,
-    responseRate: 17.6,
+    responseRate: 17.6, // green
     roas: 12.1,
   },
   {
@@ -45,7 +47,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 900,
     vehicles: 150,
-    responseRate: 16.7,
+    responseRate: 13.4, // orange
     roas: 10.3,
   },
   {
@@ -54,7 +56,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 1640,
     vehicles: 240,
-    responseRate: 14.6,
+    responseRate: 16.1, // green
     roas: 11.2,
   },
   {
@@ -63,7 +65,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 1520,
     vehicles: 230,
-    responseRate: 15.1,
+    responseRate: 15.8, // green
     roas: 10.9,
   },
   {
@@ -72,7 +74,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 1380,
     vehicles: 210,
-    responseRate: 15.2,
+    responseRate: 10.6, // orange
     roas: 10.8,
   },
   {
@@ -81,7 +83,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 4200,
     vehicles: 520,
-    responseRate: 12.4,
+    responseRate: 7.8, // yellow
     roas: 7.8,
   },
   {
@@ -90,7 +92,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Postcard + Email + SMS",
     sent: 1380,
     vehicles: 280,
-    responseRate: 20.3,
+    responseRate: 20.3, // green
     roas: 16.4,
   },
   {
@@ -99,7 +101,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Postcard + Email + SMS",
     sent: 980,
     vehicles: 142,
-    responseRate: 14.5,
+    responseRate: 11.2, // orange
     roas: 10.7,
   },
   {
@@ -108,7 +110,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Postcard + Email + SMS",
     sent: 860,
     vehicles: 120,
-    responseRate: 14.0,
+    responseRate: 12.5, // orange
     roas: 9.8,
   },
   {
@@ -117,7 +119,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Postcard + Email + SMS",
     sent: 740,
     vehicles: 105,
-    responseRate: 14.2,
+    responseRate: 6.9, // yellow
     roas: 9.4,
   },
   {
@@ -126,7 +128,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 620,
     vehicles: 86,
-    responseRate: 13.9,
+    responseRate: 15.2, // green
     roas: 8.2,
   },
   {
@@ -135,7 +137,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 480,
     vehicles: 64,
-    responseRate: 13.3,
+    responseRate: 4.1, // red
     roas: 7.5,
   },
   {
@@ -144,10 +146,18 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 360,
     vehicles: 46,
-    responseRate: 12.8,
+    responseRate: 3.2, // red
     roas: 7.1,
   },
 ];
+
+// Helper to map RESP % to a text color
+const getRespColorClass = (rate: number): string => {
+  if (rate >= 15) return "text-emerald-600"; // green
+  if (rate >= 10) return "text-orange-500"; // orange
+  if (rate >= 5) return "text-amber-500"; // yellow
+  return "text-rose-600"; // red
+};
 
 const CustomerJourneyPage: React.FC = () => {
   const totalSent = useMemo(
@@ -262,44 +272,52 @@ const CustomerJourneyPage: React.FC = () => {
             </p>
 
             <div className="mt-3 space-y-3 text-xs text-slate-700">
-              {JOURNEY_STEPS.map((step, idx) => (
-                <div key={`${step.name}-${step.interval}`}>
-                  {/* Top row: touch point name + timing on left, metrics on right */}
-                  <div className="flex items-start justify-between gap-3 text-[11px]">
-                    <div className="text-slate-700">
-                      <span className="font-medium">
-                        {idx + 1}. {step.name}
-                      </span>{" "}
-                      <span className="text-slate-500">
-                        ({step.interval})
-                      </span>
+              {JOURNEY_STEPS.map((step, idx) => {
+                const respColor = getRespColorClass(step.responseRate);
+
+                return (
+                  <div key={`${step.name}-${step.interval}`}>
+                    {/* Top row: touch point name + timing on left, metrics on right */}
+                    <div className="flex items-start justify-between gap-3 text-[11px]">
+                      <div className="text-slate-700">
+                        <span className="font-medium">
+                          {idx + 1}. {step.name}
+                        </span>{" "}
+                        <span className="text-slate-500">
+                          ({step.interval})
+                        </span>
+                      </div>
+
+                      {/* RESP + ROAS side by side, with colored RESP */}
+                      <div className="flex items-start">
+                        <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium">
+                          <span className={respColor}>
+                            {step.responseRate.toFixed(1)}% RESP
+                          </span>
+                          <span className="opacity-50 text-slate-500">•</span>
+                          <span className="text-slate-700">
+                            {step.roas.toFixed(1)}x ROAS
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* RESP + ROAS side by side, no background */}
-                    <div className="flex items-start">
-                      <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium text-slate-700">
-                        <span>{step.responseRate.toFixed(1)}% RESP</span>
-                        <span className="opacity-50">•</span>
-                        <span>{step.roas.toFixed(1)}x ROAS</span>
+                    {/* Bar row */}
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className="h-full bg-sky-500"
+                          style={{
+                            width: `${
+                              (step.responseRate / maxResponseRate) * 100
+                            }%`,
+                          }}
+                        />
                       </div>
                     </div>
                   </div>
-
-                  {/* Bar row */}
-                  <div className="mt-2 flex items-center gap-2">
-                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-sky-500"
-                        style={{
-                          width: `${
-                            (step.responseRate / maxResponseRate) * 100
-                          }%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 
