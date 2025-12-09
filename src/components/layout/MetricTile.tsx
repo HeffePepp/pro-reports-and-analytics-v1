@@ -14,25 +14,21 @@ const MetricTile: React.FC<MetricTileProps> = ({
   highlight = false,
 }) => {
   const valueClass = highlight
-    ? "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-lg md:text-xl font-semibold tracking-tight"
-    : "text-lg md:text-xl font-semibold text-slate-900 tracking-tight";
+    ? "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xl md:text-2xl font-semibold tracking-tight"
+    : "text-xl md:text-2xl font-semibold text-slate-900 tracking-tight";
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full">
-      <div className="flex flex-col items-start justify-start h-full px-3 py-3 md:px-4 md:py-4 min-h-[96px]">
-        {/* Label area – fixed height so values line up across tiles */}
-        <div className="w-full min-h-[32px] md:min-h-[40px] flex items-start">
-          <div className="font-medium text-slate-500 leading-snug text-[clamp(11px,0.9vw,14px)]">
-            {label}
-          </div>
+      <div className="flex flex-col justify-center h-full px-3 py-3 md:px-4 md:py-4 min-h-[96px]">
+        {/* Description */}
+        <div className="text-[11px] font-medium text-slate-500 leading-snug">
+          {label}
         </div>
 
-        {/* Main value */}
-        <div className={`${valueClass} mt-1 leading-tight`}>
-          {value}
-        </div>
+        {/* Metric value – closer and ~2x larger */}
+        <div className={`${valueClass} mt-0.5 leading-tight`}>{value}</div>
 
-        {/* Optional helper text */}
+        {/* Optional helper line */}
         {helper && (
           <div className="mt-1 text-[11px] text-slate-500 leading-snug">
             {helper}
