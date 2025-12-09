@@ -9,9 +9,10 @@ type JourneyStepDetail = {
   vehicles: number;
   responseRate: number; // %
   roas: number; // x
+  revenue: number; // response revenue
 };
 
-// Dummy data with RESP % buckets
+// Dummy data with RESP % buckets + revenue
 const JOURNEY_STEPS: JourneyStepDetail[] = [
   {
     name: "Thank You Text",
@@ -21,6 +22,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 420,
     responseRate: 22.7,
     roas: 9.5,
+    revenue: 50400,
   },
   {
     name: "Thank You",
@@ -30,6 +32,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 420,
     responseRate: 22.7,
     roas: 9.5,
+    revenue: 50400,
   },
   {
     name: "Suggested Services",
@@ -39,6 +42,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 310,
     responseRate: 17.6,
     roas: 12.1,
+    revenue: 37200,
   },
   {
     name: "2nd Vehicle Invitation",
@@ -48,6 +52,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 150,
     responseRate: 13.4,
     roas: 10.3,
+    revenue: 18000,
   },
   {
     name: "Suggested Services",
@@ -57,6 +62,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 240,
     responseRate: 16.1,
     roas: 11.2,
+    revenue: 28800,
   },
   {
     name: "Suggested Services",
@@ -66,6 +72,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 230,
     responseRate: 15.8,
     roas: 10.9,
+    revenue: 27600,
   },
   {
     name: "Suggested Services",
@@ -75,6 +82,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 210,
     responseRate: 10.6,
     roas: 10.8,
+    revenue: 25200,
   },
   {
     name: "Monthly Newsletter",
@@ -84,6 +92,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 520,
     responseRate: 7.8,
     roas: 7.8,
+    revenue: 62400,
   },
   {
     name: "Reminder 1",
@@ -93,6 +102,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 280,
     responseRate: 20.3,
     roas: 16.4,
+    revenue: 33600,
   },
   {
     name: "Reminder 2",
@@ -102,6 +112,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 142,
     responseRate: 11.2,
     roas: 10.7,
+    revenue: 17040,
   },
   {
     name: "Reminder 3",
@@ -111,6 +122,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 120,
     responseRate: 12.5,
     roas: 9.8,
+    revenue: 14400,
   },
   {
     name: "Reminder 4",
@@ -120,6 +132,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 105,
     responseRate: 6.9,
     roas: 9.4,
+    revenue: 12600,
   },
   {
     name: "Reactivation",
@@ -129,6 +142,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 86,
     responseRate: 15.2,
     roas: 8.2,
+    revenue: 10320,
   },
   {
     name: "Reactivation",
@@ -138,6 +152,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 64,
     responseRate: 4.1,
     roas: 7.5,
+    revenue: 7680,
   },
   {
     name: "Reactivation",
@@ -147,15 +162,16 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     vehicles: 46,
     responseRate: 3.2,
     roas: 7.1,
+    revenue: 5520,
   },
 ];
 
-// RESP coloring helper
+// RESP coloring helper (same thresholds)
 const getRespColorClass = (rate: number): string => {
   if (rate >= 15) return "text-emerald-600"; // green
   if (rate >= 10) return "text-orange-500"; // orange
-  if (rate >= 5) return "text-amber-500";  // yellow
-  return "text-rose-600";                  // red
+  if (rate >= 5) return "text-amber-500"; // yellow
+  return "text-rose-600"; // red
 };
 
 // Channel mix + bar segment meta
@@ -166,34 +182,31 @@ type ChannelSegment = {
   percent: number;
   colorClass: string;
   dotColorClass: string;
-  label: string; // spelled out: Postcard, Email, Text Message
+  label: string; // Postcard, Email, Text Message
 };
 
 const CHANNEL_META: Record<ChannelKey, Omit<ChannelSegment, "percent">> = {
   postcard: {
     key: "postcard",
-    // soft blue
     colorClass: "bg-sky-100",
     dotColorClass: "bg-sky-300",
     label: "Postcard",
   },
   email: {
     key: "email",
-    // soft green
     colorClass: "bg-emerald-100",
     dotColorClass: "bg-emerald-300",
     label: "Email",
   },
   sms: {
     key: "sms",
-    // soft violet
     colorClass: "bg-violet-100",
     dotColorClass: "bg-violet-300",
     label: "Text Message",
   },
 };
 
-// Given the channel string, infer which channels are used and give equal share
+// Parse the channel string into segments; each gets equal share of the bar
 const getChannelSegments = (channel: string): ChannelSegment[] => {
   const lower = channel.toLowerCase();
   const keys: ChannelKey[] = [];
@@ -201,8 +214,7 @@ const getChannelSegments = (channel: string): ChannelSegment[] => {
   if (lower.includes("email")) keys.push("email");
   if (lower.includes("sms") || lower.includes("text")) keys.push("sms");
 
-  // If nothing parsed, default to email as a safe placeholder
-  if (keys.length === 0) keys.push("email");
+  if (keys.length === 0) keys.push("email"); // default
 
   const share = 100 / keys.length;
   return keys.map((key) => ({
@@ -230,10 +242,6 @@ const CustomerJourneyPage: React.FC = () => {
     () =>
       JOURNEY_STEPS.reduce((sum, s) => sum + s.responseRate, 0) /
       JOURNEY_STEPS.length,
-    []
-  );
-  const maxResponseRate = useMemo(
-    () => Math.max(...JOURNEY_STEPS.map((s) => s.responseRate), 1),
     []
   );
 
@@ -278,7 +286,7 @@ const CustomerJourneyPage: React.FC = () => {
 
       {/* Main layout: left content (3/4) + right AI tile (1/4) */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* LEFT: journey KPIs + main tile */}
+        {/* LEFT: journey KPIs + AI (mobile) + main tile */}
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -354,7 +362,7 @@ const CustomerJourneyPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* RESP / ROAS / Sent – all right aligned */}
+                      {/* RESP / ROAS / Sent + Revenue – right aligned */}
                       <div className="flex flex-col items-end text-right gap-0.5">
                         <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium">
                           <span className={respColor}>
@@ -368,7 +376,8 @@ const CustomerJourneyPage: React.FC = () => {
                           </span>
                         </div>
                         <div className="text-[10px] text-slate-500">
-                          {step.sent.toLocaleString()} sent
+                          {step.sent.toLocaleString()} sent • $
+                          {step.revenue.toLocaleString()} rev
                         </div>
                       </div>
                     </div>
@@ -404,8 +413,6 @@ const CustomerJourneyPage: React.FC = () => {
               })}
             </div>
           </section>
-
-          {/* No second "Touch point details" tile – avoid duplication */}
         </div>
 
         {/* RIGHT: AI Insights – only on large screens */}
