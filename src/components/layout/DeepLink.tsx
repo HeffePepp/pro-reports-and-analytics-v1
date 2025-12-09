@@ -10,7 +10,7 @@ const DeepLink: React.FC<DeepLinkProps> = ({ to, label }) => (
   <div className="pt-2 mt-1">
     <Link
       to={to}
-      className="inline-flex items-center text-[11px] font-medium text-sky-600 hover:text-sky-700"
+      className="inline-flex items-center text-[11px] font-medium text-sky-600 hover:text-sky-700 whitespace-nowrap"
       onClick={(e) => e.stopPropagation()}
     >
       {label} →
