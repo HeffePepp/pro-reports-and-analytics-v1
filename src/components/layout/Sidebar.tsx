@@ -25,7 +25,7 @@ const navItems: NavItem[] = [
   },
   {
     label: "Network Hierarchy",
-    path: "#", // placeholder
+    path: "#",
     activeMatch: "/network",
     icon: Share2,
   },
@@ -38,10 +38,16 @@ const Sidebar: React.FC = () => {
     location.pathname === "/" || location.pathname.startsWith("/reports");
 
   return (
-    <aside className="hidden md:flex md:flex-col w-64 bg-slate-950 text-slate-100">
+    <aside
+      className="
+        hidden md:flex md:flex-col w-64
+        bg-[#020617]          /* deep navy – closer to main platform */
+        text-slate-100
+      "
+    >
       {/* Brand row */}
-      <div className="flex items-center gap-3 px-5 h-16 border-b border-slate-800">
-        <div className="h-9 w-9 rounded-2xl bg-emerald-400/90 flex items-center justify-center text-slate-900 font-semibold shadow-sm">
+      <div className="flex items-center gap-3 px-5 h-16 border-b border-slate-800/80">
+        <div className="h-9 w-9 rounded-2xl bg-sky-500 flex items-center justify-center text-slate-950 font-semibold shadow-sm">
           TP
         </div>
         <div className="flex flex-col">
@@ -66,15 +72,21 @@ const Sidebar: React.FC = () => {
                   location.pathname.startsWith(item.activeMatch)
                 );
 
-          const classes = [
-            "w-full text-left px-3 py-2 rounded-xl flex items-center gap-2",
-            "transition-colors cursor-pointer",
-            isActive
-              ? "bg-sky-900 text-slate-50"
-              : "text-slate-300 hover:bg-slate-900/60",
-          ].join(" ");
+          const baseClasses =
+            "w-full text-left px-3 py-2 rounded-xl flex items-center gap-2 " +
+            "transition-colors cursor-pointer";
 
-          const iconClass = isActive ? "text-sky-100" : "text-slate-400";
+          const activeClasses =
+            "bg-sky-600/25 text-sky-50"; // blue pill like the dashboard
+
+          const inactiveClasses =
+            "text-slate-300 hover:bg-white/5 hover:text-slate-50";
+
+          const classes = `${baseClasses} ${
+            isActive ? activeClasses : inactiveClasses
+          }`;
+
+          const iconClass = isActive ? "text-sky-300" : "text-slate-400";
 
           const content = (
             <>
@@ -84,7 +96,6 @@ const Sidebar: React.FC = () => {
           );
 
           if (item.path === "#") {
-            // non-clickable placeholder for now
             return (
               <button key={item.label} className={classes} type="button">
                 {content}
@@ -101,7 +112,7 @@ const Sidebar: React.FC = () => {
       </nav>
 
       {/* User footer */}
-      <div className="px-4 py-4 border-t border-slate-800 text-xs text-slate-400">
+      <div className="px-4 py-4 border-t border-slate-800/80 text-xs text-slate-400">
         Signed in as
         <br />
         <span className="text-slate-200">demo@throttlepro.com</span>
