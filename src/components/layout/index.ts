@@ -5,3 +5,4 @@ export { default as SummaryTile } from "./SummaryTile";
 export { default as BarStack, SimpleStackBar, LegendDot } from "./BarStack";
 export { default as DeepLink } from "./DeepLink";
 export { default as AIInsightsTile } from "./AIInsightsTile";
+export { default as ZipMapPlaceholder } from "./ZipMapPlaceholder";

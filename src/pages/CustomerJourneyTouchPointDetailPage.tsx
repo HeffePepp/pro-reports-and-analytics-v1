@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, ZipMapPlaceholder } from "@/components/layout";
 import {
   getJourneyTouchPointById,
   JourneyTouchPoint,
@@ -263,9 +263,9 @@ const CustomerJourneyTouchPointDetailPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Map placeholder */}
-                      <div className="flex-1 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-[11px] text-slate-400">
-                        Map preview (dummy)
+                      {/* Map image */}
+                      <div className="flex-1">
+                        <ZipMapPlaceholder />
                       </div>
                     </div>
 
