@@ -115,52 +115,56 @@ const getRespColorClass = (rate: number): string => {
 type ZipStat = {
   zip: string;
   city: string;
-  ssResponses: number;
+  state: string;
+  responses: number;
   respPct: number;
   ssRevenue: number;
   activeCustomers: number;
   loyalCustomers: number;
-  vehicles0to5: number;
-  vehicles6to10: number;
-  vehicles11plus: number;
+  age0to5: number;
+  age6to10: number;
+  age11plus: number;
 };
 
 const SS_ZIP_STATS: ZipStat[] = [
   {
     zip: "94110",
-    city: "San Francisco, CA",
-    ssResponses: 92,
+    city: "San Francisco",
+    state: "CA",
+    responses: 92,
     respPct: 21.5,
     ssRevenue: 18600,
     activeCustomers: 154,
     loyalCustomers: 48,
-    vehicles0to5: 37,
-    vehicles6to10: 43,
-    vehicles11plus: 20,
+    age0to5: 37,
+    age6to10: 43,
+    age11plus: 20,
   },
   {
     zip: "94901",
-    city: "San Rafael, CA",
-    ssResponses: 66,
+    city: "San Rafael",
+    state: "CA",
+    responses: 66,
     respPct: 19.3,
     ssRevenue: 13200,
     activeCustomers: 118,
     loyalCustomers: 36,
-    vehicles0to5: 33,
-    vehicles6to10: 44,
-    vehicles11plus: 23,
+    age0to5: 33,
+    age6to10: 44,
+    age11plus: 23,
   },
   {
     zip: "95401",
-    city: "Santa Rosa, CA",
-    ssResponses: 54,
+    city: "Santa Rosa",
+    state: "CA",
+    responses: 54,
     respPct: 17.1,
     ssRevenue: 10800,
     activeCustomers: 101,
     loyalCustomers: 29,
-    vehicles0to5: 28,
-    vehicles6to10: 40,
-    vehicles11plus: 32,
+    age0to5: 28,
+    age6to10: 40,
+    age11plus: 32,
   },
 ];
 
@@ -487,57 +491,24 @@ const SuggestedServicesPage: React.FC = () => {
                   </div>
 
                   {currentZip && (
-                    <div className="rounded-2xl border border-slate-200 bg-white p-3 md:p-4 text-[11px] md:text-xs text-slate-700 space-y-2">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                        <div>
-                          <div className="text-[11px] font-semibold text-slate-800">
-                            ZIP {currentZip.zip}
-                          </div>
-                          <div className="text-[10px] text-slate-500">
-                            {currentZip.city}
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-4 text-right">
+                    <section className="mt-3 rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-8 text-xs text-slate-700">
+                        {/* Column 1: ZIP + customers */}
+                        <div className="space-y-2">
                           <div>
-                            <div className="text-[10px] text-slate-500">
-                              RESP %
+                            <div className="text-[11px] font-semibold text-slate-900">
+                              ZIP {currentZip.zip}
                             </div>
-                            <div
-                              className={`text-xs font-semibold ${getRespColorClass(
-                                currentZip.respPct
-                              )}`}
-                            >
-                              {currentZip.respPct.toFixed(1)}% RESP
+                            <div className="text-[11px] text-slate-500">
+                              {currentZip.city}, {currentZip.state}
                             </div>
                           </div>
                           <div>
-                            <div className="text-[10px] text-slate-500">
-                              SS responses
+                            <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+                              Customers
                             </div>
-                            <div className="text-xs font-semibold">
-                              {currentZip.ssResponses.toLocaleString()}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-[10px] text-slate-500">
-                              SS revenue
-                            </div>
-                            <div className="text-xs font-semibold">
-                              ${currentZip.ssRevenue.toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                          <div className="text-[10px] text-slate-500">
-                            Customers
-                          </div>
-                          <div className="mt-1 text-xs space-y-0.5">
-                            <div>
-                              Active ·{" "}
-                              {currentZip.activeCustomers.toLocaleString()}
+                            <div className="mt-0.5">
+                              Active · {currentZip.activeCustomers.toLocaleString()}
                             </div>
                             <div>
                               Loyal (3+ visits / 24 mo) ·{" "}
@@ -545,36 +516,53 @@ const SuggestedServicesPage: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                        <div>
-                          <div className="text-[10px] text-slate-500">
+
+                        {/* Column 2: Vehicle age mix */}
+                        <div className="space-y-2">
+                          <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
                             Vehicle age mix
                           </div>
-                          <div className="mt-1 text-xs space-y-0.5">
-                            <div>
-                              0–5 yrs ·{" "}
-                              {currentZip.vehicles0to5.toFixed(0)}%
-                            </div>
-                            <div>
-                              6–10 yrs ·{" "}
-                              {currentZip.vehicles6to10.toFixed(0)}%
-                            </div>
-                            <div>
-                              11+ yrs ·{" "}
-                              {currentZip.vehicles11plus.toFixed(0)}%
-                            </div>
+                          <div className="space-y-0.5">
+                            <div>0–5 yrs · {currentZip.age0to5}%</div>
+                            <div>6–10 yrs · {currentZip.age6to10}%</div>
+                            <div>11+ yrs · {currentZip.age11plus}%</div>
                           </div>
                         </div>
-                        <div>
-                          <div className="text-[10px] text-slate-500">
+
+                        {/* Column 3: Response + revenue metrics */}
+                        <div className="space-y-1 md:text-right">
+                          <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+                            RESP % & SS metrics
+                          </div>
+                          <div className="mt-0.5 text-[13px] font-semibold text-emerald-600">
+                            {currentZip.respPct.toFixed(1)}% RESP
+                          </div>
+                          <div className="text-xs">
+                            <span className="text-slate-500">SS responses · </span>
+                            <span className="font-medium text-slate-800">
+                              {currentZip.responses.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="text-xs">
+                            <span className="text-slate-500">SS revenue · </span>
+                            <span className="font-medium text-slate-800">
+                              ${currentZip.ssRevenue.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Column 4: Notes */}
+                        <div className="space-y-1">
+                          <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
                             Notes
                           </div>
-                          <div className="mt-1 text-[10px] text-slate-600">
-                            Use these ZIP-level patterns to tune SS timing and
-                            offers and to propose future one-off campaigns.
-                          </div>
+                          <p className="text-[11px] leading-snug text-slate-600">
+                            Use these ZIP-level patterns here to tune timing, channel mix and
+                            future one-off campaigns.
+                          </p>
                         </div>
                       </div>
-                    </div>
+                    </section>
                   )}
                 </div>
               </div>
