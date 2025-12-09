@@ -158,32 +158,54 @@ const getRespColorClass = (rate: number): string => {
   return "text-rose-600"; // red
 };
 
-// Channel "icon" helper
-const ChannelIcons: React.FC<{ channel: string }> = ({ channel }) => {
-  const lower = channel.toLowerCase();
-  const hasPostcard = lower.includes("postcard");
-  const hasEmail = lower.includes("email");
-  const hasSms = lower.includes("sms") || lower.includes("text");
+// Channel mix + bar segment meta
+type ChannelKey = "postcard" | "email" | "sms";
 
-  return (
-    <span className="inline-flex items-center gap-1 mr-1 align-middle">
-      {hasPostcard && (
-        <span className="h-4 w-4 rounded-full bg-slate-100 text-[9px] flex items-center justify-center text-slate-600">
-          PC
-        </span>
-      )}
-      {hasEmail && (
-        <span className="h-4 w-4 rounded-full bg-slate-100 text-[9px] flex items-center justify-center text-slate-600">
-          E
-        </span>
-      )}
-      {hasSms && (
-        <span className="h-4 w-4 rounded-full bg-slate-100 text-[9px] flex items-center justify-center text-slate-600">
-          T
-        </span>
-      )}
-    </span>
-  );
+type ChannelSegment = {
+  key: ChannelKey;
+  percent: number;
+  colorClass: string;
+  dotColorClass: string;
+  shortLabel: string; // PC / E / T
+};
+
+const CHANNEL_META: Record<ChannelKey, Omit<ChannelSegment, "percent">> = {
+  postcard: {
+    key: "postcard",
+    colorClass: "bg-sky-500",
+    dotColorClass: "bg-sky-500",
+    shortLabel: "PC",
+  },
+  email: {
+    key: "email",
+    colorClass: "bg-orange-400",
+    dotColorClass: "bg-orange-400",
+    shortLabel: "E",
+  },
+  sms: {
+    key: "sms",
+    colorClass: "bg-rose-400",
+    dotColorClass: "bg-rose-400",
+    shortLabel: "T",
+  },
+};
+
+// Given the channel string, infer which channels are used and give equal share
+const getChannelSegments = (channel: string): ChannelSegment[] => {
+  const lower = channel.toLowerCase();
+  const keys: ChannelKey[] = [];
+  if (lower.includes("postcard")) keys.push("postcard");
+  if (lower.includes("email")) keys.push("email");
+  if (lower.includes("sms") || lower.includes("text")) keys.push("sms");
+
+  // If nothing parsed, default to email as a safe placeholder
+  if (keys.length === 0) keys.push("email");
+
+  const share = 100 / keys.length;
+  return keys.map((key) => ({
+    ...CHANNEL_META[key],
+    percent: share,
+  }));
 };
 
 const CustomerJourneyPage: React.FC = () => {
@@ -247,7 +269,7 @@ const CustomerJourneyPage: React.FC = () => {
 
       {/* Main layout: left content (3/4) + right AI tile (1/4) */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* LEFT: all journey tiles and tables */}
+        {/* LEFT: journey KPIs + main tile */}
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -269,7 +291,7 @@ const CustomerJourneyPage: React.FC = () => {
             />
           </div>
 
-          {/* Journey steps visualization – single step-level tile */}
+          {/* Journey steps visualization – primary focus tile */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-start justify-between mb-1 gap-3">
               <div>
@@ -293,59 +315,80 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
 
             <p className="mt-2 text-[10px] text-slate-400">
-              Bar length shows resp % vs other steps.
+              Channel bar shows mix of Postcard (blue), Email (orange) and
+              Text (red) per touch point. Bar length shows resp % vs other
+              steps.
             </p>
 
-            <div className="mt-3 space-y-3 text-xs text-slate-700">
+            <div className="mt-3 space-y-4 text-xs text-slate-700">
               {JOURNEY_STEPS.map((step, idx) => {
                 const respColor = getRespColorClass(step.responseRate);
+                const segments = getChannelSegments(step.channel);
 
                 return (
-                  <div key={`${step.name}-${step.interval}`}>
-                    {/* Top row: step label left, metrics right */}
+                  <div
+                    key={`${step.name}-${step.interval}`}
+                    className="pt-1"
+                  >
+                    {/* Top row: step label left, stats right */}
                     <div className="flex items-start justify-between gap-3 text-[11px]">
                       <div className="text-slate-700">
                         <span className="font-medium">
-                          {idx + 1}.
-                        </span>{" "}
-                        <ChannelIcons channel={step.channel} />
-                        <span className="font-medium">
-                          {step.name}
+                          {idx + 1}. {step.name}
                         </span>{" "}
                         <span className="text-slate-500">
                           ({step.interval})
                         </span>
                       </div>
 
-                      {/* RESP · Sent · ROAS */}
-                      <div className="flex items-start">
+                      {/* RESP / ROAS / Sent – all right aligned */}
+                      <div className="flex flex-col items-end text-right gap-0.5">
                         <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium">
                           <span className={respColor}>
                             {step.responseRate.toFixed(1)}% RESP
                           </span>
-                          <span className="opacity-50 text-slate-500">•</span>
-                          <span className="text-slate-600">
-                            {step.sent.toLocaleString()} sent
+                          <span className="opacity-50 text-slate-500">
+                            •
                           </span>
-                          <span className="opacity-50 text-slate-500">•</span>
                           <span className="text-slate-700">
                             {step.roas.toFixed(1)}x ROAS
                           </span>
                         </div>
+                        <div className="text-[10px] text-slate-500">
+                          {step.sent.toLocaleString()} sent
+                        </div>
                       </div>
                     </div>
 
-                    {/* Bar row */}
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                        <div
-                          className="h-full bg-sky-500"
-                          style={{
-                            width: `${
-                              (step.responseRate / maxResponseRate) * 100
-                            }%`,
-                          }}
-                        />
+                    {/* Channel bar + icons */}
+                    <div className="mt-3">
+                      <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden flex">
+                        {segments.map((seg) => (
+                          <div
+                            key={seg.key}
+                            className={`h-full ${seg.colorClass}`}
+                            style={{ width: `${seg.percent}%` }}
+                          />
+                        ))}
+                      </div>
+
+                      <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500">
+                        <div className="flex items-center gap-2">
+                          {segments.map((seg) => (
+                            <span
+                              key={seg.key}
+                              className="inline-flex items-center gap-1"
+                            >
+                              <span
+                                className={`h-3 w-3 rounded-full ${seg.dotColorClass}`}
+                              />
+                              <span>{seg.shortLabel}</span>
+                            </span>
+                          ))}
+                        </div>
+                        <span className="text-[10px] text-slate-400">
+                          {step.channel}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -354,8 +397,7 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
           </section>
 
-          {/* NOTE: no second "Touch point details" card anymore – 
-              we avoid duplicating step-level info */}
+          {/* No second "Touch point details" tile – avoid duplication */}
         </div>
 
         {/* RIGHT: AI Insights tile, fixed 1/4-width column */}
