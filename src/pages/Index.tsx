@@ -223,6 +223,14 @@ const categoryAccentBar: Record<Exclude<CategoryId, "all">, string> = {
   internal: "bg-rose-400",
 };
 
+const CATEGORY_ORDER: Exclude<CategoryId, "all">[] = [
+  "marketing",
+  "sales",
+  "customers",
+  "vendors",
+  "internal",
+];
+
 const DEEP_LINK_MAP: Record<string, { to: string; label: string }> = {
   "service-intervals": { to: "/reports/service-intervals", label: "View Report" },
   "customer-journey": { to: "/reports/customer-journey", label: "View Report" },
@@ -286,19 +294,38 @@ const Index: React.FC = () => {
     [selectedReport]
   );
 
-  const filteredReports = useMemo(() => {
-    return REPORTS.filter((report) => {
-      if (categoryFilter !== "all") {
-        const cats = [report.primaryCategory, ...(report.secondaryCategories ?? [])];
-        if (!cats.includes(categoryFilter)) return false;
-      }
-      if (!search.trim()) return true;
-      const q = search.toLowerCase();
+  const visibleReports = useMemo(() => {
+    const term = search.trim().toLowerCase();
+
+    // 1) Filter by category
+    let filtered = REPORTS.filter((report) => {
+      if (categoryFilter === "all") return true;
+
       return (
-        report.name.toLowerCase().includes(q) ||
-        report.purpose.toLowerCase().includes(q)
+        report.primaryCategory === categoryFilter ||
+        report.secondaryCategories?.includes(categoryFilter)
       );
     });
+
+    // 2) Filter by search term
+    if (term) {
+      filtered = filtered.filter((report) => {
+        const haystack =
+          `${report.name} ${report.purpose} ${report.previewMetric ?? ""}`.toLowerCase();
+        return haystack.includes(term);
+      });
+    }
+
+    // 3) Sort by primaryCategory order, then by name
+    return filtered
+      .slice()
+      .sort((a, b) => {
+        const aIdx = CATEGORY_ORDER.indexOf(a.primaryCategory);
+        const bIdx = CATEGORY_ORDER.indexOf(b.primaryCategory);
+
+        if (aIdx !== bIdx) return aIdx - bIdx;
+        return a.name.localeCompare(b.name);
+      });
   }, [categoryFilter, search]);
 
   const totalsByCategory = useMemo(() => {
@@ -395,7 +422,7 @@ const Index: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Left: report cards grid */}
         <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filteredReports.map((report) => {
+          {visibleReports.map((report) => {
             const isSelected = selectedReport?.id === report.id;
             const badgeColors = categoryColors[report.primaryCategory];
             const accentBar = categoryAccentBar[report.primaryCategory];
@@ -456,13 +483,13 @@ const Index: React.FC = () => {
             );
           })}
 
-          {filteredReports.length === 0 && (
+          {visibleReports.length === 0 && (
             <p className="text-xs text-slate-400">No reports match your filters yet.</p>
           )}
         </div>
 
         {/* Right: report preview + AI insights */}
-        <div className="lg:col-span-1 space-y-4">
+        <div className="lg:col-span-1 space-y-4 self-start">
           {/* Report Preview card */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
