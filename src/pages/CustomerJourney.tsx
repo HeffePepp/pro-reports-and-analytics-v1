@@ -215,7 +215,7 @@ const CustomerJourneyPage: React.FC = () => {
                   point. Bar length shows resp % vs other touch points.
                 </p>
 
-                <div className="mt-3 space-y-5 text-xs text-slate-700">
+                <div className="mt-3">
                   {JOURNEY_TOUCH_POINTS.map((tp, idx) => {
                     const respColor = getRespColorClass(tp.responseRate);
                     const segments = getChannelSegments(tp.channel);
@@ -225,61 +225,64 @@ const CustomerJourneyPage: React.FC = () => {
                         key={`${tp.name}-${tp.interval}`}
                         type="button"
                         onClick={() => handleTouchPointClick(tp)}
-                        className="w-full text-left pt-1"
+                        className={`w-full text-left py-4 ${
+                          idx > 0 ? "border-t border-slate-100" : ""
+                        }`}
                       >
-                        {/* Top row */}
-                        <div className="flex items-start justify-between gap-3 text-[11px]">
-                          <div className="text-slate-700">
-                            <div className="font-medium">
+                        {/* Top row: touch point name + timing on left, stats on right */}
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="text-slate-800">
+                            {/* touch point name – bigger like one-off campaigns */}
+                            <div className="text-sm md:text-base font-semibold">
                               {idx + 1}. {tp.name}
                             </div>
-                            <div className="text-[11px] text-slate-500">
+                            {/* timing under name */}
+                            <div className="mt-0.5 text-[11px] text-slate-500">
                               {tp.interval}
+                            </div>
+
+                            {/* channel legend row */}
+                            <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-slate-500">
+                              {segments.map((seg) => (
+                                <span
+                                  key={seg.key}
+                                  className="inline-flex items-center gap-1"
+                                >
+                                  <span
+                                    className={`h-2 w-2 rounded-full ${seg.dotColorClass}`}
+                                  />
+                                  <span>{seg.label}</span>
+                                </span>
+                              ))}
                             </div>
                           </div>
 
-                          <div className="flex flex-col items-end text-right gap-0.5">
-                            <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium">
-                              <span className={respColor}>
-                                {tp.responseRate.toFixed(1)}% RESP
-                              </span>
-                              <span className="opacity-50 text-slate-500">
-                                •
-                              </span>
-                              <span className="text-slate-700">
-                                {tp.roas.toFixed(1)}x ROAS
-                              </span>
+                          {/* right-hand stats – larger RESP/ROAS like one-off campaigns */}
+                          <div className="text-right space-y-0.5 min-w-[120px]">
+                            <div
+                              className={`text-sm md:text-base font-semibold ${respColor}`}
+                            >
+                              {tp.responseRate.toFixed(1)}% RESP
                             </div>
-                            <div className="text-[10px] text-slate-500">
-                              {tp.sent.toLocaleString()} sent •{" "}
+                            <div className="text-sm md:text-base font-semibold text-slate-900">
+                              {tp.roas.toFixed(1)}x ROAS
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              {tp.sent.toLocaleString()} sent ·{" "}
                               {tp.vehicles.toLocaleString()} resp
                             </div>
                           </div>
                         </div>
 
-                        {/* Channel bar + legend */}
-                        <div className="mt-3">
+                        {/* bar row */}
+                        <div className="mt-3 flex items-center gap-2">
                           <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden flex">
                             {segments.map((seg) => (
                               <div
                                 key={seg.key}
-                                className={`h-full ${seg.colorClass}`}
+                                className={seg.colorClass}
                                 style={{ width: `${seg.percent}%` }}
                               />
-                            ))}
-                          </div>
-
-                          <div className="mt-2 flex items-center gap-3 text-[10px] text-slate-500">
-                            {segments.map((seg) => (
-                              <span
-                                key={seg.key}
-                                className="inline-flex items-center gap-1"
-                              >
-                                <span
-                                  className={`h-3 w-3 rounded-full ${seg.dotColorClass}`}
-                                />
-                                <span>{seg.label}</span>
-                              </span>
                             ))}
                           </div>
                         </div>
