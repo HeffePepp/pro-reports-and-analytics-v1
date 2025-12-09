@@ -41,7 +41,7 @@ const Sidebar: React.FC = () => {
     <aside
       className="
         hidden md:flex md:flex-col w-64
-        bg-[#020617]          /* deep navy – closer to main platform */
+        bg-slate-900
         text-slate-100
       "
     >
