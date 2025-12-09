@@ -2,16 +2,16 @@ import React, { useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type JourneyStepDetail = {
-  name: string;         // Comm Name (no timing embedded)
-  interval: string;     // Interval Description / timing
-  channel: string;      // primary delivery method(s)
+  name: string; // Comm Name (no timing embedded)
+  interval: string; // Interval Description / timing
+  channel: string; // primary delivery method(s), used only for channel mix
   sent: number;
   vehicles: number;
   responseRate: number; // %
-  roas: number;         // x
+  roas: number; // x
 };
 
-// Updated dummy data with a mix of RESP % buckets
+// Dummy data with RESP % buckets
 const JOURNEY_STEPS: JourneyStepDetail[] = [
   {
     name: "Thank You Text",
@@ -19,16 +19,16 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Text",
     sent: 1850,
     vehicles: 420,
-    responseRate: 22.7, // green
+    responseRate: 22.7,
     roas: 9.5,
   },
   {
-    name: "Thank You", // was "Thank You Eml"
+    name: "Thank You",
     interval: "1 day after Service",
     channel: "Email",
     sent: 1850,
     vehicles: 420,
-    responseRate: 22.7, // green
+    responseRate: 22.7,
     roas: 9.5,
   },
   {
@@ -37,7 +37,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 1760,
     vehicles: 310,
-    responseRate: 17.6, // green
+    responseRate: 17.6,
     roas: 12.1,
   },
   {
@@ -46,7 +46,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 900,
     vehicles: 150,
-    responseRate: 13.4, // orange
+    responseRate: 13.4,
     roas: 10.3,
   },
   {
@@ -55,7 +55,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 1640,
     vehicles: 240,
-    responseRate: 16.1, // green
+    responseRate: 16.1,
     roas: 11.2,
   },
   {
@@ -64,7 +64,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 1520,
     vehicles: 230,
-    responseRate: 15.8, // green
+    responseRate: 15.8,
     roas: 10.9,
   },
   {
@@ -73,7 +73,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 1380,
     vehicles: 210,
-    responseRate: 10.6, // orange
+    responseRate: 10.6,
     roas: 10.8,
   },
   {
@@ -82,7 +82,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 4200,
     vehicles: 520,
-    responseRate: 7.8, // yellow
+    responseRate: 7.8,
     roas: 7.8,
   },
   {
@@ -91,7 +91,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Postcard + Email + SMS",
     sent: 1380,
     vehicles: 280,
-    responseRate: 20.3, // green
+    responseRate: 20.3,
     roas: 16.4,
   },
   {
@@ -100,7 +100,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Postcard + Email + SMS",
     sent: 980,
     vehicles: 142,
-    responseRate: 11.2, // orange
+    responseRate: 11.2,
     roas: 10.7,
   },
   {
@@ -109,7 +109,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Postcard + Email + SMS",
     sent: 860,
     vehicles: 120,
-    responseRate: 12.5, // orange
+    responseRate: 12.5,
     roas: 9.8,
   },
   {
@@ -118,7 +118,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Postcard + Email + SMS",
     sent: 740,
     vehicles: 105,
-    responseRate: 6.9, // yellow
+    responseRate: 6.9,
     roas: 9.4,
   },
   {
@@ -127,7 +127,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 620,
     vehicles: 86,
-    responseRate: 15.2, // green
+    responseRate: 15.2,
     roas: 8.2,
   },
   {
@@ -136,7 +136,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 480,
     vehicles: 64,
-    responseRate: 4.1, // red
+    responseRate: 4.1,
     roas: 7.5,
   },
   {
@@ -145,7 +145,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     channel: "Email",
     sent: 360,
     vehicles: 46,
-    responseRate: 3.2, // red
+    responseRate: 3.2,
     roas: 7.1,
   },
 ];
@@ -154,8 +154,8 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
 const getRespColorClass = (rate: number): string => {
   if (rate >= 15) return "text-emerald-600"; // green
   if (rate >= 10) return "text-orange-500"; // orange
-  if (rate >= 5) return "text-amber-500"; // yellow
-  return "text-rose-600"; // red
+  if (rate >= 5) return "text-amber-500";  // yellow
+  return "text-rose-600";                  // red
 };
 
 // Channel mix + bar segment meta
@@ -166,27 +166,30 @@ type ChannelSegment = {
   percent: number;
   colorClass: string;
   dotColorClass: string;
-  shortLabel: string; // PC / E / T
+  label: string; // spelled out: Postcard, Email, Text Message
 };
 
 const CHANNEL_META: Record<ChannelKey, Omit<ChannelSegment, "percent">> = {
   postcard: {
     key: "postcard",
-    colorClass: "bg-sky-500",
-    dotColorClass: "bg-sky-500",
-    shortLabel: "PC",
+    // soft blue
+    colorClass: "bg-sky-100",
+    dotColorClass: "bg-sky-300",
+    label: "Postcard",
   },
   email: {
     key: "email",
-    colorClass: "bg-orange-400",
-    dotColorClass: "bg-orange-400",
-    shortLabel: "E",
+    // soft green
+    colorClass: "bg-emerald-100",
+    dotColorClass: "bg-emerald-300",
+    label: "Email",
   },
   sms: {
     key: "sms",
-    colorClass: "bg-rose-400",
-    dotColorClass: "bg-rose-400",
-    shortLabel: "T",
+    // soft violet
+    colorClass: "bg-violet-100",
+    dotColorClass: "bg-violet-300",
+    label: "Text Message",
   },
 };
 
@@ -315,12 +318,11 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
 
             <p className="mt-2 text-[10px] text-slate-400">
-              Channel bar shows mix of Postcard (blue), Email (orange) and
-              Text (red) per touch point. Bar length shows resp % vs other
-              steps.
+              Channel bar shows mix of Postcard, Email and Text Message per
+              touch point. Bar length shows resp % vs other steps.
             </p>
 
-            <div className="mt-3 space-y-4 text-xs text-slate-700">
+            <div className="mt-3 space-y-5 text-xs text-slate-700">
               {JOURNEY_STEPS.map((step, idx) => {
                 const respColor = getRespColorClass(step.responseRate);
                 const segments = getChannelSegments(step.channel);
@@ -333,12 +335,12 @@ const CustomerJourneyPage: React.FC = () => {
                     {/* Top row: step label left, stats right */}
                     <div className="flex items-start justify-between gap-3 text-[11px]">
                       <div className="text-slate-700">
-                        <span className="font-medium">
+                        <div className="font-medium">
                           {idx + 1}. {step.name}
-                        </span>{" "}
-                        <span className="text-slate-500">
-                          ({step.interval})
-                        </span>
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          {step.interval}
+                        </div>
                       </div>
 
                       {/* RESP / ROAS / Sent – all right aligned */}
@@ -360,7 +362,7 @@ const CustomerJourneyPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Channel bar + icons */}
+                    {/* Channel bar + legend */}
                     <div className="mt-3">
                       <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden flex">
                         {segments.map((seg) => (
@@ -372,23 +374,18 @@ const CustomerJourneyPage: React.FC = () => {
                         ))}
                       </div>
 
-                      <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500">
-                        <div className="flex items-center gap-2">
-                          {segments.map((seg) => (
+                      <div className="mt-2 flex items-center gap-3 text-[10px] text-slate-500">
+                        {segments.map((seg) => (
+                          <span
+                            key={seg.key}
+                            className="inline-flex items-center gap-1"
+                          >
                             <span
-                              key={seg.key}
-                              className="inline-flex items-center gap-1"
-                            >
-                              <span
-                                className={`h-3 w-3 rounded-full ${seg.dotColorClass}`}
-                              />
-                              <span>{seg.shortLabel}</span>
-                            </span>
-                          ))}
-                        </div>
-                        <span className="text-[10px] text-slate-400">
-                          {step.channel}
-                        </span>
+                              className={`h-3 w-3 rounded-full ${seg.dotColorClass}`}
+                            />
+                            <span>{seg.label}</span>
+                          </span>
+                        ))}
                       </div>
                     </div>
                   </div>
