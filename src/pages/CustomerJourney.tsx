@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
 type JourneyStepDetail = {
@@ -224,6 +225,8 @@ const getChannelSegments = (channel: string): ChannelSegment[] => {
 };
 
 const CustomerJourneyPage: React.FC = () => {
+  const navigate = useNavigate();
+
   const totalSent = useMemo(
     () => JOURNEY_STEPS.reduce((sum, s) => sum + s.sent, 0),
     []
@@ -249,6 +252,11 @@ const CustomerJourneyPage: React.FC = () => {
     title: "AI Insights",
     subtitle: "Based on 12 months data",
     bullets: [] as string[],
+  };
+
+  const handleStepClick = (step: JourneyStepDetail) => {
+    // for now every step goes to the same example detail page
+    navigate("/reports/customer-journey/step-detail");
   };
 
   return (
@@ -347,9 +355,11 @@ const CustomerJourneyPage: React.FC = () => {
                 const segments = getChannelSegments(step.channel);
 
                 return (
-                  <div
+                  <button
                     key={`${step.name}-${step.interval}`}
-                    className="pt-1"
+                    type="button"
+                    onClick={() => handleStepClick(step)}
+                    className="w-full text-left pt-1"
                   >
                     {/* Top row: step label left, stats right */}
                     <div className="flex items-start justify-between gap-3 text-[11px]">
@@ -408,7 +418,7 @@ const CustomerJourneyPage: React.FC = () => {
                         ))}
                       </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
