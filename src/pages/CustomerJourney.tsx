@@ -236,20 +236,17 @@ const CustomerJourneyPage: React.FC = () => {
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-start justify-between mb-1 gap-3">
               <div>
-                {/* Stacked title (green highlight change) */}
+                {/* Stacked title */}
                 <h2 className="text-sm font-semibold text-slate-900">
                   Customer Journey
                 </h2>
                 <p className="text-[11px] font-medium text-slate-700">
                   Touch Point + Response Rate + ROAS
                 </p>
-                <p className="mt-1 text-[11px] text-slate-600">
-                  Relative performance (dummy data)
-                </p>
               </div>
 
-              {/* Stacked summary stats (purple highlight change) */}
-              <div className="hidden lg:flex flex-col text-[11px] text-slate-500">
+              {/* Stacked summary stats – right aligned */}
+              <div className="hidden lg:flex flex-col items-end text-right text-[11px] text-slate-500">
                 <span>
                   {journeyVehicles.toLocaleString()} journey vehicles
                 </span>
@@ -267,7 +264,7 @@ const CustomerJourneyPage: React.FC = () => {
             <div className="mt-3 space-y-3 text-xs text-slate-700">
               {JOURNEY_STEPS.map((step, idx) => (
                 <div key={`${step.name}-${step.interval}`}>
-                  {/* Top row: touch point name + timing on left, pill on right */}
+                  {/* Top row: touch point name + timing on left, metrics on right */}
                   <div className="flex items-start justify-between gap-3 text-[11px]">
                     <div className="text-slate-700">
                       <span className="font-medium">
@@ -278,11 +275,11 @@ const CustomerJourneyPage: React.FC = () => {
                       </span>
                     </div>
 
-                    {/* Side-by-side RESP + ROAS pill (yellow highlight change) */}
+                    {/* RESP + ROAS side by side, no background */}
                     <div className="flex items-start">
-                      <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-amber-50 text-[11px] md:text-xs font-medium text-amber-700">
+                      <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium text-slate-700">
                         <span>{step.responseRate.toFixed(1)}% RESP</span>
-                        <span className="opacity-60">•</span>
+                        <span className="opacity-50">•</span>
                         <span>{step.roas.toFixed(1)}x ROAS</span>
                       </div>
                     </div>
