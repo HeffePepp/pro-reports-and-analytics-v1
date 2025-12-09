@@ -181,7 +181,7 @@ const SuggestedServicesPage: React.FC = () => {
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2 gap-3">
               <div>
-                <h2 className="text-sm font-semibold text-slate-900">Performance by service type</h2>
+                <h2 className="text-sm font-semibold text-slate-900">Suggested Service Items</h2>
                 <p className="text-[11px] text-slate-600">
                   This tile identifies the Service Service items + the number of times they were included on an invoice.
                 </p>
