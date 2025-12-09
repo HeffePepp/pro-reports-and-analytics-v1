@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
-
-/* ------------------------------------------------------------------
-   Detail page: Data Capture + Life Time Value
-   Layout: left content (3/4), right AI tile (1/4)
--------------------------------------------------------------------*/
+import {
+  ShellLayout,
+  MetricTile,
+  AIInsightsTile,
+  useKpiPreferences,
+  KpiCustomizeButton,
+  KpiPreferencesModal,
+} from "@/components/layout";
 
 type LtvSummary = {
   totalCustomers: number;
@@ -19,7 +21,7 @@ type LtvSegmentRow = {
   customers: number;
   avgLtv: number;
   avgVisits: number;
-  emailCaptureRate: number; // %
+  emailCaptureRate: number;
 };
 
 const ltvSummary: LtvSummary = {
@@ -31,35 +33,19 @@ const ltvSummary: LtvSummary = {
 };
 
 const ltvSegments: LtvSegmentRow[] = [
-  {
-    segment: "Top 25% LTV",
-    customers: 4625,
-    avgLtv: 980,
-    avgVisits: 6.4,
-    emailCaptureRate: 92,
-  },
-  {
-    segment: "Middle 50% LTV",
-    customers: 9250,
-    avgLtv: 410,
-    avgVisits: 3.2,
-    emailCaptureRate: 81,
-  },
-  {
-    segment: "Bottom 25% LTV",
-    customers: 4625,
-    avgLtv: 118,
-    avgVisits: 1.4,
-    emailCaptureRate: 52,
-  },
-  {
-    segment: "Multi-vehicle households",
-    customers: 6300,
-    avgLtv: 720,
-    avgVisits: 5.1,
-    emailCaptureRate: 88,
-  },
+  { segment: "Top 25% LTV", customers: 4625, avgLtv: 980, avgVisits: 6.4, emailCaptureRate: 92 },
+  { segment: "Middle 50% LTV", customers: 9250, avgLtv: 410, avgVisits: 3.2, emailCaptureRate: 81 },
+  { segment: "Bottom 25% LTV", customers: 4625, avgLtv: 118, avgVisits: 1.4, emailCaptureRate: 52 },
+  { segment: "Multi-vehicle households", customers: 6300, avgLtv: 720, avgVisits: 5.1, emailCaptureRate: 88 },
 ];
+
+const kpiDefs = [
+  { id: "totalCustomers", label: "Total customers" },
+  { id: "avgLtv", label: "Avg LTV per customer" },
+  { id: "topQuartile", label: "Top quartile LTV" },
+  { id: "multiVehicle", label: "Multi-vehicle households" },
+  { id: "emailCapture", label: "Email capture rate" },
+] as const;
 
 const DataCaptureLtvPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
@@ -67,23 +53,37 @@ const DataCaptureLtvPage: React.FC = () => {
     "Lower LTV segments have weaker data capture, which limits your ability to move them up the value ladder.",
     "Multi-vehicle households are extremely valuable and should be prioritized for journey enrollment.",
   ]);
+  const [kpiModalOpen, setKpiModalOpen] = useState(false);
 
-  const maxAvgLtv = useMemo(
-    () => Math.max(...ltvSegments.map((s) => s.avgLtv), 1),
-    []
+  const maxAvgLtv = useMemo(() => Math.max(...ltvSegments.map((s) => s.avgLtv), 1), []);
+
+  const { visibleKpis, visibleIds, toggleKpi, resetKpis } = useKpiPreferences(
+    "data-capture-ltv",
+    kpiDefs as unknown as { id: string; label: string }[]
   );
 
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "totalCustomers":
+        return <MetricTile key={id} label="Total customers" value={ltvSummary.totalCustomers.toLocaleString()} />;
+      case "avgLtv":
+        return <MetricTile key={id} label="Avg LTV per customer" value={`$${ltvSummary.avgLtv.toFixed(0)}`} />;
+      case "topQuartile":
+        return <MetricTile key={id} label="Top quartile LTV" value={`$${ltvSummary.topQuartileLtv.toFixed(0)}`} />;
+      case "multiVehicle":
+        return <MetricTile key={id} label="Multi-vehicle households" value={`${ltvSummary.multiVehiclePct.toFixed(0)}%`} helper="Of total customers" />;
+      case "emailCapture":
+        return <MetricTile key={id} label="Email capture rate" value={`${ltvSummary.emailCaptureRate.toFixed(0)}%`} />;
+      default:
+        return null;
+    }
+  };
+
   const regenerateInsights = () => {
-    const worstCapture = ltvSegments.reduce((worst, s) =>
-      !worst || s.emailCaptureRate < worst.emailCaptureRate ? s : worst
-    );
+    const worstCapture = ltvSegments.reduce((worst, s) => (!worst || s.emailCaptureRate < worst.emailCaptureRate ? s : worst));
     setInsights([
-      `Average LTV across the base is $${ltvSummary.avgLtv.toFixed(
-        0
-      )}, with top quartile at ~$${ltvSummary.topQuartileLtv.toFixed(0)}.`,
-      `"${worstCapture.segment}" has the weakest email capture (${worstCapture.emailCaptureRate.toFixed(
-        1
-      )}%), limiting upsell and retention potential.`,
+      `Average LTV across the base is $${ltvSummary.avgLtv.toFixed(0)}, with top quartile at ~$${ltvSummary.topQuartileLtv.toFixed(0)}.`,
+      `"${worstCapture.segment}" has the weakest email capture (${worstCapture.emailCaptureRate.toFixed(1)}%), limiting upsell and retention potential.`,
       "Focus data cleanup and capture efforts on low-LTV segments to unlock more upside from the base.",
     ]);
   };
@@ -96,115 +96,54 @@ const DataCaptureLtvPage: React.FC = () => {
         { label: "Data Capture + Life Time Value" },
       ]}
       rightInfo={
-        <>
-          <span>
-            Customers:{" "}
-            <span className="font-medium">
-              {ltvSummary.totalCustomers.toLocaleString()}
-            </span>
-          </span>
-        </>
+        <span>Customers: <span className="font-medium">{ltvSummary.totalCustomers.toLocaleString()}</span></span>
       }
     >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            Data Capture + Life Time Value
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Show how mail/email capture impacts revenue and ticket averages
-            across customer segments.
-          </p>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Data Capture + Life Time Value</h1>
+          <p className="mt-1 text-sm text-slate-500">Show how mail/email capture impacts revenue and ticket averages across customer segments.</p>
         </div>
+        <KpiCustomizeButton onClick={() => setKpiModalOpen(true)} />
       </div>
 
-      {/* Layout: left content + right AI tile */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Total customers"
-              value={ltvSummary.totalCustomers.toLocaleString()}
-            />
-            <MetricTile
-              label="Avg LTV per customer"
-              value={`$${ltvSummary.avgLtv.toFixed(0)}`}
-            />
-            <MetricTile
-              label="Top quartile LTV"
-              value={`$${ltvSummary.topQuartileLtv.toFixed(0)}`}
-            />
-            <MetricTile
-              label="Multi-vehicle households"
-              value={`${ltvSummary.multiVehiclePct.toFixed(0)}%`}
-              helper="Of total customers"
-            />
-            <MetricTile
-              label="Email capture rate"
-              value={`${ltvSummary.emailCaptureRate.toFixed(0)}%`}
-            />
+            {visibleKpis.map((kpi) => renderKpiTile(kpi.id))}
           </div>
 
-          {/* AI Insights – stacked here on small/medium screens */}
           <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on LTV & data capture"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
+            <AIInsightsTile title="AI Insights" subtitle="Based on LTV & data capture" bullets={insights} onRefresh={regenerateInsights} />
           </div>
 
-          {/* LTV by segment */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
-                LTV and visits by segment
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Avg LTV, visits and email capture
-              </span>
+              <h2 className="text-sm font-semibold text-slate-900">LTV and visits by segment</h2>
+              <span className="text-[11px] text-slate-500">Avg LTV, visits and email capture</span>
             </div>
             <div className="space-y-2 text-xs text-slate-700">
               {ltvSegments.map((s) => (
                 <div key={s.segment}>
                   <div className="flex justify-between text-[11px]">
                     <span>{s.segment}</span>
-                    <span>
-                      ${s.avgLtv.toFixed(0)} LTV · {s.avgVisits.toFixed(1)}{" "}
-                      visits
-                    </span>
+                    <span>${s.avgLtv.toFixed(0)} LTV · {s.avgVisits.toFixed(1)} visits</span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500"
-                        style={{
-                          width: `${(s.avgLtv / maxAvgLtv) * 100}%`,
-                        }}
-                      />
+                      <div className="h-full bg-emerald-500" style={{ width: `${(s.avgLtv / maxAvgLtv) * 100}%` }} />
                     </div>
-                    <span className="text-[10px] text-slate-500 w-40 text-right">
-                      {s.emailCaptureRate.toFixed(1)}% email capture
-                    </span>
+                    <span className="text-[10px] text-slate-500 w-40 text-right">{s.emailCaptureRate.toFixed(1)}% email capture</span>
                   </div>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* Table */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Segment details
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Customers, LTV and data capture by segment
-              </span>
+              <h2 className="text-sm font-semibold text-slate-900">Segment details</h2>
+              <span className="text-[11px] text-slate-500">Customers, LTV and data capture by segment</span>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs">
@@ -220,21 +159,11 @@ const DataCaptureLtvPage: React.FC = () => {
                 <tbody>
                   {ltvSegments.map((s) => (
                     <tr key={s.segment} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">
-                        {s.segment}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {s.customers.toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        ${s.avgLtv.toFixed(0)}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {s.avgVisits.toFixed(1)}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {s.emailCaptureRate.toFixed(1)}%
-                      </td>
+                      <td className="py-2 pr-3 text-slate-800">{s.segment}</td>
+                      <td className="py-2 pr-3 text-right">{s.customers.toLocaleString()}</td>
+                      <td className="py-2 pr-3 text-right">${s.avgLtv.toFixed(0)}</td>
+                      <td className="py-2 pr-3 text-right">{s.avgVisits.toFixed(1)}</td>
+                      <td className="py-2 pr-3 text-right">{s.emailCaptureRate.toFixed(1)}%</td>
                     </tr>
                   ))}
                 </tbody>
@@ -243,16 +172,20 @@ const DataCaptureLtvPage: React.FC = () => {
           </section>
         </div>
 
-        {/* RIGHT: AI Insights – only on large screens */}
         <div className="hidden lg:block lg:col-span-1">
-          <AIInsightsTile
-            title="AI Insights"
-            subtitle="Based on LTV & data capture"
-            bullets={insights}
-            onRefresh={regenerateInsights}
-          />
+          <AIInsightsTile title="AI Insights" subtitle="Based on LTV & data capture" bullets={insights} onRefresh={regenerateInsights} />
         </div>
       </div>
+
+      <KpiPreferencesModal
+        open={kpiModalOpen}
+        onClose={() => setKpiModalOpen(false)}
+        reportName="Data Capture + Life Time Value"
+        kpis={kpiDefs as unknown as { id: string; label: string }[]}
+        visibleIds={visibleIds}
+        onToggle={toggleKpi}
+        onReset={resetKpis}
+      />
     </ShellLayout>
   );
 };

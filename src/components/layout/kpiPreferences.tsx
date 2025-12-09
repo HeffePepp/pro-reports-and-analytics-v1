@@ -170,7 +170,7 @@ export const KpiPreferencesModal: React.FC<KpiPreferencesModalProps> = ({
             onClick={onReset}
             className="text-[11px] text-slate-500 hover:text-slate-700"
           >
-            Reset to defaults
+            Select all tiles
           </button>
           <button
             type="button"
