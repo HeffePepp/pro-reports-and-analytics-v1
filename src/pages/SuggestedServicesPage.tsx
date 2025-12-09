@@ -183,7 +183,7 @@ const SuggestedServicesPage: React.FC = () => {
               <div>
                 <h2 className="text-sm font-semibold text-slate-900">Suggested Service Items</h2>
                 <p className="text-[11px] text-slate-600">
-                  This tile identifies the Service Service items + the number of times they were included on an invoice.
+                  Number of times the SS item was added to an invoice + % valid email addresses
                 </p>
               </div>
 
