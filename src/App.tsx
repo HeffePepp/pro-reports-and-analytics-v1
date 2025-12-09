@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import ServiceIntervals from "./pages/ServiceIntervals";
 import CustomerJourney from "./pages/CustomerJourney";
-import CustomerJourneyTouchPointDetail from "./pages/CustomerJourneyTouchPointDetail";
+import CustomerJourneyTouchPointDetailPage from "./pages/CustomerJourneyTouchPointDetailPage";
 import OilTypeSales from "./pages/OilTypeSales";
 import DataCaptureLtv from "./pages/DataCaptureLtv";
 import CustomerDataPage from "./pages/CustomerDataPage";
@@ -39,7 +39,7 @@ const App: React.FC = () => {
           <Route path="/" element={<Index />} />
           <Route path="/reports/service-intervals" element={<ServiceIntervals />} />
           <Route path="/reports/customer-journey" element={<CustomerJourney />} />
-          <Route path="/reports/customer-journey/touch-point-detail" element={<CustomerJourneyTouchPointDetail />} />
+          <Route path="/reports/customer-journey/touch-point/:touchPointId" element={<CustomerJourneyTouchPointDetailPage />} />
           <Route path="/reports/oil-type-sales" element={<OilTypeSales />} />
           <Route path="/reports/data-capture-ltv" element={<DataCaptureLtv />} />
           <Route path="/reports/customer-data" element={<CustomerDataPage />} />
