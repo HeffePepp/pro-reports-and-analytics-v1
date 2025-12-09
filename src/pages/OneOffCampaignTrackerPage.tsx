@@ -172,20 +172,20 @@ const CHANNEL_META: Record<
 > = {
   postcard: {
     key: "postcard",
-    colorClass: "bg-sky-100",
-    dotColorClass: "bg-sky-300",
+    colorClass: "bg-sky-400",
+    dotColorClass: "bg-sky-400",
     label: "Postcard",
   },
   email: {
     key: "email",
-    colorClass: "bg-emerald-100",
-    dotColorClass: "bg-emerald-300",
+    colorClass: "bg-emerald-400",
+    dotColorClass: "bg-emerald-400",
     label: "Email",
   },
   sms: {
     key: "sms",
-    colorClass: "bg-violet-100",
-    dotColorClass: "bg-violet-300",
+    colorClass: "bg-indigo-400",
+    dotColorClass: "bg-indigo-400",
     label: "Text Message",
   },
 };
@@ -408,81 +408,90 @@ const OneOffCampaignTrackerPage: React.FC = () => {
                   across all drops. Bar length shows resp % vs other campaigns.
                 </p>
 
-                <div className="mt-3 space-y-5 text-xs text-slate-700">
-                  {ONE_OFF_CAMPAIGNS.map((campaign) => {
+                <div className="mt-3">
+                  {ONE_OFF_CAMPAIGNS.map((campaign, idx) => {
                     const totals = getCampaignTotals(campaign);
-                    const respColor = getRespColorClass(
-                      totals.weightedResp
-                    );
-                    const segments =
-                      getCampaignChannelSegments(campaign);
-                    const width =
-                      (totals.weightedResp / maxResp) * 100 || 0;
+                    const segments = getCampaignChannelSegments(campaign);
+                    const respNorm = totals.weightedResp / maxResp;
 
                     return (
-                      <div key={campaign.id} className="pt-1">
-                        {/* Top row */}
-                        <div className="flex items-start justify-between gap-3 text-[11px]">
-                          <div className="text-slate-700">
-                            <div className="font-medium">
+                      <div
+                        key={campaign.id}
+                        className={`py-4 ${
+                          idx > 0 ? "border-t border-slate-100" : ""
+                        }`}
+                      >
+                        {/* Top row: name / audience on left, big stats on right */}
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            {/* Campaign name – larger */}
+                            <div className="text-base md:text-lg font-semibold text-slate-900">
                               {campaign.name}
                             </div>
-                            <div className="text-[11px] text-slate-500">
+                            {/* Audience / notes */}
+                            <div className="mt-0.5 text-[11px] text-slate-500">
                               {campaign.audience}
                             </div>
-                            <div className="text-[10px] text-slate-400 mt-0.5">
+                            {/* Drops label */}
+                            <div className="mt-1 text-[11px] text-slate-500">
                               {campaign.drops.length}{" "}
-                              {campaign.drops.length === 1
-                                ? "drop"
-                                : "drops"}
-                              {" · "}
-                              Last drop{" "}
-                              {totals.latestDrop.label}
+                              {campaign.drops.length === 1 ? "drop" : "drops"}
+                              {" · "}Last drop {totals.latestDrop.label}
                             </div>
                           </div>
 
-                          <div className="flex flex-col items-end text-right gap-0.5">
-                            <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium">
-                              <span className={respColor}>
-                                {totals.weightedResp.toFixed(1)}% RESP
-                              </span>
-                              <span className="opacity-50 text-slate-500">
-                                •
-                              </span>
-                              <span className="text-slate-700">
-                                {totals.weightedRoas.toFixed(1)}x ROAS
-                              </span>
+                          {/* RESP / ROAS / sent+rev – larger stats, right aligned */}
+                          <div className="flex flex-col items-end text-right min-w-[160px]">
+                            <div className="text-sm md:text-base font-semibold text-amber-600">
+                              {totals.weightedResp.toFixed(1)}% RESP
                             </div>
-                            <div className="text-[10px] text-slate-500">
-                              {totals.sent.toLocaleString()} sent • $
-                              {totals.revenue.toLocaleString()} rev
+                            <div className="text-sm md:text-base font-semibold text-slate-800">
+                              {totals.weightedRoas.toFixed(1)}x ROAS
+                            </div>
+                            <div className="mt-0.5 text-[11px] text-slate-500">
+                              <span className="font-medium text-slate-800">
+                                {totals.sent.toLocaleString()}
+                              </span>{" "}
+                              sent ·{" "}
+                              <span className="font-medium text-slate-800">
+                                ${totals.revenue.toLocaleString()}
+                              </span>{" "}
+                              rev
                             </div>
                           </div>
                         </div>
 
-                        {/* Channel bar + legend */}
-                        <div className="mt-3">
-                          <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden flex">
-                            {/* performance bar (resp %) */}
+                        {/* Bar row: channel mix & resp% length */}
+                        <div className="mt-3 flex items-center gap-2">
+                          <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                             <div
-                              className="h-full bg-sky-500"
-                              style={{ width: `${width}%` }}
-                            />
-                          </div>
-
-                          <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
-                            {segments.map((seg) => (
-                              <span
-                                key={seg.key}
-                                className="inline-flex items-center gap-1"
-                              >
-                                <span
-                                  className={`h-3 w-3 rounded-full ${seg.dotColorClass}`}
+                              className="h-full flex"
+                              style={{ width: `${respNorm * 100}%` }}
+                            >
+                              {segments.map((seg) => (
+                                <div
+                                  key={seg.key}
+                                  className={seg.colorClass}
+                                  style={{ width: `${seg.percent}%` }}
                                 />
-                                <span>{seg.label}</span>
-                              </span>
-                            ))}
+                              ))}
+                            </div>
                           </div>
+                        </div>
+
+                        {/* Channel legend for this campaign */}
+                        <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-slate-600">
+                          {segments.map((seg) => (
+                            <span
+                              key={seg.key}
+                              className="inline-flex items-center gap-1"
+                            >
+                              <span
+                                className={`h-2 w-2 rounded-full ${seg.dotColorClass}`}
+                              />
+                              <span>{seg.label}</span>
+                            </span>
+                          ))}
                         </div>
                       </div>
                     );
