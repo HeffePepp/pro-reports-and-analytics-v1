@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ShellLayout, SummaryTile, DeepLink } from "@/components/layout";
+import { ShellLayout, SummaryTile, DeepLink, AIInsightsTile } from "@/components/layout";
 
 type CategoryId = "all" | "marketing" | "sales" | "customers" | "vendors" | "internal";
 type ReportType = "chart" | "table" | "kpi" | "mixed";
@@ -245,6 +245,32 @@ const DEEP_LINK_MAP: Record<string, { to: string; label: string }> = {
   "oil-type-invoices": { to: "/reports/oil-type-invoices", label: "View Report" },
 };
 
+const buildReportInsights = (report: Report | null, categories: Category[]): string[] => {
+  if (!report) {
+    return [
+      "Select a report on the left to see AI suggestions for how to use it.",
+      "Use filters at the top to focus on Marketing, Sales, Customers, Vendors or Internal reports.",
+    ];
+  }
+
+  const categoryLabel =
+    categories.find((c) => c.id === report.primaryCategory)?.label ?? "this category";
+
+  const bullets: string[] = [
+    `This report focuses on ${categoryLabel.toLowerCase()} performance and behavior.`,
+  ];
+
+  if (report.previewMetric) {
+    bullets.push(`Current preview metric: ${report.previewMetric}.`);
+  }
+
+  bullets.push(
+    "Use this view to spot segments for journeys, one-off campaigns and data clean-up work."
+  );
+
+  return bullets;
+};
+
 const Index: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<CategoryId>("all");
   const [search, setSearch] = useState("");
@@ -253,6 +279,11 @@ const Index: React.FC = () => {
   const selectedReport = useMemo(
     () => REPORTS.find((r) => r.id === selectedReportId) ?? null,
     [selectedReportId]
+  );
+
+  const insightsBullets = useMemo(
+    () => buildReportInsights(selectedReport, CATEGORIES),
+    [selectedReport]
   );
 
   const filteredReports = useMemo(() => {
@@ -361,9 +392,9 @@ const Index: React.FC = () => {
       </div>
 
       {/* Main area: cards + preview */}
-      <div className="flex flex-col md:flex-row mt-3 gap-4">
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* Left: report cards grid */}
+        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredReports.map((report) => {
             const isSelected = selectedReport?.id === report.id;
             const badgeColors = categoryColors[report.primaryCategory];
@@ -430,100 +461,86 @@ const Index: React.FC = () => {
           )}
         </div>
 
-        {/* Preview pane */}
-        <aside className="hidden lg:block w-80 border-l border-slate-200 bg-white/70 backdrop-blur-sm rounded-l-3xl">
-          <div className="h-full flex flex-col">
-            <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
-                Report Preview
-              </h3>
-              {selectedReport && (
-                <span className="text-[11px] text-slate-400">
-                  {typeLabel[selectedReport.type]}
-                </span>
-              )}
-            </div>
-            <div className="flex-1 px-4 py-4 text-xs text-slate-600 space-y-3">
-              {!selectedReport && (
-                <p className="text-slate-400 text-xs">
-                  Select a report card to see its description and where it fits
-                  in the Throttle Pro reporting stack.
+        {/* Right: report preview + AI insights */}
+        <div className="lg:col-span-1 space-y-4">
+          {/* Report Preview card */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900">
+                  Report preview
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Name, category, purpose and example metrics.
                 </p>
-              )}
-              {selectedReport && (
-                <>
-                  <div className="space-y-1">
-                    <p className="text-[11px] uppercase tracking-wide text-slate-400">
-                      Name
-                    </p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {selectedReport.name}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[11px] uppercase tracking-wide text-slate-400">
-                      Primary category
-                    </p>
-                    <p className="text-xs">
-                      {
-                        CATEGORIES.find(
-                          (c) => c.id === selectedReport.primaryCategory
-                        )?.label
-                      }
-                    </p>
-                  </div>
-                  {selectedReport.secondaryCategories &&
-                    selectedReport.secondaryCategories.length > 0 && (
-                      <div className="space-y-1">
-                        <p className="text-[11px] uppercase tracking-wide text-slate-400">
-                          Also appears under
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {selectedReport.secondaryCategories.map((c) => (
-                            <span
-                              key={c}
-                              className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600"
-                            >
-                              {CATEGORIES.find((cat) => cat.id === c)?.label ?? c}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  <div className="space-y-1">
-                    <p className="text-[11px] uppercase tracking-wide text-slate-400">
-                      Purpose
-                    </p>
-                    <p className="text-xs leading-relaxed">
-                      {selectedReport.purpose}
-                    </p>
-                  </div>
-                  {selectedReport.previewMetric && (
-                    <div className="space-y-1">
-                      <p className="text-[11px] uppercase tracking-wide text-slate-400">
-                        Example metrics (dummy)
-                      </p>
-                      <p className="text-xs text-slate-700">
-                        {selectedReport.previewMetric}
-                      </p>
-                    </div>
-                  )}
-                  <div className="pt-2 mt-2 border-t border-dashed border-slate-200 space-y-1">
-                    <p className="text-[11px] uppercase tracking-wide text-slate-400">
-                      Next step
-                    </p>
-                    <p className="text-xs text-slate-600">
-                      In the full Throttle Pro app, this report opens into a
-                      dedicated screen with hero tiles, charts, tables and AI
-                      insights. For the prototype, this panel helps leadership
-                      see how reports are organized by category.
-                    </p>
-                  </div>
-                </>
-              )}
+              </div>
+              <span className="text-[11px] text-slate-400">
+                {selectedReport ? typeLabel[selectedReport.type] : "Charts & table"}
+              </span>
             </div>
-          </div>
-        </aside>
+
+            {selectedReport ? (
+              <div className="space-y-3 text-xs text-slate-700">
+                <div>
+                  <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+                    Name
+                  </div>
+                  <div className="mt-0.5 text-sm font-semibold text-slate-900">
+                    {selectedReport.name}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+                    Primary category
+                  </div>
+                  <div className="mt-0.5">
+                    {
+                      CATEGORIES.find(
+                        (c) => c.id === selectedReport.primaryCategory
+                      )?.label
+                    }
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+                    Purpose
+                  </div>
+                  <p className="mt-0.5 text-[11px] leading-snug text-slate-600">
+                    {selectedReport.purpose}
+                  </p>
+                </div>
+
+                {selectedReport.previewMetric && (
+                  <div>
+                    <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+                      Example metric (dummy)
+                    </div>
+                    <p className="mt-0.5 text-[11px] text-slate-600">
+                      {selectedReport.previewMetric}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-[11px] text-slate-500">
+                Choose a report on the left to see its purpose and example metrics.
+              </p>
+            )}
+          </section>
+
+          {/* AI Insights tile */}
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle={
+              selectedReport
+                ? `Based on similar ${selectedReport.primaryCategory.toLowerCase()} reports`
+                : "Select a report to see AI suggestions"
+            }
+            bullets={insightsBullets}
+          />
+        </div>
       </div>
     </ShellLayout>
   );
