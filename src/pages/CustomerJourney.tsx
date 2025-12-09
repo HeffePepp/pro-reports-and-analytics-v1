@@ -11,8 +11,7 @@ type JourneyStepDetail = {
   roas: number;         // x
 };
 
-// Updated dummy data with a mix of RESP % buckets:
-// - 2 red (0–5%), 2 yellow (5–10%), 4 orange (10–15%), rest green (>=15)
+// Updated dummy data with a mix of RESP % buckets
 const JOURNEY_STEPS: JourneyStepDetail[] = [
   {
     name: "Thank You Text",
@@ -24,7 +23,7 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
     roas: 9.5,
   },
   {
-    name: "Thank You Eml",
+    name: "Thank You", // was "Thank You Eml"
     interval: "1 day after Service",
     channel: "Email",
     sent: 1850,
@@ -151,12 +150,40 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
   },
 ];
 
-// Helper to map RESP % to a text color
+// RESP coloring helper
 const getRespColorClass = (rate: number): string => {
   if (rate >= 15) return "text-emerald-600"; // green
   if (rate >= 10) return "text-orange-500"; // orange
   if (rate >= 5) return "text-amber-500"; // yellow
   return "text-rose-600"; // red
+};
+
+// Channel "icon" helper
+const ChannelIcons: React.FC<{ channel: string }> = ({ channel }) => {
+  const lower = channel.toLowerCase();
+  const hasPostcard = lower.includes("postcard");
+  const hasEmail = lower.includes("email");
+  const hasSms = lower.includes("sms") || lower.includes("text");
+
+  return (
+    <span className="inline-flex items-center gap-1 mr-1 align-middle">
+      {hasPostcard && (
+        <span className="h-4 w-4 rounded-full bg-slate-100 text-[9px] flex items-center justify-center text-slate-600">
+          PC
+        </span>
+      )}
+      {hasEmail && (
+        <span className="h-4 w-4 rounded-full bg-slate-100 text-[9px] flex items-center justify-center text-slate-600">
+          E
+        </span>
+      )}
+      {hasSms && (
+        <span className="h-4 w-4 rounded-full bg-slate-100 text-[9px] flex items-center justify-center text-slate-600">
+          T
+        </span>
+      )}
+    </span>
+  );
 };
 
 const CustomerJourneyPage: React.FC = () => {
@@ -242,11 +269,10 @@ const CustomerJourneyPage: React.FC = () => {
             />
           </div>
 
-          {/* Journey steps visualization */}
+          {/* Journey steps visualization – single step-level tile */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-start justify-between mb-1 gap-3">
               <div>
-                {/* Stacked title */}
                 <h2 className="text-sm font-semibold text-slate-900">
                   Customer Journey
                 </h2>
@@ -266,7 +292,6 @@ const CustomerJourneyPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Explanation for blue bar */}
             <p className="mt-2 text-[10px] text-slate-400">
               Bar length shows resp % vs other steps.
             </p>
@@ -277,22 +302,30 @@ const CustomerJourneyPage: React.FC = () => {
 
                 return (
                   <div key={`${step.name}-${step.interval}`}>
-                    {/* Top row: touch point name + timing on left, metrics on right */}
+                    {/* Top row: step label left, metrics right */}
                     <div className="flex items-start justify-between gap-3 text-[11px]">
                       <div className="text-slate-700">
                         <span className="font-medium">
-                          {idx + 1}. {step.name}
+                          {idx + 1}.
+                        </span>{" "}
+                        <ChannelIcons channel={step.channel} />
+                        <span className="font-medium">
+                          {step.name}
                         </span>{" "}
                         <span className="text-slate-500">
                           ({step.interval})
                         </span>
                       </div>
 
-                      {/* RESP + ROAS side by side, with colored RESP */}
+                      {/* RESP · Sent · ROAS */}
                       <div className="flex items-start">
                         <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium">
                           <span className={respColor}>
                             {step.responseRate.toFixed(1)}% RESP
+                          </span>
+                          <span className="opacity-50 text-slate-500">•</span>
+                          <span className="text-slate-600">
+                            {step.sent.toLocaleString()} sent
                           </span>
                           <span className="opacity-50 text-slate-500">•</span>
                           <span className="text-slate-700">
@@ -321,73 +354,8 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Touch point details table */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Touch point details
-              </h2>
-              <span className="text-[11px] text-slate-600">
-                Sent, responses and ROAS by touch point
-              </span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-                    <th className="py-2 pr-3">Touch point</th>
-                    <th className="py-2 pr-3 text-right">Sent</th>
-                    <th className="py-2 pr-3 text-right">Resp.</th>
-                    <th className="py-2 pr-3 text-right">Resp %</th>
-                    <th className="py-2 pr-3 text-right">ROAS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {JOURNEY_STEPS.map((step) => {
-                    const respColor = getRespColorClass(step.responseRate);
-
-                    return (
-                      <tr
-                        key={`${step.name}-${step.interval}-row`}
-                        className="border-t border-slate-100"
-                      >
-                        {/* Consolidated touch point column */}
-                        <td className="py-2 pr-3">
-                          <div className="text-xs font-medium text-slate-800">
-                            {step.name}
-                          </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            {step.interval} · {step.channel}
-                          </div>
-                        </td>
-
-                        {/* Volume columns */}
-                        <td className="py-2 pr-3 text-right text-slate-700">
-                          {step.sent.toLocaleString()}
-                        </td>
-                        <td className="py-2 pr-3 text-right text-slate-700">
-                          {step.vehicles.toLocaleString()}
-                        </td>
-
-                        {/* Performance columns */}
-                        <td className="py-2 pr-3 text-right">
-                          <span className={`font-semibold ${respColor}`}>
-                            {step.responseRate.toFixed(1)}%
-                          </span>
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          <span className="font-semibold text-slate-800">
-                            {step.roas.toFixed(1)}x
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          {/* NOTE: no second "Touch point details" card anymore – 
+              we avoid duplicating step-level info */}
         </div>
 
         {/* RIGHT: AI Insights tile, fixed 1/4-width column */}
