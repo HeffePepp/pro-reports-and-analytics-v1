@@ -1,6 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import {
+  ShellLayout,
+  MetricTile,
+  AIInsightsTile,
+  useKpiPreferences,
+  KpiCustomizeButton,
+  KpiPreferencesModal,
+} from "@/components/layout";
 import {
   JOURNEY_TOUCH_POINTS,
   JourneyTouchPoint,
@@ -62,9 +69,18 @@ const getChannelSegments = (channel: string): ChannelSegment[] => {
   }));
 };
 
+// KPI definitions
+const kpiDefs = [
+  { id: "vehicles", label: "Vehicles" },
+  { id: "avgRoas", label: "Avg ROAS" },
+  { id: "avgResp", label: "Avg resp %" },
+  { id: "totalComms", label: "Total comms sent" },
+] as const;
+
 const CustomerJourneyPage: React.FC = () => {
   const navigate = useNavigate();
-  const [journeyTab, setJourneyTab] = React.useState<"visualization" | "details">("visualization");
+  const [journeyTab, setJourneyTab] = useState<"visualization" | "details">("visualization");
+  const [kpiModalOpen, setKpiModalOpen] = useState(false);
 
   const totalSent = useMemo(
     () => JOURNEY_TOUCH_POINTS.reduce((sum, tp) => sum + tp.sent, 0),
@@ -88,6 +104,51 @@ const CustomerJourneyPage: React.FC = () => {
       ) / JOURNEY_TOUCH_POINTS.length,
     []
   );
+
+  // KPI preferences
+  const { visibleKpis, visibleIds, toggleKpi, resetKpis } = useKpiPreferences(
+    "customer-journey",
+    kpiDefs as unknown as { id: string; label: string }[]
+  );
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "vehicles":
+        return (
+          <MetricTile
+            key={id}
+            label="Vehicles"
+            value={journeyVehicles.toLocaleString()}
+          />
+        );
+      case "avgRoas":
+        return (
+          <MetricTile
+            key={id}
+            label="Avg ROAS"
+            value={`${avgTouchPointRoas.toFixed(1)}x`}
+          />
+        );
+      case "avgResp":
+        return (
+          <MetricTile
+            key={id}
+            label="Avg resp %"
+            value={`${avgRespRate.toFixed(1)}%`}
+          />
+        );
+      case "totalComms":
+        return (
+          <MetricTile
+            key={id}
+            label="Total comms sent"
+            value={totalSent.toLocaleString()}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   const aiInsightsProps = {
     title: "AI Insights",
@@ -120,7 +181,7 @@ const CustomerJourneyPage: React.FC = () => {
       }
     >
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
             Customer Journey
@@ -130,30 +191,16 @@ const CustomerJourneyPage: React.FC = () => {
             store: thank-you, suggested services, reminders and reactivation.
           </p>
         </div>
+        <KpiCustomizeButton onClick={() => setKpiModalOpen(true)} />
       </div>
 
       {/* Main layout */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPIs */}
+          {/* KPIs - filtered by user preferences */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <MetricTile
-              label="Vehicles"
-              value={journeyVehicles.toLocaleString()}
-            />
-            <MetricTile
-              label="Avg ROAS"
-              value={`${avgTouchPointRoas.toFixed(1)}x`}
-            />
-            <MetricTile
-              label="Avg resp %"
-              value={`${avgRespRate.toFixed(1)}%`}
-            />
-            <MetricTile
-              label="Total comms sent"
-              value={totalSent.toLocaleString()}
-            />
+            {visibleKpis.map((kpi) => renderKpiTile(kpi.id))}
           </div>
 
           {/* AI stacked on small screens */}
@@ -348,6 +395,16 @@ const CustomerJourneyPage: React.FC = () => {
           <AIInsightsTile {...aiInsightsProps} />
         </div>
       </div>
+      {/* KPI customization modal */}
+      <KpiPreferencesModal
+        open={kpiModalOpen}
+        onClose={() => setKpiModalOpen(false)}
+        reportName="Customer Journey"
+        kpis={kpiDefs as unknown as { id: string; label: string }[]}
+        visibleIds={visibleIds}
+        onToggle={toggleKpi}
+        onReset={resetKpis}
+      />
     </ShellLayout>
   );
 };
