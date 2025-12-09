@@ -215,6 +215,14 @@ const categoryColors: Record<Exclude<CategoryId, "all">, string> = {
   internal: "bg-rose-50 text-rose-700 ring-rose-100",
 };
 
+const categoryAccentBar: Record<Exclude<CategoryId, "all">, string> = {
+  marketing: "bg-emerald-400",
+  sales: "bg-sky-400",
+  customers: "bg-indigo-400",
+  vendors: "bg-amber-400",
+  internal: "bg-rose-400",
+};
+
 const DEEP_LINK_MAP: Record<string, { to: string; label: string }> = {
   "service-intervals": { to: "/reports/service-intervals", label: "View Report" },
   "customer-journey": { to: "/reports/customer-journey", label: "View Report" },
@@ -355,56 +363,72 @@ const Index: React.FC = () => {
       {/* Main area: cards + preview */}
       <div className="flex flex-col md:flex-row mt-3 gap-4">
         {/* Cards */}
-        <section className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredReports.map((report) => {
-            const primaryCat = report.primaryCategory;
-            const catStyle = categoryColors[primaryCat];
-            const catLabel =
-              CATEGORIES.find((c) => c.id === primaryCat)?.label ?? primaryCat;
+            const isSelected = selectedReport?.id === report.id;
+            const badgeColors = categoryColors[report.primaryCategory];
+            const accentBar = categoryAccentBar[report.primaryCategory];
             const deepLink = DEEP_LINK_MAP[report.id];
 
             return (
-              <div
+              <article
                 key={report.id}
-                className="text-left rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col p-4 gap-3"
                 onClick={() => setSelectedReportId(report.id)}
+                className={[
+                  "group rounded-2xl border bg-white shadow-sm cursor-pointer flex flex-col",
+                  "transition-all hover:shadow-md hover:border-sky-200",
+                  isSelected ? "border-sky-300 ring-1 ring-sky-100" : "border-slate-200",
+                ].join(" ")}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ${catStyle}`}
-                  >
-                    {catLabel}
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    {typeLabel[report.type]}
-                  </span>
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-slate-900">
+                {/* Top color bar */}
+                <div className={`h-1.5 rounded-t-2xl ${accentBar}`} />
+
+                <div className="flex-1 p-4 space-y-2">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span
+                      className={[
+                        "inline-flex items-center px-2 py-0.5 rounded-full font-medium",
+                        "bg-opacity-80 ring-1 ring-inset",
+                        badgeColors,
+                      ].join(" ")}
+                    >
+                      {CATEGORIES.find((c) => c.id === report.primaryCategory)?.label ??
+                        "Category"}
+                    </span>
+                    <span className="text-slate-400">
+                      {typeLabel[report.type] ?? "Charts & table"}
+                    </span>
+                  </div>
+
+                  <h2 className="text-sm font-semibold text-slate-900 leading-snug">
                     {report.name}
                   </h2>
-                  <p className="mt-1 text-xs text-slate-500 line-clamp-3">
+
+                  <p className="text-[11px] text-slate-600 leading-snug line-clamp-2">
                     {report.purpose}
                   </p>
-                </div>
-                {report.previewMetric && (
-                  <div className="mt-auto pt-2 text-[11px] text-slate-500 border-t border-dashed border-slate-100">
-                    {report.previewMetric}
-                  </div>
-                )}
 
-                {/* Deep-dive links */}
-                {deepLink && (
-                  <DeepLink to={deepLink.to} label={deepLink.label} />
-                )}
-              </div>
+                  {report.previewMetric && (
+                    <p className="pt-2 mt-1 text-[11px] text-slate-500 border-t border-dashed border-slate-200">
+                      {report.previewMetric}
+                    </p>
+                  )}
+                </div>
+
+                {/* Footer CTA row */}
+                <div className="border-t border-slate-100 bg-slate-50/70 px-4 py-2">
+                  {deepLink && (
+                    <DeepLink to={deepLink.to} label={deepLink.label} />
+                  )}
+                </div>
+              </article>
             );
           })}
 
           {filteredReports.length === 0 && (
             <p className="text-xs text-slate-400">No reports match your filters yet.</p>
           )}
-        </section>
+        </div>
 
         {/* Preview pane */}
         <aside className="hidden lg:block w-80 border-l border-slate-200 bg-white/70 backdrop-blur-sm rounded-l-3xl">
