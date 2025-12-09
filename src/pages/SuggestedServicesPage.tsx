@@ -297,14 +297,12 @@ const SuggestedServicesPage: React.FC = () => {
                 </div>
               </>
             ) : (
-              // Details tab: SS touch point details table (unchanged)
+              // Details tab: compact touch point view with more room for metrics
               <div className="mt-3 overflow-x-auto">
                 <table className="min-w-full text-xs">
                   <thead>
                     <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-                      <th className="py-2 pr-3">Touch Point</th>
-                      <th className="py-2 pr-3">Timing</th>
-                      <th className="py-2 pr-3">Channel</th>
+                      <th className="py-2 pr-3">Touch point</th>
                       <th className="py-2 pr-3 text-right">Sent</th>
                       <th className="py-2 pr-3 text-right">Responses</th>
                       <th className="py-2 pr-3 text-right">Resp %</th>
@@ -317,15 +315,17 @@ const SuggestedServicesPage: React.FC = () => {
                         key={`${tp.timing}-${index}`}
                         className="border-t border-slate-100"
                       >
+                        {/* Combined touch point / timing / channel cell */}
                         <td className="py-2 pr-3 text-slate-800">
-                          Suggested Services
+                          <div className="text-slate-800 font-medium">
+                            Suggested Services
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            {tp.timing} · {tp.channel}
+                          </div>
                         </td>
-                        <td className="py-2 pr-3 text-slate-700">
-                          {tp.timing}
-                        </td>
-                        <td className="py-2 pr-3 text-slate-700">
-                          {tp.channel}
-                        </td>
+
+                        {/* Metrics with more horizontal room */}
                         <td className="py-2 pr-3 text-right">
                           {tp.sent.toLocaleString()}
                         </td>
