@@ -120,34 +120,12 @@ const getChannelSegments = (channel: string): ChannelSegment[] => {
 const OneOffCampaignTrackerPage: React.FC = () => {
   const campaignCount = CAMPAIGNS.length;
 
-  const totalSent = useMemo(
-    () => CAMPAIGNS.reduce((sum, c) => sum + c.sent, 0),
-    []
-  );
-  const totalResponses = useMemo(
-    () => CAMPAIGNS.reduce((sum, c) => sum + c.responses, 0),
-    []
-  );
-  const totalRevenue = useMemo(
-    () => CAMPAIGNS.reduce((sum, c) => sum + c.revenue, 0),
-    []
-  );
-  const avgRespRate = useMemo(
-    () =>
-      CAMPAIGNS.reduce((sum, c) => sum + c.responseRate, 0) /
-      CAMPAIGNS.length,
-    []
-  );
-  const avgRoas = useMemo(
-    () =>
-      CAMPAIGNS.reduce((sum, c) => sum + c.roas, 0) /
-      CAMPAIGNS.length,
-    []
-  );
-  const maxResponseRate = useMemo(
-    () => Math.max(...CAMPAIGNS.map((c) => c.responseRate), 1),
-    []
-  );
+  const totalSent = useMemo(() => CAMPAIGNS.reduce((sum, c) => sum + c.sent, 0), []);
+  const totalResponses = useMemo(() => CAMPAIGNS.reduce((sum, c) => sum + c.responses, 0), []);
+  const totalRevenue = useMemo(() => CAMPAIGNS.reduce((sum, c) => sum + c.revenue, 0), []);
+  const avgRespRate = useMemo(() => CAMPAIGNS.reduce((sum, c) => sum + c.responseRate, 0) / CAMPAIGNS.length, []);
+  const avgRoas = useMemo(() => CAMPAIGNS.reduce((sum, c) => sum + c.roas, 0) / CAMPAIGNS.length, []);
+  const maxResponseRate = useMemo(() => Math.max(...CAMPAIGNS.map((c) => c.responseRate), 1), []);
 
   const aiInsightsProps = {
     title: "AI Insights",
@@ -169,12 +147,10 @@ const OneOffCampaignTrackerPage: React.FC = () => {
       rightInfo={
         <>
           <span>
-            Store group:{" "}
-            <span className="font-medium">North Bay Group</span>
+            Store group: <span className="font-medium">North Bay Group</span>
           </span>
           <span>
-            Period:{" "}
-            <span className="font-medium">Last 12 months</span>
+            Period: <span className="font-medium">Last 12 months</span>
           </span>
         </>
       }
@@ -182,12 +158,9 @@ const OneOffCampaignTrackerPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            One-Off Campaign Tracker
-          </h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">One-Off Campaign Tracker</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Track response, revenue and ROAS for one-off campaigns, with
-            channel mix visualized per campaign.
+            Track response, revenue and ROAS for one-off campaigns, with channel mix visualized per campaign.
           </p>
         </div>
       </div>
@@ -198,22 +171,10 @@ const OneOffCampaignTrackerPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <MetricTile
-              label="Campaigns"
-              value={campaignCount.toString()}
-            />
-            <MetricTile
-              label="Total sent"
-              value={totalSent.toLocaleString()}
-            />
-            <MetricTile
-              label="Total responses"
-              value={totalResponses.toLocaleString()}
-            />
-            <MetricTile
-              label="Total revenue"
-              value={`$${totalRevenue.toLocaleString()}`}
-            />
+            <MetricTile label="Campaigns" value={campaignCount.toString()} />
+            <MetricTile label="Total sent" value={totalSent.toLocaleString()} />
+            <MetricTile label="Total responses" value={totalResponses.toLocaleString()} />
+            <MetricTile label="Total revenue" value={`$${totalRevenue.toLocaleString()}`} />
             {/* If you want 4 tiles total, you can instead use:
             <MetricTile label="Avg resp %" value={`${avgRespRate.toFixed(1)}%`} />
             <MetricTile label="Avg ROAS" value={`${avgRoas.toFixed(1)}x`} />
@@ -229,60 +190,41 @@ const OneOffCampaignTrackerPage: React.FC = () => {
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-start justify-between mb-1 gap-3">
               <div>
-                <h2 className="text-sm font-semibold text-slate-900">
-                  One-off campaign performance
-                </h2>
-                <p className="text-[11px] text-slate-600">
-                  Response rate, revenue and ROAS by campaign (dummy data)
-                </p>
+                <h2 className="text-sm font-semibold text-slate-900">One-off campaign performance</h2>
+                <p className="text-[11px] text-slate-600"></p>
               </div>
             </div>
 
             <p className="mt-2 text-[10px] text-slate-400">
-              Channel bar shows mix of Postcard, Email and Text Message for
-              each campaign. Bar length shows resp % vs other campaigns.
+              Channel bar shows mix of Postcard, Email and Text Message for each campaign. Bar length shows resp % vs
+              other campaigns.
             </p>
 
             <div className="mt-3 space-y-5 text-xs text-slate-700">
               {CAMPAIGNS.map((campaign, idx) => {
-                const respColor = getRespColorClass(
-                  campaign.responseRate
-                );
+                const respColor = getRespColorClass(campaign.responseRate);
                 const segments = getChannelSegments(campaign.channel);
-                const barWidth =
-                  (campaign.responseRate / maxResponseRate) * 100;
+                const barWidth = (campaign.responseRate / maxResponseRate) * 100;
 
                 return (
-                  <div
-                    key={campaign.id}
-                    className="pt-1"
-                  >
+                  <div key={campaign.id} className="pt-1">
                     {/* Top row: campaign + audience on left, stats on right */}
                     <div className="flex items-start justify-between gap-3 text-[11px]">
                       <div className="text-slate-700">
                         <div className="font-medium">
                           {idx + 1}. {campaign.name}
                         </div>
-                        <div className="text-[11px] text-slate-500">
-                          {campaign.audience}
-                        </div>
+                        <div className="text-[11px] text-slate-500">{campaign.audience}</div>
                       </div>
 
                       <div className="flex flex-col items-end text-right gap-0.5">
                         <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium">
-                          <span className={respColor}>
-                            {campaign.responseRate.toFixed(1)}% RESP
-                          </span>
-                          <span className="opacity-50 text-slate-500">
-                            •
-                          </span>
-                          <span className="text-slate-700">
-                            {campaign.roas.toFixed(1)}x ROAS
-                          </span>
+                          <span className={respColor}>{campaign.responseRate.toFixed(1)}% RESP</span>
+                          <span className="opacity-50 text-slate-500">•</span>
+                          <span className="text-slate-700">{campaign.roas.toFixed(1)}x ROAS</span>
                         </div>
                         <div className="text-[10px] text-slate-500">
-                          {campaign.sent.toLocaleString()} sent • $
-                          {campaign.revenue.toLocaleString()} rev
+                          {campaign.sent.toLocaleString()} sent • ${campaign.revenue.toLocaleString()} rev
                         </div>
                       </div>
                     </div>
@@ -290,10 +232,7 @@ const OneOffCampaignTrackerPage: React.FC = () => {
                     {/* Channel bar + legend */}
                     <div className="mt-3">
                       <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                        <div
-                          className="h-full flex"
-                          style={{ width: `${barWidth}%` }}
-                        >
+                        <div className="h-full flex" style={{ width: `${barWidth}%` }}>
                           {segments.map((seg) => (
                             <div
                               key={seg.key}
@@ -306,13 +245,8 @@ const OneOffCampaignTrackerPage: React.FC = () => {
 
                       <div className="mt-2 flex items-center gap-3 text-[10px] text-slate-500">
                         {segments.map((seg) => (
-                          <span
-                            key={seg.key}
-                            className="inline-flex items-center gap-1"
-                          >
-                            <span
-                              className={`h-3 w-3 rounded-full ${seg.dotColorClass}`}
-                            />
+                          <span key={seg.key} className="inline-flex items-center gap-1">
+                            <span className={`h-3 w-3 rounded-full ${seg.dotColorClass}`} />
                             <span>{seg.label}</span>
                           </span>
                         ))}
