@@ -58,8 +58,11 @@ const ShellLayout: React.FC<ShellLayoutProps> = ({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6 space-y-6">
-          {children}
+        <main className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6 flex justify-center">
+          {/* Centered content with max width so pages never stretch too wide */}
+          <div className="w-full max-w-6xl space-y-6">
+            {children}
+          </div>
         </main>
       </div>
     </div>
