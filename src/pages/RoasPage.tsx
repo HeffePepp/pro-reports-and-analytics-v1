@@ -215,6 +215,16 @@ const RoasPage: React.FC = () => {
             />
           </div>
 
+          {/* AI Insights – stacked here on small/medium screens */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on recent campaign performance"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
+          </div>
+
           {/* ROAS by channel & by campaign */}
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* ROAS by channel */}
@@ -353,8 +363,8 @@ const RoasPage: React.FC = () => {
           </section>
         </div>
 
-        {/* RIGHT: AI Insights tile */}
-        <div className="lg:col-span-1">
+        {/* RIGHT: AI Insights – only on large screens */}
+        <div className="hidden lg:block lg:col-span-1">
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on recent campaign performance"

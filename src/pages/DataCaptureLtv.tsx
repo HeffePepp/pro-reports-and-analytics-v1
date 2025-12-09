@@ -148,6 +148,16 @@ const DataCaptureLtvPage: React.FC = () => {
             />
           </div>
 
+          {/* AI Insights – stacked here on small/medium screens */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on LTV & data capture"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
+          </div>
+
           {/* LTV by segment */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -233,8 +243,8 @@ const DataCaptureLtvPage: React.FC = () => {
           </section>
         </div>
 
-        {/* RIGHT: AI panel */}
-        <div className="lg:col-span-1">
+        {/* RIGHT: AI Insights – only on large screens */}
+        <div className="hidden lg:block lg:col-span-1">
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on LTV & data capture"
