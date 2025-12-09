@@ -4,7 +4,7 @@ import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 type JourneyStepDetail = {
   name: string; // Comm Name (no timing embedded)
   interval: string; // Interval Description / timing
-  channel: string; // primary delivery method(s), used only for channel mix
+  channel: string; // delivery mix, used only for channel bar
   sent: number;
   vehicles: number;
   responseRate: number; // %
@@ -237,6 +237,12 @@ const CustomerJourneyPage: React.FC = () => {
     []
   );
 
+  const aiInsightsProps = {
+    title: "AI Insights",
+    subtitle: "Based on 12 months data",
+    bullets: [] as string[],
+  };
+
   return (
     <ShellLayout
       breadcrumb={[
@@ -292,6 +298,11 @@ const CustomerJourneyPage: React.FC = () => {
               label="Total comms sent"
               value={totalSent.toLocaleString()}
             />
+          </div>
+
+          {/* AI Insights – stacked here on small/medium screens */}
+          <div className="block lg:hidden">
+            <AIInsightsTile {...aiInsightsProps} />
           </div>
 
           {/* Journey steps visualization – primary focus tile */}
@@ -397,13 +408,9 @@ const CustomerJourneyPage: React.FC = () => {
           {/* No second "Touch point details" tile – avoid duplication */}
         </div>
 
-        {/* RIGHT: AI Insights tile, fixed 1/4-width column */}
-        <div className="lg:col-span-1">
-          <AIInsightsTile
-            title="AI Insights"
-            subtitle="Based on 12 months data"
-            bullets={[]} // empty = loading state
-          />
+        {/* RIGHT: AI Insights – only on large screens */}
+        <div className="hidden lg:block lg:col-span-1">
+          <AIInsightsTile {...aiInsightsProps} />
         </div>
       </div>
     </ShellLayout>
