@@ -358,45 +358,39 @@ const SuggestedServicesPage: React.FC = () => {
                   <thead>
                     <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
                       <th className="py-2 pr-3">Touch point</th>
-                      <th className="py-2 pr-3">Timing</th>
-                      <th className="py-2 pr-3">Channel</th>
                       <th className="py-2 pr-3 text-right">Sent</th>
-                      <th className="py-2 pr-3 text-right">
-                        Responses
-                      </th>
-                      <th className="py-2 pr-3 text-right">
-                        Resp %
-                      </th>
-                      <th className="py-2 pr-3 text-right">
-                        ROAS
-                      </th>
+                      <th className="py-2 pr-3 text-right">Responses</th>
+                      <th className="py-2 pr-3 text-right">Resp %</th>
+                      <th className="py-2 pr-3 text-right">ROAS</th>
                     </tr>
                   </thead>
                   <tbody>
                     {SS_TOUCHPOINTS.map((tp) => (
                       <tr
                         key={tp.timing}
-                        className="border-t border-slate-100"
+                        className="border-t border-slate-100 align-top"
                       >
-                        <td className="py-2 pr-3 text-slate-800">
-                          Suggested Services
+                        <td className="py-3 pr-3">
+                          <div className="text-xs font-medium text-slate-800">
+                            Suggested Services
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            {tp.timing}
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            {tp.channel}
+                          </div>
                         </td>
-                        <td className="py-2 pr-3 text-slate-700">
-                          {tp.timing}
-                        </td>
-                        <td className="py-2 pr-3 text-slate-700">
-                          {tp.channel}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
+                        <td className="py-3 pr-3 text-right">
                           {tp.sent.toLocaleString()}
                         </td>
-                        <td className="py-2 pr-3 text-right">
+                        <td className="py-3 pr-3 text-right">
                           {tp.responses.toLocaleString()}
                         </td>
-                        <td className="py-2 pr-3 text-right">
+                        <td className="py-3 pr-3 text-right">
                           {tp.respPct.toFixed(1)}%
                         </td>
-                        <td className="py-2 pr-3 text-right">
+                        <td className="py-3 pr-3 text-right">
                           {tp.roas.toFixed(1)}x
                         </td>
                       </tr>
