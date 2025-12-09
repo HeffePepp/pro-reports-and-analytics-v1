@@ -336,44 +336,54 @@ const CustomerJourneyPage: React.FC = () => {
               <table className="min-w-full text-xs">
                 <thead>
                   <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-                    <th className="py-2 pr-3">Touch Point</th>
-                    <th className="py-2 pr-3">Timing</th>
-                    <th className="py-2 pr-3">Channel</th>
+                    <th className="py-2 pr-3">Touch point</th>
                     <th className="py-2 pr-3 text-right">Sent</th>
-                    <th className="py-2 pr-3 text-right">Responses</th>
+                    <th className="py-2 pr-3 text-right">Resp.</th>
                     <th className="py-2 pr-3 text-right">Resp %</th>
                     <th className="py-2 pr-3 text-right">ROAS</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {JOURNEY_STEPS.map((step) => (
-                    <tr
-                      key={`${step.name}-${step.interval}-row`}
-                      className="border-t border-slate-100"
-                    >
-                      <td className="py-2 pr-3 text-slate-800">
-                        {step.name}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-700">
-                        {step.interval}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-700">
-                        {step.channel}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {step.sent.toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {step.vehicles.toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {step.responseRate.toFixed(1)}%
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {step.roas.toFixed(1)}x
-                      </td>
-                    </tr>
-                  ))}
+                  {JOURNEY_STEPS.map((step) => {
+                    const respColor = getRespColorClass(step.responseRate);
+
+                    return (
+                      <tr
+                        key={`${step.name}-${step.interval}-row`}
+                        className="border-t border-slate-100"
+                      >
+                        {/* Consolidated touch point column */}
+                        <td className="py-2 pr-3">
+                          <div className="text-xs font-medium text-slate-800">
+                            {step.name}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            {step.interval} · {step.channel}
+                          </div>
+                        </td>
+
+                        {/* Volume columns */}
+                        <td className="py-2 pr-3 text-right text-slate-700">
+                          {step.sent.toLocaleString()}
+                        </td>
+                        <td className="py-2 pr-3 text-right text-slate-700">
+                          {step.vehicles.toLocaleString()}
+                        </td>
+
+                        {/* Performance columns */}
+                        <td className="py-2 pr-3 text-right">
+                          <span className={`font-semibold ${respColor}`}>
+                            {step.responseRate.toFixed(1)}%
+                          </span>
+                        </td>
+                        <td className="py-2 pr-3 text-right">
+                          <span className="font-semibold text-slate-800">
+                            {step.roas.toFixed(1)}x
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
