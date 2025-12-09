@@ -224,6 +224,7 @@ const getChannelSegments = (channel: string): ChannelSegment[] => {
 
 const CustomerJourneyPage: React.FC = () => {
   const navigate = useNavigate();
+  const [journeyTab, setJourneyTab] = React.useState<"visualization" | "details">("visualization");
 
   const totalSent = useMemo(
     () => JOURNEY_TOUCH_POINTS.reduce((sum, tp) => sum + tp.sent, 0),
@@ -342,83 +343,165 @@ const CustomerJourneyPage: React.FC = () => {
               </div>
             </div>
 
-            <p className="mt-2 text-[10px] text-slate-400">
-              Channel bar shows mix of Postcard, Email and Text Message per touch
-              point. Bar length shows resp % vs other touch points.
-            </p>
-
-            <div className="mt-3 space-y-5 text-xs text-slate-700">
-              {JOURNEY_TOUCH_POINTS.map((tp, idx) => {
-                const respColor = getRespColorClass(tp.responseRate);
-                const segments = getChannelSegments(tp.channel);
-
-                return (
-                  <button
-                    key={`${tp.name}-${tp.interval}`}
-                    type="button"
-                    onClick={() => handleTouchPointClick(tp)}
-                    className="w-full text-left pt-1"
-                  >
-                    {/* Top row */}
-                    <div className="flex items-start justify-between gap-3 text-[11px]">
-                      <div className="text-slate-700">
-                        <div className="font-medium">
-                          {idx + 1}. {tp.name}
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          {tp.interval}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col items-end text-right gap-0.5">
-                        <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium">
-                          <span className={respColor}>
-                            {tp.responseRate.toFixed(1)}% RESP
-                          </span>
-                          <span className="opacity-50 text-slate-500">
-                            •
-                          </span>
-                          <span className="text-slate-700">
-                            {tp.roas.toFixed(1)}x ROAS
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-slate-500">
-                          {tp.sent.toLocaleString()} sent • $
-                          {tp.revenue.toLocaleString()} rev
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Channel bar + legend */}
-                    <div className="mt-3">
-                      <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden flex">
-                        {segments.map((seg) => (
-                          <div
-                            key={seg.key}
-                            className={`h-full ${seg.colorClass}`}
-                            style={{ width: `${seg.percent}%` }}
-                          />
-                        ))}
-                      </div>
-
-                      <div className="mt-2 flex items-center gap-3 text-[10px] text-slate-500">
-                        {segments.map((seg) => (
-                          <span
-                            key={seg.key}
-                            className="inline-flex items-center gap-1"
-                          >
-                            <span
-                              className={`h-3 w-3 rounded-full ${seg.dotColorClass}`}
-                            />
-                            <span>{seg.label}</span>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
+            {/* Tab switcher */}
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setJourneyTab("visualization")}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                  journeyTab === "visualization"
+                    ? "bg-slate-800 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                Visualization
+              </button>
+              <button
+                type="button"
+                onClick={() => setJourneyTab("details")}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                  journeyTab === "details"
+                    ? "bg-slate-800 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                Details
+              </button>
             </div>
+
+            {journeyTab === "visualization" && (
+              <>
+                <p className="mt-3 text-[10px] text-slate-400">
+                  Channel bar shows mix of Postcard, Email and Text Message per touch
+                  point. Bar length shows resp % vs other touch points.
+                </p>
+
+                <div className="mt-3 space-y-5 text-xs text-slate-700">
+                  {JOURNEY_TOUCH_POINTS.map((tp, idx) => {
+                    const respColor = getRespColorClass(tp.responseRate);
+                    const segments = getChannelSegments(tp.channel);
+
+                    return (
+                      <button
+                        key={`${tp.name}-${tp.interval}`}
+                        type="button"
+                        onClick={() => handleTouchPointClick(tp)}
+                        className="w-full text-left pt-1"
+                      >
+                        {/* Top row */}
+                        <div className="flex items-start justify-between gap-3 text-[11px]">
+                          <div className="text-slate-700">
+                            <div className="font-medium">
+                              {idx + 1}. {tp.name}
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              {tp.interval}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col items-end text-right gap-0.5">
+                            <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium">
+                              <span className={respColor}>
+                                {tp.responseRate.toFixed(1)}% RESP
+                              </span>
+                              <span className="opacity-50 text-slate-500">
+                                •
+                              </span>
+                              <span className="text-slate-700">
+                                {tp.roas.toFixed(1)}x ROAS
+                              </span>
+                            </div>
+                            <div className="text-[10px] text-slate-500">
+                              {tp.sent.toLocaleString()} sent • $
+                              {tp.revenue.toLocaleString()} rev
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Channel bar + legend */}
+                        <div className="mt-3">
+                          <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden flex">
+                            {segments.map((seg) => (
+                              <div
+                                key={seg.key}
+                                className={`h-full ${seg.colorClass}`}
+                                style={{ width: `${seg.percent}%` }}
+                              />
+                            ))}
+                          </div>
+
+                          <div className="mt-2 flex items-center gap-3 text-[10px] text-slate-500">
+                            {segments.map((seg) => (
+                              <span
+                                key={seg.key}
+                                className="inline-flex items-center gap-1"
+                              >
+                                <span
+                                  className={`h-3 w-3 rounded-full ${seg.dotColorClass}`}
+                                />
+                                <span>{seg.label}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {journeyTab === "details" && (
+              <div className="mt-3 overflow-x-auto">
+                <table className="min-w-full text-xs">
+                  <thead>
+                    <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
+                      <th className="py-2 pr-3">Touch point</th>
+                      <th className="py-2 pr-3 text-right">Sent</th>
+                      <th className="py-2 pr-3 text-right">Responses</th>
+                      <th className="py-2 pr-3 text-right">Resp %</th>
+                      <th className="py-2 pr-3 text-right">ROAS</th>
+                      <th className="py-2 pr-3 text-right">Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {JOURNEY_TOUCH_POINTS.map((tp) => (
+                      <tr
+                        key={`${tp.name}-${tp.interval}`}
+                        className="border-t border-slate-100 align-top"
+                      >
+                        <td className="py-3 pr-3">
+                          <div className="text-xs font-medium text-slate-800">
+                            {tp.name}
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            {tp.interval}
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            {tp.channel}
+                          </div>
+                        </td>
+                        <td className="py-3 pr-3 text-right">
+                          {tp.sent.toLocaleString()}
+                        </td>
+                        <td className="py-3 pr-3 text-right">
+                          {tp.vehicles.toLocaleString()}
+                        </td>
+                        <td className="py-3 pr-3 text-right">
+                          {tp.responseRate.toFixed(1)}%
+                        </td>
+                        <td className="py-3 pr-3 text-right">
+                          {tp.roas.toFixed(1)}x
+                        </td>
+                        <td className="py-3 pr-3 text-right">
+                          ${tp.revenue.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
         </div>
 
