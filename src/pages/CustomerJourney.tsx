@@ -185,10 +185,12 @@ const CustomerJourneyPage: React.FC = () => {
       rightInfo={
         <>
           <span>
-            Store group: <span className="font-medium">North Bay Group</span>
+            Store group:{" "}
+            <span className="font-medium">North Bay Group</span>
           </span>
           <span>
-            Period: <span className="font-medium">Last 12 months</span>
+            Period:{" "}
+            <span className="font-medium">Last 12 months</span>
           </span>
         </>
       }
@@ -206,11 +208,11 @@ const CustomerJourneyPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main layout: left content + right AI tile */}
+      {/* Main layout: left content (3/4) + right AI tile (1/4) */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* LEFT: all journey tiles and tables */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles (no bottom descriptions) */}
+          {/* KPI tiles */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricTile
               label="Vehicles"
@@ -221,7 +223,7 @@ const CustomerJourneyPage: React.FC = () => {
               value={`${avgStepRoas.toFixed(1)}x`}
             />
             <MetricTile
-              label="Average response rate"
+              label="Avg resp %"
               value={`${avgRespRate.toFixed(1)}%`}
             />
             <MetricTile
@@ -230,27 +232,42 @@ const CustomerJourneyPage: React.FC = () => {
             />
           </div>
 
-          {/* Journey steps by response and ROAS */}
+          {/* Journey steps visualization */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex items-start justify-between mb-1 gap-3">
               <div>
+                {/* Stacked title (green highlight change) */}
                 <h2 className="text-sm font-semibold text-slate-900">
-                  Customer journey: touch point + response rate + ROAS
+                  Customer Journey
                 </h2>
-                <p className="text-[11px] text-slate-600">
+                <p className="text-[11px] font-medium text-slate-700">
+                  Touch Point + Response Rate + ROAS
+                </p>
+                <p className="mt-1 text-[11px] text-slate-600">
                   Relative performance (dummy data)
                 </p>
               </div>
-              <span className="hidden text-[11px] text-slate-500 lg:inline">
-                {journeyVehicles.toLocaleString()} journey vehicles ·{" "}
-                {totalSent.toLocaleString()} comms sent
-              </span>
+
+              {/* Stacked summary stats (purple highlight change) */}
+              <div className="hidden lg:flex flex-col text-[11px] text-slate-500">
+                <span>
+                  {journeyVehicles.toLocaleString()} journey vehicles
+                </span>
+                <span>
+                  {totalSent.toLocaleString()} comms sent
+                </span>
+              </div>
             </div>
+
+            {/* Explanation for blue bar */}
+            <p className="mt-2 text-[10px] text-slate-400">
+              Bar length shows resp % vs other steps.
+            </p>
 
             <div className="mt-3 space-y-3 text-xs text-slate-700">
               {JOURNEY_STEPS.map((step, idx) => (
-                <div key={step.name}>
-                  {/* Top row: touch point name + timing on left, stacked stats on right */}
+                <div key={`${step.name}-${step.interval}`}>
+                  {/* Top row: touch point name + timing on left, pill on right */}
                   <div className="flex items-start justify-between gap-3 text-[11px]">
                     <div className="text-slate-700">
                       <span className="font-medium">
@@ -261,9 +278,13 @@ const CustomerJourneyPage: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="text-right text-slate-600 min-w-[80px]">
-                      <div>{step.responseRate.toFixed(1)}% RESP</div>
-                      <div>{step.roas.toFixed(1)}x ROAS</div>
+                    {/* Side-by-side RESP + ROAS pill (yellow highlight change) */}
+                    <div className="flex items-start">
+                      <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-amber-50 text-[11px] md:text-xs font-medium text-amber-700">
+                        <span>{step.responseRate.toFixed(1)}% RESP</span>
+                        <span className="opacity-60">•</span>
+                        <span>{step.roas.toFixed(1)}x ROAS</span>
+                      </div>
                     </div>
                   </div>
 
@@ -285,7 +306,7 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Step details -> Touch point details */}
+          {/* Touch point details table */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-sm font-semibold text-slate-900">
@@ -311,7 +332,10 @@ const CustomerJourneyPage: React.FC = () => {
                 </thead>
                 <tbody>
                   {JOURNEY_STEPS.map((step) => (
-                    <tr key={step.name} className="border-t border-slate-100">
+                    <tr
+                      key={`${step.name}-${step.interval}-row`}
+                      className="border-t border-slate-100"
+                    >
                       <td className="py-2 pr-3 text-slate-800">
                         {step.name}
                       </td>
