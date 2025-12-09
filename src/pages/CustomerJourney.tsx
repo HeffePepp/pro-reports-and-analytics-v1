@@ -1,170 +1,10 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
-
-type JourneyTouchPoint = {
-  name: string;          // Touch point name (no timing embedded)
-  interval: string;      // Interval relative to service
-  channel: string;       // delivery mix, used for channel bar
-  sent: number;
-  vehicles: number;      // responses / vehicles
-  responseRate: number;  // %
-  roas: number;          // x
-  revenue: number;       // response revenue
-};
-
-const JOURNEY_TOUCH_POINTS: JourneyTouchPoint[] = [
-  {
-    name: "Thank You Text",
-    interval: "1 day after Service",
-    channel: "Text",
-    sent: 1850,
-    vehicles: 420,
-    responseRate: 22.7,
-    roas: 9.5,
-    revenue: 50400,
-  },
-  {
-    name: "Thank You",
-    interval: "1 day after Service",
-    channel: "Email",
-    sent: 1850,
-    vehicles: 420,
-    responseRate: 22.7,
-    roas: 9.5,
-    revenue: 50400,
-  },
-  {
-    name: "Suggested Services",
-    interval: "1 week after Service",
-    channel: "Email",
-    sent: 1760,
-    vehicles: 310,
-    responseRate: 17.6,
-    roas: 12.1,
-    revenue: 37200,
-  },
-  {
-    name: "2nd Vehicle Invitation",
-    interval: "10 days after Service",
-    channel: "Email",
-    sent: 900,
-    vehicles: 150,
-    responseRate: 13.4,
-    roas: 10.3,
-    revenue: 18000,
-  },
-  {
-    name: "Suggested Services",
-    interval: "1 month after Service",
-    channel: "Email",
-    sent: 1640,
-    vehicles: 240,
-    responseRate: 16.1,
-    roas: 11.2,
-    revenue: 28800,
-  },
-  {
-    name: "Suggested Services",
-    interval: "3 months after Service",
-    channel: "Email",
-    sent: 1520,
-    vehicles: 230,
-    responseRate: 15.8,
-    roas: 10.9,
-    revenue: 27600,
-  },
-  {
-    name: "Suggested Services",
-    interval: "6 months after Service",
-    channel: "Email",
-    sent: 1380,
-    vehicles: 210,
-    responseRate: 10.6,
-    roas: 10.8,
-    revenue: 25200,
-  },
-  {
-    name: "Monthly Newsletter",
-    interval: "Once a month",
-    channel: "Email",
-    sent: 4200,
-    vehicles: 520,
-    responseRate: 7.8,
-    roas: 7.8,
-    revenue: 62400,
-  },
-  {
-    name: "Reminder 1",
-    interval: "5k after last Service",
-    channel: "Postcard + Email + SMS",
-    sent: 1380,
-    vehicles: 280,
-    responseRate: 20.3,
-    roas: 16.4,
-    revenue: 33600,
-  },
-  {
-    name: "Reminder 2",
-    interval: "30 days after Reminder 1",
-    channel: "Postcard + Email + SMS",
-    sent: 980,
-    vehicles: 142,
-    responseRate: 11.2,
-    roas: 10.7,
-    revenue: 17040,
-  },
-  {
-    name: "Reminder 3",
-    interval: "10k after last Service",
-    channel: "Postcard + Email + SMS",
-    sent: 860,
-    vehicles: 120,
-    responseRate: 12.5,
-    roas: 9.8,
-    revenue: 14400,
-  },
-  {
-    name: "Reminder 4",
-    interval: "15k after last Service",
-    channel: "Postcard + Email + SMS",
-    sent: 740,
-    vehicles: 105,
-    responseRate: 6.9,
-    roas: 9.4,
-    revenue: 12600,
-  },
-  {
-    name: "Reactivation",
-    interval: "12 months after Service",
-    channel: "Email",
-    sent: 620,
-    vehicles: 86,
-    responseRate: 15.2,
-    roas: 8.2,
-    revenue: 10320,
-  },
-  {
-    name: "Reactivation",
-    interval: "18 months after Service",
-    channel: "Email",
-    sent: 480,
-    vehicles: 64,
-    responseRate: 4.1,
-    roas: 7.5,
-    revenue: 7680,
-  },
-  {
-    name: "Reactivation",
-    interval: "24 months after Service",
-    channel: "Email",
-    sent: 360,
-    vehicles: 46,
-    responseRate: 3.2,
-    roas: 7.1,
-    revenue: 5520,
-  },
-];
+import {
+  JOURNEY_TOUCH_POINTS,
+  JourneyTouchPoint,
+} from "@/data/customerJourney";
 
 // RESP coloring
 const getRespColorClass = (rate: number): string => {
@@ -256,8 +96,7 @@ const CustomerJourneyPage: React.FC = () => {
   };
 
   const handleTouchPointClick = (tp: JourneyTouchPoint) => {
-    // later we can pass an ID/slug; for now this goes to a shared detail page
-    navigate("/reports/customer-journey/touch-point-detail");
+    navigate(`/reports/customer-journey/touch-point/${tp.id}`);
   };
 
   return (
@@ -412,8 +251,8 @@ const CustomerJourneyPage: React.FC = () => {
                               </span>
                             </div>
                             <div className="text-[10px] text-slate-500">
-                              {tp.sent.toLocaleString()} sent • $
-                              {tp.revenue.toLocaleString()} rev
+                              {tp.sent.toLocaleString()} sent •{" "}
+                              {tp.vehicles.toLocaleString()} resp
                             </div>
                           </div>
                         </div>
@@ -461,13 +300,12 @@ const CustomerJourneyPage: React.FC = () => {
                       <th className="py-2 pr-3 text-right">Responses</th>
                       <th className="py-2 pr-3 text-right">Resp %</th>
                       <th className="py-2 pr-3 text-right">ROAS</th>
-                      <th className="py-2 pr-3 text-right">Revenue</th>
                     </tr>
                   </thead>
                   <tbody>
                     {JOURNEY_TOUCH_POINTS.map((tp) => (
                       <tr
-                        key={`${tp.name}-${tp.interval}`}
+                        key={tp.id}
                         className="border-t border-slate-100 align-top"
                       >
                         <td className="py-3 pr-3">
@@ -492,9 +330,6 @@ const CustomerJourneyPage: React.FC = () => {
                         </td>
                         <td className="py-3 pr-3 text-right">
                           {tp.roas.toFixed(1)}x
-                        </td>
-                        <td className="py-3 pr-3 text-right">
-                          ${tp.revenue.toLocaleString()}
                         </td>
                       </tr>
                     ))}
