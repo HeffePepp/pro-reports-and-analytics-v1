@@ -117,11 +117,12 @@ const CustomerJourneyTouchPointDetailPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
+          {/* Touch point name lives here */}
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            Reminder 1 detail
+            Reminder 1
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Performance, audience and geography for this touch point.
+            Touch point detail: performance, audience and geography.
           </p>
         </div>
       </div>
@@ -131,8 +132,7 @@ const CustomerJourneyTouchPointDetailPage: React.FC = () => {
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <MetricTile label="Touch point" value="Reminder 1" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricTile label="Msgs sent" value={sent.toLocaleString()} />
             <MetricTile label="Responses" value={responses.toLocaleString()} />
             <MetricTile label="Resp %" value={`${respPct.toFixed(1)}%`} />
