@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
-type StepSummaryKpis = {
-  stepName: string;
+type TouchPointSummaryKpis = {
+  touchPointName: string;
   interval: string;
   channel: string;
   sent: number;
@@ -13,8 +13,8 @@ type StepSummaryKpis = {
   vehicles: number;
 };
 
-const STEP_SUMMARY: StepSummaryKpis = {
-  stepName: "Reminder 1",
+const TOUCH_POINT_SUMMARY: TouchPointSummaryKpis = {
+  touchPointName: "Reminder 1",
   interval: "5k after last Service",
   channel: "Postcard + Email + SMS",
   sent: 1380,
@@ -25,7 +25,7 @@ const STEP_SUMMARY: StepSummaryKpis = {
   vehicles: 280,
 };
 
-type StepGeoRow = {
+type TouchPointGeoRow = {
   zip: string;
   city: string;
   responses: number;
@@ -34,7 +34,7 @@ type StepGeoRow = {
   revenue: number;
 };
 
-const GEO_ROWS: StepGeoRow[] = [
+const GEO_ROWS: TouchPointGeoRow[] = [
   {
     zip: "94952",
     city: "Petaluma, CA",
@@ -79,7 +79,7 @@ const GEO_ROWS: StepGeoRow[] = [
 
 type MapMetric = "resp" | "roas";
 
-const CustomerJourneyStepDetail: React.FC = () => {
+const CustomerJourneyTouchPointDetail: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"summary" | "audience" | "map" | "journeys">("map");
   const [mapMetric, setMapMetric] = useState<MapMetric>("resp");
 
@@ -103,7 +103,7 @@ const CustomerJourneyStepDetail: React.FC = () => {
   };
 
   // choose width based on selected metric
-  const getBarWidth = (row: StepGeoRow) => {
+  const getBarWidth = (row: TouchPointGeoRow) => {
     if (mapMetric === "resp") {
       return (row.respPct / maxRespPct) * 100;
     }
@@ -116,7 +116,7 @@ const CustomerJourneyStepDetail: React.FC = () => {
         { label: "Home", to: "/" },
         { label: "Reports & Insights", to: "/" },
         { label: "Customer Journey", to: "/reports/customer-journey" },
-        { label: STEP_SUMMARY.stepName },
+        { label: TOUCH_POINT_SUMMARY.touchPointName },
       ]}
       rightInfo={
         <>
@@ -133,13 +133,13 @@ const CustomerJourneyStepDetail: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            {STEP_SUMMARY.stepName} – Step Detail
+            {TOUCH_POINT_SUMMARY.touchPointName} – Touch point detail
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Drill into performance, audience and geography for this Customer Journey step.
+            Drill into performance, audience and geography for this Customer Journey touch point.
           </p>
           <p className="mt-1 text-[11px] text-slate-500">
-            {STEP_SUMMARY.interval} · {STEP_SUMMARY.channel}
+            {TOUCH_POINT_SUMMARY.interval} · {TOUCH_POINT_SUMMARY.channel}
           </p>
         </div>
       </div>
@@ -148,27 +148,27 @@ const CustomerJourneyStepDetail: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPIs for this step */}
+          {/* KPIs for this touch point */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricTile
               label="Vehicles"
-              value={STEP_SUMMARY.vehicles.toLocaleString()}
+              value={TOUCH_POINT_SUMMARY.vehicles.toLocaleString()}
             />
             <MetricTile
               label="Resp %"
-              value={`${STEP_SUMMARY.responseRate.toFixed(1)}%`}
+              value={`${TOUCH_POINT_SUMMARY.responseRate.toFixed(1)}%`}
             />
             <MetricTile
               label="ROAS"
-              value={`${STEP_SUMMARY.roas.toFixed(1)}x`}
+              value={`${TOUCH_POINT_SUMMARY.roas.toFixed(1)}x`}
             />
             <MetricTile
               label="Sent"
-              value={STEP_SUMMARY.sent.toLocaleString()}
+              value={TOUCH_POINT_SUMMARY.sent.toLocaleString()}
             />
             <MetricTile
               label="Revenue"
-              value={`$${STEP_SUMMARY.revenue.toLocaleString()}`}
+              value={`$${TOUCH_POINT_SUMMARY.revenue.toLocaleString()}`}
             />
           </div>
 
@@ -177,12 +177,12 @@ const CustomerJourneyStepDetail: React.FC = () => {
             <AIInsightsTile {...aiInsightsProps} />
           </div>
 
-          {/* Step detail tabs */}
+          {/* Touch point detail tabs */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between gap-3 mb-2">
               <div>
                 <h2 className="text-sm font-semibold text-slate-900">
-                  {STEP_SUMMARY.stepName} detail
+                  {TOUCH_POINT_SUMMARY.touchPointName} detail
                 </h2>
                 <p className="text-[11px] text-slate-600">
                   Performance, audience and geography for this touch point.
@@ -225,7 +225,7 @@ const CustomerJourneyStepDetail: React.FC = () => {
               <>
                 {/* Map tab */}
                 <p className="mt-1 text-[10px] text-slate-400">
-                  Map shows responses by ZIP for this step. Bubble size = responses;
+                  Map shows responses by ZIP for this touch point. Bubble size = responses;
                   color indicates {mapMetric === "resp" ? "RESP %" : "ROAS"}.
                 </p>
 
@@ -323,7 +323,7 @@ const CustomerJourneyStepDetail: React.FC = () => {
                     <div className="rounded-2xl border border-slate-200 bg-white p-3">
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="font-semibold text-slate-700">
-                          Top ZIPs for this step
+                          Top ZIPs for this touch point
                         </span>
                         <span className="text-slate-400">
                           {mapMetric === "resp" ? "RESP % · responses" : "ROAS · responses"}
@@ -406,4 +406,4 @@ const CustomerJourneyStepDetail: React.FC = () => {
   );
 };
 
-export default CustomerJourneyStepDetail;
+export default CustomerJourneyTouchPointDetail;

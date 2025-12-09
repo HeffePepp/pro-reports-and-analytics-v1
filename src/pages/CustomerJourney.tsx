@@ -2,19 +2,18 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
 
-type JourneyStepDetail = {
-  name: string; // Comm Name (no timing embedded)
-  interval: string; // Interval Description / timing
-  channel: string; // delivery mix, used only for channel bar
+type JourneyTouchPoint = {
+  name: string;          // Touch point name (no timing embedded)
+  interval: string;      // Interval relative to service
+  channel: string;       // delivery mix, used for channel bar
   sent: number;
-  vehicles: number;
-  responseRate: number; // %
-  roas: number; // x
-  revenue: number; // response revenue
+  vehicles: number;      // responses / vehicles
+  responseRate: number;  // %
+  roas: number;          // x
+  revenue: number;       // response revenue
 };
 
-// Dummy data with RESP % buckets + revenue
-const JOURNEY_STEPS: JourneyStepDetail[] = [
+const JOURNEY_TOUCH_POINTS: JourneyTouchPoint[] = [
   {
     name: "Thank You Text",
     interval: "1 day after Service",
@@ -167,15 +166,14 @@ const JOURNEY_STEPS: JourneyStepDetail[] = [
   },
 ];
 
-// RESP coloring helper (same thresholds)
+// RESP coloring
 const getRespColorClass = (rate: number): string => {
-  if (rate >= 15) return "text-emerald-600"; // green
-  if (rate >= 10) return "text-orange-500"; // orange
-  if (rate >= 5) return "text-amber-500"; // yellow
-  return "text-rose-600"; // red
+  if (rate >= 15) return "text-emerald-600";
+  if (rate >= 10) return "text-orange-500";
+  if (rate >= 5) return "text-amber-500";
+  return "text-rose-600";
 };
 
-// Channel mix + bar segment meta
 type ChannelKey = "postcard" | "email" | "sms";
 
 type ChannelSegment = {
@@ -183,10 +181,13 @@ type ChannelSegment = {
   percent: number;
   colorClass: string;
   dotColorClass: string;
-  label: string; // Postcard, Email, Text Message
+  label: string;
 };
 
-const CHANNEL_META: Record<ChannelKey, Omit<ChannelSegment, "percent">> = {
+const CHANNEL_META: Record<
+  ChannelKey,
+  Omit<ChannelSegment, "percent">
+> = {
   postcard: {
     key: "postcard",
     colorClass: "bg-sky-100",
@@ -207,16 +208,13 @@ const CHANNEL_META: Record<ChannelKey, Omit<ChannelSegment, "percent">> = {
   },
 };
 
-// Parse the channel string into segments; each gets equal share of the bar
 const getChannelSegments = (channel: string): ChannelSegment[] => {
   const lower = channel.toLowerCase();
   const keys: ChannelKey[] = [];
   if (lower.includes("postcard")) keys.push("postcard");
   if (lower.includes("email")) keys.push("email");
   if (lower.includes("sms") || lower.includes("text")) keys.push("sms");
-
-  if (keys.length === 0) keys.push("email"); // default
-
+  if (keys.length === 0) keys.push("email");
   const share = 100 / keys.length;
   return keys.map((key) => ({
     ...CHANNEL_META[key],
@@ -228,23 +226,25 @@ const CustomerJourneyPage: React.FC = () => {
   const navigate = useNavigate();
 
   const totalSent = useMemo(
-    () => JOURNEY_STEPS.reduce((sum, s) => sum + s.sent, 0),
+    () => JOURNEY_TOUCH_POINTS.reduce((sum, tp) => sum + tp.sent, 0),
     []
   );
   const journeyVehicles = useMemo(
-    () => JOURNEY_STEPS.reduce((sum, s) => sum + s.vehicles, 0),
+    () => JOURNEY_TOUCH_POINTS.reduce((sum, tp) => sum + tp.vehicles, 0),
     []
   );
-  const avgStepRoas = useMemo(
+  const avgTouchPointRoas = useMemo(
     () =>
-      JOURNEY_STEPS.reduce((sum, s) => sum + s.roas, 0) /
-      JOURNEY_STEPS.length,
+      JOURNEY_TOUCH_POINTS.reduce((sum, tp) => sum + tp.roas, 0) /
+      JOURNEY_TOUCH_POINTS.length,
     []
   );
   const avgRespRate = useMemo(
     () =>
-      JOURNEY_STEPS.reduce((sum, s) => sum + s.responseRate, 0) /
-      JOURNEY_STEPS.length,
+      JOURNEY_TOUCH_POINTS.reduce(
+        (sum, tp) => sum + tp.responseRate,
+        0
+      ) / JOURNEY_TOUCH_POINTS.length,
     []
   );
 
@@ -254,9 +254,9 @@ const CustomerJourneyPage: React.FC = () => {
     bullets: [] as string[],
   };
 
-  const handleStepClick = (step: JourneyStepDetail) => {
-    // for now every step goes to the same example detail page
-    navigate("/reports/customer-journey/step-detail");
+  const handleTouchPointClick = (tp: JourneyTouchPoint) => {
+    // later we can pass an ID/slug; for now this goes to a shared detail page
+    navigate("/reports/customer-journey/touch-point-detail");
   };
 
   return (
@@ -286,17 +286,17 @@ const CustomerJourneyPage: React.FC = () => {
             Customer Journey
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Performance of the standard Throttle journey steps for this store:
-            thank-you, suggested services, reminders and reactivation.
+            Performance of the standard Throttle journey touch points for this
+            store: thank-you, suggested services, reminders and reactivation.
           </p>
         </div>
       </div>
 
-      {/* Main layout: left content (3/4) + right AI tile (1/4) */}
+      {/* Main layout */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* LEFT: journey KPIs + AI (mobile) + main tile */}
+        {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles */}
+          {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricTile
               label="Vehicles"
@@ -304,7 +304,7 @@ const CustomerJourneyPage: React.FC = () => {
             />
             <MetricTile
               label="Avg ROAS"
-              value={`${avgStepRoas.toFixed(1)}x`}
+              value={`${avgTouchPointRoas.toFixed(1)}x`}
             />
             <MetricTile
               label="Avg resp %"
@@ -316,12 +316,12 @@ const CustomerJourneyPage: React.FC = () => {
             />
           </div>
 
-          {/* AI Insights – stacked here on small/medium screens */}
+          {/* AI stacked on small screens */}
           <div className="block lg:hidden">
             <AIInsightsTile {...aiInsightsProps} />
           </div>
 
-          {/* Journey steps visualization – primary focus tile */}
+          {/* Journey touch points tile */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-start justify-between mb-1 gap-3">
               <div>
@@ -329,11 +329,9 @@ const CustomerJourneyPage: React.FC = () => {
                   Customer Journey
                 </h2>
                 <p className="text-[11px] font-medium text-slate-700">
-                  Touch Point + Response Rate + ROAS
+                  Touch point + Response Rate + ROAS
                 </p>
               </div>
-
-              {/* Stacked summary stats – right aligned */}
               <div className="hidden lg:flex flex-col items-end text-right text-[11px] text-slate-500">
                 <span>
                   {journeyVehicles.toLocaleString()} journey vehicles
@@ -345,49 +343,48 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
 
             <p className="mt-2 text-[10px] text-slate-400">
-              Channel bar shows mix of Postcard, Email and Text Message per
-              touch point. Bar length shows resp % vs other steps.
+              Channel bar shows mix of Postcard, Email and Text Message per touch
+              point. Bar length shows resp % vs other touch points.
             </p>
 
             <div className="mt-3 space-y-5 text-xs text-slate-700">
-              {JOURNEY_STEPS.map((step, idx) => {
-                const respColor = getRespColorClass(step.responseRate);
-                const segments = getChannelSegments(step.channel);
+              {JOURNEY_TOUCH_POINTS.map((tp, idx) => {
+                const respColor = getRespColorClass(tp.responseRate);
+                const segments = getChannelSegments(tp.channel);
 
                 return (
                   <button
-                    key={`${step.name}-${step.interval}`}
+                    key={`${tp.name}-${tp.interval}`}
                     type="button"
-                    onClick={() => handleStepClick(step)}
+                    onClick={() => handleTouchPointClick(tp)}
                     className="w-full text-left pt-1"
                   >
-                    {/* Top row: step label left, stats right */}
+                    {/* Top row */}
                     <div className="flex items-start justify-between gap-3 text-[11px]">
                       <div className="text-slate-700">
                         <div className="font-medium">
-                          {idx + 1}. {step.name}
+                          {idx + 1}. {tp.name}
                         </div>
                         <div className="text-[11px] text-slate-500">
-                          {step.interval}
+                          {tp.interval}
                         </div>
                       </div>
 
-                      {/* RESP / ROAS / Sent + Revenue – right aligned */}
                       <div className="flex flex-col items-end text-right gap-0.5">
                         <div className="inline-flex items-center gap-2 text-[11px] md:text-xs font-medium">
                           <span className={respColor}>
-                            {step.responseRate.toFixed(1)}% RESP
+                            {tp.responseRate.toFixed(1)}% RESP
                           </span>
                           <span className="opacity-50 text-slate-500">
                             •
                           </span>
                           <span className="text-slate-700">
-                            {step.roas.toFixed(1)}x ROAS
+                            {tp.roas.toFixed(1)}x ROAS
                           </span>
                         </div>
                         <div className="text-[10px] text-slate-500">
-                          {step.sent.toLocaleString()} sent • $
-                          {step.revenue.toLocaleString()} rev
+                          {tp.sent.toLocaleString()} sent • $
+                          {tp.revenue.toLocaleString()} rev
                         </div>
                       </div>
                     </div>
@@ -425,7 +422,7 @@ const CustomerJourneyPage: React.FC = () => {
           </section>
         </div>
 
-        {/* RIGHT: AI Insights – only on large screens */}
+        {/* RIGHT: AI on large screens */}
         <div className="hidden lg:block lg:col-span-1">
           <AIInsightsTile {...aiInsightsProps} />
         </div>
