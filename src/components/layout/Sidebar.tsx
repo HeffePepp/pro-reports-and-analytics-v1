@@ -1,12 +1,10 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, BarChart2, Share2, LucideIcon } from "lucide-react";
 
 type NavItem = {
   label: string;
   path: string;
   activeMatch?: string;
-  icon: LucideIcon;
 };
 
 const navItems: NavItem[] = [
@@ -14,20 +12,17 @@ const navItems: NavItem[] = [
     label: "Dashboard",
     path: "#", // placeholder for now
     activeMatch: "/dashboard",
-    icon: LayoutDashboard,
   },
   {
     label: "Reports & Insights",
     path: "/",
     // treat the index + /reports/* as this section
     activeMatch: "/reports",
-    icon: BarChart2,
   },
   {
     label: "Network Hierarchy",
     path: "#",
     activeMatch: "/network",
-    icon: Share2,
   },
 ];
 
@@ -41,7 +36,7 @@ const Sidebar: React.FC = () => {
     <aside
       className="
         hidden md:flex md:flex-col w-64
-        bg-slate-900
+        bg-[#020617]          /* deep navy to match main platform */
         text-slate-100
       "
     >
@@ -63,7 +58,6 @@ const Sidebar: React.FC = () => {
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 text-sm space-y-1">
         {navItems.map((item) => {
-          const Icon = item.icon;
           const isActive =
             item.label === "Reports & Insights"
               ? isReportsRoute
@@ -73,11 +67,11 @@ const Sidebar: React.FC = () => {
                 );
 
           const baseClasses =
-            "w-full text-left px-3 py-2 rounded-xl flex items-center gap-2 " +
-            "transition-colors cursor-pointer";
+            "w-full text-left px-3 py-2 rounded-xl flex items-center " +
+            "transition-colors cursor-pointer text-sm";
 
           const activeClasses =
-            "bg-sky-600/25 text-sky-50"; // blue pill like the dashboard
+            "bg-sky-600/25 text-sky-50"; // soft blue pill like the dashboard
 
           const inactiveClasses =
             "text-slate-300 hover:bg-white/5 hover:text-slate-50";
@@ -86,13 +80,8 @@ const Sidebar: React.FC = () => {
             isActive ? activeClasses : inactiveClasses
           }`;
 
-          const iconClass = isActive ? "text-sky-300" : "text-slate-400";
-
           const content = (
-            <>
-              <Icon size={16} className={iconClass} />
-              <span className="truncate">{item.label}</span>
-            </>
+            <span className="truncate leading-5">{item.label}</span>
           );
 
           if (item.path === "#") {
