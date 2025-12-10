@@ -251,9 +251,7 @@ function useKpiPreferences(reportId: string) {
   }, [selected, storageKey]);
 
   const toggle = (key: KpiKey) => {
-    setSelected((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
+    setSelected((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
   };
 
   const selectAll = () => setSelected([...ALL_KPI_KEYS]);
@@ -284,14 +282,8 @@ const CustomizeKpisButton: React.FC<{
       {open && (
         <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white shadow-lg z-20">
           <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-800">
-              KPI tiles
-            </span>
-            <button
-              type="button"
-              onClick={selectAll}
-              className="text-[11px] text-sky-600 hover:text-sky-700"
-            >
+            <span className="text-xs font-semibold text-slate-800">KPI tiles</span>
+            <button type="button" onClick={selectAll} className="text-[11px] text-sky-600 hover:text-sky-700">
               Select all
             </button>
           </div>
@@ -315,11 +307,7 @@ const CustomizeKpisButton: React.FC<{
             })}
           </div>
           <div className="px-3 py-2 border-t border-slate-100 text-[11px] text-slate-400 flex justify-end">
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="hover:text-slate-600"
-            >
+            <button type="button" onClick={() => setOpen(false)} className="hover:text-slate-600">
               Close
             </button>
           </div>
@@ -372,33 +360,21 @@ const CustomerJourneyPage: React.FC = () => {
   const stats: ComputedStats = useMemo(() => {
     const vehicles = TOUCH_POINTS.reduce((sum, t) => sum + t.responses, 0);
     const totalComms = TOUCH_POINTS.reduce((sum, t) => sum + t.sent, 0);
-    const avgRoas =
-      TOUCH_POINTS.reduce((sum, t) => sum + t.roas, 0) / TOUCH_POINTS.length;
-    const avgResp =
-      TOUCH_POINTS.reduce((sum, t) => sum + t.responseRate, 0) /
-      TOUCH_POINTS.length;
+    const avgRoas = TOUCH_POINTS.reduce((sum, t) => sum + t.roas, 0) / TOUCH_POINTS.length;
+    const avgResp = TOUCH_POINTS.reduce((sum, t) => sum + t.responseRate, 0) / TOUCH_POINTS.length;
 
     return { vehicles, totalComms, avgRoas, avgResp };
   }, []);
 
-  const { selected, toggle, selectAll } = useKpiPreferences(
-    "customer-journey"
-  );
+  const { selected, toggle, selectAll } = useKpiPreferences("customer-journey");
 
   const visibleKpis = KPI_DEFS.filter((k) => selected.includes(k.key));
 
-  const maxRespRate = useMemo(
-    () => Math.max(...TOUCH_POINTS.map((t) => t.responseRate), 1),
-    []
-  );
+  const maxRespRate = useMemo(() => Math.max(...TOUCH_POINTS.map((t) => t.responseRate), 1), []);
 
   return (
     <ShellLayout
-      breadcrumb={[
-        { label: "Home", to: "/" },
-        { label: "Reports & Insights", to: "/" },
-        { label: "Customer Journey" },
-      ]}
+      breadcrumb={[{ label: "Home", to: "/" }, { label: "Reports & Insights", to: "/" }, { label: "Customer Journey" }]}
       rightInfo={
         <>
           <span>
@@ -413,19 +389,13 @@ const CustomerJourneyPage: React.FC = () => {
       {/* Header + KPI customize button */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            Customer Journey
-          </h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Customer Journey</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Performance of the standard Throttle journey touch points for this
-            store: thank-you, suggested services, reminders and reactivation.
+            Performance of the standard Throttle journey touch points for this store: thank-you, suggested services,
+            reminders and reactivation.
           </p>
         </div>
-        <CustomizeKpisButton
-          selected={selected}
-          toggle={toggle}
-          selectAll={selectAll}
-        />
+        <CustomizeKpisButton selected={selected} toggle={toggle} selectAll={selectAll} />
       </div>
 
       {/* KPI tiles */}
@@ -447,15 +417,10 @@ const CustomerJourneyPage: React.FC = () => {
           {/* Tile header */}
           <div className="flex items-start justify-between px-4 pt-4 pb-3 gap-4">
             <div>
-              <h2 className="text-base md:text-lg font-semibold text-slate-900">
-                Customer Journey
-              </h2>
-              <p className="mt-1 text-xs text-slate-600">
-                Touch point + Response Rate + ROAS
-              </p>
+              <h2 className="text-base md:text-lg font-semibold text-slate-900"></h2>
+              <p className="mt-1 text-xs text-slate-600">Touch point + Response Rate + ROAS</p>
               <p className="mt-1 text-[11px] text-slate-500">
-                {stats.vehicles.toLocaleString()} journey vehicles ·{" "}
-                {stats.totalComms.toLocaleString()} comms sent
+                {stats.vehicles.toLocaleString()} journey vehicles · {stats.totalComms.toLocaleString()} comms sent
               </p>
             </div>
             <div className="flex items-center">
@@ -475,9 +440,7 @@ const CustomerJourneyPage: React.FC = () => {
                   type="button"
                   onClick={() => setTab("details")}
                   className={`px-3 py-1 rounded-full ${
-                    tab === "details"
-                      ? "bg-white shadow-sm text-slate-900"
-                      : "text-slate-600 hover:text-slate-800"
+                    tab === "details" ? "bg-white shadow-sm text-slate-900" : "text-slate-600 hover:text-slate-800"
                   }`}
                 >
                   Details
@@ -498,27 +461,16 @@ const CustomerJourneyPage: React.FC = () => {
                       <div className="text-sm font-semibold text-slate-900">
                         {idx + 1}. {tp.name}
                       </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        {tp.interval}
-                      </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        {channelLabel(tp.channels)}
-                      </div>
+                      <div className="mt-0.5 text-[11px] text-slate-500">{tp.interval}</div>
+                      <div className="mt-0.5 text-[11px] text-slate-500">{channelLabel(tp.channels)}</div>
                     </div>
                     <div className="text-right min-w-[120px]">
-                      <div
-                        className={`text-sm font-semibold ${responseColor(
-                          tp.responseRate
-                        )}`}
-                      >
+                      <div className={`text-sm font-semibold ${responseColor(tp.responseRate)}`}>
                         {tp.responseRate.toFixed(1)}% RESP
                       </div>
-                      <div className="text-xs text-slate-700">
-                        {tp.roas.toFixed(1)}x ROAS
-                      </div>
+                      <div className="text-xs text-slate-700">{tp.roas.toFixed(1)}x ROAS</div>
                       <div className="mt-1 text-[11px] text-slate-500">
-                        {tp.sent.toLocaleString()} sent · $
-                        {tp.revenue.toLocaleString()} rev
+                        {tp.sent.toLocaleString()} sent · ${tp.revenue.toLocaleString()} rev
                       </div>
                     </div>
                   </div>
@@ -529,9 +481,7 @@ const CustomerJourneyPage: React.FC = () => {
                       <div
                         className="h-full bg-sky-400"
                         style={{
-                          width: `${
-                            (tp.responseRate / maxRespRate) * 100
-                          }%`,
+                          width: `${(tp.responseRate / maxRespRate) * 100}%`,
                         }}
                       />
                     </div>
@@ -540,13 +490,8 @@ const CustomerJourneyPage: React.FC = () => {
                   {/* Channel legend */}
                   <div className="flex flex-wrap gap-3 text-[11px] text-slate-500">
                     {tp.channels.map((ch) => (
-                      <span
-                        key={ch}
-                        className="inline-flex items-center gap-1"
-                      >
-                        <span
-                          className={`h-2 w-2 rounded-full ${channelColor(ch)}`}
-                        />
+                      <span key={ch} className="inline-flex items-center gap-1">
+                        <span className={`h-2 w-2 rounded-full ${channelColor(ch)}`} />
                         <span>{channelLabel([ch])}</span>
                       </span>
                     ))}
@@ -570,41 +515,22 @@ const CustomerJourneyPage: React.FC = () => {
 
               <div className="divide-y divide-slate-100">
                 {TOUCH_POINTS.map((tp, idx) => (
-                  <div
-                    key={tp.id}
-                    className="flex items-center justify-between gap-4 py-3"
-                  >
+                  <div key={tp.id} className="flex items-center justify-between gap-4 py-3">
                     <div className="min-w-[220px]">
                       <div className="text-sm font-semibold text-slate-900">
                         {idx + 1}. {tp.name}
                       </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        {tp.interval}
-                      </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        Channels: {channelLabel(tp.channels)}
-                      </div>
+                      <div className="mt-0.5 text-[11px] text-slate-500">{tp.interval}</div>
+                      <div className="mt-0.5 text-[11px] text-slate-500">Channels: {channelLabel(tp.channels)}</div>
                     </div>
                     <div className="flex items-baseline gap-8 text-xs text-slate-700">
-                      <div className="w-16 text-right">
-                        {tp.sent.toLocaleString()}
-                      </div>
-                      <div className="w-16 text-right">
-                        {tp.responses.toLocaleString()}
-                      </div>
-                      <div
-                        className={`w-16 text-right font-semibold ${responseColor(
-                          tp.responseRate
-                        )}`}
-                      >
+                      <div className="w-16 text-right">{tp.sent.toLocaleString()}</div>
+                      <div className="w-16 text-right">{tp.responses.toLocaleString()}</div>
+                      <div className={`w-16 text-right font-semibold ${responseColor(tp.responseRate)}`}>
                         {tp.responseRate.toFixed(1)}%
                       </div>
-                      <div className="w-16 text-right">
-                        {tp.roas.toFixed(1)}x
-                      </div>
-                      <div className="w-20 text-right">
-                        ${tp.revenue.toLocaleString()}
-                      </div>
+                      <div className="w-16 text-right">{tp.roas.toFixed(1)}x</div>
+                      <div className="w-20 text-right">${tp.revenue.toLocaleString()}</div>
                     </div>
                   </div>
                 ))}
