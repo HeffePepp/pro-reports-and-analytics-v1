@@ -3,10 +3,9 @@ import {
   ShellLayout,
   MetricTile,
   AIInsightsTile,
-  useKpiPreferences,
   KpiCustomizeButton,
-  KpiPreferencesModal,
 } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type OilMixSummary = {
   periodLabel: string;
@@ -38,13 +37,13 @@ const oilMixRows: OilMixRow[] = [
   { oilType: "Full Synthetic", roCount: 1360, revenue: 134400, avgTicket: 99 },
 ];
 
-const kpiDefs = [
+const KPI_OPTIONS: KpiOption[] = [
   { id: "oilRos", label: "Oil change ROs" },
   { id: "oilRevenue", label: "Oil revenue" },
   { id: "syntheticShare", label: "Synthetic share" },
   { id: "highMileageShare", label: "High mileage share" },
   { id: "avgTicket", label: "Avg ticket (all)" },
-] as const;
+];
 
 const OilTypeSalesPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
@@ -52,14 +51,10 @@ const OilTypeSalesPage: React.FC = () => {
     "Conventional still represents a large number of visits but at a lower average ticket.",
     "Moving a small share of conventional customers into synthetic can significantly increase revenue.",
   ]);
-  const [kpiModalOpen, setKpiModalOpen] = useState(false);
 
   const maxRev = useMemo(() => Math.max(...oilMixRows.map((r) => r.revenue), 1), []);
 
-  const { visibleKpis, visibleIds, toggleKpi, resetKpis } = useKpiPreferences(
-    "oil-type-sales",
-    kpiDefs as unknown as { id: string; label: string }[]
-  );
+  const { selectedIds, setSelectedIds } = useKpiPreferences("oil-type-sales", KPI_OPTIONS);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -101,13 +96,18 @@ const OilTypeSalesPage: React.FC = () => {
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Oil Type Sales</h1>
           <p className="mt-1 text-sm text-slate-500">Volume and revenue mix across conventional, blend, synthetic and high mileage oils.</p>
         </div>
-        <KpiCustomizeButton onClick={() => setKpiModalOpen(true)} />
+        <KpiCustomizeButton
+          reportId="oil-type-sales"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3 space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            {visibleKpis.map((kpi) => renderKpiTile(kpi.id))}
+            {selectedIds.map((id) => renderKpiTile(id))}
           </div>
 
           <div className="block lg:hidden">
@@ -171,16 +171,6 @@ const OilTypeSalesPage: React.FC = () => {
           <AIInsightsTile title="AI Insights" subtitle="Based on oil mix & revenue" bullets={insights} onRefresh={regenerateInsights} />
         </div>
       </div>
-
-      <KpiPreferencesModal
-        open={kpiModalOpen}
-        onClose={() => setKpiModalOpen(false)}
-        reportName="Oil Type Sales"
-        kpis={kpiDefs as unknown as { id: string; label: string }[]}
-        visibleIds={visibleIds}
-        onToggle={toggleKpi}
-        onReset={resetKpis}
-      />
     </ShellLayout>
   );
 };

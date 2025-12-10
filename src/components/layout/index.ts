@@ -8,9 +8,4 @@ export { default as AIInsightsTile } from "./AIInsightsTile";
 export { default as ZipMapPlaceholder } from "./ZipMapPlaceholder";
 
 // KPI preferences
-export {
-  useKpiPreferences,
-  KpiCustomizeButton,
-  KpiPreferencesModal,
-} from "./kpiPreferences";
-export type { KpiDefinition } from "./kpiPreferences";
+export { default as KpiCustomizeButton } from "./KpiCustomizeButton";
