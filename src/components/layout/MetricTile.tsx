@@ -1,10 +1,18 @@
 import React from "react";
+import { CircleHelp } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 type MetricTileProps = {
   label: string;
   value: string;
   helper?: string;
   highlight?: boolean;
+  helpText?: string;
 };
 
 const MetricTile: React.FC<MetricTileProps> = ({
@@ -12,6 +20,7 @@ const MetricTile: React.FC<MetricTileProps> = ({
   value,
   helper,
   highlight = false,
+  helpText,
 }) => {
   const valueClass = highlight
     ? "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xl md:text-2xl font-semibold tracking-tight"
@@ -21,8 +30,28 @@ const MetricTile: React.FC<MetricTileProps> = ({
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full">
       <div className="flex flex-col justify-center h-full px-3 py-3 md:px-4 md:py-4 min-h-[96px]">
         {/* Description */}
-        <div className="text-[11px] font-medium text-slate-500 leading-snug">
-          {label}
+        <div className="flex items-center gap-1">
+          <span className="text-[11px] font-medium text-slate-500 leading-snug">
+            {label}
+          </span>
+          {helpText && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="text-slate-400 hover:text-slate-600"
+                    aria-label={`${label} definition`}
+                  >
+                    <CircleHelp className="h-3 w-3" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-[11px] leading-snug">
+                  {helpText}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
 
         {/* Metric value – closer and ~2x larger */}
