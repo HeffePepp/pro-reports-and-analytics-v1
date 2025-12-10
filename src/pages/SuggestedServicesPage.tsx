@@ -68,6 +68,22 @@ const SS_SERVICE_TYPES: SuggestedServiceTypeRow[] = [
   { service: "LIGHT BULB", invoices: 1240, validEmailPct: 87, respPct: 19.8 },
 ];
 
+type SuggestedServicesTouchPoint = {
+  timing: string;
+  channel: string;
+  sent: number;
+  responses: number;
+  respPct: number;
+  roas: number;
+};
+
+const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
+  { timing: "1 week after Service", channel: "Email", sent: 1850, responses: 420, respPct: 22.7, roas: 9.5 },
+  { timing: "1 month after Service", channel: "Email", sent: 1760, responses: 310, respPct: 17.6, roas: 12.1 },
+  { timing: "3 months after Service", channel: "Email", sent: 1640, responses: 240, respPct: 14.6, roas: 11.2 },
+  { timing: "6 months after Service", channel: "Email", sent: 1380, responses: 280, respPct: 20.3, roas: 16.4 },
+];
+
 const getRespColorClass = (rate: number): string => {
   if (rate >= 15) return "text-emerald-600";
   if (rate >= 10) return "text-orange-500";
@@ -389,63 +405,33 @@ const SuggestedServicesPage: React.FC = () => {
               </div>
             )}
 
-            {/* DETAILS TAB – table styled like Drops tab from One-off Campaigns */}
+            {/* DETAILS TAB – touch point timing table */}
             {ssTab === "details" && (
               <div className="mt-4 overflow-x-auto">
                 <table className="min-w-full text-xs">
                   <thead>
-                    <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
-                      <th className="py-2 pr-3 text-left font-medium">
-                        Service type
-                      </th>
-                      <th className="py-2 pr-3 text-right font-medium">
-                        Invoices
-                      </th>
-                      <th className="py-2 pr-3 text-right font-medium">
-                        Responses
-                      </th>
-                      <th className="py-2 pr-3 text-right font-medium">
-                        Resp %
-                      </th>
-                      <th className="py-2 pl-3 text-right font-medium">
-                        Valid email %
-                      </th>
+                    <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
+                      <th className="py-2 pr-3">Touch point</th>
+                      <th className="py-2 pr-3 text-right">Sent</th>
+                      <th className="py-2 pr-3 text-right">Responses</th>
+                      <th className="py-2 pr-3 text-right">Resp %</th>
+                      <th className="py-2 pr-3 text-right">ROAS</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {SS_SERVICE_TYPES.map((row) => {
-                      const responses = Math.round(
-                        row.invoices * (row.respPct / 100)
-                      );
-                      const respClass = getRespColorClass(row.respPct);
-
-                      return (
-                        <tr key={row.service}>
-                          <td className="py-3 pr-3 align-top">
-                            <div className="text-xs font-medium text-slate-900">
-                              {row.service}
-                            </div>
-                            <div className="mt-0.5 text-[11px] text-slate-500">
-                              Suggested service follow-up
-                            </div>
-                          </td>
-                          <td className="py-3 pr-3 text-right align-middle">
-                            {row.invoices.toLocaleString()}
-                          </td>
-                          <td className="py-3 pr-3 text-right align-middle">
-                            {responses.toLocaleString()}
-                          </td>
-                          <td
-                            className={`py-3 pr-3 text-right align-middle ${respClass}`}
-                          >
-                            {row.respPct.toFixed(1)}%
-                          </td>
-                          <td className="py-3 pl-3 text-right align-middle">
-                            {row.validEmailPct.toFixed(1)}%
-                          </td>
-                        </tr>
-                      );
-                    })}
+                  <tbody>
+                    {SS_TOUCHPOINTS.map((tp) => (
+                      <tr key={tp.timing} className="border-t border-slate-100 align-top">
+                        <td className="py-3 pr-3">
+                          <div className="text-xs font-medium text-slate-800">Suggested Services</div>
+                          <div className="text-[11px] text-slate-500">{tp.timing}</div>
+                          <div className="text-[11px] text-slate-500">{tp.channel}</div>
+                        </td>
+                        <td className="py-3 pr-3 text-right">{tp.sent.toLocaleString()}</td>
+                        <td className="py-3 pr-3 text-right">{tp.responses.toLocaleString()}</td>
+                        <td className="py-3 pr-3 text-right">{tp.respPct.toFixed(1)}%</td>
+                        <td className="py-3 pr-3 text-right">{tp.roas.toFixed(1)}x</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
