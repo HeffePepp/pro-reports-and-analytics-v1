@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type PosLapseRow = {
   storeName: string;
@@ -14,6 +15,13 @@ const posLapseRows: PosLapseRow[] = [
   { storeName: "Vacaville, CA", lastPosDate: "2024-11-27", daysSince: 9 },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "totalStores", label: "Total stores" },
+  { id: "zeroTwo", label: "0–2 days" },
+  { id: "threeSeven", label: "3–7 days" },
+  { id: "overSeven", label: "> 7 days" },
+];
+
 const PosDataLapsePage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Most stores are sending POS data within the last 1–2 days.",
@@ -25,6 +33,23 @@ const PosDataLapsePage: React.FC = () => {
     () => Math.max(...posLapseRows.map((r) => r.daysSince), 1),
     []
   );
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("pos-data-lapse", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "totalStores":
+        return <MetricTile key={id} label="Total stores" value="4" />;
+      case "zeroTwo":
+        return <MetricTile key={id} label="0–2 days" value="2" />;
+      case "threeSeven":
+        return <MetricTile key={id} label="3–7 days" value="1" />;
+      case "overSeven":
+        return <MetricTile key={id} label="> 7 days" value="1" />;
+      default:
+        return null;
+    }
+  };
 
   const regenerateInsights = () => {
     const worst = posLapseRows.reduce((worst, r) =>
@@ -66,6 +91,12 @@ const PosDataLapsePage: React.FC = () => {
             journeys stay accurate.
           </p>
         </div>
+        <KpiCustomizeButton
+          reportId="pos-data-lapse"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -73,10 +104,7 @@ const PosDataLapsePage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* Summary tiles */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile label="Total stores" value="4" />
-            <MetricTile label="0–2 days" value="2" />
-            <MetricTile label="3–7 days" value="1" />
-            <MetricTile label="> 7 days" value="1" />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type CallBackSummary = {
   storeGroupName: string;
@@ -71,12 +72,33 @@ const callBackRows: CallBackRow[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "dueToday", label: "Due today" },
+  { id: "overdue", label: "Overdue" },
+  { id: "completedThisWeek", label: "Completed this week" },
+  { id: "priorityFocus", label: "Priority focus" },
+  { id: "owner", label: "Owner" },
+];
+
 const CallBackReportPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "A small number of callbacks are overdue; these should be prioritized first.",
     "Most callbacks are customer-friendly touchpoints that support retention and trust.",
     "Use this view to manage the call queue and ensure issues are closed quickly.",
   ]);
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("call-back-report", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "dueToday": return <MetricTile key={id} label="Due today" value={callBackSummary.dueToday.toString()} />;
+      case "overdue": return <MetricTile key={id} label="Overdue" value={callBackSummary.overdue.toString()} />;
+      case "completedThisWeek": return <MetricTile key={id} label="Completed this week" value={callBackSummary.completedThisWeek.toString()} />;
+      case "priorityFocus": return <MetricTile key={id} label="Priority focus" value="High" helper="High-priority, overdue first" />;
+      case "owner": return <MetricTile key={id} label="Owner" value="Store / call center" helper="Shared responsibility" />;
+      default: return null;
+    }
+  };
 
   const regenerateInsights = () => {
     setInsights([

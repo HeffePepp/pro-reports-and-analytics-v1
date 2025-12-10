@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type AuditSummary = {
   accountName: string;
@@ -77,12 +78,33 @@ const auditRows: AuditRow[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "checksPassed", label: "Checks passed" },
+  { id: "warnings", label: "Warnings" },
+  { id: "failures", label: "Failures" },
+  { id: "totalChecks", label: "Total checks" },
+  { id: "priorityArea", label: "Priority area" },
+];
+
 const ComprehensiveAccountAuditPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Overall audit score is strong at 92/100.",
     "The main area of risk is data quality (bad addresses above 10%).",
     "Journeys and compliance are mostly solid but have a few improvement opportunities.",
   ]);
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("comprehensive-account-audit", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "checksPassed": return <MetricTile key={id} label="Checks passed" value={auditSummary.passedChecks.toString()} />;
+      case "warnings": return <MetricTile key={id} label="Warnings" value={auditSummary.warningChecks.toString()} />;
+      case "failures": return <MetricTile key={id} label="Failures" value={auditSummary.failedChecks.toString()} />;
+      case "totalChecks": return <MetricTile key={id} label="Total checks" value={auditSummary.totalChecks.toString()} />;
+      case "priorityArea": return <MetricTile key={id} label="Priority area" value="Data quality" helper="Bad address rate high" />;
+      default: return null;
+    }
+  };
 
   const regenerateInsights = () => {
     setInsights([

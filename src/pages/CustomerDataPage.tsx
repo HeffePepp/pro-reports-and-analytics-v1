@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type CustomerDataSummary = {
   customers: number;
@@ -51,6 +52,14 @@ const customerStoreRows: CustomerStoreRow[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "customers", label: "Customers" },
+  { id: "vehicles", label: "Vehicles" },
+  { id: "vehiclesPerCustomer", label: "Vehicles / customer" },
+  { id: "reachableEmail", label: "Reachable by email" },
+  { id: "reachableMail", label: "Reachable by mail" },
+];
+
 const CustomerDataPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Most customers have at least one reachable channel, with email capture trailing postal.",
@@ -62,6 +71,25 @@ const CustomerDataPage: React.FC = () => {
     () => Math.max(...customerStoreRows.map((r) => r.customers), 1),
     []
   );
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("customer-data", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "customers":
+        return <MetricTile key={id} label="Customers" value={customerDataSummary.customers.toLocaleString()} />;
+      case "vehicles":
+        return <MetricTile key={id} label="Vehicles" value={customerDataSummary.vehicles.toLocaleString()} />;
+      case "vehiclesPerCustomer":
+        return <MetricTile key={id} label="Vehicles / customer" value={customerDataSummary.avgVehiclesPerCustomer.toFixed(2)} />;
+      case "reachableEmail":
+        return <MetricTile key={id} label="Reachable by email" value={`${customerDataSummary.reachableEmailPct.toFixed(0)}%`} />;
+      case "reachableMail":
+        return <MetricTile key={id} label="Reachable by mail" value={`${customerDataSummary.reachableMailPct.toFixed(0)}%`} />;
+      default:
+        return null;
+    }
+  };
 
   const regenerateInsights = () => {
     const worstEmailStore = customerStoreRows.reduce((worst, r) =>
@@ -107,6 +135,12 @@ const CustomerDataPage: React.FC = () => {
             contactability by channel.
           </p>
         </div>
+        <KpiCustomizeButton
+          reportId="customer-data"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       {/* Layout */}
@@ -115,26 +149,7 @@ const CustomerDataPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Customers"
-              value={customerDataSummary.customers.toLocaleString()}
-            />
-            <MetricTile
-              label="Vehicles"
-              value={customerDataSummary.vehicles.toLocaleString()}
-            />
-            <MetricTile
-              label="Vehicles / customer"
-              value={customerDataSummary.avgVehiclesPerCustomer.toFixed(2)}
-            />
-            <MetricTile
-              label="Reachable by email"
-              value={`${customerDataSummary.reachableEmailPct.toFixed(0)}%`}
-            />
-            <MetricTile
-              label="Reachable by mail"
-              value={`${customerDataSummary.reachableMailPct.toFixed(0)}%`}
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}

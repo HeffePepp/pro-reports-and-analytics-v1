@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type AddressSummary = {
   totalAddresses: number;
@@ -39,12 +40,39 @@ const addressStoreRows: AddressStoreRow[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "totalAddresses", label: "Total addresses" },
+  { id: "valid", label: "Valid" },
+  { id: "bad", label: "Bad" },
+  { id: "vacant", label: "Vacant" },
+  { id: "goal", label: "Goal bad-address rate" },
+];
+
 const ValidAddressPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Mail address quality is generally good, but a few stores are above the 10% bad-address threshold.",
     "Vacant and undeliverable addresses directly waste postcard spend.",
     "Cleaning up addresses in the worst stores will quickly improve ROAS on mail-heavy journeys.",
   ]);
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("valid-address", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "totalAddresses":
+        return <MetricTile key={id} label="Total addresses" value={addressSummary.totalAddresses.toLocaleString()} />;
+      case "valid":
+        return <MetricTile key={id} label="Valid" value={`${addressSummary.validPct.toFixed(1)}%`} />;
+      case "bad":
+        return <MetricTile key={id} label="Bad" value={`${addressSummary.badPct.toFixed(1)}%`} />;
+      case "vacant":
+        return <MetricTile key={id} label="Vacant" value={`${addressSummary.vacantPct.toFixed(1)}%`} />;
+      case "goal":
+        return <MetricTile key={id} label="Goal bad-address rate" value="< 10%" helper="Per store" />;
+      default:
+        return null;
+    }
+  };
 
   const regenerateInsights = () => {
     const worstStore = addressStoreRows.reduce((worst, r) =>
@@ -91,6 +119,12 @@ const ValidAddressPage: React.FC = () => {
             Mail & email reachability by store: valid, bad and vacant records.
           </p>
         </div>
+        <KpiCustomizeButton
+          reportId="valid-address"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -98,27 +132,7 @@ const ValidAddressPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Total addresses"
-              value={addressSummary.totalAddresses.toLocaleString()}
-            />
-            <MetricTile
-              label="Valid"
-              value={`${addressSummary.validPct.toFixed(1)}%`}
-            />
-            <MetricTile
-              label="Bad"
-              value={`${addressSummary.badPct.toFixed(1)}%`}
-            />
-            <MetricTile
-              label="Vacant"
-              value={`${addressSummary.vacantPct.toFixed(1)}%`}
-            />
-            <MetricTile
-              label="Goal bad-address rate"
-              value="< 10%"
-              helper="Per store"
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}

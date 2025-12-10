@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type RoasSummary = {
   storeGroupName: string;
@@ -86,6 +87,14 @@ const roasCampaigns: RoasCampaignRow[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "totalSpend", label: "Total spend" },
+  { id: "totalRevenue", label: "Total revenue" },
+  { id: "overallRoas", label: "Overall ROAS" },
+  { id: "vehiclesCampaigns", label: "Vehicles from campaigns" },
+  { id: "avgSpend", label: "Avg spend / campaign" },
+];
+
 const RoasPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Mixed-channel campaigns drive the strongest ROAS but have higher spend per send.",
@@ -137,6 +146,25 @@ const RoasPage: React.FC = () => {
     []
   );
 
+  const { selectedIds, setSelectedIds } = useKpiPreferences("roas", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "totalSpend":
+        return <MetricTile key={id} label="Total spend" value={`$${roasSummary.totalSpend.toLocaleString()}`} />;
+      case "totalRevenue":
+        return <MetricTile key={id} label="Total revenue" value={`$${roasSummary.totalRevenue.toLocaleString()}`} />;
+      case "overallRoas":
+        return <MetricTile key={id} label="Overall ROAS" value={`${overallRoas.toFixed(1)}x`} helper={`${roasSummary.campaigns} campaigns`} />;
+      case "vehiclesCampaigns":
+        return <MetricTile key={id} label="Vehicles from campaigns" value={roasSummary.totalVehicles.toLocaleString()} />;
+      case "avgSpend":
+        return <MetricTile key={id} label="Avg spend / campaign" value={`$${(roasSummary.totalSpend / roasSummary.campaigns).toFixed(0)}`} />;
+      default:
+        return null;
+    }
+  };
+
   const regenerateInsights = () => {
     const bestCampaign = roasCampaigns.reduce((best, c) =>
       !best || c.revenue / c.spend > best.revenue / best.spend ? c : best
@@ -182,6 +210,12 @@ const RoasPage: React.FC = () => {
             ROAS.
           </p>
         </div>
+        <KpiCustomizeButton
+          reportId="roas"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       {/* Main layout: left content + right AI tile */}
@@ -190,29 +224,7 @@ const RoasPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* Metric tiles */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            <MetricTile
-              label="Total spend"
-              value={`$${roasSummary.totalSpend.toLocaleString()}`}
-            />
-            <MetricTile
-              label="Total revenue"
-              value={`$${roasSummary.totalRevenue.toLocaleString()}`}
-            />
-            <MetricTile
-              label="Overall ROAS"
-              value={`${overallRoas.toFixed(1)}x`}
-              helper={`${roasSummary.campaigns} campaigns`}
-            />
-            <MetricTile
-              label="Vehicles from campaigns"
-              value={roasSummary.totalVehicles.toLocaleString()}
-            />
-            <MetricTile
-              label="Avg spend / campaign"
-              value={`$${(
-                roasSummary.totalSpend / roasSummary.campaigns
-              ).toFixed(0)}`}
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}
