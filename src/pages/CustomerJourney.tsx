@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import ShellLayout from "@/components/layout/ShellLayout";
-import MetricTile from "@/components/layout/MetricTile";
-import AIInsightsTile from "@/components/layout/AIInsightsTile";
+import {
+  ShellLayout,
+  MetricTile,
+  AIInsightsTile,
+  KpiCustomizeButton,
+} from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type JourneyTouchPoint = {
   id: number;
@@ -176,8 +180,59 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
 
 type CJTab = "visualization" | "details";
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "vehicles", label: "Vehicles" },
+  { id: "avgRoas", label: "Avg ROAS" },
+  { id: "avgRespPct", label: "Avg resp %" },
+  { id: "totalComms", label: "Total comms sent" },
+];
+
 const CustomerJourneyPage: React.FC = () => {
   const [tab, setTab] = useState<CJTab>("visualization");
+  const { selectedIds, setSelectedIds } = useKpiPreferences("customer-journey", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "vehicles":
+        return (
+          <MetricTile
+            key={id}
+            label="Vehicles"
+            value={journeySummary.vehicles.toLocaleString()}
+            helpText="Number of unique vehicles that have entered this journey in the selected time frame."
+          />
+        );
+      case "avgRoas":
+        return (
+          <MetricTile
+            key={id}
+            label="Avg ROAS"
+            value={`${journeySummary.avgRoas.toFixed(1)}x`}
+            helpText="Average return on ad spend for all journey touch points combined."
+          />
+        );
+      case "avgRespPct":
+        return (
+          <MetricTile
+            key={id}
+            label="Avg resp %"
+            value={`${journeySummary.avgRespPct.toFixed(1)}%`}
+            helpText="Average response rate across all customer journey touch points."
+          />
+        );
+      case "totalComms":
+        return (
+          <MetricTile
+            key={id}
+            label="Total comms sent"
+            value={journeySummary.totalComms.toLocaleString()}
+            helpText="Total number of messages sent across all journey touch points."
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   const aiInsightsProps = {
     title: "AI Insights",
@@ -210,59 +265,40 @@ const CustomerJourneyPage: React.FC = () => {
         </>
       }
     >
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,2.2fr),minmax(0,1fr)]">
-        {/* LEFT COLUMN: intro, KPI tiles, CJ tile */}
-        <div className="space-y-6">
-          {/* Intro */}
-          <section className="space-y-2">
-            <h1 className="text-lg font-semibold text-slate-900">
-              Customer Journey
-            </h1>
-            <p className="text-sm text-slate-600">
-              Performance of the standard Throttle journey touch points for this
-              store: thank-you, suggested services, reminders and reactivation.
-            </p>
-          </section>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+        <div>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
+            Customer Journey
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Performance of the standard Throttle journey touch points for this
+            store: thank-you, suggested services, reminders and reactivation.
+          </p>
+        </div>
+        <KpiCustomizeButton
+          reportId="customer-journey"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
+      </div>
 
+      {/* Layout */}
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">
-                  Journey KPIs
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  Vehicles, performance and total communications for this
-                  journey.
-                </p>
-              </div>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {selectedIds.map((id) => renderKpiTile(id))}
+          </div>
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <MetricTile
-                label="Vehicles"
-                value={journeySummary.vehicles.toLocaleString()}
-                helpText="Number of unique vehicles that have entered this journey in the selected time frame."
-              />
-              <MetricTile
-                label="Avg ROAS"
-                value={`${journeySummary.avgRoas.toFixed(1)}x`}
-                helpText="Average return on ad spend for all journey touch points combined."
-              />
-              <MetricTile
-                label="Avg resp %"
-                value={`${journeySummary.avgRespPct.toFixed(1)}%`}
-                helpText="Average response rate across all customer journey touch points."
-              />
-              <MetricTile
-                label="Total comms sent"
-                value={journeySummary.totalComms.toLocaleString()}
-                helpText="Total number of messages sent across all journey touch points."
-              />
-            </div>
-          </section>
+          {/* AI stacked on small screens */}
+          <div className="block lg:hidden">
+            <AIInsightsTile {...aiInsightsProps} />
+          </div>
 
-          {/* Customer Journey tile - tucked directly under KPI tiles */}
+          {/* Customer Journey tile */}
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <header className="flex items-center justify-between gap-3">
               <div>
@@ -399,8 +435,8 @@ const CustomerJourneyPage: React.FC = () => {
           </section>
         </div>
 
-        {/* RIGHT COLUMN: AI insights */}
-        <div className="space-y-6">
+        {/* RIGHT: AI insights - top aligned with KPI tiles */}
+        <div className="hidden lg:block lg:col-span-1 self-start">
           <AIInsightsTile {...aiInsightsProps} />
         </div>
       </div>
