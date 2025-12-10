@@ -14,7 +14,8 @@ const AIInsightsTile: React.FC<AIInsightsTileProps> = ({
   onRefresh,
 }) => {
   return (
-    <div className="rounded-2xl bg-gradient-to-b from-sky-50 via-sky-50 to-sky-100 border border-sky-100 shadow-sm flex flex-col h-full">
+    // NOTE: removed `h-full` so the card no longer stretches to the bottom
+    <div className="rounded-2xl bg-gradient-to-b from-sky-50 via-sky-50 to-sky-100 border border-sky-100 shadow-sm flex flex-col">
       {/* Header */}
       <div className="flex items-start justify-between px-4 pt-4 pb-2 gap-3">
         <div className="flex items-start gap-2">
@@ -39,9 +40,10 @@ const AIInsightsTile: React.FC<AIInsightsTileProps> = ({
       </div>
 
       {/* Body */}
-      <div className="flex-1 px-4 pb-4">
+      {/* NOTE: removed `flex-1` / `h-full` so height is content-driven, but gave it a small min height */}
+      <div className="px-4 pb-4">
         {bullets.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-[11px] text-sky-500 italic">
+          <div className="min-h-[80px] flex items-center justify-center text-[11px] text-sky-500 italic">
             Loading KPI data…
           </div>
         ) : (
