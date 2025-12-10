@@ -398,10 +398,11 @@ const CustomerJourneyPage: React.FC = () => {
         <CustomizeKpisButton selected={selected} toggle={toggle} selectAll={selectAll} />
       </div>
 
-      {/* KPI row + AI Insights (same pattern as One-Off) */}
-      <div className="mt-4 grid grid-cols-1 xl:grid-cols-5 gap-4 items-stretch">
-        {/* Left: KPI tiles */}
-        <div className="xl:col-span-4">
+      {/* Main layout: KPI tiles, journey content and AI Insights – same pattern as other reports */}
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
+        {/* LEFT: KPI tiles + Customer Journey tile */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* KPI tiles */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {visibleKpis.map((kpi) => (
               <MetricTile
@@ -412,24 +413,8 @@ const CustomerJourneyPage: React.FC = () => {
               />
             ))}
           </div>
-        </div>
 
-        {/* Right: AI Insights – moved up next to the KPIs */}
-        <div className="xl:col-span-1 self-start">
-          <AIInsightsTile
-            title="AI Insights"
-            subtitle="Based on 12 months data"
-            bullets={[
-              "Thank-you touch points drive the highest RESP % – protect these.",
-              "Suggested Services after 1–3 months show strong ROAS; consider additional education.",
-              "Reminder 1 delivers the best balance of RESP % and revenue per send.",
-            ]}
-          />
-        </div>
-      </div>
-
-      {/* Journey visualization + Details card, full-width under the KPI + AI row */}
-      <div className="mt-4">
+          {/* Customer Journey touch-point tile */}
         <section className="rounded-2xl bg-white border border-slate-200 shadow-sm">
           {/* Tile header */}
           <div className="flex items-start justify-between px-4 pt-4 pb-3 gap-4">
@@ -555,6 +540,20 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
           )}
         </section>
+        </div>
+
+        {/* RIGHT: AI Insights tile */}
+        <div className="lg:col-span-1">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on 12 months data"
+            bullets={[
+              "Thank-you touch points drive the highest RESP % – protect these.",
+              "Suggested Services after 1–3 months show strong ROAS; consider additional education.",
+              "Reminder 1 delivers the best balance of RESP % and revenue per send.",
+            ]}
+          />
+        </div>
       </div>
     </ShellLayout>
   );
