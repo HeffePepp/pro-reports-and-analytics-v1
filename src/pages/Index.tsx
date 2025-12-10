@@ -365,22 +365,11 @@ const Index: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            Reports & Analytics
+            Reports & Insights
           </h1>
           <p className="mt-1 text-sm text-slate-500">
             Insights, segments and performance analytics for the entire Throttle Pro stack.
           </p>
-        </div>
-        <div className="flex gap-3 text-xs">
-          <SummaryTile label="Total reports" value={totalReports.toString()} />
-          <SummaryTile
-            label="Customer-focused"
-            value={totalsByCategory.customers.toString()}
-          />
-          <SummaryTile
-            label="Marketing & Sales"
-            value={(totalsByCategory.marketing + totalsByCategory.sales).toString()}
-          />
         </div>
       </div>
 
