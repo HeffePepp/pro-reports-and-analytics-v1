@@ -398,26 +398,43 @@ const CustomerJourneyPage: React.FC = () => {
         <CustomizeKpisButton selected={selected} toggle={toggle} selectAll={selectAll} />
       </div>
 
-      {/* KPI tiles */}
-      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-        {visibleKpis.map((kpi) => (
-          <MetricTile
-            key={kpi.key}
-            label={kpi.label}
-            value={kpi.format(stats)}
-            helper={kpi.helper ? kpi.helper(stats) : undefined}
+      {/* KPI row + AI Insights (same pattern as One-Off) */}
+      <div className="mt-4 grid grid-cols-1 xl:grid-cols-5 gap-4 items-stretch">
+        {/* Left: KPI tiles */}
+        <div className="xl:col-span-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {visibleKpis.map((kpi) => (
+              <MetricTile
+                key={kpi.key}
+                label={kpi.label}
+                value={kpi.format(stats)}
+                helper={kpi.helper ? kpi.helper(stats) : undefined}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Right: AI Insights – moved up next to the KPIs */}
+        <div className="xl:col-span-1 self-start">
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on 12 months data"
+            bullets={[
+              "Thank-you touch points drive the highest RESP % – protect these.",
+              "Suggested Services after 1–3 months show strong ROAS; consider additional education.",
+              "Reminder 1 delivers the best balance of RESP % and revenue per send.",
+            ]}
           />
-        ))}
+        </div>
       </div>
 
-      {/* Main layout: 3/4 journey tile + 1/4 AI insights */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* LEFT: journey tile */}
-        <section className="lg:col-span-3 rounded-2xl bg-white border border-slate-200 shadow-sm">
+      {/* Journey visualization + Details card, full-width under the KPI + AI row */}
+      <div className="mt-4">
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm">
           {/* Tile header */}
           <div className="flex items-start justify-between px-4 pt-4 pb-3 gap-4">
             <div>
-              <h2 className="text-base md:text-lg font-semibold text-slate-900"></h2>
+              <h2 className="text-base md:text-lg font-semibold text-slate-900">Customer Journey</h2>
               <p className="mt-1 text-xs text-slate-600">Touch point + Response Rate + ROAS</p>
               <p className="mt-1 text-[11px] text-slate-500">
                 {stats.vehicles.toLocaleString()} journey vehicles · {stats.totalComms.toLocaleString()} comms sent
@@ -538,19 +555,6 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
           )}
         </section>
-
-        {/* RIGHT: AI Insights */}
-        <div className="lg:col-span-1">
-          <AIInsightsTile
-            title="AI Insights"
-            subtitle="Based on 12 months data"
-            bullets={[
-              "Thank-you touch points drive the highest RESP % – protect these.",
-              "Suggested Services after 1–3 months show strong ROAS; consider additional education.",
-              "Reminder 1 delivers the best balance of RESP % and revenue per send.",
-            ]}
-          />
-        </div>
       </div>
     </ShellLayout>
   );
