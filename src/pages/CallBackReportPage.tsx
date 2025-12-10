@@ -99,6 +99,14 @@ const CallBackReportPage: React.FC = () => {
     return base;
   }, []);
 
+  const segmentHelpText: Record<Segment, string> = {
+    active: "Customers whose last visit was 0–8 months ago and are still considered active.",
+    retained: "Customers whose last visit was 9–12 months ago and are still on track to stay retained.",
+    lapsed: "Customers 13–18 months since their last visit who are at risk of defecting.",
+    inactive: "Customers 19–24 months since their last visit who typically require proactive outreach.",
+    lost: "Customers 25+ months since their last visit who are treated as lost unless reactivated.",
+  };
+
   const renderKpiTile = (id: string) => {
     const segment = id as Segment;
     const count = segmentCounts[segment];
@@ -108,6 +116,7 @@ const CallBackReportPage: React.FC = () => {
         key={id}
         label={segmentLabels[segment]}
         value={count.toLocaleString()}
+        helpText={segmentHelpText[segment]}
       />
     );
   };
