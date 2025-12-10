@@ -99,6 +99,7 @@ const CouponDiscountPage: React.FC = () => {
               maximumFractionDigits: 0,
             })}
             helpText="Total face value of all coupons redeemed during the selected period."
+            variant="coupon"
           />
         );
       case "totalDiscountAmount":
@@ -112,6 +113,7 @@ const CouponDiscountPage: React.FC = () => {
               maximumFractionDigits: 0,
             })}
             helpText="Total value of all discounts applied, including coupons and any other price reductions."
+            variant="discount"
           />
         );
       case "avgDiscountPerInvoice":
