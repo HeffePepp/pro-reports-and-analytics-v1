@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type OilInvoiceSummary = {
   storeGroupName: string;
@@ -83,6 +84,14 @@ const oilInvoiceRows: OilInvoiceRow[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "totalInvoices", label: "Total oil invoices" },
+  { id: "vendorInvoices", label: "Vendor invoices" },
+  { id: "vendorShare", label: "Vendor share" },
+  { id: "vendorRevenue", label: "Vendor revenue" },
+  { id: "avgTicketVendor", label: "Avg ticket – vendor" },
+];
+
 const OilTypeInvoicesPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "You can use this detail view in vendor meetings to show invoice-level examples.",
@@ -91,19 +100,27 @@ const OilTypeInvoicesPage: React.FC = () => {
   ]);
 
   const vendorInvoicePct = useMemo(
-    () =>
-      (oilInvoiceSummary.vendorInvoices / oilInvoiceSummary.invoiceCount) *
-      100,
+    () => (oilInvoiceSummary.vendorInvoices / oilInvoiceSummary.invoiceCount) * 100,
     []
   );
 
   const avgTicketVendor = useMemo(
-    () =>
-      oilInvoiceSummary.vendorInvoices
-        ? oilInvoiceSummary.vendorRevenue / oilInvoiceSummary.vendorInvoices
-        : 0,
+    () => oilInvoiceSummary.vendorInvoices ? oilInvoiceSummary.vendorRevenue / oilInvoiceSummary.vendorInvoices : 0,
     []
   );
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("oil-type-invoices", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "totalInvoices": return <MetricTile key={id} label="Total oil invoices" value={oilInvoiceSummary.invoiceCount.toLocaleString()} />;
+      case "vendorInvoices": return <MetricTile key={id} label={`${oilInvoiceSummary.vendorName} invoices`} value={oilInvoiceSummary.vendorInvoices.toLocaleString()} />;
+      case "vendorShare": return <MetricTile key={id} label={`${oilInvoiceSummary.vendorName} share`} value={`${vendorInvoicePct.toFixed(1)}%`} />;
+      case "vendorRevenue": return <MetricTile key={id} label="Vendor revenue" value={`$${oilInvoiceSummary.vendorRevenue.toLocaleString()}`} />;
+      case "avgTicketVendor": return <MetricTile key={id} label="Avg ticket – vendor" value={`$${avgTicketVendor.toFixed(0)}`} />;
+      default: return null;
+    }
+  };
 
   const regenerateInsights = () => {
     setInsights([
@@ -150,6 +167,12 @@ const OilTypeInvoicesPage: React.FC = () => {
             coupons and ticket value.
           </p>
         </div>
+        <KpiCustomizeButton
+          reportId="oil-type-invoices"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -157,26 +180,7 @@ const OilTypeInvoicesPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Total oil invoices"
-              value={oilInvoiceSummary.invoiceCount.toLocaleString()}
-            />
-            <MetricTile
-              label={`${oilInvoiceSummary.vendorName} invoices`}
-              value={oilInvoiceSummary.vendorInvoices.toLocaleString()}
-            />
-            <MetricTile
-              label={`${oilInvoiceSummary.vendorName} share`}
-              value={`${vendorInvoicePct.toFixed(1)}%`}
-            />
-            <MetricTile
-              label="Vendor revenue"
-              value={`$${oilInvoiceSummary.vendorRevenue.toLocaleString()}`}
-            />
-            <MetricTile
-              label="Avg ticket – vendor"
-              value={`$${avgTicketVendor.toFixed(0)}`}
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}
