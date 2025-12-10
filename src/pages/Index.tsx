@@ -406,7 +406,7 @@ const Index: React.FC = () => {
       {/* Main area: cards + preview */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Left: report cards grid */}
-        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-fr items-stretch">
           {visibleReports.map((report) => {
             const isSelected = selectedReport?.id === report.id;
             const badgeColors = categoryColors[report.primaryCategory];
@@ -418,7 +418,7 @@ const Index: React.FC = () => {
                 key={report.id}
                 onClick={() => setSelectedReportId(report.id)}
                 className={[
-                  "group rounded-2xl border bg-white shadow-sm cursor-pointer flex flex-col",
+                  "group h-full rounded-2xl border bg-white shadow-sm cursor-pointer flex flex-col",
                   "transition-all hover:shadow-md hover:border-sky-200",
                   isSelected ? "border-sky-300 ring-1 ring-sky-100" : "border-slate-200",
                 ].join(" ")}
