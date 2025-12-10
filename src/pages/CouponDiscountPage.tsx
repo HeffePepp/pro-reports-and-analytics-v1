@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import React, { useState } from "react";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, CouponPerformanceTile } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type CouponSummary = {
@@ -84,11 +84,6 @@ const CouponDiscountPage: React.FC = () => {
     "Some offers are richer than necessary given their strong response rates.",
     "New customer and web-only offers can often be tuned independently of core oil-change coupons.",
   ]);
-
-  const maxDiscountPct = useMemo(
-    () => Math.max(...couponRows.map((c) => c.discountPct), 1),
-    []
-  );
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("coupon-discount", KPI_OPTIONS);
 
@@ -176,93 +171,8 @@ const CouponDiscountPage: React.FC = () => {
             />
           </div>
 
-          {/* Discount richness by coupon */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Discount richness by coupon
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Average discount % and volume
-              </span>
-            </div>
-            <div className="space-y-2 text-xs text-slate-700">
-              {couponRows.map((c) => (
-                <div key={c.code}>
-                  <div className="flex justify-between text-[11px]">
-                    <span>
-                      {c.code} · {c.description}
-                    </span>
-                    <span>
-                      {c.discountPct.toFixed(1)}% ·{" "}
-                      {c.redemptions.toLocaleString()} redemptions
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-rose-400"
-                        style={{
-                          width: `${(c.discountPct / maxDiscountPct) * 100}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-slate-500 w-32 text-right">
-                      Avg ticket ${c.avgTicket.toFixed(0)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Table */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Coupon details
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Usage, ticket and discount by code
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Code</th>
-                    <th className="py-2 pr-3">Description</th>
-                    <th className="py-2 pr-3">Channel</th>
-                    <th className="py-2 pr-3 text-right">Redemptions</th>
-                    <th className="py-2 pr-3 text-right">Avg ticket</th>
-                    <th className="py-2 pr-3 text-right">Discount %</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {couponRows.map((c) => (
-                    <tr key={c.code} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">{c.code}</td>
-                      <td className="py-2 pr-3 text-slate-700">
-                        {c.description}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-600">
-                        {c.channel}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {c.redemptions.toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        ${c.avgTicket.toFixed(0)}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {c.discountPct.toFixed(1)}%
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          {/* Coupon performance tile with Overview/Details tabs */}
+          <CouponPerformanceTile />
         </div>
 
         {/* RIGHT: AI Insights – only on large screens */}
