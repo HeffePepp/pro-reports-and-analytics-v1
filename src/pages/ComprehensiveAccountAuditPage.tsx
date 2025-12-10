@@ -97,11 +97,11 @@ const ComprehensiveAccountAuditPage: React.FC = () => {
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "checksPassed": return <MetricTile key={id} label="Checks passed" value={auditSummary.passedChecks.toString()} />;
-      case "warnings": return <MetricTile key={id} label="Warnings" value={auditSummary.warningChecks.toString()} />;
-      case "failures": return <MetricTile key={id} label="Failures" value={auditSummary.failedChecks.toString()} />;
-      case "totalChecks": return <MetricTile key={id} label="Total checks" value={auditSummary.totalChecks.toString()} />;
-      case "priorityArea": return <MetricTile key={id} label="Priority area" value="Data quality" helper="Bad address rate high" />;
+      case "checksPassed": return <MetricTile key={id} label="Checks passed" value={auditSummary.passedChecks.toString()} helpText="Number of audit checks that passed without issues." />;
+      case "warnings": return <MetricTile key={id} label="Warnings" value={auditSummary.warningChecks.toString()} helpText="Number of audit checks that need attention but aren't critical." />;
+      case "failures": return <MetricTile key={id} label="Failures" value={auditSummary.failedChecks.toString()} helpText="Number of audit checks that failed and require immediate action." />;
+      case "totalChecks": return <MetricTile key={id} label="Total checks" value={auditSummary.totalChecks.toString()} helpText="Total number of audit checks performed on the account." />;
+      case "priorityArea": return <MetricTile key={id} label="Priority area" value="Data quality" helper="Bad address rate high" helpText="The area requiring the most attention based on audit findings." />;
       default: return null;
     }
   };

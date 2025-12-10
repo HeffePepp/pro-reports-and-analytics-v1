@@ -79,11 +79,11 @@ const ActiveLocationsPage: React.FC = () => {
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "active": return <MetricTile key={id} label="Active" value={activeLocationSummary.activeCount.toString()} />;
-      case "launching": return <MetricTile key={id} label="Launching" value={activeLocationSummary.launchingCount.toString()} />;
-      case "paused": return <MetricTile key={id} label="Paused" value={activeLocationSummary.pausedCount.toString()} />;
-      case "suspended": return <MetricTile key={id} label="Suspended" value={activeLocationSummary.suspendedCount.toString()} />;
-      case "dataFreshness": return <MetricTile key={id} label="Data freshness" value="Good" helper="Most stores sending POS data" />;
+      case "active": return <MetricTile key={id} label="Active" value={activeLocationSummary.activeCount.toString()} helpText="Locations fully live in Throttle Pro with campaigns running." />;
+      case "launching": return <MetricTile key={id} label="Launching" value={activeLocationSummary.launchingCount.toString()} helpText="Locations in onboarding phase, not yet fully active." />;
+      case "paused": return <MetricTile key={id} label="Paused" value={activeLocationSummary.pausedCount.toString()} helpText="Locations temporarily paused from campaigns (e.g., seasonal closure)." />;
+      case "suspended": return <MetricTile key={id} label="Suspended" value={activeLocationSummary.suspendedCount.toString()} helpText="Locations suspended from Throttle Pro due to billing or other issues." />;
+      case "dataFreshness": return <MetricTile key={id} label="Data freshness" value="Good" helper="Most stores sending POS data" helpText="Overall status of POS data ingestion across all locations." />;
       default: return null;
     }
   };

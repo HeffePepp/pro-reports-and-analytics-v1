@@ -72,15 +72,15 @@ const CustomerDataPage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "customers":
-        return <MetricTile key={id} label="Customers" value={customerDataSummary.customers.toLocaleString()} />;
+        return <MetricTile key={id} label="Customers" value={customerDataSummary.customers.toLocaleString()} helpText="Total unique customers in the database." />;
       case "vehicles":
-        return <MetricTile key={id} label="Vehicles" value={customerDataSummary.vehicles.toLocaleString()} />;
+        return <MetricTile key={id} label="Vehicles" value={customerDataSummary.vehicles.toLocaleString()} helpText="Total vehicles associated with customer records." />;
       case "vehiclesPerCustomer":
-        return <MetricTile key={id} label="Vehicles / customer" value={customerDataSummary.avgVehiclesPerCustomer.toFixed(2)} />;
+        return <MetricTile key={id} label="Vehicles / customer" value={customerDataSummary.avgVehiclesPerCustomer.toFixed(2)} helpText="Average number of vehicles per customer household." />;
       case "reachableEmail":
-        return <MetricTile key={id} label="Reachable by email" value={`${customerDataSummary.reachableEmailPct.toFixed(0)}%`} />;
+        return <MetricTile key={id} label="Reachable by email" value={`${customerDataSummary.reachableEmailPct.toFixed(0)}%`} helpText="Percentage of customers with a valid email address on file." />;
       case "reachableMail":
-        return <MetricTile key={id} label="Reachable by mail" value={`${customerDataSummary.reachableMailPct.toFixed(0)}%`} />;
+        return <MetricTile key={id} label="Reachable by mail" value={`${customerDataSummary.reachableMailPct.toFixed(0)}%`} helpText="Percentage of customers with a valid mailing address on file." />;
       default:
         return null;
     }

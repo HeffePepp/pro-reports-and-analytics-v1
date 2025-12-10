@@ -151,15 +151,15 @@ const RoasPage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "totalSpend":
-        return <MetricTile key={id} label="Total spend" value={`$${roasSummary.totalSpend.toLocaleString()}`} />;
+        return <MetricTile key={id} label="Total spend" value={`$${roasSummary.totalSpend.toLocaleString()}`} helpText="Total marketing spend across all campaigns during the selected period." />;
       case "totalRevenue":
-        return <MetricTile key={id} label="Total revenue" value={`$${roasSummary.totalRevenue.toLocaleString()}`} />;
+        return <MetricTile key={id} label="Total revenue" value={`$${roasSummary.totalRevenue.toLocaleString()}`} helpText="Total revenue attributed to marketing campaigns during the selected period." />;
       case "overallRoas":
-        return <MetricTile key={id} label="Overall ROAS" value={`${overallRoas.toFixed(1)}x`} helper={`${roasSummary.campaigns} campaigns`} />;
+        return <MetricTile key={id} label="Overall ROAS" value={`${overallRoas.toFixed(1)}x`} helper={`${roasSummary.campaigns} campaigns`} helpText="Overall return on ad spend: total revenue divided by total spend." />;
       case "vehiclesCampaigns":
-        return <MetricTile key={id} label="Vehicles from campaigns" value={roasSummary.totalVehicles.toLocaleString()} />;
+        return <MetricTile key={id} label="Vehicles from campaigns" value={roasSummary.totalVehicles.toLocaleString()} helpText="Number of vehicles that responded to marketing campaigns." />;
       case "avgSpend":
-        return <MetricTile key={id} label="Avg spend / campaign" value={`$${(roasSummary.totalSpend / roasSummary.campaigns).toFixed(0)}`} />;
+        return <MetricTile key={id} label="Avg spend / campaign" value={`$${(roasSummary.totalSpend / roasSummary.campaigns).toFixed(0)}`} helpText="Average marketing spend per campaign." />;
       default:
         return null;
     }

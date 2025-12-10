@@ -60,15 +60,15 @@ const ValidAddressPage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "totalAddresses":
-        return <MetricTile key={id} label="Total addresses" value={addressSummary.totalAddresses.toLocaleString()} />;
+        return <MetricTile key={id} label="Total addresses" value={addressSummary.totalAddresses.toLocaleString()} helpText="Total mailing addresses on file in the customer database." />;
       case "valid":
-        return <MetricTile key={id} label="Valid" value={`${addressSummary.validPct.toFixed(1)}%`} />;
+        return <MetricTile key={id} label="Valid" value={`${addressSummary.validPct.toFixed(1)}%`} helpText="Percentage of addresses verified as deliverable by USPS." />;
       case "bad":
-        return <MetricTile key={id} label="Bad" value={`${addressSummary.badPct.toFixed(1)}%`} />;
+        return <MetricTile key={id} label="Bad" value={`${addressSummary.badPct.toFixed(1)}%`} helpText="Percentage of addresses that failed USPS validation and are undeliverable." />;
       case "vacant":
-        return <MetricTile key={id} label="Vacant" value={`${addressSummary.vacantPct.toFixed(1)}%`} />;
+        return <MetricTile key={id} label="Vacant" value={`${addressSummary.vacantPct.toFixed(1)}%`} helpText="Percentage of addresses flagged as vacant or unoccupied by USPS." />;
       case "goal":
-        return <MetricTile key={id} label="Goal bad-address rate" value="< 10%" helper="Per store" />;
+        return <MetricTile key={id} label="Goal bad-address rate" value="< 10%" helper="Per store" helpText="Target threshold for bad address rate to minimize wasted mail spend." />;
       default:
         return null;
     }
