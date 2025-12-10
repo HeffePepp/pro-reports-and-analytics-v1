@@ -302,9 +302,6 @@ const CustomerJourneyPage: React.FC = () => {
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <header className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
-                  Customer Journey
-                </h2>
                 <p className="text-[11px] text-slate-500">
                   Touch point + Response Rate + ROAS
                 </p>
