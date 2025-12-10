@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ShellLayout,
   MetricTile,
@@ -7,97 +7,231 @@ import {
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
-type LtvSummary = {
+/* ------------------------------------------------------------------ */
+/* Types & dummy data                                                  */
+/* ------------------------------------------------------------------ */
+
+type CaptureSummary = {
   totalCustomers: number;
-  avgLtv: number;
-  topQuartileLtv: number;
-  multiVehiclePct: number;
-  emailCaptureRate: number;
+  multiChannelPct: number;
+  blankPct: number;
+  multiTicket: number;
+  blankTicket: number;
+  ticketLift: number;
 };
 
-type LtvSegmentRow = {
-  segment: string;
+type CaptureGroupSegment = {
+  id: string;
+  label: string;
+  percentage: number;
+  colorClass: string;
+};
+
+type TicketGroupRow = {
+  id: string;
+  label: string;
+  ticket: number;
+};
+
+type StoreRow = {
+  store: string;
   customers: number;
-  avgLtv: number;
-  avgVisits: number;
-  emailCaptureRate: number;
+  mailOnlyPct: number;
+  emailOnlyPct: number;
+  mailAndEmailPct: number;
+  blankPct: number;
+  multiChannelPct: number;
+  ticketMulti: number;
+  ticketBlank: number;
 };
 
-const ltvSummary: LtvSummary = {
-  totalCustomers: 18500,
-  avgLtv: 462,
-  topQuartileLtv: 980,
-  multiVehiclePct: 34,
-  emailCaptureRate: 78,
+const CAPTURE_SUMMARY: CaptureSummary = {
+  totalCustomers: 5030,
+  multiChannelPct: 49,
+  blankPct: 11,
+  multiTicket: 98,
+  blankTicket: 42,
+  ticketLift: 56,
 };
 
-const ltvSegments: LtvSegmentRow[] = [
-  { segment: "Top 25% LTV", customers: 4625, avgLtv: 980, avgVisits: 6.4, emailCaptureRate: 92 },
-  { segment: "Middle 50% LTV", customers: 9250, avgLtv: 410, avgVisits: 3.2, emailCaptureRate: 81 },
-  { segment: "Bottom 25% LTV", customers: 4625, avgLtv: 118, avgVisits: 1.4, emailCaptureRate: 52 },
-  { segment: "Multi-vehicle households", customers: 6300, avgLtv: 720, avgVisits: 5.1, emailCaptureRate: 88 },
+const CAPTURE_SEGMENTS: CaptureGroupSegment[] = [
+  { id: "mail-only", label: "Mail only", percentage: 23, colorClass: "bg-sky-200" },
+  { id: "email-only", label: "Email only", percentage: 17, colorClass: "bg-emerald-200" },
+  { id: "mail-email", label: "Mail & email", percentage: 49, colorClass: "bg-indigo-300" },
+  { id: "blank", label: "Blank", percentage: 11, colorClass: "bg-rose-200" },
 ];
 
+const TICKET_GROUPS: TicketGroupRow[] = [
+  { id: "mail-only", label: "Mail only", ticket: 88 },
+  { id: "email-only", label: "Email only", ticket: 90 },
+  { id: "mail-email", label: "Mail & email", ticket: 98 },
+  { id: "blank", label: "Blank", ticket: 42 },
+];
+
+const STORES: StoreRow[] = [
+  {
+    store: "Vallejo, CA",
+    customers: 1850,
+    mailOnlyPct: 17,
+    emailOnlyPct: 12,
+    mailAndEmailPct: 58,
+    blankPct: 13,
+    multiChannelPct: 58,
+    ticketMulti: 99,
+    ticketBlank: 41,
+  },
+  {
+    store: "Napa, CA",
+    customers: 1420,
+    mailOnlyPct: 21,
+    emailOnlyPct: 19,
+    mailAndEmailPct: 46,
+    blankPct: 14,
+    multiChannelPct: 46,
+    ticketMulti: 94,
+    ticketBlank: 43,
+  },
+  {
+    store: "Fairfield, CA",
+    customers: 1310,
+    mailOnlyPct: 13,
+    emailOnlyPct: 11,
+    mailAndEmailPct: 63,
+    blankPct: 13,
+    multiChannelPct: 63,
+    ticketMulti: 101,
+    ticketBlank: 40,
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* KPI customization                                                   */
+/* ------------------------------------------------------------------ */
+
 const KPI_OPTIONS: KpiOption[] = [
+  { id: "multiChannel", label: "Multi-channel customers" },
+  { id: "blank", label: "Blank (no contact)" },
+  { id: "multiTicket", label: "Avg ticket – multi-channel" },
+  { id: "blankTicket", label: "Avg ticket – blank" },
+  { id: "ticketLift", label: "Ticket lift" },
   { id: "totalCustomers", label: "Total customers" },
-  { id: "avgLtv", label: "Avg LTV per customer" },
-  { id: "topQuartile", label: "Top quartile LTV" },
-  { id: "multiVehicle", label: "Multi-vehicle households" },
-  { id: "emailCapture", label: "Email capture rate" },
 ];
 
 const DataCaptureLtvPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
-    "Top LTV customers visit more often and almost all have valid email on file.",
-    "Lower LTV segments have weaker data capture, which limits your ability to move them up the value ladder.",
-    "Multi-vehicle households are extremely valuable and should be prioritized for journey enrollment.",
+    "Multi-channel customers (mail + email) generate the highest ticket averages.",
+    "Blank customers have the lowest ticket average; improving capture here is the biggest lift.",
+    "Stores with higher multi-channel mix consistently outperform on revenue per visit.",
   ]);
 
-  const maxAvgLtv = useMemo(() => Math.max(...ltvSegments.map((s) => s.avgLtv), 1), []);
+  const { selectedIds, setSelectedIds } = useKpiPreferences(
+    "data-capture-ltv",
+    KPI_OPTIONS
+  );
 
-  const { selectedIds, setSelectedIds } = useKpiPreferences("data-capture-ltv", KPI_OPTIONS);
+  const maxTicket = useMemo(
+    () => Math.max(...TICKET_GROUPS.map((g) => g.ticket), 1),
+    []
+  );
+
+  const regenerateInsights = () => {
+    setInsights([
+      "Multi-channel customers are delivering the strongest ticket lift vs. blank.",
+      "Focus capture campaigns on segments and stores with the highest blank %.",
+      "Use the customers-by-capture-group chart to monitor progress as capture improves.",
+    ]);
+  };
 
   const renderKpiTile = (id: string) => {
     switch (id) {
+      case "multiChannel":
+        return (
+          <MetricTile
+            key={id}
+            label="Multi-channel customers"
+            value={`${CAPTURE_SUMMARY.multiChannelPct.toFixed(0)}%`}
+            helper="Mail + email on file"
+          />
+        );
+      case "blank":
+        return (
+          <MetricTile
+            key={id}
+            label="Blank (no contact)"
+            value={`${CAPTURE_SUMMARY.blankPct.toFixed(0)}%`}
+            helper="No mail or email"
+          />
+        );
+      case "multiTicket":
+        return (
+          <MetricTile
+            key={id}
+            label="Avg ticket – multi-channel"
+            value={`$${CAPTURE_SUMMARY.multiTicket.toFixed(0)}`}
+            helper="Mail + email customers"
+          />
+        );
+      case "blankTicket":
+        return (
+          <MetricTile
+            key={id}
+            label="Avg ticket – blank"
+            value={`$${CAPTURE_SUMMARY.blankTicket.toFixed(0)}`}
+            helper="No mail or email"
+          />
+        );
+      case "ticketLift":
+        return (
+          <MetricTile
+            key={id}
+            label="Ticket lift"
+            value={`+$${CAPTURE_SUMMARY.ticketLift.toFixed(0)}`}
+            helper="Multi-channel vs blank"
+          />
+        );
       case "totalCustomers":
-        return <MetricTile key={id} label="Total customers" value={ltvSummary.totalCustomers.toLocaleString()} />;
-      case "avgLtv":
-        return <MetricTile key={id} label="Avg LTV per customer" value={`$${ltvSummary.avgLtv.toFixed(0)}`} />;
-      case "topQuartile":
-        return <MetricTile key={id} label="Top quartile LTV" value={`$${ltvSummary.topQuartileLtv.toFixed(0)}`} />;
-      case "multiVehicle":
-        return <MetricTile key={id} label="Multi-vehicle households" value={`${ltvSummary.multiVehiclePct.toFixed(0)}%`} helper="Of total customers" />;
-      case "emailCapture":
-        return <MetricTile key={id} label="Email capture rate" value={`${ltvSummary.emailCaptureRate.toFixed(0)}%`} />;
+        return (
+          <MetricTile
+            key={id}
+            label="Total customers"
+            value={CAPTURE_SUMMARY.totalCustomers.toLocaleString()}
+          />
+        );
       default:
         return null;
     }
   };
 
-  const regenerateInsights = () => {
-    const worstCapture = ltvSegments.reduce((worst, s) => (!worst || s.emailCaptureRate < worst.emailCaptureRate ? s : worst));
-    setInsights([
-      `Average LTV across the base is $${ltvSummary.avgLtv.toFixed(0)}, with top quartile at ~$${ltvSummary.topQuartileLtv.toFixed(0)}.`,
-      `"${worstCapture.segment}" has the weakest email capture (${worstCapture.emailCaptureRate.toFixed(1)}%), limiting upsell and retention potential.`,
-      "Focus data cleanup and capture efforts on low-LTV segments to unlock more upside from the base.",
-    ]);
-  };
+  /* ------------------------------------------------------------------ */
+  /* Render                                                             */
+  /* ------------------------------------------------------------------ */
 
   return (
     <ShellLayout
       breadcrumb={[
         { label: "Home", to: "/" },
         { label: "Reports & Insights", to: "/" },
-        { label: "Data Capture + Life Time Value" },
+        { label: "Data Capture + Lifetime Value" },
       ]}
       rightInfo={
-        <span>Customers: <span className="font-medium">{ltvSummary.totalCustomers.toLocaleString()}</span></span>
+        <span>
+          Customers:{" "}
+          <span className="font-medium">
+            {CAPTURE_SUMMARY.totalCustomers.toLocaleString()}
+          </span>
+        </span>
       }
     >
+      {/* Header with title + KPI customize pill */}
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Data Capture + Life Time Value</h1>
-          <p className="mt-1 text-sm text-slate-500">Show how mail/email capture impacts revenue and ticket averages across customer segments.</p>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
+            Data Capture + Lifetime Value
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            See how mail/email capture translates into customer value and ticket
+            averages across your store network.
+          </p>
         </div>
         <KpiCustomizeButton
           reportId="data-capture-ltv"
@@ -107,63 +241,145 @@ const DataCaptureLtvPage: React.FC = () => {
         />
       </div>
 
+      {/* Main layout */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* Left content: KPIs + charts + table */}
         <div className="lg:col-span-3 space-y-4">
+          {/* KPI row */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
             {selectedIds.map((id) => renderKpiTile(id))}
           </div>
 
+          {/* AI insights (mobile) */}
           <div className="block lg:hidden">
-            <AIInsightsTile title="AI Insights" subtitle="Based on LTV & data capture" bullets={insights} onRefresh={regenerateInsights} />
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on data capture & LTV"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
           </div>
 
+          {/* Customers by capture group */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">LTV and visits by segment</h2>
-              <span className="text-[11px] text-slate-500">Avg LTV, visits and email capture</span>
+              <h2 className="text-sm font-semibold text-slate-900">
+                Customers by capture group
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                % of customers by data capture
+              </span>
             </div>
-            <div className="space-y-2 text-xs text-slate-700">
-              {ltvSegments.map((s) => (
-                <div key={s.segment}>
-                  <div className="flex justify-between text-[11px]">
-                    <span>{s.segment}</span>
-                    <span>${s.avgLtv.toFixed(0)} LTV · {s.avgVisits.toFixed(1)} visits</span>
+
+            <div className="space-y-3">
+              <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden flex">
+                {CAPTURE_SEGMENTS.map((seg) => (
+                  <div
+                    key={seg.id}
+                    className={seg.colorClass + " h-full"}
+                    style={{ width: `${seg.percentage}%` }}
+                  />
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+                {CAPTURE_SEGMENTS.map((seg) => (
+                  <div key={seg.id} className="flex items-center gap-1">
+                    <span
+                      className={
+                        "h-2 w-2 rounded-full inline-block " + seg.colorClass
+                      }
+                    />
+                    <span>
+                      {seg.label} · {seg.percentage}%
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div className="h-full bg-emerald-500" style={{ width: `${(s.avgLtv / maxAvgLtv) * 100}%` }} />
-                    </div>
-                    <span className="text-[10px] text-slate-500 w-40 text-right">{s.emailCaptureRate.toFixed(1)}% email capture</span>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Ticket average by capture group */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-slate-900">
+                Ticket average by capture group
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Relative ticket value (dummy)
+              </span>
+            </div>
+
+            <div className="space-y-3 text-xs text-slate-700">
+              {TICKET_GROUPS.map((g) => (
+                <div key={g.id}>
+                  <div className="flex justify-between text-[11px]">
+                    <span>{g.label}</span>
+                    <span>${g.ticket.toFixed(0)}</span>
+                  </div>
+                  <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500"
+                      style={{ width: `${(g.ticket / maxTicket) * 100}%` }}
+                    />
                   </div>
                 </div>
               ))}
             </div>
           </section>
 
+          {/* Stores overview table */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">Segment details</h2>
-              <span className="text-[11px] text-slate-500">Customers, LTV and data capture by segment</span>
+              <h2 className="text-sm font-semibold text-slate-900">
+                Stores overview
+              </h2>
+              <span className="text-[11px] text-slate-500">
+                Data capture and ticket averages by store
+              </span>
             </div>
+
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs">
                 <thead>
                   <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Segment</th>
+                    <th className="py-2 pr-3">Store</th>
                     <th className="py-2 pr-3 text-right">Customers</th>
-                    <th className="py-2 pr-3 text-right">Avg LTV</th>
-                    <th className="py-2 pr-3 text-right">Avg visits</th>
-                    <th className="py-2 pr-3 text-right">Email capture %</th>
+                    <th className="py-2 pr-3 text-right">Mail only %</th>
+                    <th className="py-2 pr-3 text-right">Email only %</th>
+                    <th className="py-2 pr-3 text-right">Mail &amp; email %</th>
+                    <th className="py-2 pr-3 text-right">Blank %</th>
+                    <th className="py-2 pr-3 text-right">Multi-channel %</th>
+                    <th className="py-2 pr-3 text-right">Ticket – multi</th>
+                    <th className="py-2 pr-3 text-right">Ticket – blank</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {ltvSegments.map((s) => (
-                    <tr key={s.segment} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">{s.segment}</td>
-                      <td className="py-2 pr-3 text-right">{s.customers.toLocaleString()}</td>
-                      <td className="py-2 pr-3 text-right">${s.avgLtv.toFixed(0)}</td>
-                      <td className="py-2 pr-3 text-right">{s.avgVisits.toFixed(1)}</td>
-                      <td className="py-2 pr-3 text-right">{s.emailCaptureRate.toFixed(1)}%</td>
+                  {STORES.map((s) => (
+                    <tr key={s.store} className="border-t border-slate-100">
+                      <td className="py-2 pr-3">{s.store}</td>
+                      <td className="py-2 pr-3 text-right">
+                        {s.customers.toLocaleString()}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {s.mailOnlyPct}%
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {s.emailOnlyPct}%
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        {s.mailAndEmailPct}%
+                      </td>
+                      <td className="py-2 pr-3 text-right">{s.blankPct}%</td>
+                      <td className="py-2 pr-3 text-right">
+                        {s.multiChannelPct}%
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        ${s.ticketMulti.toFixed(0)}
+                      </td>
+                      <td className="py-2 pr-3 text-right">
+                        ${s.ticketBlank.toFixed(0)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -172,8 +388,14 @@ const DataCaptureLtvPage: React.FC = () => {
           </section>
         </div>
 
+        {/* AI Insights – desktop */}
         <div className="hidden lg:block lg:col-span-1">
-          <AIInsightsTile title="AI Insights" subtitle="Based on LTV & data capture" bullets={insights} onRefresh={regenerateInsights} />
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on data capture & LTV"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
         </div>
       </div>
     </ShellLayout>
