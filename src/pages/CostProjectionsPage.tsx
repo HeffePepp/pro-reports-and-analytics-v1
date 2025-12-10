@@ -132,7 +132,7 @@ const CostProjectionsPage: React.FC = () => {
             planning and budgeting.
           </p>
         </div>
-        <div className="flex gap-3 text-xs">
+        <div className="flex items-center gap-3">
           <SummaryTile
             label="Projected monthly cost"
             value={`$${costSummary.monthlyCost.toLocaleString()}`}
@@ -140,6 +140,12 @@ const CostProjectionsPage: React.FC = () => {
           <SummaryTile
             label="Projected revenue"
             value={`$${costSummary.projectedRevenue.toLocaleString()}`}
+          />
+          <KpiCustomizeButton
+            reportId="cost-projections"
+            options={KPI_OPTIONS}
+            selectedIds={selectedIds}
+            onChangeSelected={setSelectedIds}
           />
         </div>
       </div>
@@ -149,29 +155,7 @@ const CostProjectionsPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Projected vehicles"
-              value={costSummary.projectedVehicles.toString()}
-            />
-            <MetricTile
-              label="Projected ROAS"
-              value={`${overallRoas.toFixed(1)}x`}
-            />
-            <MetricTile
-              label="Postcard-heavy?"
-              value="Yes"
-              helper="Most cost is postcards"
-            />
-            <MetricTile
-              label="Email/SMS cost"
-              value="Low"
-              helper="High ROAS potential"
-            />
-            <MetricTile
-              label="Scenario"
-              value="Standard"
-              helper="Demo only"
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}

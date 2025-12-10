@@ -149,6 +149,12 @@ const BillingCampaignTrackingPage: React.FC = () => {
             exactly what they are paying for.
           </p>
         </div>
+        <KpiCustomizeButton
+          reportId="billing-campaign-tracking"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       {/* Layout: left content + right AI tile */}
@@ -157,26 +163,7 @@ const BillingCampaignTrackingPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Total billing"
-              value={`$${billingSummary.totalBilling.toLocaleString()}`}
-            />
-            <MetricTile
-              label="Outstanding"
-              value={`$${billingSummary.outstanding.toLocaleString()}`}
-            />
-            <MetricTile
-              label="Billed campaigns"
-              value={billingSummary.billedCampaigns.toString()}
-            />
-            <MetricTile
-              label="Stores billed"
-              value={billingSummary.storesBilled.toString()}
-            />
-            <MetricTile
-              label="Pending billing"
-              value={`$${totalPending.toFixed(0)}`}
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}

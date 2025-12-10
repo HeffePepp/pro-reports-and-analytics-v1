@@ -140,10 +140,16 @@ const ComprehensiveAccountAuditPage: React.FC = () => {
             Configuration, data health and compliance checks for this account.
           </p>
         </div>
-        <div className="flex gap-3 text-xs">
+        <div className="flex items-center gap-3">
           <SummaryTile
             label="Audit score"
             value={`${auditSummary.score}/100`}
+          />
+          <KpiCustomizeButton
+            reportId="comprehensive-account-audit"
+            options={KPI_OPTIONS}
+            selectedIds={selectedIds}
+            onChangeSelected={setSelectedIds}
           />
         </div>
       </div>
@@ -153,27 +159,7 @@ const ComprehensiveAccountAuditPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Checks passed"
-              value={auditSummary.passedChecks.toString()}
-            />
-            <MetricTile
-              label="Warnings"
-              value={auditSummary.warningChecks.toString()}
-            />
-            <MetricTile
-              label="Failures"
-              value={auditSummary.failedChecks.toString()}
-            />
-            <MetricTile
-              label="Total checks"
-              value={auditSummary.totalChecks.toString()}
-            />
-            <MetricTile
-              label="Priority area"
-              value="Data quality"
-              helper="Bad address rate high"
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}
