@@ -13,3 +13,4 @@ export { default as KpiCustomizeButton } from "./KpiCustomizeButton";
 // Report tiles
 export { default as CouponPerformanceTile } from "./CouponPerformanceTile";
 export { default as OilTypePerformanceTile } from "./OilTypePerformanceTile";
+export { default as CustomerBaseTile } from "./CustomerBaseTile";
