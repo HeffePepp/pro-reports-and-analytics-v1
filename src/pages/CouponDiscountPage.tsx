@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type CouponSummary = {
   periodLabel: string;
@@ -69,6 +70,14 @@ const couponRows: CouponRow[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "totalDiscounts", label: "Total discounts given" },
+  { id: "avgDiscountPct", label: "Avg discount %" },
+  { id: "redemptions", label: "Coupon redemptions" },
+  { id: "revenueWithDiscounts", label: "Revenue with discounts" },
+  { id: "avgDiscountPerRedemption", label: "Avg discount per redemption" },
+];
+
 const CouponDiscountPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Most discount dollars are concentrated in a small set of high-usage coupons.",
@@ -80,6 +89,25 @@ const CouponDiscountPage: React.FC = () => {
     () => Math.max(...couponRows.map((c) => c.discountPct), 1),
     []
   );
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("coupon-discount", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "totalDiscounts":
+        return <MetricTile key={id} label="Total discounts given" value={`$${couponSummary.totalDiscount.toLocaleString()}`} />;
+      case "avgDiscountPct":
+        return <MetricTile key={id} label="Avg discount %" value={`${couponSummary.avgDiscountPct.toFixed(1)}%`} />;
+      case "redemptions":
+        return <MetricTile key={id} label="Coupon redemptions" value={couponSummary.redemptions.toLocaleString()} />;
+      case "revenueWithDiscounts":
+        return <MetricTile key={id} label="Revenue with discounts" value={`$${couponSummary.revenueWithDiscounts.toLocaleString()}`} />;
+      case "avgDiscountPerRedemption":
+        return <MetricTile key={id} label="Avg discount per redemption" value={`$${(couponSummary.totalDiscount / couponSummary.redemptions).toFixed(1)}`} />;
+      default:
+        return null;
+    }
+  };
 
   const regenerateInsights = () => {
     const richest = couponRows.reduce((best, c) =>
@@ -121,6 +149,12 @@ const CouponDiscountPage: React.FC = () => {
             be eroding margin.
           </p>
         </div>
+        <KpiCustomizeButton
+          reportId="coupon-discount"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       {/* Layout: left content + right AI tile */}
@@ -129,28 +163,7 @@ const CouponDiscountPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Total discounts given"
-              value={`$${couponSummary.totalDiscount.toLocaleString()}`}
-            />
-            <MetricTile
-              label="Avg discount %"
-              value={`${couponSummary.avgDiscountPct.toFixed(1)}%`}
-            />
-            <MetricTile
-              label="Coupon redemptions"
-              value={couponSummary.redemptions.toLocaleString()}
-            />
-            <MetricTile
-              label="Revenue with discounts"
-              value={`$${couponSummary.revenueWithDiscounts.toLocaleString()}`}
-            />
-            <MetricTile
-              label="Avg discount per redemption"
-              value={`$${(
-                couponSummary.totalDiscount / couponSummary.redemptions
-              ).toFixed(1)}`}
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}

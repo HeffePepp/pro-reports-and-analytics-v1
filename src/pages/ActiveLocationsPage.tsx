@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type ActiveLocationSummary = {
   groupName: string;
@@ -57,6 +58,14 @@ const activeLocationRows: ActiveLocationRow[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "active", label: "Active" },
+  { id: "launching", label: "Launching" },
+  { id: "paused", label: "Paused" },
+  { id: "suspended", label: "Suspended" },
+  { id: "dataFreshness", label: "Data freshness" },
+];
+
 const ActiveLocationsPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Most locations are active with current POS data; only one site is still in launch status.",
@@ -64,11 +73,20 @@ const ActiveLocationsPage: React.FC = () => {
     "Launching locations should be watched closely for POS connectivity before campaigns go live.",
   ]);
 
-  const totalLocations =
-    activeLocationSummary.activeCount +
-    activeLocationSummary.launchingCount +
-    activeLocationSummary.pausedCount +
-    activeLocationSummary.suspendedCount;
+  const totalLocations = activeLocationSummary.activeCount + activeLocationSummary.launchingCount + activeLocationSummary.pausedCount + activeLocationSummary.suspendedCount;
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("active-locations", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "active": return <MetricTile key={id} label="Active" value={activeLocationSummary.activeCount.toString()} />;
+      case "launching": return <MetricTile key={id} label="Launching" value={activeLocationSummary.launchingCount.toString()} />;
+      case "paused": return <MetricTile key={id} label="Paused" value={activeLocationSummary.pausedCount.toString()} />;
+      case "suspended": return <MetricTile key={id} label="Suspended" value={activeLocationSummary.suspendedCount.toString()} />;
+      case "dataFreshness": return <MetricTile key={id} label="Data freshness" value="Good" helper="Most stores sending POS data" />;
+      default: return null;
+    }
+  };
 
   const regenerateInsights = () => {
     setInsights([

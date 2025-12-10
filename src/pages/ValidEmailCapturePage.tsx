@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type EmailCaptureSummary = {
   totalCustomers: number;
@@ -51,6 +52,14 @@ const emailRows: EmailCaptureRow[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "totalCustomers", label: "Total customers" },
+  { id: "withEmail", label: "With email on file" },
+  { id: "validCapture", label: "Valid email capture" },
+  { id: "bounced", label: "Bounced emails" },
+  { id: "optedOut", label: "Opted-out" },
+];
+
 const ValidEmailCapturePage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Overall email capture is strong, but a few stores lag behind the group.",
@@ -67,6 +76,19 @@ const ValidEmailCapturePage: React.FC = () => {
     () => Math.max(...emailRows.map((r) => r.captureRate), 1),
     []
   );
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("valid-email-capture", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "totalCustomers": return <MetricTile key={id} label="Total customers" value={emailSummary.totalCustomers.toLocaleString()} />;
+      case "withEmail": return <MetricTile key={id} label="With email on file" value={emailSummary.withEmail.toLocaleString()} />;
+      case "validCapture": return <MetricTile key={id} label="Valid email capture" value={`${overallCaptureRate.toFixed(1)}%`} helper={`${emailSummary.validEmail.toLocaleString()} valid`} />;
+      case "bounced": return <MetricTile key={id} label="Bounced emails" value={emailSummary.bouncedEmail.toLocaleString()} />;
+      case "optedOut": return <MetricTile key={id} label="Opted-out" value={emailSummary.optedOut.toLocaleString()} />;
+      default: return null;
+    }
+  };
 
   const regenerateInsights = () => {
     const worstStore = emailRows.reduce((worst, r) =>

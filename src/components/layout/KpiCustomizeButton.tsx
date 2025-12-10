@@ -69,21 +69,21 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
   }, [open]);
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative">
       <button
         ref={buttonRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+        className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-600 shadow-sm hover:bg-slate-50"
       >
-        <span className="text-slate-500">⚙</span>
-        <span>Customize</span>
+        <span className="text-sky-500">✨</span>
+        <span>Customize KPIs</span>
       </button>
 
       {open && (
         <div
           ref={panelRef}
-          className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 bg-white shadow-lg z-50"
+          className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 bg-white shadow-lg z-20"
         >
           <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100">
             <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
@@ -106,18 +106,18 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
                   key={opt.id}
                   type="button"
                   onClick={() => toggleId(opt.id)}
-                  className="flex w-full items-center justify-between px-4 py-1.5 text-sm hover:bg-slate-50"
+                  className="flex w-full items-center justify-between px-4 py-1.5 text-xs hover:bg-slate-50"
                 >
                   <span className="text-slate-700">{opt.label}</span>
                   <span
-                    className={`h-4 w-4 rounded border ${
+                    className={`flex h-4 w-4 items-center justify-center rounded border ${
                       checked
                         ? "border-sky-500 bg-sky-500"
                         : "border-slate-300 bg-white"
                     }`}
                   >
                     {checked && (
-                      <span className="block h-full w-full text-[10px] text-white leading-4 text-center">
+                      <span className="text-[10px] leading-none text-white">
                         ✓
                       </span>
                     )}

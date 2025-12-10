@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type ProductSalesSummary = {
   periodLabel: string;
@@ -27,6 +28,12 @@ const productVendors: ProductVendorRow[] = [
   { vendor: "House Brand", revenue: 124000, invoices: 1480 },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "productRevenue", label: "Product revenue" },
+  { id: "vendorShare", label: "Vendor share" },
+  { id: "houseBrandShare", label: "House brand share" },
+];
+
 const ProductSalesPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Vendor-branded products account for more than half of product revenue.",
@@ -38,6 +45,21 @@ const ProductSalesPage: React.FC = () => {
     () => Math.max(...productVendors.map((v) => v.revenue), 1),
     []
   );
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("product-sales", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "productRevenue":
+        return <MetricTile key={id} label="Product revenue" value={`$${productSalesSummary.totalRevenue.toLocaleString()}`} />;
+      case "vendorShare":
+        return <MetricTile key={id} label="Vendor share" value={`${productSalesSummary.vendorSharePct.toFixed(0)}%`} />;
+      case "houseBrandShare":
+        return <MetricTile key={id} label="House brand share" value={`${productSalesSummary.houseBrandSharePct.toFixed(0)}%`} />;
+      default:
+        return null;
+    }
+  };
 
   const regenerateInsights = () => {
     const bestVendor = productVendors.reduce((best, v) =>
@@ -79,6 +101,12 @@ const ProductSalesPage: React.FC = () => {
             Purple, house brand).
           </p>
         </div>
+        <KpiCustomizeButton
+          reportId="product-sales"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -86,18 +114,7 @@ const ProductSalesPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Product revenue"
-              value={`$${productSalesSummary.totalRevenue.toLocaleString()}`}
-            />
-            <MetricTile
-              label="Vendor share"
-              value={`${productSalesSummary.vendorSharePct.toFixed(0)}%`}
-            />
-            <MetricTile
-              label="House brand share"
-              value={`${productSalesSummary.houseBrandSharePct.toFixed(0)}%`}
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, SummaryTile, BarStack, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, SummaryTile, BarStack, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type CostProjectionSummary = {
   storeGroupName: string;
@@ -56,6 +57,14 @@ const costSteps: CostProjectionStep[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "projectedVehicles", label: "Projected vehicles" },
+  { id: "projectedRoas", label: "Projected ROAS" },
+  { id: "postcardHeavy", label: "Postcard-heavy?" },
+  { id: "emailSmsCost", label: "Email/SMS cost" },
+  { id: "scenario", label: "Scenario" },
+];
+
 const CostProjectionsPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Most projected spend is in Reminder 1 postcards, which also drive the largest share of vehicles.",
@@ -63,27 +72,21 @@ const CostProjectionsPage: React.FC = () => {
     "Use this report when planning budgets with owners and vendor partners.",
   ]);
 
-  const overallRoas = useMemo(
-    () => costSummary.projectedRevenue / costSummary.monthlyCost,
-    []
-  );
+  const overallRoas = useMemo(() => costSummary.projectedRevenue / costSummary.monthlyCost, []);
+  const segments = useMemo(() => costSteps.map((s, idx) => ({ label: s.name, value: s.estCost, color: idx === 0 ? "bg-indigo-500" : idx === 1 ? "bg-sky-400" : idx === 2 ? "bg-emerald-400" : "bg-amber-400" })), []);
 
-  const segments = useMemo(
-    () =>
-      costSteps.map((s, idx) => ({
-        label: s.name,
-        value: s.estCost,
-        color:
-          idx === 0
-            ? "bg-indigo-500"
-            : idx === 1
-            ? "bg-sky-400"
-            : idx === 2
-            ? "bg-emerald-400"
-            : "bg-amber-400",
-      })),
-    []
-  );
+  const { selectedIds, setSelectedIds } = useKpiPreferences("cost-projections", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "projectedVehicles": return <MetricTile key={id} label="Projected vehicles" value={costSummary.projectedVehicles.toString()} />;
+      case "projectedRoas": return <MetricTile key={id} label="Projected ROAS" value={`${overallRoas.toFixed(1)}x`} />;
+      case "postcardHeavy": return <MetricTile key={id} label="Postcard-heavy?" value="Yes" helper="Most cost is postcards" />;
+      case "emailSmsCost": return <MetricTile key={id} label="Email/SMS cost" value="Low" helper="High ROAS potential" />;
+      case "scenario": return <MetricTile key={id} label="Scenario" value="Standard" helper="Demo only" />;
+      default: return null;
+    }
+  };
 
   const regenerateInsights = () => {
     const best = costSteps.reduce((b, s) =>

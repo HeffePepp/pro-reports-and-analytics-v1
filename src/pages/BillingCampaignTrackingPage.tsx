@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type BillingSummary = {
   periodLabel: string;
@@ -75,6 +76,14 @@ const billingRows: BillingRow[] = [
   },
 ];
 
+const KPI_OPTIONS: KpiOption[] = [
+  { id: "totalBilling", label: "Total billing" },
+  { id: "outstanding", label: "Outstanding" },
+  { id: "billedCampaigns", label: "Billed campaigns" },
+  { id: "storesBilled", label: "Stores billed" },
+  { id: "pendingBilling", label: "Pending billing" },
+];
+
 const BillingCampaignTrackingPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Most billing this month is from reminder postcards and mixed-channel campaigns.",
@@ -82,27 +91,22 @@ const BillingCampaignTrackingPage: React.FC = () => {
     "Paid vs posted breakdown looks healthy; no major billing anomalies are visible.",
   ]);
 
-  const totalPending = useMemo(
-    () =>
-      billingRows
-        .filter((b) => b.status === "Pending")
-        .reduce((sum, b) => sum + b.amount, 0),
-    []
-  );
-  const totalPaid = useMemo(
-    () =>
-      billingRows
-        .filter((b) => b.status === "Paid")
-        .reduce((sum, b) => sum + b.amount, 0),
-    []
-  );
-  const totalPosted = useMemo(
-    () =>
-      billingRows
-        .filter((b) => b.status === "Posted")
-        .reduce((sum, b) => sum + b.amount, 0),
-    []
-  );
+  const totalPending = useMemo(() => billingRows.filter((b) => b.status === "Pending").reduce((sum, b) => sum + b.amount, 0), []);
+  const totalPaid = useMemo(() => billingRows.filter((b) => b.status === "Paid").reduce((sum, b) => sum + b.amount, 0), []);
+  const totalPosted = useMemo(() => billingRows.filter((b) => b.status === "Posted").reduce((sum, b) => sum + b.amount, 0), []);
+
+  const { selectedIds, setSelectedIds } = useKpiPreferences("billing-campaign-tracking", KPI_OPTIONS);
+
+  const renderKpiTile = (id: string) => {
+    switch (id) {
+      case "totalBilling": return <MetricTile key={id} label="Total billing" value={`$${billingSummary.totalBilling.toLocaleString()}`} />;
+      case "outstanding": return <MetricTile key={id} label="Outstanding" value={`$${billingSummary.outstanding.toLocaleString()}`} />;
+      case "billedCampaigns": return <MetricTile key={id} label="Billed campaigns" value={billingSummary.billedCampaigns.toString()} />;
+      case "storesBilled": return <MetricTile key={id} label="Stores billed" value={billingSummary.storesBilled.toString()} />;
+      case "pendingBilling": return <MetricTile key={id} label="Pending billing" value={`$${totalPending.toFixed(0)}`} />;
+      default: return null;
+    }
+  };
 
   const regenerateInsights = () => {
     setInsights([
