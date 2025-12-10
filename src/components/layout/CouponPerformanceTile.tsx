@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 
 type CouponKind = "coupon" | "discount";
 
@@ -10,6 +10,8 @@ type CouponRow = {
   avgTicket: number;
   revenue: number;
 };
+
+type SortKey = "code" | "redemptions" | "avgTicket" | "revenue" | "usagePct";
 
 const COUPON_ROWS: CouponRow[] = [
   {
@@ -63,10 +65,89 @@ const getPillClassesForKind = (kind: CouponKind) =>
   `${basePillClasses} ${kind === "coupon" ? couponColorClasses : discountColorClasses}`;
 
 export const CouponPerformanceTile: React.FC = () => {
+  const [sort, setSort] = useState<{ key: SortKey; direction: "asc" | "desc" }>({
+    key: "revenue",
+    direction: "desc",
+  });
+
   const totalRedemptions = useMemo(
     () => COUPON_ROWS.reduce((sum, row) => sum + row.redemptions, 0),
     []
   );
+
+  const rowsWithUsage = useMemo(
+    () =>
+      COUPON_ROWS.map((row) => ({
+        ...row,
+        usagePct:
+          totalRedemptions > 0
+            ? (row.redemptions / totalRedemptions) * 100
+            : 0,
+      })),
+    [totalRedemptions]
+  );
+
+  const sortedRows = useMemo(() => {
+    const copy = [...rowsWithUsage];
+
+    copy.sort((a, b) => {
+      let aValue: string | number;
+      let bValue: string | number;
+
+      switch (sort.key) {
+        case "code":
+          aValue = a.code;
+          bValue = b.code;
+          break;
+        case "redemptions":
+          aValue = a.redemptions;
+          bValue = b.redemptions;
+          break;
+        case "avgTicket":
+          aValue = a.avgTicket;
+          bValue = b.avgTicket;
+          break;
+        case "revenue":
+          aValue = a.revenue;
+          bValue = b.revenue;
+          break;
+        case "usagePct":
+          aValue = a.usagePct;
+          bValue = b.usagePct;
+          break;
+        default:
+          aValue = 0;
+          bValue = 0;
+      }
+
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return sort.direction === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      const aNum = Number(aValue);
+      const bNum = Number(bValue);
+      return sort.direction === "asc" ? aNum - bNum : bNum - aNum;
+    });
+
+    return copy;
+  }, [rowsWithUsage, sort]);
+
+  const handleSort = (key: SortKey) => {
+    setSort((current) =>
+      current.key === key
+        ? { key, direction: current.direction === "asc" ? "desc" : "asc" }
+        : { key, direction: key === "code" ? "asc" : "desc" }
+    );
+  };
+
+  const renderSortIndicator = (key: SortKey) =>
+    sort.key === key ? (
+      <span className="ml-1 text-[9px]">
+        {sort.direction === "asc" ? "▲" : "▼"}
+      </span>
+    ) : null;
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -91,48 +172,86 @@ export const CouponPerformanceTile: React.FC = () => {
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
-              <th className="pb-2 font-medium">Code</th>
+              <th className="pb-2 font-medium">
+                <button
+                  type="button"
+                  onClick={() => handleSort("code")}
+                  className="flex items-center hover:text-slate-700"
+                >
+                  Code
+                  {renderSortIndicator("code")}
+                </button>
+              </th>
               <th className="pb-2 font-medium">Description</th>
-              <th className="pb-2 font-medium text-right">Redemptions</th>
-              <th className="pb-2 font-medium text-right">Avg Ticket</th>
-              <th className="pb-2 font-medium text-right">Revenue</th>
-              <th className="pb-2 font-medium text-right">% Usage</th>
+              <th className="pb-2 font-medium text-right">
+                <button
+                  type="button"
+                  onClick={() => handleSort("redemptions")}
+                  className="ml-auto flex items-center hover:text-slate-700"
+                >
+                  Redemptions
+                  {renderSortIndicator("redemptions")}
+                </button>
+              </th>
+              <th className="pb-2 font-medium text-right">
+                <button
+                  type="button"
+                  onClick={() => handleSort("avgTicket")}
+                  className="ml-auto flex items-center hover:text-slate-700"
+                >
+                  Avg Ticket
+                  {renderSortIndicator("avgTicket")}
+                </button>
+              </th>
+              <th className="pb-2 font-medium text-right">
+                <button
+                  type="button"
+                  onClick={() => handleSort("revenue")}
+                  className="ml-auto flex items-center hover:text-slate-700"
+                >
+                  Revenue
+                  {renderSortIndicator("revenue")}
+                </button>
+              </th>
+              <th className="pb-2 font-medium text-right">
+                <button
+                  type="button"
+                  onClick={() => handleSort("usagePct")}
+                  className="ml-auto flex items-center hover:text-slate-700"
+                >
+                  % Usage
+                  {renderSortIndicator("usagePct")}
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {COUPON_ROWS.map((row) => {
-              const usagePct =
-                totalRedemptions > 0
-                  ? (row.redemptions / totalRedemptions) * 100
-                  : 0;
-
-              return (
-                <tr key={row.code}>
-                  <td className="py-2.5">
-                    <span className={getPillClassesForKind(row.kind)}>
-                      {row.code}
-                    </span>
-                  </td>
-                  <td className="py-2.5 text-sm text-slate-900">{row.description}</td>
-                  <td className="py-2.5 text-right font-semibold text-slate-900">
-                    {row.redemptions.toLocaleString()}
-                  </td>
-                  <td className="py-2.5 text-right font-semibold text-slate-900">
-                    ${row.avgTicket.toLocaleString()}
-                  </td>
-                  <td className="py-2.5 text-right font-semibold text-slate-900">
-                    {row.revenue.toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                      maximumFractionDigits: 0,
-                    })}
-                  </td>
-                  <td className="py-2.5 text-right font-semibold text-emerald-600">
-                    {usagePct.toFixed(1)}%
-                  </td>
-                </tr>
-              );
-            })}
+            {sortedRows.map((row) => (
+              <tr key={row.code}>
+                <td className="py-2.5">
+                  <span className={getPillClassesForKind(row.kind)}>
+                    {row.code}
+                  </span>
+                </td>
+                <td className="py-2.5 text-sm text-slate-900">{row.description}</td>
+                <td className="py-2.5 text-right font-semibold text-slate-900">
+                  {row.redemptions.toLocaleString()}
+                </td>
+                <td className="py-2.5 text-right font-semibold text-slate-900">
+                  ${row.avgTicket.toLocaleString()}
+                </td>
+                <td className="py-2.5 text-right font-semibold text-slate-900">
+                  {row.revenue.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    maximumFractionDigits: 0,
+                  })}
+                </td>
+                <td className="py-2.5 text-right font-semibold text-emerald-600">
+                  {row.usagePct.toFixed(1)}%
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
