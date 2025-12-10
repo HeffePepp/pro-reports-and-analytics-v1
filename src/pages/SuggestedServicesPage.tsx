@@ -39,27 +39,33 @@ type SuggestedServiceTypeRow = {
   respPct: number;
 };
 
+// ✅ Updated to your full 25-service list
 const SS_SERVICE_TYPES: SuggestedServiceTypeRow[] = [
-  { service: "Cabin Air Filter", invoices: 1765, validEmailPct: 82.3, respPct: 24.6 },
-  { service: "Engine Air Filter", invoices: 1890, validEmailPct: 79.4, respPct: 23.3 },
-  { service: "Fuel System Cleaning", invoices: 960, validEmailPct: 76.8, respPct: 17.5 },
-  { service: "Wiper Blades", invoices: 1420, validEmailPct: 84.1, respPct: 19.6 },
-];
-
-type SuggestedServicesTouchPoint = {
-  timing: string;
-  channel: string;
-  sent: number;
-  responses: number;
-  respPct: number;
-  roas: number;
-};
-
-const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
-  { timing: "1 week after Service", channel: "Email", sent: 1850, responses: 420, respPct: 22.7, roas: 9.5 },
-  { timing: "1 month after Service", channel: "Email", sent: 1760, responses: 310, respPct: 17.6, roas: 12.1 },
-  { timing: "3 months after Service", channel: "Email", sent: 1640, responses: 240, respPct: 14.6, roas: 11.2 },
-  { timing: "6 months after Service", channel: "Email", sent: 1380, responses: 280, respPct: 20.3, roas: 16.4 },
+  { service: "PCV VALVE", invoices: 2200, validEmailPct: 75, respPct: 15.0 },
+  { service: "PWR STEERING FLUSH", invoices: 2160, validEmailPct: 78, respPct: 16.2 },
+  { service: "REAR BRAKE SERVICE", invoices: 2120, validEmailPct: 81, respPct: 17.4 },
+  { service: "REAR DIFF SERVICE", invoices: 2080, validEmailPct: 84, respPct: 18.6 },
+  { service: "RADIATOR SERVICE", invoices: 2040, validEmailPct: 87, respPct: 19.8 },
+  { service: "SERPENTINE BELT SVC.", invoices: 2000, validEmailPct: 75, respPct: 21.0 },
+  { service: "SHOCK/STRUTS", invoices: 1960, validEmailPct: 78, respPct: 22.2 },
+  { service: "TRANSFER CASE SERV", invoices: 1920, validEmailPct: 81, respPct: 23.4 },
+  { service: "TIRE ROTATION", invoices: 1880, validEmailPct: 84, respPct: 24.6 },
+  { service: "TRANSMISSION SERVICE", invoices: 1840, validEmailPct: 87, respPct: 25.8 },
+  { service: "TUNE-UP", invoices: 1800, validEmailPct: 75, respPct: 15.0 },
+  { service: "WIPER BLADES", invoices: 1760, validEmailPct: 78, respPct: 16.2 },
+  { service: "AIR FILTER", invoices: 1720, validEmailPct: 81, respPct: 17.4 },
+  { service: "BREATHER FILTER", invoices: 1680, validEmailPct: 84, respPct: 18.6 },
+  { service: "BRAKE SERVICE", invoices: 1640, validEmailPct: 87, respPct: 19.8 },
+  { service: "BATTERY SERVICE", invoices: 1600, validEmailPct: 75, respPct: 21.0 },
+  { service: "CABIN AIR FILTER", invoices: 1560, validEmailPct: 78, respPct: 22.2 },
+  { service: "ENGINE FLUSH", invoices: 1520, validEmailPct: 81, respPct: 23.4 },
+  { service: "EXHAUST WORK", invoices: 1480, validEmailPct: 84, respPct: 24.6 },
+  { service: "FRONT BRAKE SERVICE", invoices: 1440, validEmailPct: 87, respPct: 25.8 },
+  { service: "FRONT DIFF SERVICE", invoices: 1400, validEmailPct: 75, respPct: 15.0 },
+  { service: "FUEL FILTER", invoices: 1360, validEmailPct: 78, respPct: 16.2 },
+  { service: "FUEL INJ. SERVICE", invoices: 1320, validEmailPct: 81, respPct: 17.4 },
+  { service: "HOSES", invoices: 1280, validEmailPct: 84, respPct: 18.6 },
+  { service: "LIGHT BULB", invoices: 1240, validEmailPct: 87, respPct: 19.8 },
 ];
 
 const getRespColorClass = (rate: number): string => {
@@ -84,13 +90,48 @@ type ZipStat = {
 };
 
 const SS_ZIP_STATS: ZipStat[] = [
-  { zip: "94110", city: "San Francisco", state: "CA", responses: 92, respPct: 21.5, ssRevenue: 18600, activeCustomers: 154, loyalCustomers: 48, age0to5: 37, age6to10: 43, age11plus: 20 },
-  { zip: "94901", city: "San Rafael", state: "CA", responses: 66, respPct: 19.3, ssRevenue: 13200, activeCustomers: 118, loyalCustomers: 36, age0to5: 33, age6to10: 44, age11plus: 23 },
-  { zip: "95401", city: "Santa Rosa", state: "CA", responses: 54, respPct: 17.1, ssRevenue: 10800, activeCustomers: 101, loyalCustomers: 29, age0to5: 28, age6to10: 40, age11plus: 32 },
+  {
+    zip: "94110",
+    city: "San Francisco",
+    state: "CA",
+    responses: 92,
+    respPct: 21.5,
+    ssRevenue: 18600,
+    activeCustomers: 154,
+    loyalCustomers: 48,
+    age0to5: 37,
+    age6to10: 43,
+    age11plus: 20,
+  },
+  {
+    zip: "94901",
+    city: "San Rafael",
+    state: "CA",
+    responses: 66,
+    respPct: 19.3,
+    ssRevenue: 13200,
+    activeCustomers: 118,
+    loyalCustomers: 36,
+    age0to5: 33,
+    age6to10: 44,
+    age11plus: 23,
+  },
+  {
+    zip: "95401",
+    city: "Santa Rosa",
+    state: "CA",
+    responses: 54,
+    respPct: 17.1,
+    ssRevenue: 10800,
+    activeCustomers: 101,
+    loyalCustomers: 29,
+    age0to5: 28,
+    age6to10: 40,
+    age11plus: 32,
+  },
 ];
 
-type SsTab = "overview" | "details" | "map";
-type MapMetric = "resp" | "revenue";
+type SsTab = "overview" | "details";
 
 const KPI_OPTIONS: KpiOption[] = [
   { id: "ssMsgsSent", label: "SS msgs sent" },
@@ -105,7 +146,6 @@ const KPI_OPTIONS: KpiOption[] = [
 const SuggestedServicesPage: React.FC = () => {
   const [ssTab, setSsTab] = useState<SsTab>("overview");
   const [selectedZip, setSelectedZip] = useState<ZipStat | null>(SS_ZIP_STATS[0]);
-  const [mapMetric, setMapMetric] = useState<MapMetric>("resp");
 
   const ssResponses = useMemo(
     () => Math.round(ssSummary.emailsSent * (ssSummary.acceptanceRate / 100)),
@@ -117,31 +157,85 @@ const SuggestedServicesPage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "ssMsgsSent":
-        return <MetricTile key={id} label="SS msgs sent" value={ssSummary.emailsSent.toLocaleString()} />;
+        return (
+          <MetricTile
+            key={id}
+            label="SS msgs sent"
+            value={ssSummary.emailsSent.toLocaleString()}
+          />
+        );
       case "ssResponses":
-        return <MetricTile key={id} label="SS responses" value={ssResponses.toLocaleString()} />;
+        return (
+          <MetricTile
+            key={id}
+            label="SS responses"
+            value={ssResponses.toLocaleString()}
+          />
+        );
       case "respPct":
-        return <MetricTile key={id} label="Resp %" value={`${ssSummary.acceptanceRate.toFixed(1)}%`} />;
+        return (
+          <MetricTile
+            key={id}
+            label="Resp %"
+            value={`${ssSummary.acceptanceRate.toFixed(1)}%`}
+          />
+        );
       case "ssRevenue":
-        return <MetricTile key={id} label="SS revenue" value={`$${ssSummary.ssRevenue.toLocaleString()}`} />;
+        return (
+          <MetricTile
+            key={id}
+            label="SS revenue"
+            value={ssSummary.ssRevenue.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+              maximumFractionDigits: 0,
+            })}
+          />
+        );
       case "totalInvRev":
-        return <MetricTile key={id} label="Total inv. rev." value={`$${ssSummary.totalInvoiceRevenue.toLocaleString()}`} />;
+        return (
+          <MetricTile
+            key={id}
+            label="Total inv. rev."
+            value={ssSummary.totalInvoiceRevenue.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+              maximumFractionDigits: 0,
+            })}
+          />
+        );
       case "validEmail":
-        return <MetricTile key={id} label="SS inv. valid email" value={`${ssSummary.validEmailOnSsInvoicesPct.toFixed(1)}%`} />;
+        return (
+          <MetricTile
+            key={id}
+            label="SS inv. valid email"
+            value={`${ssSummary.validEmailOnSsInvoicesPct.toFixed(1)}%`}
+          />
+        );
       case "withSsItem":
-        return <MetricTile key={id} label="% inv. w/ SS item" value={`${ssSummary.invoicesWithSsItemPct.toFixed(1)}%`} />;
+        return (
+          <MetricTile
+            key={id}
+            label="% inv. w/ SS item"
+            value={`${ssSummary.invoicesWithSsItemPct.toFixed(1)}%`}
+          />
+        );
       default:
         return null;
     }
   };
 
   const aiInsightsProps = {
-    title: "AI Insights",
-    subtitle: "Based on SS jobs and touch points",
+    title: "AI insights: Suggested services",
+    timeframeLabel: ssSummary.periodLabel,
     bullets: [
-      "Cabin Air Filter and Engine Air Filter have the highest RESP %, making them ideal for more educational content.",
-      "Consider testing earlier SS timing in ZIPs with higher loyalty and newer vehicles.",
-      "Use the Map tab to adjust offers and channels by ZIP and customer mix.",
+      `Suggested services messages generated ${ssSummary.ssRevenue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      })} in revenue at a ${ssSummary.acceptanceRate.toFixed(1)}% response rate.`,
+      "Focus on service types with higher RESP% and strong email coverage to lift total RO value.",
+      "Use the ZIP-level map below to adjust offers and channels by ZIP and customer mix.",
     ],
   };
 
@@ -156,224 +250,329 @@ const SuggestedServicesPage: React.FC = () => {
       ]}
       rightInfo={
         <>
-          <span>Store group: <span className="font-medium">{ssSummary.storeGroupName}</span></span>
-          <span>Period: <span className="font-medium">{ssSummary.periodLabel}</span></span>
+          <span>
+            Store group:{" "}
+            <span className="font-medium">{ssSummary.storeGroupName}</span>
+          </span>
+          <span>
+            Period: <span className="font-medium">{ssSummary.periodLabel}</span>
+          </span>
         </>
       }
     >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-        <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Suggested Services</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Track how Suggested Services communications drive completed jobs and revenue by service type and touch point.
-          </p>
-        </div>
-        <KpiCustomizeButton
-          reportId="suggested-services"
-          options={KPI_OPTIONS}
-          selectedIds={selectedIds}
-          onChangeSelected={setSelectedIds}
-        />
-      </div>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,2.2fr),minmax(0,1fr)]">
+        {/* LEFT COLUMN */}
+        <div className="space-y-6">
+          {/* Intro / summary */}
+          <section className="space-y-2">
+            <h1 className="text-lg font-semibold text-slate-900">
+              Suggested services performance
+            </h1>
+            <p className="text-sm text-slate-600">
+              Track how suggested services perform across your stores, which
+              services customers accept most often, and how your follow-up
+              messaging drives additional RO revenue.
+            </p>
+          </section>
 
-      {/* Layout */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {selectedIds.map((id) => renderKpiTile(id))}
-          </div>
+          {/* KPI grid */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-[13px] font-semibold text-slate-900">
+                  Key KPIs
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Customize which metrics you want to watch for suggested
+                  services.
+                </p>
+              </div>
+              <KpiCustomizeButton
+                reportId="suggested-services"
+                options={KPI_OPTIONS}
+                selectedIds={selectedIds}
+                onChangeSelected={setSelectedIds}
+              />
+            </div>
 
-          {/* AI stacked on small screens */}
-          <div className="block lg:hidden">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+              {selectedIds.map((id) => renderKpiTile(id))}
+            </div>
+          </section>
+
+          {/* AI tile on small screens */}
+          <div className="lg:hidden">
             <AIInsightsTile {...aiInsightsProps} />
           </div>
 
-          {/* Performance by service type – tabbed card */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between gap-3 mb-2">
+          {/* MAIN TWO-TAB TILE: Overview / Details */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <header className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-semibold text-slate-900">Performance by service type</h2>
-                <p className="text-[11px] text-slate-600">Suggested Services: invoices, valid emails and RESP %</p>
+                <h2 className="text-[13px] font-semibold text-slate-900">
+                  Suggested services performance
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  By service type – click Details for table view.
+                </p>
               </div>
-              <div className="inline-flex items-center rounded-full bg-slate-100 p-1 text-[11px]">
-                {(["overview", "details", "map"] as SsTab[]).map((tab) => {
-                  const label = tab === "overview" ? "Overview" : tab === "details" ? "Details" : "Map";
+
+              {/* Two-tab pill, like One-off Campaigns, but just Overview / Details */}
+              <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1 text-[11px]">
+                {(["overview", "details"] as SsTab[]).map((tab) => {
                   const isActive = ssTab === tab;
                   return (
                     <button
                       key={tab}
                       type="button"
                       onClick={() => setSsTab(tab)}
-                      className={`px-3 py-1 rounded-full ${isActive ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
+                      className={`rounded-full px-3 py-1 transition ${
+                        isActive
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-600 hover:text-slate-800"
+                      }`}
                     >
-                      {label}
+                      {tab === "overview" ? "Overview" : "Details"}
                     </button>
                   );
                 })}
               </div>
-            </div>
+            </header>
 
+            {/* OVERVIEW TAB – list styling like campaign overview, NO colored bar */}
             {ssTab === "overview" && (
-              <>
-                <p className="mt-1 text-[10px] text-slate-400">
-                  Bar length shows RESP % vs other services. Higher RESP % = stronger conversion from SS messages to completed jobs.
-                </p>
-                <div className="mt-3 space-y-4 text-xs text-slate-700">
-                  {SS_SERVICE_TYPES.map((row) => {
-                    const respColor = getRespColorClass(row.respPct);
-                    const maxResp = Math.max(...SS_SERVICE_TYPES.map((r) => r.respPct), 1);
-                    const width = (row.respPct / maxResp) * 100 || 0;
-                    return (
-                      <div key={row.service}>
-                        <div className="flex items-start justify-between text-[11px] gap-3">
-                          <div className="font-medium text-slate-800">{row.service}</div>
-                          <div className="text-right text-slate-600">
-                            <div className="text-[11px]">
-                              {row.invoices.toLocaleString()} invoices · {row.validEmailPct.toFixed(1)}% valid emails ·{" "}
-                              <span className={respColor}>{row.respPct.toFixed(1)}% RESP</span>
-                            </div>
+              <div className="mt-4 divide-y divide-slate-100">
+                {SS_SERVICE_TYPES.map((row) => {
+                  const responses = Math.round(
+                    row.invoices * (row.respPct / 100)
+                  );
+                  const respClass = getRespColorClass(row.respPct);
+
+                  return (
+                    <div
+                      key={row.service}
+                      className="py-3 first:pt-0 last:pb-0"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          {/* Service name */}
+                          <div className="truncate text-xs font-medium text-slate-900">
+                            {row.service}
+                          </div>
+
+                          {/* Stats above/below for breathing room */}
+                          <div className="mt-1 text-[11px] text-slate-500">
+                            {row.invoices.toLocaleString()} invoices with this
+                            service
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            {row.validEmailPct.toFixed(1)}% of these invoices
+                            have a valid email address
                           </div>
                         </div>
-                        <div className="mt-2 flex items-center gap-2">
-                          <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                            <div className="h-full bg-emerald-500" style={{ width: `${width}%` }} />
+
+                        {/* Right side: response stats */}
+                        <div className="text-right">
+                          <div
+                            className={`text-sm font-semibold ${respClass}`}
+                          >
+                            {row.respPct.toFixed(1)}% RESP
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            {responses.toLocaleString()} responses
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </>
+                    </div>
+                  );
+                })}
+              </div>
             )}
 
+            {/* DETAILS TAB – table styled like Drops tab from One-off Campaigns */}
             {ssTab === "details" && (
-              <div className="mt-3 overflow-x-auto">
+              <div className="mt-4 overflow-x-auto">
                 <table className="min-w-full text-xs">
                   <thead>
-                    <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-                      <th className="py-2 pr-3">Touch point</th>
-                      <th className="py-2 pr-3 text-right">Sent</th>
-                      <th className="py-2 pr-3 text-right">Responses</th>
-                      <th className="py-2 pr-3 text-right">Resp %</th>
-                      <th className="py-2 pr-3 text-right">ROAS</th>
+                    <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
+                      <th className="py-2 pr-3 text-left font-medium">
+                        Service type
+                      </th>
+                      <th className="py-2 pr-3 text-right font-medium">
+                        Invoices
+                      </th>
+                      <th className="py-2 pr-3 text-right font-medium">
+                        Responses
+                      </th>
+                      <th className="py-2 pr-3 text-right font-medium">
+                        Resp %
+                      </th>
+                      <th className="py-2 pl-3 text-right font-medium">
+                        Valid email %
+                      </th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {SS_TOUCHPOINTS.map((tp) => (
-                      <tr key={tp.timing} className="border-t border-slate-100 align-top">
-                        <td className="py-3 pr-3">
-                          <div className="text-xs font-medium text-slate-800">Suggested Services</div>
-                          <div className="text-[11px] text-slate-500">{tp.timing}</div>
-                          <div className="text-[11px] text-slate-500">{tp.channel}</div>
-                        </td>
-                        <td className="py-3 pr-3 text-right">{tp.sent.toLocaleString()}</td>
-                        <td className="py-3 pr-3 text-right">{tp.responses.toLocaleString()}</td>
-                        <td className="py-3 pr-3 text-right">{tp.respPct.toFixed(1)}%</td>
-                        <td className="py-3 pr-3 text-right">{tp.roas.toFixed(1)}x</td>
-                      </tr>
-                    ))}
+                  <tbody className="divide-y divide-slate-100">
+                    {SS_SERVICE_TYPES.map((row) => {
+                      const responses = Math.round(
+                        row.invoices * (row.respPct / 100)
+                      );
+                      const respClass = getRespColorClass(row.respPct);
+
+                      return (
+                        <tr key={row.service}>
+                          <td className="py-3 pr-3 align-top">
+                            <div className="text-xs font-medium text-slate-900">
+                              {row.service}
+                            </div>
+                            <div className="mt-0.5 text-[11px] text-slate-500">
+                              Suggested service follow-up
+                            </div>
+                          </td>
+                          <td className="py-3 pr-3 text-right align-middle">
+                            {row.invoices.toLocaleString()}
+                          </td>
+                          <td className="py-3 pr-3 text-right align-middle">
+                            {responses.toLocaleString()}
+                          </td>
+                          <td
+                            className={`py-3 pr-3 text-right align-middle ${respClass}`}
+                          >
+                            {row.respPct.toFixed(1)}%
+                          </td>
+                          <td className="py-3 pl-3 text-right align-middle">
+                            {row.validEmailPct.toFixed(1)}%
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             )}
+          </section>
 
-            {ssTab === "map" && (
-              <div className="mt-3 space-y-4">
-                <div className="flex items-center justify-between text-[11px]">
-                  <div className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1">
-                    <span className="font-medium text-slate-700">Map: RESP % by ZIP</span>
-                  </div>
-                  <div className="inline-flex items-center rounded-full bg-slate-100 p-1">
-                    {(["resp", "revenue"] as MapMetric[]).map((metric) => {
-                      const isActive = mapMetric === metric;
-                      const label = metric === "resp" ? "RESP %" : "SS revenue";
-                      return (
-                        <button
-                          key={metric}
-                          type="button"
-                          onClick={() => setMapMetric(metric)}
-                          className={`px-3 py-1 rounded-full text-[11px] ${isActive ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
+          {/* ZIP MAP + DETAIL CARD (separate from tabs) */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <header className="flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-[13px] font-semibold text-slate-900">
+                  ZIP performance & map
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  See where suggested services are responding best.
+                </p>
+              </div>
+            </header>
+
+            <div className="mt-3 space-y-4">
+              <ZipMapPlaceholder />
+
+              <div className="space-y-3">
+                {/* ZIP chips */}
+                <div className="flex flex-wrap gap-2 text-[11px] text-slate-600">
+                  {SS_ZIP_STATS.map((z) => {
+                    const isActive = currentZip && currentZip.zip === z.zip;
+                    return (
+                      <button
+                        key={z.zip}
+                        type="button"
+                        onClick={() => setSelectedZip(z)}
+                        className={`px-3 py-1 rounded-full border ${
+                          isActive
+                            ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                            : "border-slate-200 bg-white hover:border-emerald-300 hover:text-emerald-700"
+                        }`}
+                      >
+                        {z.zip}
+                      </button>
+                    );
+                  })}
                 </div>
 
-                <ZipMapPlaceholder />
-
-                <div className="space-y-3">
-                  <div className="flex flex-wrap gap-2 text-[11px] text-slate-600">
-                    {SS_ZIP_STATS.map((z) => {
-                      const isActive = currentZip && currentZip.zip === z.zip;
-                      return (
-                        <button
-                          key={z.zip}
-                          type="button"
-                          onClick={() => setSelectedZip(z)}
-                          className={`px-3 py-1 rounded-full border ${isActive ? "border-emerald-400 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white hover:border-emerald-300 hover:text-emerald-700"}`}
-                        >
-                          {z.zip}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {currentZip && (
-                    <section className="mt-3 rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-8 text-xs text-slate-700">
-                        <div className="space-y-2">
-                          <div>
-                            <div className="text-[11px] font-semibold text-slate-900">ZIP {currentZip.zip}</div>
-                            <div className="text-[11px] text-slate-500">{currentZip.city}, {currentZip.state}</div>
-                          </div>
-                          <div>
-                            <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Customers</div>
-                            <div className="mt-0.5">Active · {currentZip.activeCustomers.toLocaleString()}</div>
-                            <div>Loyal (3+ visits / 24 mo) · {currentZip.loyalCustomers.toLocaleString()}</div>
-                          </div>
+                {/* ZIP detail panel */}
+                {currentZip && (
+                  <section className="mt-2 rounded-2xl bg-slate-50 border border-slate-200 p-4">
+                    <div className="grid grid-cols-1 gap-4 text-xs text-slate-700 md:grid-cols-4 md:gap-6">
+                      {/* Location */}
+                      <div className="space-y-1">
+                        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                          ZIP
                         </div>
-                        <div className="space-y-2">
-                          <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Vehicle age mix</div>
-                          <div className="space-y-0.5">
-                            <div>0–5 yrs · {currentZip.age0to5}%</div>
-                            <div>6–10 yrs · {currentZip.age6to10}%</div>
-                            <div>11+ yrs · {currentZip.age11plus}%</div>
-                          </div>
+                        <div className="text-sm font-semibold text-slate-900">
+                          {currentZip.zip}
                         </div>
-                        <div className="space-y-1">
-                          <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">RESP % & SS metrics</div>
-                          <div className="mt-0.5 text-[13px] font-semibold text-emerald-600">{currentZip.respPct.toFixed(1)}% RESP</div>
-                          <div className="text-xs">
-                            <span className="text-slate-500">SS responses · </span>
-                            <span className="font-medium text-slate-800">{currentZip.responses.toLocaleString()}</span>
-                          </div>
-                          <div className="text-xs">
-                            <span className="text-slate-500">SS revenue · </span>
-                            <span className="font-medium text-slate-800">${currentZip.ssRevenue.toLocaleString()}</span>
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Notes</div>
-                          <p className="text-[11px] leading-snug text-slate-600">
-                            Use these ZIP-level patterns here to tune timing, channel mix and future one-off campaigns.
-                          </p>
+                        <div className="text-[11px] text-slate-500">
+                          {currentZip.city}, {currentZip.state}
                         </div>
                       </div>
-                    </section>
-                  )}
-                </div>
+
+                      {/* Customers */}
+                      <div className="space-y-1">
+                        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                          Customers
+                        </div>
+                        <div className="text-sm font-semibold text-slate-900">
+                          {currentZip.activeCustomers.toLocaleString()} active
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          {currentZip.loyalCustomers.toLocaleString()} loyal
+                          customers
+                        </div>
+                      </div>
+
+                      {/* Responses */}
+                      <div className="space-y-1">
+                        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                          Suggested services results
+                        </div>
+                        <div
+                          className={`text-sm font-semibold ${getRespColorClass(
+                            currentZip.respPct
+                          )}`}
+                        >
+                          {currentZip.respPct.toFixed(1)}% RESP
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          {currentZip.responses.toLocaleString()} responses
+                        </div>
+                      </div>
+
+                      {/* Vehicle age + revenue */}
+                      <div className="space-y-1">
+                        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                          Vehicle age & SS revenue
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          0–5 yrs: {currentZip.age0to5} · 6–10 yrs:{" "}
+                          {currentZip.age6to10} · 11+ yrs:{" "}
+                          {currentZip.age11plus}
+                        </div>
+                        <div className="text-sm font-semibold text-slate-900">
+                          SS rev:{" "}
+                          {currentZip.ssRevenue.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            maximumFractionDigits: 0,
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 text-[11px] leading-snug text-slate-600">
+                      Use ZIP-level patterns here to tune timing, channel mix
+                      and future one-off or automated suggested service
+                      campaigns.
+                    </div>
+                  </section>
+                )}
               </div>
-            )}
+            </div>
           </section>
         </div>
 
-        {/* RIGHT: AI on large screens */}
-        <div className="hidden lg:block lg:col-span-1">
+        {/* RIGHT COLUMN – AI tile on larger screens */}
+        <div className="hidden lg:block">
           <AIInsightsTile {...aiInsightsProps} />
         </div>
       </div>
