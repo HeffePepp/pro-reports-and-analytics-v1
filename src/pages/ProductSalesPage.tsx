@@ -51,11 +51,11 @@ const ProductSalesPage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "productRevenue":
-        return <MetricTile key={id} label="Product revenue" value={`$${productSalesSummary.totalRevenue.toLocaleString()}`} />;
+        return <MetricTile key={id} label="Product revenue" value={`$${productSalesSummary.totalRevenue.toLocaleString()}`} helpText="Total revenue from product sales during the selected period." />;
       case "vendorShare":
-        return <MetricTile key={id} label="Vendor share" value={`${productSalesSummary.vendorSharePct.toFixed(0)}%`} />;
+        return <MetricTile key={id} label="Vendor share" value={`${productSalesSummary.vendorSharePct.toFixed(0)}%`} helpText="Percentage of product revenue from vendor-branded products." />;
       case "houseBrandShare":
-        return <MetricTile key={id} label="House brand share" value={`${productSalesSummary.houseBrandSharePct.toFixed(0)}%`} />;
+        return <MetricTile key={id} label="House brand share" value={`${productSalesSummary.houseBrandSharePct.toFixed(0)}%`} helpText="Percentage of product revenue from store house brand products." />;
       default:
         return null;
     }

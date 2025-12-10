@@ -65,15 +65,15 @@ const ServiceIntervalsPage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "totalCustomers":
-        return <MetricTile key={id} label="Total customers" value={siSummary.totalCustomers.toLocaleString()} />;
+        return <MetricTile key={id} label="Total customers" value={siSummary.totalCustomers.toLocaleString()} helpText="Total unique customers in the database." />;
       case "current":
-        return <MetricTile key={id} label="Current" value={siSummary.currentCount.toLocaleString()} helper={`${currentPct.toFixed(1)}%`} />;
+        return <MetricTile key={id} label="Current" value={siSummary.currentCount.toLocaleString()} helper={`${currentPct.toFixed(1)}%`} helpText="Customers whose last visit was within the expected service interval (typically 0–12 months)." />;
       case "atRisk":
-        return <MetricTile key={id} label="At-risk" value={siSummary.atRiskCount.toLocaleString()} helper={`${atRiskPct.toFixed(1)}%`} />;
+        return <MetricTile key={id} label="At-risk" value={siSummary.atRiskCount.toLocaleString()} helper={`${atRiskPct.toFixed(1)}%`} helpText="Customers 13–24 months since their last visit who are at risk of defecting." />;
       case "lost":
-        return <MetricTile key={id} label="Lost" value={siSummary.lostCount.toLocaleString()} helper={`${lostPct.toFixed(1)}%`} />;
+        return <MetricTile key={id} label="Lost" value={siSummary.lostCount.toLocaleString()} helper={`${lostPct.toFixed(1)}%`} helpText="Customers 25+ months since their last visit who are considered lost." />;
       case "avgDays":
-        return <MetricTile key={id} label="Avg days since visit" value={siSummary.avgDaysSinceVisit.toFixed(0)} />;
+        return <MetricTile key={id} label="Avg days since visit" value={siSummary.avgDaysSinceVisit.toFixed(0)} helpText="Average number of days since the last service visit across all customers." />;
       default:
         return null;
     }

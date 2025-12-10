@@ -58,15 +58,15 @@ const OilTypeSalesPage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "oilRos":
-        return <MetricTile key={id} label="Oil change ROs" value={oilMixSummary.totalOilROs.toLocaleString()} />;
+        return <MetricTile key={id} label="Oil change ROs" value={oilMixSummary.totalOilROs.toLocaleString()} helpText="Total number of oil change repair orders during the selected period." />;
       case "oilRevenue":
-        return <MetricTile key={id} label="Oil revenue" value={`$${oilMixSummary.totalRevenue.toLocaleString()}`} />;
+        return <MetricTile key={id} label="Oil revenue" value={`$${oilMixSummary.totalRevenue.toLocaleString()}`} helpText="Total revenue from oil change services during the selected period." />;
       case "syntheticShare":
-        return <MetricTile key={id} label="Synthetic share" value={`${oilMixSummary.syntheticSharePct.toFixed(0)}%`} />;
+        return <MetricTile key={id} label="Synthetic share" value={`${oilMixSummary.syntheticSharePct.toFixed(0)}%`} helpText="Percentage of oil changes using synthetic or full synthetic oil." />;
       case "highMileageShare":
-        return <MetricTile key={id} label="High mileage share" value={`${oilMixSummary.highMileageSharePct.toFixed(0)}%`} />;
+        return <MetricTile key={id} label="High mileage share" value={`${oilMixSummary.highMileageSharePct.toFixed(0)}%`} helpText="Percentage of oil changes using high mileage oil formulation." />;
       case "avgTicket":
-        return <MetricTile key={id} label="Avg ticket (all)" value={`$${(oilMixSummary.totalRevenue / oilMixSummary.totalOilROs).toFixed(0)}`} />;
+        return <MetricTile key={id} label="Avg ticket (all)" value={`$${(oilMixSummary.totalRevenue / oilMixSummary.totalOilROs).toFixed(0)}`} helpText="Average repair order value across all oil types." />;
       default:
         return null;
     }

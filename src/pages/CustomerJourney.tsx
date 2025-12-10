@@ -199,6 +199,7 @@ interface KpiDefinition {
   label: string;
   format: (stats: ComputedStats) => string;
   helper?: (stats: ComputedStats) => string | undefined;
+  helpText?: string;
 }
 
 type ComputedStats = {
@@ -213,21 +214,25 @@ const KPI_DEFS: KpiDefinition[] = [
     key: "vehicles",
     label: "Vehicles",
     format: (s) => s.vehicles.toLocaleString(),
+    helpText: "Total vehicles that responded to journey touch points during the selected period.",
   },
   {
     key: "avgRoas",
     label: "Avg ROAS",
     format: (s) => `${s.avgRoas.toFixed(1)}x`,
+    helpText: "Average return on ad spend across all journey touch points.",
   },
   {
     key: "avgResp",
     label: "Avg resp %",
     format: (s) => `${s.avgResp.toFixed(1)}%`,
+    helpText: "Average response rate across all journey touch points.",
   },
   {
     key: "totalComms",
     label: "Total comms sent",
     format: (s) => s.totalComms.toLocaleString(),
+    helpText: "Total number of communications sent across all journey touch points.",
   },
 ];
 
@@ -408,6 +413,7 @@ const CustomerJourneyPage: React.FC = () => {
               label={kpi.label}
               value={kpi.format(stats)}
               helper={kpi.helper ? kpi.helper(stats) : undefined}
+              helpText={kpi.helpText}
             />
           ))}
         </div>

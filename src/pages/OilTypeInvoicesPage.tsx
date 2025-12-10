@@ -113,11 +113,11 @@ const OilTypeInvoicesPage: React.FC = () => {
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "totalInvoices": return <MetricTile key={id} label="Total oil invoices" value={oilInvoiceSummary.invoiceCount.toLocaleString()} />;
-      case "vendorInvoices": return <MetricTile key={id} label={`${oilInvoiceSummary.vendorName} invoices`} value={oilInvoiceSummary.vendorInvoices.toLocaleString()} />;
-      case "vendorShare": return <MetricTile key={id} label={`${oilInvoiceSummary.vendorName} share`} value={`${vendorInvoicePct.toFixed(1)}%`} />;
-      case "vendorRevenue": return <MetricTile key={id} label="Vendor revenue" value={`$${oilInvoiceSummary.vendorRevenue.toLocaleString()}`} />;
-      case "avgTicketVendor": return <MetricTile key={id} label="Avg ticket – vendor" value={`$${avgTicketVendor.toFixed(0)}`} />;
+      case "totalInvoices": return <MetricTile key={id} label="Total oil invoices" value={oilInvoiceSummary.invoiceCount.toLocaleString()} helpText="Total number of oil change invoices during the selected period." />;
+      case "vendorInvoices": return <MetricTile key={id} label={`${oilInvoiceSummary.vendorName} invoices`} value={oilInvoiceSummary.vendorInvoices.toLocaleString()} helpText={`Number of invoices that included ${oilInvoiceSummary.vendorName} products.`} />;
+      case "vendorShare": return <MetricTile key={id} label={`${oilInvoiceSummary.vendorName} share`} value={`${vendorInvoicePct.toFixed(1)}%`} helpText={`Percentage of oil invoices that used ${oilInvoiceSummary.vendorName} products.`} />;
+      case "vendorRevenue": return <MetricTile key={id} label="Vendor revenue" value={`$${oilInvoiceSummary.vendorRevenue.toLocaleString()}`} helpText="Total revenue from invoices containing vendor-branded products." />;
+      case "avgTicketVendor": return <MetricTile key={id} label="Avg ticket – vendor" value={`$${avgTicketVendor.toFixed(0)}`} helpText="Average invoice value for transactions including vendor products." />;
       default: return null;
     }
   };

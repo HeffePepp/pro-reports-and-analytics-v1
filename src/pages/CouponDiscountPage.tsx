@@ -90,15 +90,15 @@ const CouponDiscountPage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "totalDiscounts":
-        return <MetricTile key={id} label="Total discounts given" value={`$${couponSummary.totalDiscount.toLocaleString()}`} />;
+        return <MetricTile key={id} label="Total discounts given" value={`$${couponSummary.totalDiscount.toLocaleString()}`} helpText="Total dollar value of discounts applied during the selected period." />;
       case "avgDiscountPct":
-        return <MetricTile key={id} label="Avg discount %" value={`${couponSummary.avgDiscountPct.toFixed(1)}%`} />;
+        return <MetricTile key={id} label="Avg discount %" value={`${couponSummary.avgDiscountPct.toFixed(1)}%`} helpText="Average discount percentage across all coupon redemptions." />;
       case "redemptions":
-        return <MetricTile key={id} label="Coupon redemptions" value={couponSummary.redemptions.toLocaleString()} />;
+        return <MetricTile key={id} label="Coupon redemptions" value={couponSummary.redemptions.toLocaleString()} helpText="Total number of coupons redeemed during the selected period." />;
       case "revenueWithDiscounts":
-        return <MetricTile key={id} label="Revenue with discounts" value={`$${couponSummary.revenueWithDiscounts.toLocaleString()}`} />;
+        return <MetricTile key={id} label="Revenue with discounts" value={`$${couponSummary.revenueWithDiscounts.toLocaleString()}`} helpText="Total revenue from transactions that included a coupon discount." />;
       case "avgDiscountPerRedemption":
-        return <MetricTile key={id} label="Avg discount per redemption" value={`$${(couponSummary.totalDiscount / couponSummary.redemptions).toFixed(1)}`} />;
+        return <MetricTile key={id} label="Avg discount per redemption" value={`$${(couponSummary.totalDiscount / couponSummary.redemptions).toFixed(1)}`} helpText="Average dollar discount per coupon redemption." />;
       default:
         return null;
     }

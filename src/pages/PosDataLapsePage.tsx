@@ -39,13 +39,13 @@ const PosDataLapsePage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "totalStores":
-        return <MetricTile key={id} label="Total stores" value="4" />;
+        return <MetricTile key={id} label="Total stores" value="4" helpText="Total number of store locations in the account." />;
       case "zeroTwo":
-        return <MetricTile key={id} label="0–2 days" value="2" />;
+        return <MetricTile key={id} label="0–2 days" value="2" helpText="Stores with POS data received within the last 0–2 days (healthy)." />;
       case "threeSeven":
-        return <MetricTile key={id} label="3–7 days" value="1" />;
+        return <MetricTile key={id} label="3–7 days" value="1" helpText="Stores with POS data 3–7 days old (warning – may need attention)." />;
       case "overSeven":
-        return <MetricTile key={id} label="> 7 days" value="1" />;
+        return <MetricTile key={id} label="> 7 days" value="1" helpText="Stores with POS data over 7 days old (critical – investigate immediately)." />;
       default:
         return null;
     }

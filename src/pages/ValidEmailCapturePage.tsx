@@ -81,11 +81,11 @@ const ValidEmailCapturePage: React.FC = () => {
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "totalCustomers": return <MetricTile key={id} label="Total customers" value={emailSummary.totalCustomers.toLocaleString()} />;
-      case "withEmail": return <MetricTile key={id} label="With email on file" value={emailSummary.withEmail.toLocaleString()} />;
-      case "validCapture": return <MetricTile key={id} label="Valid email capture" value={`${overallCaptureRate.toFixed(1)}%`} helper={`${emailSummary.validEmail.toLocaleString()} valid`} />;
-      case "bounced": return <MetricTile key={id} label="Bounced emails" value={emailSummary.bouncedEmail.toLocaleString()} />;
-      case "optedOut": return <MetricTile key={id} label="Opted-out" value={emailSummary.optedOut.toLocaleString()} />;
+      case "totalCustomers": return <MetricTile key={id} label="Total customers" value={emailSummary.totalCustomers.toLocaleString()} helpText="Total unique customers in the database." />;
+      case "withEmail": return <MetricTile key={id} label="With email on file" value={emailSummary.withEmail.toLocaleString()} helpText="Number of customers with any email address on file." />;
+      case "validCapture": return <MetricTile key={id} label="Valid email capture" value={`${overallCaptureRate.toFixed(1)}%`} helper={`${emailSummary.validEmail.toLocaleString()} valid`} helpText="Percentage of customers with a verified, deliverable email address." />;
+      case "bounced": return <MetricTile key={id} label="Bounced emails" value={emailSummary.bouncedEmail.toLocaleString()} helpText="Number of email addresses that bounced and are undeliverable." />;
+      case "optedOut": return <MetricTile key={id} label="Opted-out" value={emailSummary.optedOut.toLocaleString()} helpText="Number of customers who opted out of email communications." />;
       default: return null;
     }
   };
