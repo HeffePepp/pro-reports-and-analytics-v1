@@ -9,3 +9,6 @@ export { default as ZipMapPlaceholder } from "./ZipMapPlaceholder";
 
 // KPI preferences
 export { default as KpiCustomizeButton } from "./KpiCustomizeButton";
+
+// Report tiles
+export { default as CouponPerformanceTile } from "./CouponPerformanceTile";
