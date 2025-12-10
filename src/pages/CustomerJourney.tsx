@@ -302,7 +302,7 @@ const CustomerJourneyPage: React.FC = () => {
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <header className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">
+                <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
                   Customer Journey
                 </h2>
                 <p className="text-[11px] text-slate-500">
@@ -342,24 +342,24 @@ const CustomerJourneyPage: React.FC = () => {
                   <div key={tp.id} className="space-y-1">
                     <div className="flex items-baseline justify-between gap-3">
                       <div>
-                        <div className="text-xs font-semibold text-slate-900">
+                        <div className="text-base font-semibold text-slate-900">
                           {tp.id}. {tp.name}
                         </div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-sm text-slate-500">
                           {tp.offsetLabel}
                         </div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-sm text-slate-500">
                           {tp.channel}
                         </div>
                       </div>
-                      <div className="text-right text-[11px] text-slate-500">
-                        <div className="text-sm font-semibold text-emerald-600">
+                      <div className="text-right text-sm text-slate-500">
+                        <div className="text-xl font-semibold text-emerald-600">
                           {tp.respPct.toFixed(1)}% RESP
                         </div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-sm text-slate-500">
                           {tp.roas.toFixed(1)}x ROAS
                         </div>
-                        <div className="text-[11px] text-slate-400">
+                        <div className="text-sm text-slate-400">
                           {tp.sends.toLocaleString()} sent ·{" "}
                           {tp.revenue.toLocaleString("en-US", {
                             style: "currency",
