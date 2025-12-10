@@ -178,6 +178,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="SS msgs sent"
             value={ssSummary.emailsSent.toLocaleString()}
+            helpText="Number of suggested-service follow-up messages sent during the selected period."
           />
         );
       case "ssResponses":
@@ -186,6 +187,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="SS responses"
             value={ssResponses.toLocaleString()}
+            helpText="Number of customers who responded to a suggested-service message by clicking, calling, or booking."
           />
         );
       case "respPct":
@@ -194,6 +196,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="Resp %"
             value={`${ssSummary.acceptanceRate.toFixed(1)}%`}
+            helpText="Response rate for suggested-service messages: responses divided by messages sent."
           />
         );
       case "ssRevenue":
@@ -206,6 +209,7 @@ const SuggestedServicesPage: React.FC = () => {
               currency: "USD",
               maximumFractionDigits: 0,
             })}
+            helpText="Total repair-order revenue tied to accepted suggested services during the selected period."
           />
         );
       case "totalInvRev":
@@ -218,6 +222,7 @@ const SuggestedServicesPage: React.FC = () => {
               currency: "USD",
               maximumFractionDigits: 0,
             })}
+            helpText="Total repair-order revenue for all invoices in the selected period, whether or not they included suggested services."
           />
         );
       case "validEmail":
@@ -226,6 +231,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="SS inv. valid email"
             value={`${ssSummary.validEmailOnSsInvoicesPct.toFixed(1)}%`}
+            helpText="Percent of invoices with suggested services where the customer record has a valid email address on file."
           />
         );
       case "withSsItem":
@@ -234,6 +240,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="% inv. w/ SS item"
             value={`${ssSummary.invoicesWithSsItemPct.toFixed(1)}%`}
+            helpText="Percent of all invoices that include at least one suggested-service line item."
           />
         );
       default:
