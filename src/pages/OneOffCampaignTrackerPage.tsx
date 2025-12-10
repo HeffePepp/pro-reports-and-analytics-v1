@@ -112,26 +112,21 @@ const OneOffCampaignTrackerPage: React.FC = () => {
 
           {/* Main card with tabs */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between gap-3 mb-3">
-              <div>
-                <h2 className="text-sm font-semibold text-slate-900">One-off campaign performance</h2>
-                <p className="text-[11px] text-slate-600">Response rate, ROAS and revenue by campaign and drop.</p>
-                <p className="mt-1 text-[11px] text-slate-500">
-                  Channel bar shows mix of Postcard, Email and Text Message across all drops. Bar length shows resp % vs other campaigns.
-                </p>
-              </div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-semibold text-slate-900">One-off campaign performance</h2>
+
               <div className="inline-flex items-center rounded-full bg-slate-100 p-1 text-[11px]">
                 <button
                   type="button"
                   onClick={() => setTab("overview")}
-                  className={`px-3 py-1 rounded-full ${tab === "overview" ? "bg-white shadow-sm text-slate-900" : "text-slate-600"}`}
+                  className={`px-3 py-1 rounded-full font-medium ${tab === "overview" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
                 >
                   Overview
                 </button>
                 <button
                   type="button"
                   onClick={() => setTab("drops")}
-                  className={`px-3 py-1 rounded-full ${tab === "drops" ? "bg-white shadow-sm text-slate-900" : "text-slate-600"}`}
+                  className={`px-3 py-1 rounded-full font-medium ${tab === "drops" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
                 >
                   Drops
                 </button>
