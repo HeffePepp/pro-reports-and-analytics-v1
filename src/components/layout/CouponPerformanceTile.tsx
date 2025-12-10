@@ -86,63 +86,55 @@ export const CouponPerformanceTile: React.FC = () => {
         </p>
       </header>
 
-      {/* Rows */}
-      <div className="mt-4 divide-y divide-slate-100">
-        {COUPON_ROWS.map((row) => {
-          const usagePct =
-            totalRedemptions > 0
-              ? (row.redemptions / totalRedemptions) * 100
-              : 0;
+      {/* Details Table */}
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full text-left text-xs">
+          <thead>
+            <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
+              <th className="pb-2 font-medium">Code</th>
+              <th className="pb-2 font-medium">Description</th>
+              <th className="pb-2 font-medium text-right">Redemptions</th>
+              <th className="pb-2 font-medium text-right">Avg Ticket</th>
+              <th className="pb-2 font-medium text-right">Revenue</th>
+              <th className="pb-2 font-medium text-right">% Usage</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {COUPON_ROWS.map((row) => {
+              const usagePct =
+                totalRedemptions > 0
+                  ? (row.redemptions / totalRedemptions) * 100
+                  : 0;
 
-          return (
-            <div key={row.code} className="py-3 first:pt-0 last:pb-0">
-              <div className="flex items-start justify-between gap-4">
-                {/* Left: code pill + description */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
+              return (
+                <tr key={row.code}>
+                  <td className="py-2.5">
                     <span className={getPillClassesForKind(row.kind)}>
                       {row.code}
                     </span>
-                    <span className="truncate text-sm font-semibold text-slate-900">
-                      {row.description}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Right: metrics (redemptions, avg ticket, revenue, % usage) */}
-                <div className="shrink-0 min-w-[220px] text-[11px] text-slate-500 text-right">
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
-                    <div>Redemptions</div>
-                    <div className="font-semibold text-slate-900">
-                      {row.redemptions.toLocaleString()}
-                    </div>
-
-                    <div>Avg ticket</div>
-                    <div className="font-semibold text-slate-900">
-                      ${row.avgTicket.toLocaleString("en-US", {
-                        maximumFractionDigits: 0,
-                      })}
-                    </div>
-
-                    <div>Revenue</div>
-                    <div className="font-semibold text-slate-900">
-                      {row.revenue.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        maximumFractionDigits: 0,
-                      })}
-                    </div>
-
-                    <div>% of redemptions</div>
-                    <div className="font-semibold text-emerald-600">
-                      {usagePct.toFixed(1)}%
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+                  </td>
+                  <td className="py-2.5 text-sm text-slate-900">{row.description}</td>
+                  <td className="py-2.5 text-right font-semibold text-slate-900">
+                    {row.redemptions.toLocaleString()}
+                  </td>
+                  <td className="py-2.5 text-right font-semibold text-slate-900">
+                    ${row.avgTicket.toLocaleString()}
+                  </td>
+                  <td className="py-2.5 text-right font-semibold text-slate-900">
+                    {row.revenue.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      maximumFractionDigits: 0,
+                    })}
+                  </td>
+                  <td className="py-2.5 text-right font-semibold text-emerald-600">
+                    {usagePct.toFixed(1)}%
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </section>
   );
