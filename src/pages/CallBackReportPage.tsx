@@ -137,10 +137,16 @@ const CallBackReportPage: React.FC = () => {
             priorities and due dates.
           </p>
         </div>
-        <div className="flex gap-3 text-xs">
+        <div className="flex items-center gap-3">
           <SummaryTile
             label="Open callbacks"
             value={callBackSummary.openCount.toString()}
+          />
+          <KpiCustomizeButton
+            reportId="call-back-report"
+            options={KPI_OPTIONS}
+            selectedIds={selectedIds}
+            onChangeSelected={setSelectedIds}
           />
         </div>
       </div>
@@ -150,28 +156,7 @@ const CallBackReportPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Due today"
-              value={callBackSummary.dueToday.toString()}
-            />
-            <MetricTile
-              label="Overdue"
-              value={callBackSummary.overdue.toString()}
-            />
-            <MetricTile
-              label="Completed this week"
-              value={callBackSummary.completedThisWeek.toString()}
-            />
-            <MetricTile
-              label="Priority focus"
-              value="High"
-              helper="High-priority, overdue first"
-            />
-            <MetricTile
-              label="Owner"
-              value="Store / call center"
-              helper="Shared responsibility"
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}

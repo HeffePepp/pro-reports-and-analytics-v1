@@ -125,10 +125,16 @@ const ActiveLocationsPage: React.FC = () => {
             or suspended in Throttle Pro.
           </p>
         </div>
-        <div className="flex gap-3 text-xs">
+        <div className="flex items-center gap-3">
           <SummaryTile
             label="Total locations"
             value={totalLocations.toString()}
+          />
+          <KpiCustomizeButton
+            reportId="active-locations"
+            options={KPI_OPTIONS}
+            selectedIds={selectedIds}
+            onChangeSelected={setSelectedIds}
           />
         </div>
       </div>
@@ -138,27 +144,7 @@ const ActiveLocationsPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Active"
-              value={activeLocationSummary.activeCount.toString()}
-            />
-            <MetricTile
-              label="Launching"
-              value={activeLocationSummary.launchingCount.toString()}
-            />
-            <MetricTile
-              label="Paused"
-              value={activeLocationSummary.pausedCount.toString()}
-            />
-            <MetricTile
-              label="Suspended"
-              value={activeLocationSummary.suspendedCount.toString()}
-            />
-            <MetricTile
-              label="Data freshness"
-              value="Good"
-              helper="Most stores sending POS data"
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}

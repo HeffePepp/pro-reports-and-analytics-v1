@@ -134,6 +134,12 @@ const ValidEmailCapturePage: React.FC = () => {
             reports reflect real reachable customers.
           </p>
         </div>
+        <KpiCustomizeButton
+          reportId="valid-email-capture"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       {/* Layout: left content + right AI tile */}
@@ -142,27 +148,7 @@ const ValidEmailCapturePage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            <MetricTile
-              label="Total customers"
-              value={emailSummary.totalCustomers.toLocaleString()}
-            />
-            <MetricTile
-              label="With email on file"
-              value={emailSummary.withEmail.toLocaleString()}
-            />
-            <MetricTile
-              label="Valid email capture"
-              value={`${overallCaptureRate.toFixed(1)}%`}
-              helper={`${emailSummary.validEmail.toLocaleString()} valid`}
-            />
-            <MetricTile
-              label="Bounced emails"
-              value={emailSummary.bouncedEmail.toLocaleString()}
-            />
-            <MetricTile
-              label="Opted-out"
-              value={emailSummary.optedOut.toLocaleString()}
-            />
+            {selectedIds.map(renderKpiTile)}
           </div>
 
           {/* AI Insights – stacked here on small/medium screens */}
