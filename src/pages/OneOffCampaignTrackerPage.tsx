@@ -1,10 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  ShellLayout,
-  MetricTile,
-  AIInsightsTile,
-  KpiCustomizeButton,
-} from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type Channel = "postcard" | "email" | "sms";
@@ -169,7 +164,7 @@ const OneOffCampaignTrackerPage: React.FC = () => {
           {/* Main card with tabs */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold text-slate-900">One-off campaign performance</h2>
+              <h2 className="text-base font-semibold text-slate-900"></h2>
 
               <div className="inline-flex items-center rounded-full bg-slate-100 p-1 text-[11px]">
                 <button
