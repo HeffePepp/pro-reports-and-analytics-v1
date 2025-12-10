@@ -4,10 +4,18 @@ import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type CouponSummary = {
   periodLabel: string;
-  totalDiscount: number;
-  avgDiscountPct: number;
-  redemptions: number;
-  revenueWithDiscounts: number;
+  totalCouponAmount: number;
+  totalDiscountAmount: number;
+  avgDiscountPerInvoice: number;
+  totalRevenue: number;
+};
+
+const couponSummary: CouponSummary = {
+  periodLabel: "Last 90 days",
+  totalCouponAmount: 15420,
+  totalDiscountAmount: 28950,
+  avgDiscountPerInvoice: 7.85,
+  totalRevenue: 312400,
 };
 
 type CouponRow = {
@@ -17,14 +25,6 @@ type CouponRow = {
   redemptions: number;
   avgTicket: number;
   discountPct: number;
-};
-
-const couponSummary: CouponSummary = {
-  periodLabel: "Last 90 days",
-  totalDiscount: 18400,
-  avgDiscountPct: 14.2,
-  redemptions: 3820,
-  revenueWithDiscounts: 264800,
 };
 
 const couponRows: CouponRow[] = [
@@ -71,11 +71,10 @@ const couponRows: CouponRow[] = [
 ];
 
 const KPI_OPTIONS: KpiOption[] = [
-  { id: "totalDiscounts", label: "Total discounts given" },
-  { id: "avgDiscountPct", label: "Avg discount %" },
-  { id: "redemptions", label: "Coupon redemptions" },
-  { id: "revenueWithDiscounts", label: "Revenue with discounts" },
-  { id: "avgDiscountPerRedemption", label: "Avg discount per redemption" },
+  { id: "totalCouponAmount", label: "Total coupon amount" },
+  { id: "totalDiscountAmount", label: "Total discount amount" },
+  { id: "avgDiscountPerInvoice", label: "Avg coupon/discount per invoice" },
+  { id: "totalRevenue", label: "Total revenue" },
 ];
 
 const CouponDiscountPage: React.FC = () => {
@@ -89,16 +88,59 @@ const CouponDiscountPage: React.FC = () => {
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "totalDiscounts":
-        return <MetricTile key={id} label="Total discounts given" value={`$${couponSummary.totalDiscount.toLocaleString()}`} helpText="Total dollar value of discounts applied during the selected period." />;
-      case "avgDiscountPct":
-        return <MetricTile key={id} label="Avg discount %" value={`${couponSummary.avgDiscountPct.toFixed(1)}%`} helpText="Average discount percentage across all coupon redemptions." />;
-      case "redemptions":
-        return <MetricTile key={id} label="Coupon redemptions" value={couponSummary.redemptions.toLocaleString()} helpText="Total number of coupons redeemed during the selected period." />;
-      case "revenueWithDiscounts":
-        return <MetricTile key={id} label="Revenue with discounts" value={`$${couponSummary.revenueWithDiscounts.toLocaleString()}`} helpText="Total revenue from transactions that included a coupon discount." />;
-      case "avgDiscountPerRedemption":
-        return <MetricTile key={id} label="Avg discount per redemption" value={`$${(couponSummary.totalDiscount / couponSummary.redemptions).toFixed(1)}`} helpText="Average dollar discount per coupon redemption." />;
+      case "totalCouponAmount":
+        return (
+          <MetricTile
+            key={id}
+            label="Total coupon amount"
+            value={couponSummary.totalCouponAmount.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+              maximumFractionDigits: 0,
+            })}
+            helpText="Total face value of all coupons redeemed during the selected period."
+          />
+        );
+      case "totalDiscountAmount":
+        return (
+          <MetricTile
+            key={id}
+            label="Total discount amount"
+            value={couponSummary.totalDiscountAmount.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+              maximumFractionDigits: 0,
+            })}
+            helpText="Total value of all discounts applied, including coupons and any other price reductions."
+          />
+        );
+      case "avgDiscountPerInvoice":
+        return (
+          <MetricTile
+            key={id}
+            label="Avg coupon/discount per invoice"
+            value={couponSummary.avgDiscountPerInvoice.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+            helpText="Average discount amount per invoice, across all repair orders in the selected period."
+          />
+        );
+      case "totalRevenue":
+        return (
+          <MetricTile
+            key={id}
+            label="Total revenue"
+            value={couponSummary.totalRevenue.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+              maximumFractionDigits: 0,
+            })}
+            helpText="Total repair-order revenue generated in the selected period, after discounts."
+          />
+        );
       default:
         return null;
     }
@@ -157,7 +199,7 @@ const CouponDiscountPage: React.FC = () => {
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {selectedIds.map(renderKpiTile)}
           </div>
 
