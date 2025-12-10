@@ -297,14 +297,10 @@ const Index: React.FC = () => {
   const visibleReports = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    // 1) Filter by category
+    // 1) Filter by primary category only
     let filtered = REPORTS.filter((report) => {
       if (categoryFilter === "all") return true;
-
-      return (
-        report.primaryCategory === categoryFilter ||
-        report.secondaryCategories?.includes(categoryFilter)
-      );
+      return report.primaryCategory === categoryFilter;
     });
 
     // 2) Filter by search term
