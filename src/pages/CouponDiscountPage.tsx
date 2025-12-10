@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, CouponPerformanceTile } from "@/components/layout";
+import {
+  ShellLayout,
+  MetricTile,
+  AIInsightsTile,
+  KpiCustomizeButton,
+  CouponPerformanceTile,
+} from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type CouponSummary = {
@@ -73,7 +79,7 @@ const couponRows: CouponRow[] = [
 const KPI_OPTIONS: KpiOption[] = [
   { id: "totalCouponAmount", label: "Total coupon amount" },
   { id: "totalDiscountAmount", label: "Total discount amount" },
-  { id: "avgDiscountPerInvoice", label: "Avg coupon/discount per invoice" },
+  { id: "avgDiscountPerInvoice", label: "Avg coupon/discount" },
   { id: "totalRevenue", label: "Total revenue" },
 ];
 
@@ -149,12 +155,10 @@ const CouponDiscountPage: React.FC = () => {
   };
 
   const regenerateInsights = () => {
-    const richest = couponRows.reduce((best, c) =>
-      !best || c.discountPct > best.discountPct ? c : best
-    );
+    const richest = couponRows.reduce((best, c) => (!best || c.discountPct > best.discountPct ? c : best));
     setInsights([
       `"${richest.code}" has the highest average discount (${richest.discountPct.toFixed(
-        1
+        1,
       )}%). Review its ROAS to ensure margin is acceptable.`,
       "Consider small tests lowering discount amounts on top-performing coupons to protect margin.",
       "Use this report with ROAS and Oil Type Sales to spot where discounts are eroding premium oil margins.",
@@ -171,8 +175,7 @@ const CouponDiscountPage: React.FC = () => {
       rightInfo={
         <>
           <span>
-            Period:{" "}
-            <span className="font-medium">{couponSummary.periodLabel}</span>
+            Period: <span className="font-medium">{couponSummary.periodLabel}</span>
           </span>
         </>
       }
@@ -180,12 +183,9 @@ const CouponDiscountPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            Coupon / Discount Analysis
-          </h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Coupon / Discount Analysis</h1>
           <p className="mt-1 text-sm text-slate-500">
-            See which offers drive profitable visits and where discounting may
-            be eroding margin.
+            See which offers drive profitable visits and where discounting may be eroding margin.
           </p>
         </div>
         <KpiCustomizeButton
@@ -201,9 +201,7 @@ const CouponDiscountPage: React.FC = () => {
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {selectedIds.map(renderKpiTile)}
-          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map(renderKpiTile)}</div>
 
           {/* AI Insights – stacked here on small/medium screens */}
           <div className="block lg:hidden">
