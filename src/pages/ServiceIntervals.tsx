@@ -3,10 +3,9 @@ import {
   ShellLayout,
   MetricTile,
   AIInsightsTile,
-  useKpiPreferences,
   KpiCustomizeButton,
-  KpiPreferencesModal,
 } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type ServiceIntervalSummary = {
   totalCustomers: number;
@@ -41,13 +40,13 @@ const siBuckets: ServiceIntervalBucket[] = [
   { label: "25+ months", daysMin: 731, daysMax: null, customers: 1380, vehicles: 1540, avgTicket: 88 },
 ];
 
-const kpiDefs = [
+const KPI_OPTIONS: KpiOption[] = [
   { id: "totalCustomers", label: "Total customers" },
   { id: "current", label: "Current" },
   { id: "atRisk", label: "At-risk" },
   { id: "lost", label: "Lost" },
   { id: "avgDays", label: "Avg days since visit" },
-] as const;
+];
 
 const ServiceIntervalsPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
@@ -55,17 +54,13 @@ const ServiceIntervalsPage: React.FC = () => {
     "13–24 month customers should be the primary target for reminder and reactivation touches.",
     "Average ticket is strongest in the 7–12 month window, suggesting this is a sweet spot for visit timing.",
   ]);
-  const [kpiModalOpen, setKpiModalOpen] = useState(false);
 
   const currentPct = useMemo(() => (siSummary.currentCount / siSummary.totalCustomers) * 100, []);
   const atRiskPct = useMemo(() => (siSummary.atRiskCount / siSummary.totalCustomers) * 100, []);
   const lostPct = useMemo(() => (siSummary.lostCount / siSummary.totalCustomers) * 100, []);
   const maxBucketCustomers = useMemo(() => Math.max(...siBuckets.map((b) => b.customers), 1), []);
 
-  const { visibleKpis, visibleIds, toggleKpi, resetKpis } = useKpiPreferences(
-    "service-intervals",
-    kpiDefs as unknown as { id: string; label: string }[]
-  );
+  const { selectedIds, setSelectedIds } = useKpiPreferences("service-intervals", KPI_OPTIONS);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -107,13 +102,18 @@ const ServiceIntervalsPage: React.FC = () => {
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Service Intervals</h1>
           <p className="mt-1 text-sm text-slate-500">Snapshot of current, at-risk and lost customers by time since last visit and mileage interval.</p>
         </div>
-        <KpiCustomizeButton onClick={() => setKpiModalOpen(true)} />
+        <KpiCustomizeButton
+          reportId="service-intervals"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3 space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            {visibleKpis.map((kpi) => renderKpiTile(kpi.id))}
+            {selectedIds.map((id) => renderKpiTile(id))}
           </div>
 
           <div className="block lg:hidden">
@@ -179,16 +179,6 @@ const ServiceIntervalsPage: React.FC = () => {
           <AIInsightsTile title="AI Insights" subtitle="Based on interval & retention data" bullets={insights} onRefresh={regenerateInsights} />
         </div>
       </div>
-
-      <KpiPreferencesModal
-        open={kpiModalOpen}
-        onClose={() => setKpiModalOpen(false)}
-        reportName="Service Intervals"
-        kpis={kpiDefs as unknown as { id: string; label: string }[]}
-        visibleIds={visibleIds}
-        onToggle={toggleKpi}
-        onReset={resetKpis}
-      />
     </ShellLayout>
   );
 };

@@ -3,10 +3,9 @@ import {
   ShellLayout,
   MetricTile,
   AIInsightsTile,
-  useKpiPreferences,
   KpiCustomizeButton,
-  KpiPreferencesModal,
 } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type LtvSummary = {
   totalCustomers: number;
@@ -39,13 +38,13 @@ const ltvSegments: LtvSegmentRow[] = [
   { segment: "Multi-vehicle households", customers: 6300, avgLtv: 720, avgVisits: 5.1, emailCaptureRate: 88 },
 ];
 
-const kpiDefs = [
+const KPI_OPTIONS: KpiOption[] = [
   { id: "totalCustomers", label: "Total customers" },
   { id: "avgLtv", label: "Avg LTV per customer" },
   { id: "topQuartile", label: "Top quartile LTV" },
   { id: "multiVehicle", label: "Multi-vehicle households" },
   { id: "emailCapture", label: "Email capture rate" },
-] as const;
+];
 
 const DataCaptureLtvPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
@@ -53,14 +52,10 @@ const DataCaptureLtvPage: React.FC = () => {
     "Lower LTV segments have weaker data capture, which limits your ability to move them up the value ladder.",
     "Multi-vehicle households are extremely valuable and should be prioritized for journey enrollment.",
   ]);
-  const [kpiModalOpen, setKpiModalOpen] = useState(false);
 
   const maxAvgLtv = useMemo(() => Math.max(...ltvSegments.map((s) => s.avgLtv), 1), []);
 
-  const { visibleKpis, visibleIds, toggleKpi, resetKpis } = useKpiPreferences(
-    "data-capture-ltv",
-    kpiDefs as unknown as { id: string; label: string }[]
-  );
+  const { selectedIds, setSelectedIds } = useKpiPreferences("data-capture-ltv", KPI_OPTIONS);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -104,13 +99,18 @@ const DataCaptureLtvPage: React.FC = () => {
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Data Capture + Life Time Value</h1>
           <p className="mt-1 text-sm text-slate-500">Show how mail/email capture impacts revenue and ticket averages across customer segments.</p>
         </div>
-        <KpiCustomizeButton onClick={() => setKpiModalOpen(true)} />
+        <KpiCustomizeButton
+          reportId="data-capture-ltv"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3 space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            {visibleKpis.map((kpi) => renderKpiTile(kpi.id))}
+            {selectedIds.map((id) => renderKpiTile(id))}
           </div>
 
           <div className="block lg:hidden">
@@ -176,16 +176,6 @@ const DataCaptureLtvPage: React.FC = () => {
           <AIInsightsTile title="AI Insights" subtitle="Based on LTV & data capture" bullets={insights} onRefresh={regenerateInsights} />
         </div>
       </div>
-
-      <KpiPreferencesModal
-        open={kpiModalOpen}
-        onClose={() => setKpiModalOpen(false)}
-        reportName="Data Capture + Life Time Value"
-        kpis={kpiDefs as unknown as { id: string; label: string }[]}
-        visibleIds={visibleIds}
-        onToggle={toggleKpi}
-        onReset={resetKpis}
-      />
     </ShellLayout>
   );
 };

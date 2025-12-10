@@ -3,10 +3,9 @@ import {
   ShellLayout,
   MetricTile,
   AIInsightsTile,
-  useKpiPreferences,
   KpiCustomizeButton,
-  KpiPreferencesModal,
 } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type Channel = "postcard" | "email" | "sms";
 
@@ -96,26 +95,22 @@ const channelColor: Record<Channel, string> = {
   sms: "bg-indigo-400",
 };
 
-const kpiDefs = [
+const KPI_OPTIONS: KpiOption[] = [
   { id: "campaigns", label: "Campaigns" },
   { id: "totalSent", label: "Total sent" },
   { id: "totalResponses", label: "Total responses" },
   { id: "avgRoas", label: "Avg ROAS" },
-] as const;
+];
 
 const OneOffCampaignTrackerPage: React.FC = () => {
   const [tab, setTab] = useState<"overview" | "drops">("overview");
-  const [kpiModalOpen, setKpiModalOpen] = useState(false);
 
   const totalCampaigns = CAMPAIGNS.length;
   const totalSent = useMemo(() => CAMPAIGNS.reduce((sum, c) => sum + c.sent, 0), []);
   const totalResponses = useMemo(() => CAMPAIGNS.reduce((sum, c) => sum + c.responses, 0), []);
   const avgRoas = useMemo(() => CAMPAIGNS.reduce((sum, c) => sum + c.roas, 0) / CAMPAIGNS.length, []);
 
-  const { visibleKpis, visibleIds, toggleKpi, resetKpis } = useKpiPreferences(
-    "one-off-campaign-tracker",
-    kpiDefs as unknown as { id: string; label: string }[],
-  );
+  const { selectedIds, setSelectedIds } = useKpiPreferences("one-off-campaign-tracker", KPI_OPTIONS);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -158,18 +153,23 @@ const OneOffCampaignTrackerPage: React.FC = () => {
             Compare one-off campaigns on response rate, ROAS, revenue and drops.
           </p>
         </div>
-        <KpiCustomizeButton onClick={() => setKpiModalOpen(true)} />
+        <KpiCustomizeButton
+          reportId="one-off-campaign-tracker"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{visibleKpis.map((kpi) => renderKpiTile(kpi.id))}</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map((id) => renderKpiTile(id))}</div>
 
           {/* Main card with tabs */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold text-slate-900"></h2>
+              <h2 className="text-base font-semibold text-slate-900">One-off campaign performance</h2>
 
               <div className="inline-flex items-center rounded-full bg-slate-100 p-1 text-[11px]">
                 <button
@@ -205,16 +205,6 @@ const OneOffCampaignTrackerPage: React.FC = () => {
           />
         </div>
       </div>
-
-      <KpiPreferencesModal
-        open={kpiModalOpen}
-        onClose={() => setKpiModalOpen(false)}
-        reportName="One-Off Campaign Tracker"
-        kpis={kpiDefs as unknown as { id: string; label: string }[]}
-        visibleIds={visibleIds}
-        onToggle={toggleKpi}
-        onReset={resetKpis}
-      />
     </ShellLayout>
   );
 };

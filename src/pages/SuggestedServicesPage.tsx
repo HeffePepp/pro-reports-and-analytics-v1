@@ -4,10 +4,9 @@ import {
   MetricTile,
   AIInsightsTile,
   ZipMapPlaceholder,
-  useKpiPreferences,
   KpiCustomizeButton,
-  KpiPreferencesModal,
 } from "@/components/layout";
+import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type SuggestedServicesSummary = {
   storeGroupName: string;
@@ -93,7 +92,7 @@ const SS_ZIP_STATS: ZipStat[] = [
 type SsTab = "overview" | "details" | "map";
 type MapMetric = "resp" | "revenue";
 
-const kpiDefs = [
+const KPI_OPTIONS: KpiOption[] = [
   { id: "ssMsgsSent", label: "SS msgs sent" },
   { id: "ssResponses", label: "SS responses" },
   { id: "respPct", label: "Resp %" },
@@ -101,23 +100,19 @@ const kpiDefs = [
   { id: "totalInvRev", label: "Total inv. rev." },
   { id: "validEmail", label: "SS inv. valid email" },
   { id: "withSsItem", label: "% inv. w/ SS item" },
-] as const;
+];
 
 const SuggestedServicesPage: React.FC = () => {
   const [ssTab, setSsTab] = useState<SsTab>("overview");
   const [selectedZip, setSelectedZip] = useState<ZipStat | null>(SS_ZIP_STATS[0]);
   const [mapMetric, setMapMetric] = useState<MapMetric>("resp");
-  const [kpiModalOpen, setKpiModalOpen] = useState(false);
 
   const ssResponses = useMemo(
     () => Math.round(ssSummary.emailsSent * (ssSummary.acceptanceRate / 100)),
     []
   );
 
-  const { visibleKpis, visibleIds, toggleKpi, resetKpis } = useKpiPreferences(
-    "suggested-services",
-    kpiDefs as unknown as { id: string; label: string }[]
-  );
+  const { selectedIds, setSelectedIds } = useKpiPreferences("suggested-services", KPI_OPTIONS);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -174,7 +169,12 @@ const SuggestedServicesPage: React.FC = () => {
             Track how Suggested Services communications drive completed jobs and revenue by service type and touch point.
           </p>
         </div>
-        <KpiCustomizeButton onClick={() => setKpiModalOpen(true)} />
+        <KpiCustomizeButton
+          reportId="suggested-services"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       {/* Layout */}
@@ -183,7 +183,7 @@ const SuggestedServicesPage: React.FC = () => {
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {visibleKpis.map((kpi) => renderKpiTile(kpi.id))}
+            {selectedIds.map((id) => renderKpiTile(id))}
           </div>
 
           {/* AI stacked on small screens */}
@@ -377,16 +377,6 @@ const SuggestedServicesPage: React.FC = () => {
           <AIInsightsTile {...aiInsightsProps} />
         </div>
       </div>
-
-      <KpiPreferencesModal
-        open={kpiModalOpen}
-        onClose={() => setKpiModalOpen(false)}
-        reportName="Suggested Services"
-        kpis={kpiDefs as unknown as { id: string; label: string }[]}
-        visibleIds={visibleIds}
-        onToggle={toggleKpi}
-        onReset={resetKpis}
-      />
     </ShellLayout>
   );
 };
