@@ -126,7 +126,7 @@ const CouponDiscountPage: React.FC = () => {
         return (
           <MetricTile
             key={id}
-            label="Avg coupon/discount per invoice"
+            label="Avg coupon/discount"
             value={couponSummary.avgDiscountPerInvoice.toLocaleString("en-US", {
               style: "currency",
               currency: "USD",
