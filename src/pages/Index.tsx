@@ -406,7 +406,7 @@ const Index: React.FC = () => {
       {/* Main area: cards + preview */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Left: report cards grid */}
-        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-fr items-stretch">
+        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-max items-start">
           {visibleReports.map((report) => {
             const isSelected = selectedReport?.id === report.id;
             const badgeColors = categoryColors[report.primaryCategory];
