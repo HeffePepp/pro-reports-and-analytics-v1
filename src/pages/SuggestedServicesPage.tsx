@@ -276,48 +276,33 @@ const SuggestedServicesPage: React.FC = () => {
         </>
       }
     >
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,2.2fr),minmax(0,1fr)]">
-        {/* LEFT COLUMN */}
-        <div className="space-y-6">
-          {/* Intro / summary */}
-          <section className="space-y-2">
-            <h1 className="text-lg font-semibold text-slate-900">
-              Suggested services performance
-            </h1>
-            <p className="text-sm text-slate-600">
-              Track how suggested services perform across your stores, which
-              services customers accept most often, and how your follow-up
-              messaging drives additional RO revenue.
-            </p>
-          </section>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+        <div>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Suggested Services</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Track how Suggested Services communications drive completed jobs and revenue by service type and touch point.
+          </p>
+        </div>
+        <KpiCustomizeButton
+          reportId="suggested-services"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
+      </div>
 
-          {/* KPI grid */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">
-                  Key KPIs
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  Customize which metrics you want to watch for suggested
-                  services.
-                </p>
-              </div>
-              <KpiCustomizeButton
-                reportId="suggested-services"
-                options={KPI_OPTIONS}
-                selectedIds={selectedIds}
-                onChangeSelected={setSelectedIds}
-              />
-            </div>
+      {/* Layout */}
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* KPI tiles */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {selectedIds.map((id) => renderKpiTile(id))}
+          </div>
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              {selectedIds.map((id) => renderKpiTile(id))}
-            </div>
-          </section>
-
-          {/* AI tile on small screens */}
-          <div className="lg:hidden">
+          {/* AI stacked on small screens */}
+          <div className="block lg:hidden">
             <AIInsightsTile {...aiInsightsProps} />
           </div>
 
@@ -438,127 +423,10 @@ const SuggestedServicesPage: React.FC = () => {
             )}
           </section>
 
-          {/* ZIP MAP + DETAIL CARD (separate from tabs) */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <header className="flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">
-                  ZIP performance & map
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  See where suggested services are responding best.
-                </p>
-              </div>
-            </header>
-
-            <div className="mt-3 space-y-4">
-              <ZipMapPlaceholder />
-
-              <div className="space-y-3">
-                {/* ZIP chips */}
-                <div className="flex flex-wrap gap-2 text-[11px] text-slate-600">
-                  {SS_ZIP_STATS.map((z) => {
-                    const isActive = currentZip && currentZip.zip === z.zip;
-                    return (
-                      <button
-                        key={z.zip}
-                        type="button"
-                        onClick={() => setSelectedZip(z)}
-                        className={`px-3 py-1 rounded-full border ${
-                          isActive
-                            ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-                            : "border-slate-200 bg-white hover:border-emerald-300 hover:text-emerald-700"
-                        }`}
-                      >
-                        {z.zip}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* ZIP detail panel */}
-                {currentZip && (
-                  <section className="mt-2 rounded-2xl bg-slate-50 border border-slate-200 p-4">
-                    <div className="grid grid-cols-1 gap-4 text-xs text-slate-700 md:grid-cols-4 md:gap-6">
-                      {/* Location */}
-                      <div className="space-y-1">
-                        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
-                          ZIP
-                        </div>
-                        <div className="text-sm font-semibold text-slate-900">
-                          {currentZip.zip}
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          {currentZip.city}, {currentZip.state}
-                        </div>
-                      </div>
-
-                      {/* Customers */}
-                      <div className="space-y-1">
-                        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
-                          Customers
-                        </div>
-                        <div className="text-sm font-semibold text-slate-900">
-                          {currentZip.activeCustomers.toLocaleString()} active
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          {currentZip.loyalCustomers.toLocaleString()} loyal
-                          customers
-                        </div>
-                      </div>
-
-                      {/* Responses */}
-                      <div className="space-y-1">
-                        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
-                          Suggested services results
-                        </div>
-                        <div
-                          className={`text-sm font-semibold ${getRespColorClass(
-                            currentZip.respPct
-                          )}`}
-                        >
-                          {currentZip.respPct.toFixed(1)}% RESP
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          {currentZip.responses.toLocaleString()} responses
-                        </div>
-                      </div>
-
-                      {/* Vehicle age + revenue */}
-                      <div className="space-y-1">
-                        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
-                          Vehicle age & SS revenue
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          0–5 yrs: {currentZip.age0to5} · 6–10 yrs:{" "}
-                          {currentZip.age6to10} · 11+ yrs:{" "}
-                          {currentZip.age11plus}
-                        </div>
-                        <div className="text-sm font-semibold text-slate-900">
-                          SS rev:{" "}
-                          {currentZip.ssRevenue.toLocaleString("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            maximumFractionDigits: 0,
-                          })}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 text-[11px] leading-snug text-slate-600">
-                      Use ZIP-level patterns here to tune timing, channel mix
-                      and future one-off or automated suggested service
-                      campaigns.
-                    </div>
-                  </section>
-                )}
-              </div>
-            </div>
-          </section>
         </div>
 
-        {/* RIGHT COLUMN – AI tile on larger screens */}
-        <div className="hidden lg:block">
+        {/* RIGHT: AI on large screens */}
+        <div className="hidden lg:block lg:col-span-1">
           <AIInsightsTile {...aiInsightsProps} />
         </div>
       </div>
