@@ -32,10 +32,62 @@ interface Campaign {
 }
 
 const CAMPAIGNS: Campaign[] = [
-  { id: "spring-has-sprung", name: "Don's Garage: Spring Has Sprung", audience: "Current synthetic customers · last 9 months", dropsLabel: "1 drop", lastDropDate: "Last drop Mar 5, 2024", sent: 2800, responses: 194, respPct: 6.9, roas: 16.1, revenue: 22400, channels: ["email"], channelMix: { postcard: 0, email: 100, sms: 0 } },
-  { id: "summer-ac-tuneup-1", name: "Summer A/C Tune-Up", audience: "Vehicles in warm-weather ZIPs · last 18 months", dropsLabel: "2 drops", lastDropDate: "Last drop May 24, 2024", sent: 5000, responses: 220, respPct: 6.8, roas: 9.9, revenue: 40900, channels: ["postcard", "email", "sms"], channelMix: { postcard: 40, email: 30, sms: 30 } },
-  { id: "back-to-school", name: "Back to School", audience: "Minivan/SUV households · schools within 10 miles", dropsLabel: "1 drop", lastDropDate: "Last drop Aug 15, 2024", sent: 2600, responses: 162, respPct: 6.2, roas: 7.6, revenue: 19500, channels: ["postcard"], channelMix: { postcard: 100, email: 0, sms: 0 } },
-  { id: "black-friday-synthetic", name: "Black Friday Synthetic Push", audience: "High-mileage synthetic customers · last 24 months", dropsLabel: "2 drops", lastDropDate: "Last drop Nov 27, 2024", sent: 5500, responses: 337, respPct: 9.1, roas: 10.7, revenue: 64800, channels: ["postcard", "email"], channelMix: { postcard: 60, email: 40, sms: 0 } },
+  {
+    id: "spring-has-sprung",
+    name: "Don's Garage: Spring Has Sprung",
+    audience: "Current synthetic customers · last 9 months",
+    dropsLabel: "1 drop",
+    lastDropDate: "Last drop Mar 5, 2024",
+    sent: 2800,
+    responses: 194,
+    respPct: 6.9,
+    roas: 16.1,
+    revenue: 22400,
+    channels: ["email"],
+    channelMix: { postcard: 0, email: 100, sms: 0 },
+  },
+  {
+    id: "summer-ac-tuneup-1",
+    name: "Summer A/C Tune-Up",
+    audience: "Vehicles in warm-weather ZIPs · last 18 months",
+    dropsLabel: "2 drops",
+    lastDropDate: "Last drop May 24, 2024",
+    sent: 5000,
+    responses: 220,
+    respPct: 6.8,
+    roas: 9.9,
+    revenue: 40900,
+    channels: ["postcard", "email", "sms"],
+    channelMix: { postcard: 40, email: 30, sms: 30 },
+  },
+  {
+    id: "back-to-school",
+    name: "Back to School",
+    audience: "Minivan/SUV households · schools within 10 miles",
+    dropsLabel: "1 drop",
+    lastDropDate: "Last drop Aug 15, 2024",
+    sent: 2600,
+    responses: 162,
+    respPct: 6.2,
+    roas: 7.6,
+    revenue: 19500,
+    channels: ["postcard"],
+    channelMix: { postcard: 100, email: 0, sms: 0 },
+  },
+  {
+    id: "black-friday-synthetic",
+    name: "Black Friday Synthetic Push",
+    audience: "High-mileage synthetic customers · last 24 months",
+    dropsLabel: "2 drops",
+    lastDropDate: "Last drop Nov 27, 2024",
+    sent: 5500,
+    responses: 337,
+    respPct: 9.1,
+    roas: 10.7,
+    revenue: 64800,
+    channels: ["postcard", "email"],
+    channelMix: { postcard: 60, email: 40, sms: 0 },
+  },
 ];
 
 const channelColor: Record<Channel, string> = {
@@ -62,7 +114,7 @@ const OneOffCampaignTrackerPage: React.FC = () => {
 
   const { visibleKpis, visibleIds, toggleKpi, resetKpis } = useKpiPreferences(
     "one-off-campaign-tracker",
-    kpiDefs as unknown as { id: string; label: string }[]
+    kpiDefs as unknown as { id: string; label: string }[],
   );
 
   const renderKpiTile = (id: string) => {
@@ -89,8 +141,12 @@ const OneOffCampaignTrackerPage: React.FC = () => {
       ]}
       rightInfo={
         <>
-          <span>Store group: <span className="font-medium">All Stores</span></span>
-          <span>Period: <span className="font-medium">Last 12 months</span></span>
+          <span>
+            Store group: <span className="font-medium">All Stores</span>
+          </span>
+          <span>
+            Period: <span className="font-medium">Last 12 months</span>
+          </span>
         </>
       }
     >
@@ -98,7 +154,9 @@ const OneOffCampaignTrackerPage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">One-Off Campaign Tracker</h1>
-          <p className="mt-1 text-sm text-slate-500">Compare one-off campaigns on response rate, ROAS, revenue and drops.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Compare one-off campaigns on response rate, ROAS, revenue and drops.
+          </p>
         </div>
         <KpiCustomizeButton onClick={() => setKpiModalOpen(true)} />
       </div>
@@ -106,14 +164,12 @@ const OneOffCampaignTrackerPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {visibleKpis.map((kpi) => renderKpiTile(kpi.id))}
-          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{visibleKpis.map((kpi) => renderKpiTile(kpi.id))}</div>
 
           {/* Main card with tabs */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold text-slate-900">One-off campaign performance</h2>
+              <h2 className="text-base font-semibold text-slate-900"></h2>
 
               <div className="inline-flex items-center rounded-full bg-slate-100 p-1 text-[11px]">
                 <button
@@ -172,12 +228,16 @@ const OverviewList: React.FC = () => {
             <div>
               <div className="text-base md:text-lg font-semibold text-slate-900">{c.name}</div>
               <div className="mt-0.5 text-[11px] text-slate-500">{c.audience}</div>
-              <div className="mt-0.5 text-[11px] text-slate-500">{c.dropsLabel} · {c.lastDropDate}</div>
+              <div className="mt-0.5 text-[11px] text-slate-500">
+                {c.dropsLabel} · {c.lastDropDate}
+              </div>
             </div>
             <div className="text-right text-xs md:text-sm text-slate-700 min-w-[120px]">
               <div className="font-semibold text-amber-600 text-sm md:text-base">{c.respPct.toFixed(1)}% RESP</div>
               <div className="font-semibold text-slate-900 text-sm md:text-base">{c.roas.toFixed(1)}x ROAS</div>
-              <div className="mt-1 text-[11px] text-slate-500">{c.sent.toLocaleString()} sent · ${c.revenue.toLocaleString()} rev</div>
+              <div className="mt-1 text-[11px] text-slate-500">
+                {c.sent.toLocaleString()} sent · ${c.revenue.toLocaleString()} rev
+              </div>
             </div>
           </div>
 
@@ -228,9 +288,15 @@ const DropsTable: React.FC = () => {
             <tr key={c.id} className="border-t border-slate-100">
               <td className="py-3 pr-3 align-top">
                 <div className="text-sm font-semibold text-slate-900">{c.name}</div>
-                <div className="mt-0.5 text-[11px] text-slate-500">{c.dropsLabel} · {c.lastDropDate}</div>
                 <div className="mt-0.5 text-[11px] text-slate-500">
-                  Channels: {c.channels.map((ch) => (ch === "sms" ? "Text Message" : ch[0].toUpperCase() + ch.slice(1))).join(" · ")} · {c.sent.toLocaleString()} sent
+                  {c.dropsLabel} · {c.lastDropDate}
+                </div>
+                <div className="mt-0.5 text-[11px] text-slate-500">
+                  Channels:{" "}
+                  {c.channels
+                    .map((ch) => (ch === "sms" ? "Text Message" : ch[0].toUpperCase() + ch.slice(1)))
+                    .join(" · ")}{" "}
+                  · {c.sent.toLocaleString()} sent
                 </div>
               </td>
               <td className="py-3 pr-3 text-right align-top">{c.sent.toLocaleString()}</td>
