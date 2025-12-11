@@ -490,25 +490,11 @@ const Index: React.FC = () => {
         <div className="lg:col-span-1 space-y-4 self-start">
           {/* Report Preview card */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <h2 className="text-sm font-semibold text-slate-900">
-                  Report preview
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  Name, category, purpose and example metrics.
-                </p>
-              </div>
-              <span className="text-[11px] text-slate-400">
-                {selectedReport ? typeLabel[selectedReport.type] : "Charts & table"}
-              </span>
-            </div>
-
             {selectedReport ? (
               <div className="space-y-3 text-xs text-slate-700">
                 <div>
                   <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                    Name
+                    Report name
                   </div>
                   <div className="mt-0.5 text-sm font-semibold text-slate-900">
                     {selectedReport.name}
