@@ -219,23 +219,15 @@ const RoasPage: React.FC = () => {
       </div>
 
       {/* Main layout: left content + right AI tile */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT: all ROAS tiles, charts & table */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Metric tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            {selectedIds.map(renderKpiTile)}
-          </div>
-
-          {/* AI Insights – stacked here on small/medium screens */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on recent campaign performance"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
+          {/* Metric tiles - only rendered when selected */}
+          {selectedIds.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {selectedIds.map(renderKpiTile)}
+            </div>
+          )}
 
           {/* ROAS by channel & by campaign */}
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -373,10 +365,20 @@ const RoasPage: React.FC = () => {
               </table>
             </div>
           </section>
+
+          {/* AI Insights – stacked here on small/medium screens - after main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on recent campaign performance"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
+          </div>
         </div>
 
         {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1">
+        <div className="hidden lg:block lg:col-span-1 self-start">
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on recent campaign performance"
