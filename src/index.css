@@ -61,13 +61,13 @@ All colors MUST be HSL.
     --tp-green: 113 45% 62%;             /* #7BCC71 */
     --tp-red: 351 100% 48%;              /* #F40031 */
 
-    /* Pastel tints for tables (low opacity equivalents) */
-    --tp-pastel-purple: 289 49% 94%;
-    --tp-pastel-yellow: 45 100% 94%;
-    --tp-pastel-blue: 197 100% 95%;
-    --tp-pastel-orange: 15 100% 95%;
-    --tp-pastel-green: 113 45% 94%;
-    --tp-pastel-red: 351 100% 96%;
+    /* Pastel tints for tables (10% more visible) */
+    --tp-pastel-purple: 289 49% 88%;
+    --tp-pastel-yellow: 45 100% 88%;
+    --tp-pastel-blue: 197 100% 89%;
+    --tp-pastel-orange: 15 100% 89%;
+    --tp-pastel-green: 113 45% 88%;
+    --tp-pastel-red: 351 100% 90%;
   }
 
   .dark {
