@@ -63,10 +63,10 @@ const CAPTURE_SUMMARY: CaptureSummary = {
 };
 
 const CAPTURE_SEGMENTS: CaptureGroupSegment[] = [
-  { id: "mail-only", label: "Mail only", percentage: 23, colorClass: "bg-sky-200" },
-  { id: "email-only", label: "Email only", percentage: 17, colorClass: "bg-emerald-200" },
-  { id: "mail-email", label: "Mail & email", percentage: 49, colorClass: "bg-indigo-300" },
-  { id: "blank", label: "Blank", percentage: 11, colorClass: "bg-rose-200" },
+  { id: "mail-only", label: "Mail only", percentage: 23, colorClass: "bg-tp-pastel-blue" },
+  { id: "email-only", label: "Email only", percentage: 17, colorClass: "bg-tp-pastel-green" },
+  { id: "mail-email", label: "Mail & email", percentage: 49, colorClass: "bg-tp-pastel-purple" },
+  { id: "blank", label: "Blank", percentage: 11, colorClass: "bg-tp-pastel-red" },
 ];
 
 const TICKET_GROUPS: TicketGroupRow[] = [
@@ -325,7 +325,7 @@ const DataCaptureLtvPage: React.FC = () => {
                   </div>
                   <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                     <div
-                      className="h-full bg-emerald-500"
+                      className="h-full bg-tp-pastel-green"
                       style={{ width: `${(g.ticket / maxTicket) * 100}%` }}
                     />
                   </div>

@@ -150,7 +150,7 @@ const ProductSalesPage: React.FC = () => {
                   <div className="mt-1 flex items-center gap-2">
                     <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                       <div
-                        className="h-full bg-sky-500"
+                        className="h-full bg-tp-pastel-blue"
                         style={{
                           width: `${(v.revenue / maxRevenue) * 100}%`,
                         }}
