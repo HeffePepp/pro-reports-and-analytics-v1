@@ -136,15 +136,6 @@ const OilTypeRevenueDetailsTable: React.FC = () => {
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <header className="mb-3">
-        <h2 className="text-[13px] font-semibold text-slate-900">
-          Revenue mix by oil type
-        </h2>
-        <p className="text-[11px] text-slate-500">
-          Relative revenue and invoice mix by oil type.
-        </p>
-      </header>
-
       <div className="overflow-x-auto">
         <table className="min-w-full text-xs">
           <thead>
