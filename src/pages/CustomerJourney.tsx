@@ -391,28 +391,40 @@ const CustomerJourneyPage: React.FC = () => {
               </div>
             )}
 
-            {/* Details tab: stacked layout like Drops table */}
+            {/* Details tab: clean table with left-aligned metrics */}
             {tab === "details" && (
               <div className="mt-4 overflow-x-auto">
-                <table className="min-w-full table-fixed text-[11px]">
-                  {/* Column widths so right side stays tight + grouped */}
+                <table className="min-w-full table-fixed text-xs">
+                  {/* 6 columns: touch point + 5 metrics */}
                   <colgroup>
-                    <col className="w-[46%]" />  {/* Touch point */}
-                    <col className="w-[9%]" />   {/* Sent */}
-                    <col className="w-[11%]" />  {/* Responses */}
-                    <col className="w-[9%]" />   {/* Resp % */}
-                    <col className="w-[10%]" />  {/* ROAS */}
-                    <col className="w-[15%]" />  {/* Revenue */}
+                    <col className="w-[40%]" />  {/* touch point / offset / channel */}
+                    <col className="w-[12%]" />  {/* sent */}
+                    <col className="w-[12%]" />  {/* responses */}
+                    <col className="w-[12%]" />  {/* resp % */}
+                    <col className="w-[12%]" />  {/* roas */}
+                    <col className="w-[12%]" />  {/* revenue */}
                   </colgroup>
 
-                  <thead className="border-b border-slate-100 text-slate-500 uppercase tracking-wide">
-                    <tr>
-                      <th className="py-2 pr-4 text-left font-medium">Touch point</th>
-                      <th className="py-2 pl-4 text-right font-medium">Sent</th>
-                      <th className="py-2 pl-4 text-right font-medium">Responses</th>
-                      <th className="py-2 pl-4 text-right font-medium">Resp %</th>
-                      <th className="py-2 pl-4 text-right font-medium">ROAS</th>
-                      <th className="py-2 pl-4 text-right font-medium">Revenue</th>
+                  <thead>
+                    <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
+                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                        Touch point
+                      </th>
+                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                        Sent
+                      </th>
+                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                        Responses
+                      </th>
+                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                        Resp %
+                      </th>
+                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                        ROAS
+                      </th>
+                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                        Revenue
+                      </th>
                     </tr>
                   </thead>
 
@@ -420,36 +432,34 @@ const CustomerJourneyPage: React.FC = () => {
                     {TOUCH_POINTS.map((tp) => {
                       const responses = Math.round(tp.sends * (tp.respPct / 100));
                       return (
-                        <tr key={tp.id}>
-                          {/* LEFT: touch point name + timing + channel */}
-                          <td className="py-3 pr-4 align-top">
-                            <div className="text-[16px] font-semibold text-slate-900">
+                        <tr key={tp.id} className="align-top">
+                          {/* LEFT: consolidated description column */}
+                          <td className="py-3 pr-3">
+                            <div className="text-xs font-semibold text-slate-900">
                               {tp.id}. {tp.name}
                             </div>
                             <div className="mt-0.5 text-[11px] text-slate-500">
                               {tp.offsetLabel}
                             </div>
-                            <div className="text-[11px] text-slate-500">
+                            <div className="mt-0.5 text-[11px] text-slate-500">
                               {tp.channel}
                             </div>
                           </td>
 
-                          {/* RIGHT: tight stat block, right-aligned */}
-                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          {/* Metrics – left aligned, tight to headers */}
+                          <td className="py-3 pr-3 text-xs text-slate-900">
                             {tp.sends.toLocaleString()}
                           </td>
-                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          <td className="py-3 pr-3 text-xs text-slate-900">
                             {responses.toLocaleString()}
                           </td>
-                          <td className="py-3 pl-4 text-right align-middle">
-                            <span className="font-semibold text-emerald-600">
-                              {tp.respPct.toFixed(1)}%
-                            </span>
+                          <td className="py-3 pr-3 text-xs font-semibold text-emerald-600">
+                            {tp.respPct.toFixed(1)}%
                           </td>
-                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          <td className="py-3 pr-3 text-xs text-slate-900">
                             {tp.roas.toFixed(1)}x
                           </td>
-                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          <td className="py-3 pr-3 text-xs text-slate-900">
                             {tp.revenue.toLocaleString("en-US", {
                               style: "currency",
                               currency: "USD",
