@@ -397,11 +397,11 @@ const CustomerJourneyPage: React.FC = () => {
                 <table className="min-w-full table-fixed text-[11px]">
                   {/* Column widths so right side stays tight + grouped */}
                   <colgroup>
-                    <col className="w-[46%]" />  {/* Touch point */}
-                    <col className="w-[12%]" />  {/* Resp % */}
-                    <col className="w-[14%]" />  {/* ROAS */}
-                    <col className="w-[14%]" />  {/* Comms sent */}
-                    <col className="w-[14%]" />  {/* Revenue */}
+                    <col className="w-[58%]" />  {/* Touch point */}
+                    <col className="w-[9%]" />   {/* Resp % */}
+                    <col className="w-[9%]" />   {/* ROAS */}
+                    <col className="w-[12%]" />  {/* Comms sent */}
+                    <col className="w-[12%]" />  {/* Revenue */}
                   </colgroup>
 
                   <thead className="border-b border-slate-100 text-slate-500">
