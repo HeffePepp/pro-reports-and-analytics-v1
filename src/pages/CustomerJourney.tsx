@@ -288,20 +288,18 @@ const CustomerJourneyPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles - always rendered */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            {selectedIds.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {selectedIds.map((id) => renderKpiTile(id))}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-6">
-                <p className="text-[11px] text-slate-500 text-center">
-                  No KPIs are selected for this report. Use <span className="font-medium">Customize KPIs</span> to turn metrics on.
-                </p>
-              </div>
-            )}
-          </section>
+          {/* KPI tiles */}
+          {selectedIds.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {selectedIds.map((id) => renderKpiTile(id))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-4 text-center">
+              <p className="text-[11px] text-slate-500">
+                No KPIs selected. Use <span className="font-medium">Customize KPIs</span> to turn metrics on.
+              </p>
+            </div>
+          )}
 
           {/* AI stacked on small screens */}
           <div className="block lg:hidden">
