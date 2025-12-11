@@ -391,43 +391,46 @@ const CustomerJourneyPage: React.FC = () => {
               </div>
             )}
 
-            {/* Details tab: tabular view of touch points */}
+            {/* Details tab: stacked layout like Drops table */}
             {tab === "details" && (
               <div className="mt-4 overflow-x-auto">
                 <table className="min-w-full text-xs">
                   <thead>
                     <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
                       <th className="py-2 pr-3 text-left font-medium">Touch point</th>
-                      <th className="py-2 pr-3 text-left font-medium">Offset</th>
-                      <th className="py-2 pr-3 text-left font-medium">Channel</th>
-                      <th className="py-2 pr-3 text-right font-medium">Resp %</th>
-                      <th className="py-2 pr-3 text-right font-medium">ROAS</th>
-                      <th className="py-2 pr-3 text-right font-medium">Comms sent</th>
-                      <th className="py-2 pl-3 text-right font-medium">Revenue</th>
+                      <th className="py-2 pr-3 text-left font-medium">Resp %</th>
+                      <th className="py-2 pr-3 text-left font-medium">ROAS</th>
+                      <th className="py-2 pr-3 text-left font-medium">Comms sent</th>
+                      <th className="py-2 pl-3 text-left font-medium">Revenue</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {TOUCH_POINTS.map((tp) => (
-                      <tr key={tp.id}>
-                        <td className="py-3 pr-3 text-xs text-slate-900">
-                          {tp.id}. {tp.name}
+                      <tr key={tp.id} className="align-top">
+                        {/* Stacked left side – touch point + offset + channel */}
+                        <td className="py-3 pr-3">
+                          <div className="text-xs font-semibold text-slate-900">
+                            {tp.id}. {tp.name}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            {tp.offsetLabel}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            {tp.channel}
+                          </div>
                         </td>
-                        <td className="py-3 pr-3 text-xs text-slate-700">
-                          {tp.offsetLabel}
-                        </td>
-                        <td className="py-3 pr-3 text-xs text-slate-700">
-                          {tp.channel}
-                        </td>
-                        <td className="py-3 pr-3 text-right text-xs text-emerald-600">
+
+                        {/* Stats on the right – left aligned & tight */}
+                        <td className="py-3 pr-3 text-xs font-semibold text-emerald-600">
                           {tp.respPct.toFixed(1)}%
                         </td>
-                        <td className="py-3 pr-3 text-right text-xs text-slate-900">
+                        <td className="py-3 pr-3 text-xs text-slate-900">
                           {tp.roas.toFixed(1)}x
                         </td>
-                        <td className="py-3 pr-3 text-right text-xs text-slate-900">
+                        <td className="py-3 pr-3 text-xs text-slate-900">
                           {tp.sends.toLocaleString()}
                         </td>
-                        <td className="py-3 pl-3 text-right text-xs text-slate-900">
+                        <td className="py-3 pl-3 text-xs text-slate-900">
                           {tp.revenue.toLocaleString("en-US", {
                             style: "currency",
                             currency: "USD",
