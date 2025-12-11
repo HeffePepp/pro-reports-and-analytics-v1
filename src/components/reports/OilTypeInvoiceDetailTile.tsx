@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 type OilTypeInvoiceRow = {
   date: string;
@@ -29,6 +30,8 @@ type SortDir = "asc" | "desc";
 
 type Props = {
   rows?: OilTypeInvoiceRow[];
+  initialCollapsed?: boolean;
+  previewCount?: number;
 };
 
 const oilTypePillClass = (type: string): string => {
@@ -69,9 +72,14 @@ const SAMPLE_INVOICES: OilTypeInvoiceRow[] = [
   { date: "2024-12-09", invoice: "F220-12048", store: "Fairfield, CA", license: "7CDE741", customer: "Noah Rivera", vehicle: "2017 Toyota Highlander", oilType: "Unclassified", brand: "House Brand", sales: 90, coupon: "—", discount: 0 },
 ];
 
-const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
+const OilTypeInvoiceDetailTile: React.FC<Props> = ({ 
+  rows, 
+  initialCollapsed = true,
+  previewCount = 3 
+}) => {
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [isExpanded, setIsExpanded] = useState(!initialCollapsed);
 
   const data = rows ?? SAMPLE_INVOICES;
 
@@ -102,6 +110,9 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
     return sorted;
   }, [data, sortKey, sortDir]);
 
+  const displayedRows = isExpanded ? sortedRows : sortedRows.slice(0, previewCount);
+  const hiddenCount = sortedRows.length - previewCount;
+
   const renderHeader = (label: string, key: SortKey) => {
     const isActive = sortKey === key;
 
@@ -128,7 +139,7 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <header className="mb-3 flex items-baseline justify-between gap-3">
+      <header className="mb-3 flex items-start justify-between gap-3">
         <div>
           <h2 className="text-[13px] font-semibold text-slate-900">
             Invoice Detail
@@ -137,6 +148,23 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
             Invoice-level view of oil type sales.
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+        >
+          {isExpanded ? (
+            <>
+              <ChevronUp className="h-3 w-3" />
+              <span>Show less</span>
+            </>
+          ) : (
+            <>
+              <ChevronDown className="h-3 w-3" />
+              <span>Show all {sortedRows.length}</span>
+            </>
+          )}
+        </button>
       </header>
 
       <div>
@@ -145,7 +173,7 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
             <tr className="border-b border-slate-200">
               {renderHeader("Date", "date")}
               {renderHeader("Invoice", "invoice")}
-              {renderHeader("License / Store / Cust", "license")}
+              {renderHeader("License / Store / Customer", "license")}
               {renderHeader("Oil type", "oilType")}
               {renderHeader("Oil brand", "brand")}
               {renderHeader("Sales", "sales")}
@@ -155,7 +183,7 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
           </thead>
 
           <tbody className="divide-y divide-slate-100">
-            {sortedRows.map((row, idx) => (
+            {displayedRows.map((row, idx) => (
               <tr key={row.invoice + row.date + idx}>
                 <td className="py-3 px-2 text-xs text-slate-900">{row.date}</td>
                 <td className="py-3 px-2 text-xs font-semibold text-sky-700">{row.invoice}</td>
@@ -182,6 +210,18 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
           </tbody>
         </table>
       </div>
+
+      {!isExpanded && hiddenCount > 0 && (
+        <div className="mt-3 text-center">
+          <button
+            type="button"
+            onClick={() => setIsExpanded(true)}
+            className="text-[11px] text-sky-600 hover:text-sky-700 font-medium"
+          >
+            + {hiddenCount} more invoices
+          </button>
+        </div>
+      )}
     </section>
   );
 };
