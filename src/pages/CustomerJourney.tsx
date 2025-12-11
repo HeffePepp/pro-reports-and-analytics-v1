@@ -30,7 +30,7 @@ const journeySummary = {
 const TOUCH_POINTS: JourneyTouchPoint[] = [
   {
     id: 1,
-    name: "Thank You Text",
+    name: "Thank You",
     offsetLabel: "1 day after service",
     channel: "Text Message",
     respPct: 22.7,
