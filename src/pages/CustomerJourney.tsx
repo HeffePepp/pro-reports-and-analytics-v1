@@ -6,7 +6,8 @@ import {
   KpiCustomizeButton,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import { parseChannels, CHANNEL_BAR_CLASS, CHANNEL_LABELS } from "@/styles/channelColors";
+import { parseChannels, CHANNEL_BAR_CLASS } from "@/styles/channelColors";
+import { ChannelLegend } from "@/components/common/ChannelLegend";
 
 type JourneyTouchPoint = {
   id: number;
@@ -383,17 +384,8 @@ const CustomerJourneyPage: React.FC = () => {
                       );
                     })()}
 
-                    {/* Channel legend for multi-channel touch points */}
-                    {parseChannels(tp.channel).length > 1 && (
-                      <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-slate-500">
-                        {parseChannels(tp.channel).map((ch) => (
-                          <span key={ch} className="inline-flex items-center gap-1">
-                            <span className={`h-1.5 w-1.5 rounded-full ${CHANNEL_BAR_CLASS[ch]}`} />
-                            {CHANNEL_LABELS[ch]}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    {/* Channel legend for every touch point */}
+                    <ChannelLegend channels={parseChannels(tp.channel)} />
                   </div>
                 ))}
               </div>
