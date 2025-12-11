@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import {
   ShellLayout,
   AIInsightsTile,
-  OilTypePerformanceTile,
 } from "@/components/layout";
 import OilTypeMixSection from "@/components/reports/OilTypeMixSection";
 import OilTypeUsageKpis from "@/components/reports/OilTypeUsageKpis";
-
+import OilTypeRevenueDetailsTable from "@/components/reports/OilTypeRevenueDetailsTable";
 type OilMixSummary = {
   periodLabel: string;
 };
@@ -54,7 +53,7 @@ const OilTypeSalesPage: React.FC = () => {
           {/* Mix by volume & revenue tiles */}
           <OilTypeMixSection />
 
-          <OilTypePerformanceTile />
+          <OilTypeRevenueDetailsTable />
 
           <div className="block lg:hidden">
             <AIInsightsTile title="AI Insights" subtitle="Based on oil mix & revenue" bullets={insights} onRefresh={regenerateInsights} />
