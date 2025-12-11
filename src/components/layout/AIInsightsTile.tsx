@@ -43,14 +43,14 @@ const AIInsightsTile: React.FC<AIInsightsTileProps> = ({
       {/* NOTE: removed `flex-1` / `h-full` so height is content-driven, but gave it a small min height */}
       <div className="px-4 pb-4">
         {bullets.length === 0 ? (
-          <div className="min-h-[80px] flex items-center justify-center text-[11px] text-sky-500 italic">
+          <div className="min-h-[80px] flex items-center justify-center text-[11px] text-tp-blue-light italic">
             Loading KPI data…
           </div>
         ) : (
           <ul className="mt-2 space-y-1.5 text-xs text-slate-700">
             {bullets.map((line, idx) => (
               <li key={idx} className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-sky-500" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-tp-blue-light" />
                 <span>{line}</span>
               </li>
             ))}

@@ -10,21 +10,21 @@ type Props = {
 };
 
 const SEGMENT_COLORS = [
-  "bg-sky-200",
-  "bg-violet-200",
-  "bg-emerald-200",
-  "bg-amber-200",
-  "bg-rose-200",
-  "bg-slate-200",
+  "bg-tp-pastel-blue",
+  "bg-tp-pastel-purple",
+  "bg-tp-pastel-green",
+  "bg-tp-pastel-yellow",
+  "bg-tp-pastel-red",
+  "bg-tp-pastel-orange",
 ];
 
 const DOT_COLORS = [
-  "bg-sky-300",
-  "bg-violet-300",
-  "bg-emerald-300",
-  "bg-amber-300",
-  "bg-rose-300",
-  "bg-slate-300",
+  "bg-tp-blue-light",
+  "bg-tp-purple",
+  "bg-tp-green",
+  "bg-tp-yellow",
+  "bg-tp-red",
+  "bg-tp-orange",
 ];
 
 export const DiscountByCouponShareChart: React.FC<Props> = ({ rows }) => {

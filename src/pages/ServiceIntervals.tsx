@@ -142,7 +142,7 @@ const ServiceIntervalsPage: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div className="h-full bg-sky-500" style={{ width: `${(b.customers / maxBucketCustomers) * 100}%` }} />
+                      <div className="h-full bg-tp-pastel-blue" style={{ width: `${(b.customers / maxBucketCustomers) * 100}%` }} />
                     </div>
                     <span className="text-[10px] text-slate-500 w-32 text-right">Avg ticket ${b.avgTicket.toFixed(0)}</span>
                   </div>

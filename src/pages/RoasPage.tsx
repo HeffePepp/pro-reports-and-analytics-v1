@@ -262,7 +262,7 @@ const RoasPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                         <div
-                          className="h-full bg-sky-500"
+                          className="h-full bg-tp-pastel-blue"
                           style={{
                             width: `${(c.roas / maxRoasChannel) * 100}%`,
                           }}
@@ -296,7 +296,7 @@ const RoasPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                           <div
-                            className="h-full bg-emerald-500"
+                            className="h-full bg-tp-pastel-green"
                             style={{
                               width: `${(roas / maxRoasCampaign) * 100}%`,
                             }}
