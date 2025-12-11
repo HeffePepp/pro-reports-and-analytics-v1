@@ -397,63 +397,68 @@ const CustomerJourneyPage: React.FC = () => {
                 <table className="min-w-full table-fixed text-[11px]">
                   {/* Column widths so right side stays tight + grouped */}
                   <colgroup>
-                    <col className="w-[58%]" />  {/* Touch point */}
+                    <col className="w-[46%]" />  {/* Touch point */}
+                    <col className="w-[9%]" />   {/* Sent */}
+                    <col className="w-[11%]" />  {/* Responses */}
                     <col className="w-[9%]" />   {/* Resp % */}
-                    <col className="w-[9%]" />   {/* ROAS */}
-                    <col className="w-[12%]" />  {/* Comms sent */}
-                    <col className="w-[12%]" />  {/* Revenue */}
+                    <col className="w-[10%]" />  {/* ROAS */}
+                    <col className="w-[15%]" />  {/* Revenue */}
                   </colgroup>
 
-                  <thead className="border-b border-slate-100 text-slate-500">
+                  <thead className="border-b border-slate-100 text-slate-500 uppercase tracking-wide">
                     <tr>
                       <th className="py-2 pr-4 text-left font-medium">Touch point</th>
-                      <th className="py-2 pr-4 text-right font-medium">Resp %</th>
+                      <th className="py-2 pl-4 text-right font-medium">Sent</th>
+                      <th className="py-2 pl-4 text-right font-medium">Responses</th>
+                      <th className="py-2 pl-4 text-right font-medium">Resp %</th>
                       <th className="py-2 pl-4 text-right font-medium">ROAS</th>
-                      <th className="py-2 pl-4 text-right font-medium">Comms sent</th>
                       <th className="py-2 pl-4 text-right font-medium">Revenue</th>
                     </tr>
                   </thead>
 
                   <tbody className="divide-y divide-slate-100">
-                    {TOUCH_POINTS.map((tp) => (
-                      <tr key={tp.id}>
-                        {/* LEFT: touch point name + timing + channel */}
-                        <td className="py-3 pr-4 align-top">
-                          {/* name = bigger / "doubled" size */}
-                          <div className="text-[16px] font-semibold text-slate-900">
-                            {tp.id}. {tp.name}
-                          </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            {tp.offsetLabel}
-                          </div>
-                          <div className="text-[11px] text-slate-500">
-                            {tp.channel}
-                          </div>
-                        </td>
+                    {TOUCH_POINTS.map((tp) => {
+                      const responses = Math.round(tp.sends * (tp.respPct / 100));
+                      return (
+                        <tr key={tp.id}>
+                          {/* LEFT: touch point name + timing + channel */}
+                          <td className="py-3 pr-4 align-top">
+                            <div className="text-[16px] font-semibold text-slate-900">
+                              {tp.id}. {tp.name}
+                            </div>
+                            <div className="mt-0.5 text-[11px] text-slate-500">
+                              {tp.offsetLabel}
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              {tp.channel}
+                            </div>
+                          </td>
 
-                        {/* RESP % */}
-                        <td className="py-3 pr-4 text-right align-middle">
-                          <span className="font-semibold text-emerald-600">
-                            {tp.respPct.toFixed(1)}%
-                          </span>
-                        </td>
-
-                        {/* RIGHT-SIDE TIGHT BLOCK */}
-                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
-                          {tp.roas.toFixed(1)}x
-                        </td>
-                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
-                          {tp.sends.toLocaleString()}
-                        </td>
-                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
-                          {tp.revenue.toLocaleString("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            maximumFractionDigits: 0,
-                          })}
-                        </td>
-                      </tr>
-                    ))}
+                          {/* RIGHT: tight stat block, right-aligned */}
+                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                            {tp.sends.toLocaleString()}
+                          </td>
+                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                            {responses.toLocaleString()}
+                          </td>
+                          <td className="py-3 pl-4 text-right align-middle">
+                            <span className="font-semibold text-emerald-600">
+                              {tp.respPct.toFixed(1)}%
+                            </span>
+                          </td>
+                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                            {tp.roas.toFixed(1)}x
+                          </td>
+                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                            {tp.revenue.toLocaleString("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                              maximumFractionDigits: 0,
+                            })}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

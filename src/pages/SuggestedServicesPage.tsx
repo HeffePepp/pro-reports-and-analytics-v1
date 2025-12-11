@@ -369,11 +369,12 @@ const SuggestedServicesPage: React.FC = () => {
                 <table className="min-w-full table-fixed text-[11px]">
                   {/* Column widths so right side stays tight + grouped */}
                   <colgroup>
-                    <col className="w-[52%]" />  {/* Touch point */}
-                    <col className="w-[11%]" />  {/* Sent */}
-                    <col className="w-[13%]" />  {/* Responses */}
-                    <col className="w-[11%]" />  {/* Resp % */}
-                    <col className="w-[13%]" />  {/* ROAS */}
+                    <col className="w-[46%]" />  {/* Touch point */}
+                    <col className="w-[9%]" />   {/* Sent */}
+                    <col className="w-[11%]" />  {/* Responses */}
+                    <col className="w-[9%]" />   {/* Resp % */}
+                    <col className="w-[10%]" />  {/* ROAS */}
+                    <col className="w-[15%]" />  {/* Revenue */}
                   </colgroup>
 
                   <thead className="border-b border-slate-100 text-slate-500 uppercase tracking-wide">
@@ -383,34 +384,45 @@ const SuggestedServicesPage: React.FC = () => {
                       <th className="py-2 pl-4 text-right font-medium">Responses</th>
                       <th className="py-2 pl-4 text-right font-medium">Resp %</th>
                       <th className="py-2 pl-4 text-right font-medium">ROAS</th>
+                      <th className="py-2 pl-4 text-right font-medium">Revenue</th>
                     </tr>
                   </thead>
 
                   <tbody className="divide-y divide-slate-100">
-                    {SS_TOUCHPOINTS.map((tp) => (
-                      <tr key={tp.timing}>
-                        {/* LEFT: touch point info */}
-                        <td className="py-3 pr-4 align-top">
-                          <div className="text-[16px] font-semibold text-slate-900">Suggested Services</div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">{tp.timing}</div>
-                          <div className="text-[11px] text-slate-500">{tp.channel}</div>
-                        </td>
+                    {SS_TOUCHPOINTS.map((tp) => {
+                      const revenue = Math.round(tp.responses * tp.roas * 50); // mock revenue calculation
+                      return (
+                        <tr key={tp.timing}>
+                          {/* LEFT: touch point info */}
+                          <td className="py-3 pr-4 align-top">
+                            <div className="text-[16px] font-semibold text-slate-900">Suggested Services</div>
+                            <div className="mt-0.5 text-[11px] text-slate-500">{tp.timing}</div>
+                            <div className="text-[11px] text-slate-500">{tp.channel}</div>
+                          </td>
 
-                        {/* RIGHT: tight stat block */}
-                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
-                          {tp.sent.toLocaleString()}
-                        </td>
-                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
-                          {tp.responses.toLocaleString()}
-                        </td>
-                        <td className="py-3 pl-4 text-right align-middle">
-                          <span className="font-semibold text-emerald-600">{tp.respPct.toFixed(1)}%</span>
-                        </td>
-                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
-                          {tp.roas.toFixed(1)}x
-                        </td>
-                      </tr>
-                    ))}
+                          {/* RIGHT: tight stat block */}
+                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                            {tp.sent.toLocaleString()}
+                          </td>
+                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                            {tp.responses.toLocaleString()}
+                          </td>
+                          <td className="py-3 pl-4 text-right align-middle">
+                            <span className="font-semibold text-emerald-600">{tp.respPct.toFixed(1)}%</span>
+                          </td>
+                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                            {tp.roas.toFixed(1)}x
+                          </td>
+                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                            {revenue.toLocaleString("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                              maximumFractionDigits: 0,
+                            })}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
