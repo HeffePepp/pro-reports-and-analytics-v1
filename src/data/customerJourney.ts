@@ -30,10 +30,7 @@ export type JourneyZipStat = {
   vehicleAgeMix: { label: string; pct: number }[];
 };
 
-const makeZipStats = (
-  baseRespPct: number,
-  totalResponses: number
-): JourneyZipStat[] => {
+const makeZipStats = (baseRespPct: number, totalResponses: number): JourneyZipStat[] => {
   const r1 = Math.round(totalResponses * 0.4);
   const r2 = Math.round(totalResponses * 0.35);
   const r3 = Math.max(totalResponses - r1 - r2, 0);
@@ -102,7 +99,7 @@ export type JourneyTouchPoint = {
 export const JOURNEY_TOUCH_POINTS: JourneyTouchPoint[] = [
   {
     id: "thank-you-text",
-    name: "Thank You Text",
+    name: "Thank You",
     interval: "1 day after Service",
     channel: "Text Message",
     sent: 1850,
@@ -267,5 +264,4 @@ export const JOURNEY_TOUCH_POINTS: JourneyTouchPoint[] = [
   },
 ];
 
-export const getJourneyTouchPointById = (id: string) =>
-  JOURNEY_TOUCH_POINTS.find((tp) => tp.id === id);
+export const getJourneyTouchPointById = (id: string) => JOURNEY_TOUCH_POINTS.find((tp) => tp.id === id);
