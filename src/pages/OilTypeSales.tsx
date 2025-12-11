@@ -50,29 +50,27 @@ const OilTypeSalesPage: React.FC = () => {
         { label: "Reports & Insights", to: "/" },
         { label: "Oil Type Sales" },
       ]}
-      rightInfo={
-        <div className="flex items-center gap-3">
-          <KpiCustomizeButton
-            reportId="oil-type-sales"
-            options={KPI_OPTIONS}
-            selectedIds={selectedIds}
-            onChangeSelected={setSelectedIds}
-          />
-          <span>Period: <span className="font-medium">{oilMixSummary.periodLabel}</span></span>
-        </div>
-      }
+      rightInfo={<span>Period: <span className="font-medium">{oilMixSummary.periodLabel}</span></span>}
     >
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Oil Type Sales</h1>
           <p className="mt-1 text-sm text-slate-500">Volume and revenue mix across conventional, blend, synthetic and high mileage oils.</p>
         </div>
+        <KpiCustomizeButton
+          reportId="oil-type-sales"
+          options={KPI_OPTIONS}
+          selectedIds={selectedIds}
+          onChangeSelected={setSelectedIds}
+        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <div className="lg:col-span-3 space-y-4">
           {/* Oil type KPI tiles */}
-          <OilTypeUsageKpis selectedIds={selectedIds} />
+          {selectedIds.length > 0 && (
+            <OilTypeUsageKpis selectedIds={selectedIds} />
+          )}
 
           <OilTypeMixSection />
 
