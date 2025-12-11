@@ -3,6 +3,14 @@ import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/c
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { CHANNEL_BAR_CLASS, CampaignChannel } from "@/styles/channelColors";
 import { ChannelLegend } from "@/components/common/ChannelLegend";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type Channel = "postcard" | "email" | "sms";
 
