@@ -101,7 +101,7 @@ export const JOURNEY_TOUCH_POINTS: JourneyTouchPoint[] = [
     id: "thank-you-text",
     name: "Thank You",
     interval: "1 day after Service",
-    channel: "Text Message",
+    channel: "Text",
     sent: 1850,
     vehicles: 420,
     responseRate: 22.7,
