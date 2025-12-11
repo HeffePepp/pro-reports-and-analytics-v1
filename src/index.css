@@ -39,20 +39,35 @@ All colors MUST be HSL.
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Throttle Pro palette */
+    --tp-blue-light: 197 100% 44%;       /* #00A3E0 */
+    --tp-blue-dark: 210 100% 20%;        /* #003264 */
+    --tp-grey-dark: 0 0% 38%;            /* #616161 */
+    --tp-bg: 0 0% 96%;                   /* #F4F4F4 */
+    --tp-border: 0 0% 87%;               /* #DEDEDE */
+
+    /* Infographic / data colors */
+    --tp-purple: 289 49% 43%;            /* #9137A7 */
+    --tp-yellow: 45 100% 63%;            /* #FFD543 */
+    --tp-orange: 15 100% 59%;            /* #FF6031 */
+    --tp-green: 113 45% 62%;             /* #7BCC71 */
+    --tp-red: 351 100% 48%;              /* #F40031 */
+
+    /* Pastel tints for tables (low opacity equivalents) */
+    --tp-pastel-purple: 289 49% 94%;
+    --tp-pastel-yellow: 45 100% 94%;
+    --tp-pastel-blue: 197 100% 95%;
+    --tp-pastel-orange: 15 100% 95%;
+    --tp-pastel-green: 113 45% 94%;
+    --tp-pastel-red: 351 100% 96%;
   }
 
   .dark {
