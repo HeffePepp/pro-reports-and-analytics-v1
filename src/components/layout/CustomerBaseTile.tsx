@@ -7,11 +7,13 @@ import {
   ReportTableHeaderCell,
   ReportTableCell,
 } from "@/components/ui/report-table";
+
 type StoreRow = {
   store: string;
   customers: number;
   vehicles: number;
   emailCapturePct: number;
+  phoneCapturePct: number;
   addressCapturePct: number;
 };
 
@@ -21,6 +23,7 @@ const STORES: StoreRow[] = [
     customers: 5200,
     vehicles: 7000,
     emailCapturePct: 79.0,
+    phoneCapturePct: 72.0,
     addressCapturePct: 65.0,
   },
   {
@@ -28,6 +31,7 @@ const STORES: StoreRow[] = [
     customers: 4200,
     vehicles: 5600,
     emailCapturePct: 81.0,
+    phoneCapturePct: 74.0,
     addressCapturePct: 67.0,
   },
   {
@@ -35,6 +39,7 @@ const STORES: StoreRow[] = [
     customers: 3100,
     vehicles: 4080,
     emailCapturePct: 74.0,
+    phoneCapturePct: 68.0,
     addressCapturePct: 60.0,
   },
   {
@@ -42,6 +47,7 @@ const STORES: StoreRow[] = [
     customers: 4000,
     vehicles: 5420,
     emailCapturePct: 80.0,
+    phoneCapturePct: 71.0,
     addressCapturePct: 66.0,
   },
 ];
@@ -108,7 +114,7 @@ export const CustomerBaseTile: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Right: EMAIL + ADDRESS CAPTURE side by side */}
+                {/* Right: EMAIL + PHONE + ADDRESS CAPTURE */}
                 <div className="flex flex-col items-end gap-2 text-right sm:flex-row sm:items-start sm:gap-6">
                   {/* Email capture */}
                   <div>
@@ -121,6 +127,20 @@ export const CustomerBaseTile: React.FC = () => {
                       )}`}
                     >
                       {row.emailCapturePct.toFixed(1)}%
+                    </div>
+                  </div>
+
+                  {/* Phone capture */}
+                  <div>
+                    <div className="text-[11px] uppercase tracking-wide text-slate-500">
+                      Phone capture
+                    </div>
+                    <div
+                      className={`text-sm font-semibold ${getCaptureColorClass(
+                        row.phoneCapturePct
+                      )}`}
+                    >
+                      {row.phoneCapturePct.toFixed(1)}%
                     </div>
                   </div>
 
@@ -144,6 +164,7 @@ export const CustomerBaseTile: React.FC = () => {
         </div>
       )}
 
+      {/* DETAILS TAB */}
       {tab === "details" && (
         <div className="mt-4 overflow-x-auto">
           <ReportTable>
@@ -153,6 +174,7 @@ export const CustomerBaseTile: React.FC = () => {
                 <ReportTableHeaderCell label="Customers" align="right" />
                 <ReportTableHeaderCell label="Vehicles" align="right" />
                 <ReportTableHeaderCell label="Email capture %" align="right" />
+                <ReportTableHeaderCell label="Phone capture %" align="right" />
                 <ReportTableHeaderCell label="Address capture %" align="right" />
               </ReportTableRow>
             </ReportTableHead>
@@ -164,6 +186,9 @@ export const CustomerBaseTile: React.FC = () => {
                   <ReportTableCell align="right" className="text-slate-900">{row.vehicles.toLocaleString()}</ReportTableCell>
                   <ReportTableCell align="right" className={`font-semibold ${getCaptureColorClass(row.emailCapturePct)}`}>
                     {row.emailCapturePct.toFixed(1)}%
+                  </ReportTableCell>
+                  <ReportTableCell align="right" className={`font-semibold ${getCaptureColorClass(row.phoneCapturePct)}`}>
+                    {row.phoneCapturePct.toFixed(1)}%
                   </ReportTableCell>
                   <ReportTableCell align="right" className={`font-semibold ${getCaptureColorClass(row.addressCapturePct)}`}>
                     {row.addressCapturePct.toFixed(1)}%
