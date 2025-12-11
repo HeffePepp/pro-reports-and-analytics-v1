@@ -295,11 +295,6 @@ const CustomerJourneyPage: React.FC = () => {
             </div>
           )}
 
-          {/* AI stacked on small screens */}
-          <div className="block lg:hidden">
-            <AIInsightsTile {...aiInsightsProps} />
-          </div>
-
           {/* Customer Journey tile */}
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <header className="flex items-center justify-between gap-3">
@@ -432,6 +427,11 @@ const CustomerJourneyPage: React.FC = () => {
               </div>
             )}
           </section>
+
+          {/* AI stacked on small screens - after main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile {...aiInsightsProps} />
+          </div>
         </div>
 
         {/* RIGHT: AI insights - top aligned with KPI tiles */}
