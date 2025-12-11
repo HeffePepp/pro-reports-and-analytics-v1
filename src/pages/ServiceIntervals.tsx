@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   ShellLayout,
-  MetricTile,
   AIInsightsTile,
   KpiCustomizeButton,
 } from "@/components/layout";
@@ -15,83 +14,110 @@ import {
   ReportTableCell,
 } from "@/components/ui/report-table";
 
-type ServiceIntervalSummary = {
-  totalCustomers: number;
-  currentCount: number;
-  atRiskCount: number;
-  lostCount: number;
-  avgDaysSinceVisit: number;
-};
+// Segment type definitions
+type SegmentId = "active" | "retained" | "lapsed" | "inactive" | "lost";
 
-type ServiceIntervalBucket = {
+type LoyaltySegment = {
+  id: SegmentId;
   label: string;
-  daysMin: number;
-  daysMax: number | null;
+  rangeLabel: string;
   customers: number;
   vehicles: number;
   avgTicket: number;
+  barPct: number;
+  barColorClass: string;
+  kpiBgClass: string;
+  kpiTextClass: string;
 };
 
-const siSummary: ServiceIntervalSummary = {
-  totalCustomers: 12480,
-  currentCount: 8900,
-  atRiskCount: 2200,
-  lostCount: 1380,
-  avgDaysSinceVisit: 164,
-};
+const TOTAL_CUSTOMERS = 12480;
 
-const siBuckets: ServiceIntervalBucket[] = [
-  { label: "0–6 months", daysMin: 0, daysMax: 180, customers: 5400, vehicles: 6800, avgTicket: 104 },
-  { label: "7–12 months", daysMin: 181, daysMax: 365, customers: 3500, vehicles: 4100, avgTicket: 112 },
-  { label: "13–18 months", daysMin: 366, daysMax: 545, customers: 1420, vehicles: 1660, avgTicket: 96 },
-  { label: "19–24 months", daysMin: 546, daysMax: 730, customers: 780, vehicles: 880, avgTicket: 92 },
-  { label: "25+ months", daysMin: 731, daysMax: null, customers: 1380, vehicles: 1540, avgTicket: 88 },
+const LOYALTY_SEGMENTS: LoyaltySegment[] = [
+  {
+    id: "active",
+    label: "Active Cust (0–8 mo)",
+    rangeLabel: "0–8 months since last service visit",
+    customers: 5400,
+    vehicles: 6800,
+    avgTicket: 104,
+    barPct: 100,
+    barColorClass: "bg-tp-pastel-green",
+    kpiBgClass: "bg-emerald-50",
+    kpiTextClass: "text-emerald-700",
+  },
+  {
+    id: "retained",
+    label: "Retained Cust (9–12 mo)",
+    rangeLabel: "9–12 months since last service visit",
+    customers: 3500,
+    vehicles: 4100,
+    avgTicket: 112,
+    barPct: 65,
+    barColorClass: "bg-tp-pastel-blue",
+    kpiBgClass: "bg-sky-50",
+    kpiTextClass: "text-sky-700",
+  },
+  {
+    id: "lapsed",
+    label: "Lapsed Cust (13–18 mo)",
+    rangeLabel: "13–18 months since last service visit",
+    customers: 1420,
+    vehicles: 1660,
+    avgTicket: 101,
+    barPct: 35,
+    barColorClass: "bg-tp-pastel-yellow",
+    kpiBgClass: "bg-amber-50",
+    kpiTextClass: "text-amber-700",
+  },
+  {
+    id: "inactive",
+    label: "Inactive Cust (19–24 mo)",
+    rangeLabel: "19–24 months since last service visit",
+    customers: 780,
+    vehicles: 880,
+    avgTicket: 92,
+    barPct: 20,
+    barColorClass: "bg-tp-pastel-orange",
+    kpiBgClass: "bg-orange-50",
+    kpiTextClass: "text-orange-700",
+  },
+  {
+    id: "lost",
+    label: "Lost Cust (25+ mo)",
+    rangeLabel: "25+ months since last service visit",
+    customers: 1380,
+    vehicles: 1540,
+    avgTicket: 88,
+    barPct: 25,
+    barColorClass: "bg-tp-pastel-red",
+    kpiBgClass: "bg-rose-50",
+    kpiTextClass: "text-rose-700",
+  },
 ];
 
-const KPI_OPTIONS: KpiOption[] = [
-  { id: "totalCustomers", label: "Total customers" },
-  { id: "current", label: "Current" },
-  { id: "atRisk", label: "At-risk" },
-  { id: "lost", label: "Lost" },
-  { id: "avgDays", label: "Avg days since visit" },
-];
+const KPI_OPTIONS: KpiOption[] = LOYALTY_SEGMENTS.map((seg) => ({
+  id: seg.id,
+  label: seg.label,
+}));
 
 const ServiceIntervalsPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Most customers are within 12 months of their last visit, but a meaningful group is drifting into at-risk and lost intervals.",
     "13–24 month customers should be the primary target for reminder and reactivation touches.",
-    "Average ticket is strongest in the 7–12 month window, suggesting this is a sweet spot for visit timing.",
+    "Average ticket is strongest in the 9–12 month window, suggesting this is a sweet spot for visit timing.",
   ]);
-
-  const currentPct = useMemo(() => (siSummary.currentCount / siSummary.totalCustomers) * 100, []);
-  const atRiskPct = useMemo(() => (siSummary.atRiskCount / siSummary.totalCustomers) * 100, []);
-  const lostPct = useMemo(() => (siSummary.lostCount / siSummary.totalCustomers) * 100, []);
-  const maxBucketCustomers = useMemo(() => Math.max(...siBuckets.map((b) => b.customers), 1), []);
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("service-intervals", KPI_OPTIONS);
 
-  const renderKpiTile = (id: string) => {
-    switch (id) {
-      case "totalCustomers":
-        return <MetricTile key={id} label="Total customers" value={siSummary.totalCustomers.toLocaleString()} helpText="Total unique customers in the database." />;
-      case "current":
-        return <MetricTile key={id} label="Current" value={siSummary.currentCount.toLocaleString()} helper={`${currentPct.toFixed(1)}%`} helpText="Customers whose last visit was within the expected service interval (typically 0–12 months)." />;
-      case "atRisk":
-        return <MetricTile key={id} label="At-risk" value={siSummary.atRiskCount.toLocaleString()} helper={`${atRiskPct.toFixed(1)}%`} helpText="Customers 13–24 months since their last visit who are at risk of defecting." />;
-      case "lost":
-        return <MetricTile key={id} label="Lost" value={siSummary.lostCount.toLocaleString()} helper={`${lostPct.toFixed(1)}%`} helpText="Customers 25+ months since their last visit who are considered lost." />;
-      case "avgDays":
-        return <MetricTile key={id} label="Avg days since visit" value={siSummary.avgDaysSinceVisit.toFixed(0)} helpText="Average number of days since the last service visit across all customers." />;
-      default:
-        return null;
-    }
-  };
-
   const regenerateInsights = () => {
-    const worstBucket = siBuckets[siBuckets.length - 1];
+    const activeSeg = LOYALTY_SEGMENTS.find((s) => s.id === "active");
+    const lostSeg = LOYALTY_SEGMENTS.find((s) => s.id === "lost");
+    const activePct = activeSeg ? ((activeSeg.customers / TOTAL_CUSTOMERS) * 100).toFixed(1) : "0";
+    const lostPct = lostSeg ? ((lostSeg.customers / TOTAL_CUSTOMERS) * 100).toFixed(1) : "0";
+
     setInsights([
-      `${currentPct.toFixed(1)}% of customers are current, with ${atRiskPct.toFixed(1)}% at-risk and ${lostPct.toFixed(1)}% lost.`,
-      `"${worstBucket.label}" has ${worstBucket.customers.toLocaleString()} customers; pair this report with Reactivation and One-Off Campaign Tracker to win them back.`,
+      `${activePct}% of customers are active (0–8 mo), with ${lostPct}% lost (25+ mo).`,
+      `"Lost Cust" has ${lostSeg?.customers.toLocaleString()} customers; pair this report with Reactivation and One-Off Campaign Tracker to win them back.`,
       "Use this report to validate your journey intervals and adjust reminder timing by store or region.",
     ]);
   };
@@ -103,12 +129,18 @@ const ServiceIntervalsPage: React.FC = () => {
         { label: "Reports & Insights", to: "/" },
         { label: "Service Intervals" },
       ]}
-      rightInfo={<span>Customers: <span className="font-medium">{siSummary.totalCustomers.toLocaleString()}</span></span>}
+      rightInfo={
+        <span>
+          Customers: <span className="font-medium">{TOTAL_CUSTOMERS.toLocaleString()}</span>
+        </span>
+      }
     >
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Service Intervals</h1>
-          <p className="mt-1 text-sm text-slate-500">Snapshot of current, at-risk and lost customers by time since last visit and mileage interval.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Snapshot of current, at-risk and lost customers by time since last service visit.
+          </p>
         </div>
         <KpiCustomizeButton
           reportId="service-intervals"
@@ -120,59 +152,106 @@ const ServiceIntervalsPage: React.FC = () => {
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <div className="lg:col-span-3 space-y-4">
+          {/* Segment KPI tiles with matching colors */}
           {selectedIds.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-              {selectedIds.map((id) => renderKpiTile(id))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+              {selectedIds.map((id) => {
+                const seg = LOYALTY_SEGMENTS.find((s) => s.id === id);
+                if (!seg) return null;
+                const share = (seg.customers / TOTAL_CUSTOMERS) * 100;
+                return (
+                  <div
+                    key={seg.id}
+                    className={`rounded-2xl border border-slate-200 p-3 shadow-sm ${seg.kpiBgClass}`}
+                  >
+                    <div className="space-y-1">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+                        {seg.label}
+                      </div>
+                      <div className={`text-xl font-semibold tracking-tight ${seg.kpiTextClass}`}>
+                        {seg.customers.toLocaleString()}
+                      </div>
+                      <div className="text-[11px] text-slate-600">
+                        {share.toFixed(1)}% of customers · {seg.vehicles.toLocaleString()} vehicles
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
 
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
+          {/* Customer Loyalty Segmentation chart tile */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <header className="flex items-baseline justify-between gap-3">
               <div>
-                <h2 className="text-sm font-semibold text-slate-900">Customers by service interval</h2>
-                <p className="text-[11px] text-slate-600">Buckets by time since last visit (dummy data)</p>
+                <h2 className="text-[13px] font-semibold text-slate-900">
+                  Customer Loyalty Segmentation
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Buckets by time since last service visit
+                </p>
               </div>
-            </div>
-            <div className="space-y-2 text-xs text-slate-700">
-              {siBuckets.map((b) => (
-                <div key={b.label}>
-                  <div className="flex justify-between text-[11px]">
-                    <span>{b.label}</span>
-                    <span>{b.customers.toLocaleString()} customers · {b.vehicles.toLocaleString()} vehicles</span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div className="h-full bg-tp-pastel-blue" style={{ width: `${(b.customers / maxBucketCustomers) * 100}%` }} />
+            </header>
+
+            <div className="mt-4 space-y-3">
+              {LOYALTY_SEGMENTS.map((seg) => (
+                <div key={seg.id} className="space-y-1">
+                  <div className="flex items-start justify-between gap-4">
+                    {/* Left: segment label + range */}
+                    <div>
+                      <div className="text-xs font-semibold text-slate-900">{seg.label}</div>
+                      <div className="text-[11px] text-slate-500">{seg.rangeLabel}</div>
                     </div>
-                    <span className="text-[10px] text-slate-500 w-32 text-right">Avg ticket ${b.avgTicket.toFixed(0)}</span>
+
+                    {/* Right: counts + avg ticket */}
+                    <div className="text-right text-[11px] text-slate-500">
+                      <div className="text-xs font-semibold text-slate-900">
+                        {seg.customers.toLocaleString()} customers · {seg.vehicles.toLocaleString()} vehicles
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        Avg ticket ${seg.avgTicket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bar with segment-specific color */}
+                  <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100">
+                    <div
+                      className={`h-1.5 rounded-full ${seg.barColorClass}`}
+                      style={{ width: `${seg.barPct}%` }}
+                    />
                   </div>
                 </div>
               ))}
             </div>
           </section>
 
+          {/* Interval details table */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-sm font-semibold text-slate-900">Interval details</h2>
-              <span className="text-[11px] text-slate-500">Customers, vehicles and revenue potential by bucket</span>
+              <span className="text-[11px] text-slate-500">
+                Customers, vehicles and revenue potential by bucket
+              </span>
             </div>
             <div className="overflow-x-auto">
               <ReportTable>
                 <ReportTableHead>
                   <ReportTableRow>
-                    <ReportTableHeaderCell label="Interval" />
+                    <ReportTableHeaderCell label="Segment" />
                     <ReportTableHeaderCell label="Customers" align="right" />
                     <ReportTableHeaderCell label="Vehicles" align="right" />
                     <ReportTableHeaderCell label="Avg ticket" align="right" />
                   </ReportTableRow>
                 </ReportTableHead>
                 <ReportTableBody>
-                  {siBuckets.map((b) => (
-                    <ReportTableRow key={b.label}>
-                      <ReportTableCell className="text-slate-800">{b.label}</ReportTableCell>
-                      <ReportTableCell align="right">{b.customers.toLocaleString()}</ReportTableCell>
-                      <ReportTableCell align="right">{b.vehicles.toLocaleString()}</ReportTableCell>
-                      <ReportTableCell align="right">${b.avgTicket.toFixed(0)}</ReportTableCell>
+                  {LOYALTY_SEGMENTS.map((seg) => (
+                    <ReportTableRow key={seg.id}>
+                      <ReportTableCell className="text-slate-800">{seg.label}</ReportTableCell>
+                      <ReportTableCell align="right">{seg.customers.toLocaleString()}</ReportTableCell>
+                      <ReportTableCell align="right">{seg.vehicles.toLocaleString()}</ReportTableCell>
+                      <ReportTableCell align="right">${seg.avgTicket.toFixed(0)}</ReportTableCell>
                     </ReportTableRow>
                   ))}
                 </ReportTableBody>
@@ -181,12 +260,22 @@ const ServiceIntervalsPage: React.FC = () => {
           </section>
 
           <div className="block lg:hidden">
-            <AIInsightsTile title="AI Insights" subtitle="Based on interval & retention data" bullets={insights} onRefresh={regenerateInsights} />
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on interval & retention data"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
           </div>
         </div>
 
         <div className="hidden lg:block lg:col-span-1 self-start">
-          <AIInsightsTile title="AI Insights" subtitle="Based on interval & retention data" bullets={insights} onRefresh={regenerateInsights} />
+          <AIInsightsTile
+            title="AI Insights"
+            subtitle="Based on interval & retention data"
+            bullets={insights}
+            onRefresh={regenerateInsights}
+          />
         </div>
       </div>
     </ShellLayout>
