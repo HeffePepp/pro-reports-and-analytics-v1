@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   ShellLayout,
   MetricTile,
@@ -7,6 +7,7 @@ import {
   OilTypePerformanceTile,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import OilTypeMixSection from "@/components/reports/OilTypeMixSection";
 
 type OilMixSummary = {
   periodLabel: string;
@@ -110,6 +111,9 @@ const OilTypeSalesPage: React.FC = () => {
               {selectedIds.map((id) => renderKpiTile(id))}
             </div>
           )}
+
+          {/* Mix by volume & revenue tiles */}
+          <OilTypeMixSection />
 
           <OilTypePerformanceTile />
 
