@@ -138,12 +138,11 @@ const REPORTS: Report[] = [
     previewMetric: "Mail reach 86% · Email reach 74%",
   },
 
-  // --- Internal / Data health ---
+  // --- Customers / Data health ---
   {
     id: "valid-email-capture",
     name: "Valid Email Capture",
-    primaryCategory: "internal",
-    secondaryCategories: ["customers"],
+    primaryCategory: "customers",
     type: "chart",
     purpose: "New valid emails captured by store, tech and week.",
     previewMetric: "228 new valid emails last 7 days",
