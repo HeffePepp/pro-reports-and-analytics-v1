@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import { ChevronsUpDown } from "lucide-react";
 
 type OilTypeId = "conventional" | "synBlend" | "fullSyn" | "highMileage" | "unclassified";
 
@@ -101,21 +100,43 @@ const OilTypeRevenueDetailsTable: React.FC = () => {
     return rows;
   }, [sortKey, sortDir]);
 
-  const renderHeader = (label: string, key: SortKey, alignRight = false) => (
-    <th
-      key={key}
-      className={`py-2 px-3 text-[11px] font-medium uppercase tracking-wide text-slate-500 ${alignRight ? "text-right" : "text-left"}`}
-    >
-      <button
-        type="button"
-        onClick={() => handleSort(key)}
-        className="inline-flex items-center gap-1"
+  const renderHeader = (
+    label: string,
+    key: SortKey,
+    { alignRight = false }: { alignRight?: boolean } = {}
+  ) => {
+    const isActive = sortKey === key;
+    const arrow = !isActive ? "▼" : sortDir === "desc" ? "▼" : "▲";
+
+    return (
+      <th
+        key={key}
+        className={[
+          "py-2 px-3 text-[11px] font-medium uppercase tracking-wide text-slate-500",
+          alignRight ? "text-right" : "text-left",
+        ].join(" ")}
       >
-        <span className="whitespace-nowrap">{label}</span>
-        <ChevronsUpDown className="h-3 w-3 text-slate-300" />
-      </button>
-    </th>
-  );
+        <button
+          type="button"
+          onClick={() => handleSort(key)}
+          className={[
+            "inline-flex items-center gap-1",
+            alignRight ? "justify-end" : "justify-start",
+          ].join(" ")}
+        >
+          <span className="whitespace-nowrap">{label}</span>
+          <span
+            className={[
+              "text-[9px]",
+              isActive ? "text-slate-400" : "text-slate-300",
+            ].join(" ")}
+          >
+            {arrow}
+          </span>
+        </button>
+      </th>
+    );
+  };
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -136,10 +157,10 @@ const OilTypeRevenueDetailsTable: React.FC = () => {
                 Oil type
               </th>
               {renderHeader("Invoices", "invoices")}
-              {renderHeader("Share of invoices", "invoiceSharePct", true)}
-              {renderHeader("Revenue", "revenue", true)}
-              {renderHeader("Share of revenue", "revenueSharePct", true)}
-              {renderHeader("Avg ticket", "avgTicket", true)}
+              {renderHeader("Share of invoices", "invoiceSharePct", { alignRight: true })}
+              {renderHeader("Revenue", "revenue", { alignRight: true })}
+              {renderHeader("Share of revenue", "revenueSharePct", { alignRight: true })}
+              {renderHeader("Avg ticket", "avgTicket", { alignRight: true })}
             </tr>
           </thead>
 
