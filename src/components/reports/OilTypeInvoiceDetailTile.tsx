@@ -145,7 +145,6 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
             <tr className="border-b border-slate-200">
               {renderHeader("Date", "date")}
               {renderHeader("Invoice", "invoice")}
-              {renderHeader("Store", "store")}
               {renderHeader("License", "license")}
               {renderHeader("Oil type", "oilType")}
               {renderHeader("Oil brand", "brand")}
@@ -160,9 +159,9 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
               <tr key={row.invoice + row.date + idx}>
                 <td className="py-3 px-2 text-xs text-slate-900">{row.date}</td>
                 <td className="py-3 px-2 text-xs font-semibold text-sky-700">{row.invoice}</td>
-                <td className="py-3 px-2 text-xs text-slate-900">{row.store}</td>
                 <td className="py-3 px-2 text-xs">
                   <div className="font-semibold text-slate-900">{row.license}</div>
+                  <div className="text-[10px] text-slate-500">{row.store}</div>
                   <div className="text-[10px] text-slate-500">{row.customer} · {row.vehicle}</div>
                 </td>
                 <td className="py-3 px-2 text-xs">
