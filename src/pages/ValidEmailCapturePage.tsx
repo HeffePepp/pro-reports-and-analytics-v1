@@ -181,7 +181,7 @@ const ValidEmailCapturePage: React.FC = () => {
                   <div className="flex items-center gap-2 mt-1">
                     <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                       <div
-                        className="h-full bg-sky-500"
+                        className="h-full bg-tp-pastel-green"
                         style={{
                           width: `${(r.captureRate / maxCaptureRate) * 100}%`,
                         }}

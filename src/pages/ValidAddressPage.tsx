@@ -164,15 +164,15 @@ const ValidAddressPage: React.FC = () => {
                   </div>
                   <div className="mt-1 flex h-2 rounded-full overflow-hidden bg-slate-100">
                     <div
-                      className="bg-emerald-500"
+                      className="bg-tp-pastel-green"
                       style={{ width: `${r.validPct}%` }}
                     />
                     <div
-                      className="bg-amber-400"
+                      className="bg-tp-pastel-yellow"
                       style={{ width: `${r.badPct}%` }}
                     />
                     <div
-                      className="bg-rose-400"
+                      className="bg-tp-pastel-red"
                       style={{ width: `${r.vacantPct}%` }}
                     />
                   </div>

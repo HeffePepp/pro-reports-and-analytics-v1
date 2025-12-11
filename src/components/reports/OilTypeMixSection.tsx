@@ -7,19 +7,19 @@ type MixSegment = {
 };
 
 const MIX_BY_VOLUME: MixSegment[] = [
-  { label: "Conventional", pct: 31, colorClass: "bg-slate-400" },
-  { label: "Syn blend", pct: 22, colorClass: "bg-sky-400" },
-  { label: "Full syn", pct: 37, colorClass: "bg-indigo-500" },
-  { label: "High mileage", pct: 8, colorClass: "bg-emerald-400" },
-  { label: "Unclassified", pct: 2, colorClass: "bg-amber-400" },
+  { label: "Conventional", pct: 31, colorClass: "bg-tp-pastel-blue" },
+  { label: "Syn blend", pct: 22, colorClass: "bg-tp-pastel-purple" },
+  { label: "Full syn", pct: 37, colorClass: "bg-tp-pastel-green" },
+  { label: "High mileage", pct: 8, colorClass: "bg-tp-pastel-yellow" },
+  { label: "Unclassified", pct: 2, colorClass: "bg-tp-pastel-orange" },
 ];
 
 const MIX_BY_REVENUE: MixSegment[] = [
-  { label: "Conventional", pct: 18, colorClass: "bg-slate-400" },
-  { label: "Syn blend", pct: 24, colorClass: "bg-sky-400" },
-  { label: "Full syn", pct: 41, colorClass: "bg-indigo-500" },
-  { label: "High mileage", pct: 16, colorClass: "bg-emerald-400" },
-  { label: "Unclassified", pct: 1, colorClass: "bg-amber-400" },
+  { label: "Conventional", pct: 18, colorClass: "bg-tp-pastel-blue" },
+  { label: "Syn blend", pct: 24, colorClass: "bg-tp-pastel-purple" },
+  { label: "Full syn", pct: 41, colorClass: "bg-tp-pastel-green" },
+  { label: "High mileage", pct: 16, colorClass: "bg-tp-pastel-yellow" },
+  { label: "Unclassified", pct: 1, colorClass: "bg-tp-pastel-orange" },
 ];
 
 const Bar: React.FC<{ segments: MixSegment[] }> = ({ segments }) => (

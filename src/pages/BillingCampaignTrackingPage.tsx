@@ -194,7 +194,7 @@ const BillingCampaignTrackingPage: React.FC = () => {
                 </div>
                 <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full bg-amber-400"
+                    className="h-full bg-tp-pastel-yellow"
                     style={{
                       width: `${
                         (totalPending / billingSummary.totalBilling) * 100
@@ -210,7 +210,7 @@ const BillingCampaignTrackingPage: React.FC = () => {
                 </div>
                 <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full bg-sky-500"
+                    className="h-full bg-tp-pastel-blue"
                     style={{
                       width: `${
                         (totalPosted / billingSummary.totalBilling) * 100
@@ -226,7 +226,7 @@ const BillingCampaignTrackingPage: React.FC = () => {
                 </div>
                 <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full bg-emerald-500"
+                    className="h-full bg-tp-pastel-green"
                     style={{
                       width: `${
                         (totalPaid / billingSummary.totalBilling) * 100
