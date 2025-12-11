@@ -426,7 +426,7 @@ const Index: React.FC = () => {
                 <div className={`h-1.5 rounded-t-2xl ${accentBar}`} />
 
                 <div className="flex-1 p-4 space-y-2">
-                  <div className="flex items-center justify-between text-[11px]">
+                  <div className="flex items-center text-[11px]">
                     <span
                       className={[
                         "inline-flex items-center px-2 py-0.5 rounded-full font-medium",
@@ -436,9 +436,6 @@ const Index: React.FC = () => {
                     >
                       {CATEGORIES.find((c) => c.id === report.primaryCategory)?.label ??
                         "Category"}
-                    </span>
-                    <span className="text-slate-400">
-                      {typeLabel[report.type] ?? "Charts & table"}
                     </span>
                   </div>
 
