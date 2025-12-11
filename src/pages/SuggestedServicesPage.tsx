@@ -1,11 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  ShellLayout,
-  MetricTile,
-  AIInsightsTile,
-  ZipMapPlaceholder,
-  KpiCustomizeButton,
-} from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, ZipMapPlaceholder, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type SuggestedServicesSummary = {
@@ -163,10 +157,7 @@ const SuggestedServicesPage: React.FC = () => {
   const [ssTab, setSsTab] = useState<SsTab>("overview");
   const [selectedZip, setSelectedZip] = useState<ZipStat | null>(SS_ZIP_STATS[0]);
 
-  const ssResponses = useMemo(
-    () => Math.round(ssSummary.emailsSent * (ssSummary.acceptanceRate / 100)),
-    []
-  );
+  const ssResponses = useMemo(() => Math.round(ssSummary.emailsSent * (ssSummary.acceptanceRate / 100)), []);
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("suggested-services", KPI_OPTIONS);
 
@@ -274,8 +265,7 @@ const SuggestedServicesPage: React.FC = () => {
       rightInfo={
         <>
           <span>
-            Store group:{" "}
-            <span className="font-medium">{ssSummary.storeGroupName}</span>
+            Store group: <span className="font-medium">{ssSummary.storeGroupName}</span>
           </span>
           <span>
             Period: <span className="font-medium">{ssSummary.periodLabel}</span>
@@ -288,7 +278,8 @@ const SuggestedServicesPage: React.FC = () => {
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Suggested Services</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Track how Suggested Services communications drive completed jobs and revenue by service type and touch point.
+            Track how Suggested Services communications drive completed jobs and revenue by service type and touch
+            point.
           </p>
         </div>
         <KpiCustomizeButton
@@ -304,9 +295,7 @@ const SuggestedServicesPage: React.FC = () => {
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
           {/* KPI tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {selectedIds.map((id) => renderKpiTile(id))}
-          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map((id) => renderKpiTile(id))}</div>
 
           {/* AI stacked on small screens */}
           <div className="block lg:hidden">
@@ -317,12 +306,8 @@ const SuggestedServicesPage: React.FC = () => {
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <header className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">
-                  Suggested services performance
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  By service type – click Details for table view.
-                </p>
+                <h2 className="text-[13px] font-semibold text-slate-900">Suggested Services Items</h2>
+                <p className="text-[11px] text-slate-500">By service type – click Details for table view.</p>
               </div>
 
               {/* Two-tab pill, like One-off Campaigns, but just Overview / Details */}
@@ -335,9 +320,7 @@ const SuggestedServicesPage: React.FC = () => {
                       type="button"
                       onClick={() => setSsTab(tab)}
                       className={`rounded-full px-3 py-1 transition ${
-                        isActive
-                          ? "bg-white text-slate-900 shadow-sm"
-                          : "text-slate-600 hover:text-slate-800"
+                        isActive ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-800"
                       }`}
                     >
                       {tab === "overview" ? "Overview" : "Details"}
@@ -351,41 +334,28 @@ const SuggestedServicesPage: React.FC = () => {
             {ssTab === "overview" && (
               <div className="mt-4 divide-y divide-slate-100">
                 {SS_SERVICE_TYPES.map((row) => {
-                  const responses = Math.round(
-                    row.invoices * (row.respPct / 100)
-                  );
+                  const responses = Math.round(row.invoices * (row.respPct / 100));
                   const respClass = getRespColorClass(row.respPct);
 
                   return (
-                    <div
-                      key={row.service}
-                      className="py-3 first:pt-0 last:pb-0"
-                    >
+                    <div key={row.service} className="py-3 first:pt-0 last:pb-0">
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0 flex-1">
                           {/* Service name */}
-                          <div className="truncate text-xs font-medium text-slate-900">
-                            {row.service}
-                          </div>
+                          <div className="truncate text-xs font-medium text-slate-900">{row.service}</div>
 
                           {/* Stats above/below for breathing room */}
                           <div className="mt-1 text-[11px] text-slate-500">
-                            {row.invoices.toLocaleString()} invoices with this
-                            service
+                            {row.invoices.toLocaleString()} invoices with this service
                           </div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
-                            {row.validEmailPct.toFixed(1)}% of these invoices
-                            have a valid email address
+                            {row.validEmailPct.toFixed(1)}% of these invoices have a valid email address
                           </div>
                         </div>
 
                         {/* Right side: response stats */}
                         <div className="text-right">
-                          <div
-                            className={`text-sm font-semibold ${respClass}`}
-                          >
-                            {row.respPct.toFixed(1)}% RESP
-                          </div>
+                          <div className={`text-sm font-semibold ${respClass}`}>{row.respPct.toFixed(1)}% RESP</div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
                             {responses.toLocaleString()} responses
                           </div>
@@ -429,7 +399,6 @@ const SuggestedServicesPage: React.FC = () => {
               </div>
             )}
           </section>
-
         </div>
 
         {/* RIGHT: AI on large screens */}
