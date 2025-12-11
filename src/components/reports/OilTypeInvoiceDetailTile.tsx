@@ -113,18 +113,18 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({
   const displayedRows = isExpanded ? sortedRows : sortedRows.slice(0, previewCount);
   const hiddenCount = sortedRows.length - previewCount;
 
-  const renderHeader = (label: string, key: SortKey) => {
+  const renderHeader = (label: string, key: SortKey, alignRight = false) => {
     const isActive = sortKey === key;
 
     return (
       <th
         key={key}
-        className="py-2 px-2 text-[11px] font-medium uppercase tracking-wide text-slate-500 text-left"
+        className={`py-2 px-2 text-[11px] font-medium uppercase tracking-wide text-slate-500 ${alignRight ? "text-right" : "text-left"}`}
       >
         <button
           type="button"
           onClick={() => handleSort(key)}
-          className="inline-flex items-center gap-1"
+          className={`inline-flex items-center gap-1 ${alignRight ? "justify-end w-full" : ""}`}
         >
           <span className="whitespace-nowrap">{label}</span>
           {isActive && (
@@ -176,9 +176,9 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({
               {renderHeader("License / Store / Customer", "license")}
               {renderHeader("Oil type", "oilType")}
               {renderHeader("Oil brand", "brand")}
-              {renderHeader("Sales", "sales")}
-              {renderHeader("Coupon", "coupon")}
-              {renderHeader("Discount", "discount")}
+              {renderHeader("Sales", "sales", true)}
+              {renderHeader("Coupon", "coupon", true)}
+              {renderHeader("Discount", "discount", true)}
             </tr>
           </thead>
 
@@ -198,11 +198,11 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({
                   </span>
                 </td>
                 <td className="py-3 px-2 text-xs text-slate-900">{row.brand}</td>
-                <td className="py-3 px-2 text-xs text-slate-900">
+                <td className="py-3 px-2 text-xs text-slate-900 text-right">
                   {row.sales.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
                 </td>
-                <td className="py-3 px-2 text-xs text-slate-900">{row.coupon}</td>
-                <td className="py-3 px-2 text-xs text-slate-900">
+                <td className="py-3 px-2 text-xs text-slate-900 text-right">{row.coupon}</td>
+                <td className="py-3 px-2 text-xs text-slate-900 text-right">
                   {row.discount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
                 </td>
               </tr>
