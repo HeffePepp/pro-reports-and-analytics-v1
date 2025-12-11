@@ -106,7 +106,6 @@ const OilTypeRevenueDetailsTable: React.FC = () => {
     { alignRight = false }: { alignRight?: boolean } = {}
   ) => {
     const isActive = sortKey === key;
-    const arrow = !isActive ? "▼" : sortDir === "desc" ? "▼" : "▲";
 
     return (
       <th
@@ -125,14 +124,11 @@ const OilTypeRevenueDetailsTable: React.FC = () => {
           ].join(" ")}
         >
           <span className="whitespace-nowrap">{label}</span>
-          <span
-            className={[
-              "text-[9px]",
-              isActive ? "text-slate-400" : "text-slate-300",
-            ].join(" ")}
-          >
-            {arrow}
-          </span>
+          {isActive && (
+            <span className="text-[9px] text-slate-400">
+              {sortDir === "desc" ? "▼" : "▲"}
+            </span>
+          )}
         </button>
       </th>
     );
