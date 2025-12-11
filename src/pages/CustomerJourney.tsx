@@ -288,16 +288,10 @@ const CustomerJourneyPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles */}
-          {selectedIds.length > 0 ? (
+          {/* KPI tiles - only rendered when selected */}
+          {selectedIds.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {selectedIds.map((id) => renderKpiTile(id))}
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-4 text-center">
-              <p className="text-[11px] text-slate-500">
-                No KPIs selected. Use <span className="font-medium">Customize KPIs</span> to turn metrics on.
-              </p>
             </div>
           )}
 
