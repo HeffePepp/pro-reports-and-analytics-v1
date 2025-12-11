@@ -1,58 +1,41 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import {
-  ReportTable,
-  ReportTableHead,
-  ReportTableBody,
-  ReportTableRow,
-  ReportTableHeaderCell,
-  ReportTableCell,
-} from "@/components/ui/report-table";
+import InlineLegend from "@/components/common/InlineLegend";
 
 type AddressSummary = {
   totalAddresses: number;
   validPct: number;
   badPct: number;
-  vacantPct: number;
+  blankPct: number;
 };
 
 type AddressStoreRow = {
   storeName: string;
   validPct: number;
   badPct: number;
-  vacantPct: number;
+  blankPct: number;
 };
 
 const addressSummary: AddressSummary = {
   totalAddresses: 18200,
   validPct: 86,
   badPct: 9,
-  vacantPct: 5,
+  blankPct: 5,
 };
 
 const addressStoreRows: AddressStoreRow[] = [
-  { storeName: "Vallejo, CA", validPct: 84, badPct: 10, vacantPct: 6 },
-  { storeName: "Napa, CA", validPct: 88, badPct: 7, vacantPct: 5 },
-  {
-    storeName: "Fairfield, CA",
-    validPct: 82,
-    badPct: 11,
-    vacantPct: 7,
-  },
-  {
-    storeName: "Vacaville, CA",
-    validPct: 90,
-    badPct: 6,
-    vacantPct: 4,
-  },
+  { storeName: "Vallejo, CA", validPct: 84, badPct: 10, blankPct: 6 },
+  { storeName: "Napa, CA", validPct: 88, badPct: 7, blankPct: 5 },
+  { storeName: "Fairfield, CA", validPct: 82, badPct: 11, blankPct: 7 },
+  { storeName: "Vacaville, CA", validPct: 90, badPct: 6, blankPct: 4 },
 ];
 
 const KPI_OPTIONS: KpiOption[] = [
   { id: "totalAddresses", label: "Total addresses" },
   { id: "valid", label: "Valid" },
   { id: "bad", label: "Bad" },
-  { id: "vacant", label: "Vacant" },
+  { id: "blank", label: "Blank" },
   { id: "goal", label: "Goal bad-address rate" },
 ];
 
@@ -70,11 +53,11 @@ const ValidAddressPage: React.FC = () => {
       case "totalAddresses":
         return <MetricTile key={id} label="Total addresses" value={addressSummary.totalAddresses.toLocaleString()} helpText="Total mailing addresses on file in the customer database." />;
       case "valid":
-        return <MetricTile key={id} label="Valid" value={`${addressSummary.validPct.toFixed(1)}%`} helpText="Percentage of addresses verified as deliverable by USPS." />;
+        return <MetricTile key={id} label="Valid" value={`${addressSummary.validPct.toFixed(1)}%`} helpText="Percentage of addresses verified as deliverable by USPS." className="bg-emerald-50 border-emerald-100" />;
       case "bad":
-        return <MetricTile key={id} label="Bad" value={`${addressSummary.badPct.toFixed(1)}%`} helpText="Percentage of addresses that failed USPS validation and are undeliverable." />;
-      case "vacant":
-        return <MetricTile key={id} label="Vacant" value={`${addressSummary.vacantPct.toFixed(1)}%`} helpText="Percentage of addresses flagged as vacant or unoccupied by USPS." />;
+        return <MetricTile key={id} label="Bad" value={`${addressSummary.badPct.toFixed(1)}%`} helpText="Percentage of addresses that failed USPS validation and are undeliverable." className="bg-amber-50 border-amber-100" />;
+      case "blank":
+        return <MetricTile key={id} label="Blank" value={`${addressSummary.blankPct.toFixed(1)}%`} helpText="Percentage of customer records with no address on file." className="bg-rose-50 border-rose-100" />;
       case "goal":
         return <MetricTile key={id} label="Goal bad-address rate" value="< 10%" helper="Per store" helpText="Target threshold for bad address rate to minimize wasted mail spend." />;
       default:
@@ -87,14 +70,8 @@ const ValidAddressPage: React.FC = () => {
       !worst || r.badPct > worst.badPct ? r : worst
     );
     setInsights([
-      `Valid address rate across the account is ${addressSummary.validPct.toFixed(
-        1
-      )}%, with ${addressSummary.badPct.toFixed(1)}% bad and ${addressSummary.vacantPct.toFixed(
-        1
-      )}% vacant.`,
-      `"${worstStore.storeName}" has the worst address quality (${worstStore.badPct.toFixed(
-        1
-      )}% bad); clean-up here will have outsized impact.`,
+      `Valid address rate across the account is ${addressSummary.validPct.toFixed(1)}%, with ${addressSummary.badPct.toFixed(1)}% bad and ${addressSummary.blankPct.toFixed(1)}% blank.`,
+      `"${worstStore.storeName}" has the worst address quality (${worstStore.badPct.toFixed(1)}% bad); clean-up here will have outsized impact.`,
       "Run this report before large mail campaigns to avoid wasting budget on undeliverable addresses.",
     ]);
   };
@@ -124,7 +101,7 @@ const ValidAddressPage: React.FC = () => {
             Valid Address Report
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Mail & email reachability by store: valid, bad and vacant records.
+            Mail & email reachability by store: valid, bad and blank records.
           </p>
         </div>
         <KpiCustomizeButton
@@ -152,7 +129,7 @@ const ValidAddressPage: React.FC = () => {
                 Address quality by store
               </h2>
               <span className="text-[11px] text-slate-500">
-                Valid vs bad vs vacant
+                Valid vs bad vs blank
               </span>
             </div>
             <div className="space-y-3 text-xs text-slate-700">
@@ -173,46 +150,19 @@ const ValidAddressPage: React.FC = () => {
                     />
                     <div
                       className="bg-tp-pastel-red"
-                      style={{ width: `${r.vacantPct}%` }}
+                      style={{ width: `${r.blankPct}%` }}
                     />
                   </div>
                 </div>
               ))}
             </div>
-          </section>
-
-          {/* Table */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Store details
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Valid vs bad vs vacant by store
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <ReportTable>
-                <ReportTableHead>
-                  <ReportTableRow>
-                    <ReportTableHeaderCell label="Store" />
-                    <ReportTableHeaderCell label="Valid %" align="right" />
-                    <ReportTableHeaderCell label="Bad %" align="right" />
-                    <ReportTableHeaderCell label="Vacant %" align="right" />
-                  </ReportTableRow>
-                </ReportTableHead>
-                <ReportTableBody>
-                  {addressStoreRows.map((r) => (
-                    <ReportTableRow key={r.storeName}>
-                      <ReportTableCell className="text-slate-800">{r.storeName}</ReportTableCell>
-                      <ReportTableCell align="right">{r.validPct.toFixed(1)}%</ReportTableCell>
-                      <ReportTableCell align="right">{r.badPct.toFixed(1)}%</ReportTableCell>
-                      <ReportTableCell align="right">{r.vacantPct.toFixed(1)}%</ReportTableCell>
-                    </ReportTableRow>
-                  ))}
-                </ReportTableBody>
-              </ReportTable>
-            </div>
+            <InlineLegend
+              items={[
+                { label: "Valid", colorClass: "bg-tp-green" },
+                { label: "Bad", colorClass: "bg-tp-yellow" },
+                { label: "Blank", colorClass: "bg-tp-red" },
+              ]}
+            />
           </section>
 
           {/* AI Insights – stacked here on small/medium screens - after main content */}

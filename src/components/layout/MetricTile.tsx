@@ -16,6 +16,7 @@ type MetricTileProps = {
   highlight?: boolean;
   helpText?: string;
   variant?: MetricVariant;
+  className?: string;
 };
 
 const variantClasses: Record<MetricVariant, string> = {
@@ -31,13 +32,14 @@ const MetricTile: React.FC<MetricTileProps> = ({
   highlight = false,
   helpText,
   variant = "default",
+  className,
 }) => {
   const valueClass = highlight
     ? "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xl md:text-2xl font-semibold tracking-tight"
     : "text-xl md:text-2xl font-semibold text-slate-900 tracking-tight";
 
   return (
-    <div className={`rounded-2xl border shadow-sm h-full ${variantClasses[variant]}`}>
+    <div className={`rounded-2xl border shadow-sm h-full ${variantClasses[variant]} ${className ?? ""}`}>
       <div className="flex flex-col justify-center h-full px-3 py-3 md:px-4 md:py-4 min-h-[96px]">
         {/* Description */}
         <div className="flex items-center gap-1">

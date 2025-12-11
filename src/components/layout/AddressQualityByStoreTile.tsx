@@ -5,7 +5,7 @@ type StoreAddressQuality = {
   storeName: string;
   validPct: number;
   badPct: number;
-  vacantPct: number;
+  blankPct: number;
 };
 
 type Props = {
@@ -21,7 +21,7 @@ export const AddressQualityByStoreTile: React.FC<Props> = ({ rows }) => {
           Address quality by store
         </h2>
         <p className="text-[11px] text-tp-grey-dark">
-          Valid vs bad vs vacant
+          Valid vs bad vs blank
         </p>
       </header>
 
@@ -50,10 +50,10 @@ export const AddressQualityByStoreTile: React.FC<Props> = ({ rows }) => {
                   className="h-full bg-tp-pastel-yellow"
                   style={{ width: `${row.badPct}%` }}
                 />
-                {/* Vacant */}
+                {/* Blank */}
                 <div
                   className="h-full bg-tp-pastel-red"
-                  style={{ width: `${row.vacantPct}%` }}
+                  style={{ width: `${row.blankPct}%` }}
                 />
               </div>
             </div>
@@ -71,7 +71,7 @@ export const AddressQualityByStoreTile: React.FC<Props> = ({ rows }) => {
         items={[
           { label: "Valid", colorClass: "bg-tp-green" },
           { label: "Bad", colorClass: "bg-tp-yellow" },
-          { label: "Vacant", colorClass: "bg-tp-red" },
+          { label: "Blank", colorClass: "bg-tp-red" },
         ]}
       />
     </section>
