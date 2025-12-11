@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
-import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import InlineLegend from "@/components/common/InlineLegend";
+import { ShellLayout, AIInsightsTile } from "@/components/layout";
 
 type AddressSummary = {
   totalAddresses: number;
   validPct: number;
   badPct: number;
   blankPct: number;
+  validCount: number;
+  badCount: number;
+  blankCount: number;
+  avgBadRate: number;
 };
 
 type AddressStoreRow = {
@@ -22,6 +24,10 @@ const addressSummary: AddressSummary = {
   validPct: 86,
   badPct: 9,
   blankPct: 5,
+  validCount: 15652,
+  badCount: 1638,
+  blankCount: 910,
+  avgBadRate: 8.5,
 };
 
 const addressStoreRows: AddressStoreRow[] = [
@@ -31,39 +37,12 @@ const addressStoreRows: AddressStoreRow[] = [
   { storeName: "Vacaville, CA", validPct: 90, badPct: 6, blankPct: 4 },
 ];
 
-const KPI_OPTIONS: KpiOption[] = [
-  { id: "totalAddresses", label: "Total addresses" },
-  { id: "valid", label: "Valid" },
-  { id: "bad", label: "Bad" },
-  { id: "blank", label: "Blank" },
-  { id: "goal", label: "Goal bad-address rate" },
-];
-
 const ValidAddressPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Mail address quality is generally good, but a few stores are above the 10% bad-address threshold.",
-    "Vacant and undeliverable addresses directly waste postcard spend.",
+    "Blank and undeliverable addresses directly waste postcard spend.",
     "Cleaning up addresses in the worst stores will quickly improve ROAS on mail-heavy journeys.",
   ]);
-
-  const { selectedIds, setSelectedIds } = useKpiPreferences("valid-address", KPI_OPTIONS);
-
-  const renderKpiTile = (id: string) => {
-    switch (id) {
-      case "totalAddresses":
-        return <MetricTile key={id} label="Total addresses" value={addressSummary.totalAddresses.toLocaleString()} helpText="Total mailing addresses on file in the customer database." />;
-      case "valid":
-        return <MetricTile key={id} label="Valid" value={`${addressSummary.validPct.toFixed(1)}%`} helpText="Percentage of addresses verified as deliverable by USPS." className="bg-emerald-50 border-emerald-100" />;
-      case "bad":
-        return <MetricTile key={id} label="Bad" value={`${addressSummary.badPct.toFixed(1)}%`} helpText="Percentage of addresses that failed USPS validation and are undeliverable." className="bg-amber-50 border-amber-100" />;
-      case "blank":
-        return <MetricTile key={id} label="Blank" value={`${addressSummary.blankPct.toFixed(1)}%`} helpText="Percentage of customer records with no address on file." className="bg-rose-50 border-rose-100" />;
-      case "goal":
-        return <MetricTile key={id} label="Goal bad-address rate" value="< 10%" helper="Per store" helpText="Target threshold for bad address rate to minimize wasted mail spend." />;
-      default:
-        return null;
-    }
-  };
 
   const regenerateInsights = () => {
     const worstStore = addressStoreRows.reduce((worst, r) =>
@@ -104,23 +83,75 @@ const ValidAddressPage: React.FC = () => {
             Mail & email reachability by store: valid, bad and blank records.
           </p>
         </div>
-        <KpiCustomizeButton
-          reportId="valid-address"
-          options={KPI_OPTIONS}
-          selectedIds={selectedIds}
-          onChangeSelected={setSelectedIds}
-        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPIs - only rendered when selected */}
-          {selectedIds.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-              {selectedIds.map(renderKpiTile)}
-            </div>
-          )}
+          {/* KPIs - plain sections with standard Tailwind colors */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {/* Total addresses */}
+            <section className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="text-[11px] font-medium text-slate-600">
+                Total addresses
+              </div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">
+                {addressSummary.totalAddresses.toLocaleString()}
+              </div>
+            </section>
+
+            {/* Valid – pastel green */}
+            <section className="flex flex-col justify-between rounded-2xl border border-emerald-100 bg-emerald-50 p-4 shadow-sm">
+              <div className="text-[11px] font-medium text-slate-600">
+                Valid
+              </div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">
+                {addressSummary.validPct.toFixed(1)}%
+              </div>
+              <div className="mt-1 text-[11px] text-slate-600">
+                {addressSummary.validCount.toLocaleString()} addresses
+              </div>
+            </section>
+
+            {/* Bad – pastel yellow */}
+            <section className="flex flex-col justify-between rounded-2xl border border-amber-100 bg-amber-50 p-4 shadow-sm">
+              <div className="text-[11px] font-medium text-slate-600">
+                Bad
+              </div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">
+                {addressSummary.badPct.toFixed(1)}%
+              </div>
+              <div className="mt-1 text-[11px] text-slate-600">
+                {addressSummary.badCount.toLocaleString()} addresses
+              </div>
+            </section>
+
+            {/* Blank – pastel red */}
+            <section className="flex flex-col justify-between rounded-2xl border border-rose-100 bg-rose-50 p-4 shadow-sm">
+              <div className="text-[11px] font-medium text-slate-600">
+                Blank
+              </div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">
+                {addressSummary.blankPct.toFixed(1)}%
+              </div>
+              <div className="mt-1 text-[11px] text-slate-600">
+                {addressSummary.blankCount.toLocaleString()} addresses
+              </div>
+            </section>
+
+            {/* Average bad address rate */}
+            <section className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="text-[11px] font-medium text-slate-600">
+                Average bad address rate
+              </div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">
+                {addressSummary.avgBadRate.toFixed(1)}%
+              </div>
+              <div className="mt-1 text-[11px] text-slate-600">
+                Per store
+              </div>
+            </section>
+          </div>
 
           {/* Store quality bars */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
@@ -132,37 +163,58 @@ const ValidAddressPage: React.FC = () => {
                 Valid vs bad vs blank
               </span>
             </div>
-            <div className="space-y-3 text-xs text-slate-700">
-              {addressStoreRows.map((r) => (
-                <div key={r.storeName}>
-                  <div className="flex justify-between text-[11px]">
-                    <span>{r.storeName}</span>
-                    <span>{r.validPct.toFixed(1)}% valid</span>
-                  </div>
-                  <div className="mt-1 flex h-2 rounded-full overflow-hidden bg-slate-100">
+
+            {/* Bars per store */}
+            {addressStoreRows.map((row) => (
+              <div key={row.storeName} className="mt-3 flex items-center gap-3">
+                {/* Store name */}
+                <div className="w-40 text-[11px] text-slate-700">
+                  {row.storeName}
+                </div>
+
+                {/* Pastel stacked bar */}
+                <div className="flex-1">
+                  <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                    {/* Valid (green) */}
                     <div
-                      className="bg-tp-pastel-green"
-                      style={{ width: `${r.validPct}%` }}
+                      className="h-full bg-emerald-200"
+                      style={{ width: `${row.validPct}%` }}
                     />
+                    {/* Bad (yellow) */}
                     <div
-                      className="bg-tp-pastel-yellow"
-                      style={{ width: `${r.badPct}%` }}
+                      className="h-full bg-amber-200"
+                      style={{ width: `${row.badPct}%` }}
                     />
+                    {/* Blank (red) */}
                     <div
-                      className="bg-tp-pastel-red"
-                      style={{ width: `${r.blankPct}%` }}
+                      className="h-full bg-rose-200"
+                      style={{ width: `${row.blankPct}%` }}
                     />
                   </div>
                 </div>
-              ))}
+
+                {/* Right-side label */}
+                <div className="w-24 text-right text-[11px] text-slate-700">
+                  {row.validPct.toFixed(1)}% valid
+                </div>
+              </div>
+            ))}
+
+            {/* Legend */}
+            <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-slate-600">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-200" />
+                <span>Valid</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-amber-200" />
+                <span>Bad</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-rose-200" />
+                <span>Blank</span>
+              </span>
             </div>
-            <InlineLegend
-              items={[
-                { label: "Valid", colorClass: "bg-tp-green" },
-                { label: "Bad", colorClass: "bg-tp-yellow" },
-                { label: "Blank", colorClass: "bg-tp-red" },
-              ]}
-            />
           </section>
 
           {/* AI Insights – stacked here on small/medium screens - after main content */}
