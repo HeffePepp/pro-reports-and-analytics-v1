@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { KpiOption } from "@/hooks/useKpiPreferences";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 interface KpiCustomizeButtonProps {
   reportId: string;
@@ -23,12 +24,34 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
   const allIds = options.map((o) => o.id);
   const allSelected = selectedIds.length === allIds.length;
 
+  // Order: selected items first (in selectedIds order), then unselected
+  const orderedOptions = useMemo(() => {
+    const selectedSet = new Set(selectedIds);
+    const selectedOrdered = selectedIds
+      .map((id) => options.find((o) => o.id === id))
+      .filter((o): o is KpiOption => o !== undefined);
+    const unselected = options.filter((o) => !selectedSet.has(o.id));
+    return [...selectedOrdered, ...unselected];
+  }, [options, selectedIds]);
+
   const toggleId = (id: string) => {
     if (selectedIds.includes(id)) {
       onChangeSelected(selectedIds.filter((x) => x !== id));
     } else {
       onChangeSelected([...selectedIds, id]);
     }
+  };
+
+  const moveId = (id: string, direction: "up" | "down") => {
+    const idx = selectedIds.indexOf(id);
+    if (idx === -1) return;
+    if (direction === "up" && idx === 0) return;
+    if (direction === "down" && idx === selectedIds.length - 1) return;
+
+    const next = [...selectedIds];
+    const swapWith = direction === "up" ? idx - 1 : idx + 1;
+    [next[idx], next[swapWith]] = [next[swapWith], next[idx]];
+    onChangeSelected(next);
   };
 
   const handleToggleAll = () => {
@@ -83,7 +106,7 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
       {open && (
         <div
           ref={panelRef}
-          className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 bg-white shadow-lg z-20"
+          className="absolute right-0 mt-2 w-72 rounded-2xl border border-slate-200 bg-white shadow-lg z-20"
         >
           <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100">
             <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
@@ -99,30 +122,68 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
           </div>
 
           <div className="max-h-64 overflow-y-auto py-2">
-            {options.map((opt) => {
-              const checked = selectedIds.includes(opt.id);
+            {orderedOptions.map((opt) => {
+              const isSelected = selectedIds.includes(opt.id);
+              const selIndex = selectedIds.indexOf(opt.id);
+              const canMoveUp = isSelected && selIndex > 0;
+              const canMoveDown = isSelected && selIndex < selectedIds.length - 1;
+
               return (
-                <button
+                <div
                   key={opt.id}
-                  type="button"
-                  onClick={() => toggleId(opt.id)}
-                  className="flex w-full items-center justify-between px-4 py-1.5 text-xs hover:bg-slate-50"
+                  className="flex items-center justify-between px-4 py-1.5 hover:bg-slate-50"
                 >
-                  <span className="text-slate-700">{opt.label}</span>
-                  <span
-                    className={`flex h-4 w-4 items-center justify-center rounded border ${
-                      checked
-                        ? "border-sky-500 bg-sky-500"
-                        : "border-slate-300 bg-white"
-                    }`}
+                  <button
+                    type="button"
+                    onClick={() => toggleId(opt.id)}
+                    className="flex flex-1 items-center gap-2 text-xs text-left"
                   >
-                    {checked && (
-                      <span className="text-[10px] leading-none text-white">
-                        ✓
-                      </span>
-                    )}
-                  </span>
-                </button>
+                    <span
+                      className={`flex h-4 w-4 items-center justify-center rounded border ${
+                        isSelected
+                          ? "border-sky-500 bg-sky-500"
+                          : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="text-[10px] leading-none text-white">
+                          ✓
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-slate-700">{opt.label}</span>
+                  </button>
+
+                  {/* Up / Down reorder buttons */}
+                  <div className="flex items-center gap-0.5 ml-2">
+                    <button
+                      type="button"
+                      onClick={() => moveId(opt.id, "up")}
+                      disabled={!canMoveUp}
+                      className={`rounded p-0.5 ${
+                        canMoveUp
+                          ? "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                          : "text-slate-200 cursor-default"
+                      }`}
+                      aria-label="Move up"
+                    >
+                      <ChevronUp className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveId(opt.id, "down")}
+                      disabled={!canMoveDown}
+                      className={`rounded p-0.5 ${
+                        canMoveDown
+                          ? "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                          : "text-slate-200 cursor-default"
+                      }`}
+                      aria-label="Move down"
+                    >
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
               );
             })}
           </div>
