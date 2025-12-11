@@ -435,7 +435,7 @@ const CustomerJourneyPage: React.FC = () => {
                         <tr key={tp.id} className="align-top">
                           {/* LEFT: consolidated description column */}
                           <td className="py-3 pr-3">
-                            <div className="text-xs font-semibold text-slate-900">
+                            <div className="text-base font-semibold text-slate-900">
                               {tp.id}. {tp.name}
                             </div>
                             <div className="mt-0.5 text-[11px] text-slate-500">
