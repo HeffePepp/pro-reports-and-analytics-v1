@@ -451,7 +451,7 @@ type JourneyStepDetail = {
 
 const JOURNEY_STEPS: JourneyStepDetail[] = [
   {
-    name: "Thank You Text",
+    name: "Thank You",
     interval: "1 day after Service",
     channel: "Text",
     sent: 1850,
