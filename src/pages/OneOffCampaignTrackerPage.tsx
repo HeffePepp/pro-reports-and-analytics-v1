@@ -3,14 +3,6 @@ import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/c
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { CHANNEL_BAR_CLASS, CampaignChannel } from "@/styles/channelColors";
 import { ChannelLegend } from "@/components/common/ChannelLegend";
-import {
-  ReportTable,
-  ReportTableHead,
-  ReportTableBody,
-  ReportTableRow,
-  ReportTableHeaderCell,
-  ReportTableCell,
-} from "@/components/ui/report-table";
 
 type Channel = "postcard" | "email" | "sms";
 
@@ -276,22 +268,34 @@ const OverviewList: React.FC = () => {
 const DropsTable: React.FC = () => {
   return (
     <div className="mt-2 overflow-x-auto">
-      <ReportTable>
-        <ReportTableHead>
-          <ReportTableRow>
-            <ReportTableHeaderCell label="Campaign & drop" />
-            <ReportTableHeaderCell label="Sent" align="right" />
-            <ReportTableHeaderCell label="Responses" align="right" />
-            <ReportTableHeaderCell label="Resp %" align="right" />
-            <ReportTableHeaderCell label="ROAS" align="right" />
-            <ReportTableHeaderCell label="Revenue" align="right" />
-          </ReportTableRow>
-        </ReportTableHead>
-        <ReportTableBody>
+      <table className="min-w-full table-fixed text-[11px]">
+        {/* Column widths so right side stays tight + grouped */}
+        <colgroup>
+          <col className="w-[46%]" />  {/* Campaign */}
+          <col className="w-[10%]" />  {/* Sent */}
+          <col className="w-[11%]" />  {/* Responses */}
+          <col className="w-[9%]" />   {/* Resp % */}
+          <col className="w-[10%]" />  {/* ROAS */}
+          <col className="w-[14%]" />  {/* Revenue */}
+        </colgroup>
+
+        <thead className="border-b border-slate-100 text-slate-500 uppercase tracking-wide">
+          <tr>
+            <th className="py-2 pr-4 text-left font-medium">Campaign & drop</th>
+            <th className="py-2 pl-4 text-right font-medium">Sent</th>
+            <th className="py-2 pl-4 text-right font-medium">Responses</th>
+            <th className="py-2 pl-4 text-right font-medium">Resp %</th>
+            <th className="py-2 pl-4 text-right font-medium">ROAS</th>
+            <th className="py-2 pl-4 text-right font-medium">Revenue</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-slate-100">
           {CAMPAIGNS.map((c) => (
-            <ReportTableRow key={c.id}>
-              <ReportTableCell>
-                <div className="text-sm font-semibold text-slate-900">{c.name}</div>
+            <tr key={c.id}>
+              {/* LEFT: campaign name + details */}
+              <td className="py-3 pr-4 align-top">
+                <div className="text-[16px] font-semibold text-slate-900">{c.name}</div>
                 <div className="mt-0.5 text-[11px] text-slate-500">
                   {c.dropsLabel} · {c.lastDropDate}
                 </div>
@@ -299,19 +303,30 @@ const DropsTable: React.FC = () => {
                   Channels:{" "}
                   {c.channels
                     .map((ch) => (ch === "sms" ? "Text Message" : ch[0].toUpperCase() + ch.slice(1)))
-                    .join(" · ")}{" "}
-                  · {c.sent.toLocaleString()} sent
+                    .join(" · ")}
                 </div>
-              </ReportTableCell>
-              <ReportTableCell align="right">{c.sent.toLocaleString()}</ReportTableCell>
-              <ReportTableCell align="right">{c.responses.toLocaleString()}</ReportTableCell>
-              <ReportTableCell align="right" className="text-amber-600 font-semibold">{c.respPct.toFixed(1)}%</ReportTableCell>
-              <ReportTableCell align="right" className="font-semibold text-slate-900">{c.roas.toFixed(1)}x</ReportTableCell>
-              <ReportTableCell align="right">${c.revenue.toLocaleString()}</ReportTableCell>
-            </ReportTableRow>
+              </td>
+
+              {/* RIGHT: tight stat block, right-aligned */}
+              <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                {c.sent.toLocaleString()}
+              </td>
+              <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                {c.responses.toLocaleString()}
+              </td>
+              <td className="py-3 pl-4 text-right align-middle">
+                <span className="font-semibold text-amber-600">{c.respPct.toFixed(1)}%</span>
+              </td>
+              <td className="py-3 pl-4 text-right align-middle font-semibold text-slate-900">
+                {c.roas.toFixed(1)}x
+              </td>
+              <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                ${c.revenue.toLocaleString()}
+              </td>
+            </tr>
           ))}
-        </ReportTableBody>
-      </ReportTable>
+        </tbody>
+      </table>
     </div>
   );
 };
