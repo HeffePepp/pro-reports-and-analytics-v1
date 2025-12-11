@@ -13,6 +13,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["'Source Sans Pro'", "system-ui", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -56,6 +59,33 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        // Throttle Pro palette
+        tp: {
+          blue: {
+            light: "hsl(var(--tp-blue-light))",
+            dark: "hsl(var(--tp-blue-dark))",
+          },
+          grey: {
+            dark: "hsl(var(--tp-grey-dark))",
+          },
+          bg: "hsl(var(--tp-bg))",
+          border: "hsl(var(--tp-border))",
+          // Infographic / data colors
+          purple: "hsl(var(--tp-purple))",
+          yellow: "hsl(var(--tp-yellow))",
+          orange: "hsl(var(--tp-orange))",
+          green: "hsl(var(--tp-green))",
+          red: "hsl(var(--tp-red))",
+          // Pastel tints for tables
+          pastel: {
+            purple: "hsl(var(--tp-pastel-purple))",
+            yellow: "hsl(var(--tp-pastel-yellow))",
+            blue: "hsl(var(--tp-pastel-blue))",
+            orange: "hsl(var(--tp-pastel-orange))",
+            green: "hsl(var(--tp-pastel-green))",
+            red: "hsl(var(--tp-pastel-red))",
+          },
         },
       },
       borderRadius: {
