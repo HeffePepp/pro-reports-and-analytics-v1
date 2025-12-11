@@ -1,5 +1,4 @@
-import React from "react";
-import { ChevronDown } from "lucide-react";
+import React, { useMemo, useState } from "react";
 
 type OilTypeInvoiceRow = {
   date: string;
@@ -15,7 +14,6 @@ type OilTypeInvoiceRow = {
   discount: number;
 };
 
-type SortDir = "asc" | "desc";
 type SortKey =
   | "date"
   | "invoice"
@@ -27,10 +25,7 @@ type SortKey =
   | "coupon"
   | "discount";
 
-type SortState = {
-  key: SortKey;
-  dir: SortDir;
-};
+type SortDir = "asc" | "desc";
 
 type Props = {
   rows?: OilTypeInvoiceRow[];
@@ -50,27 +45,6 @@ const oilTypePillClass = (type: string): string => {
       return "bg-rose-50 text-rose-700";
   }
 };
-
-const compareForKey =
-  (key: SortKey) =>
-  (a: OilTypeInvoiceRow, b: OilTypeInvoiceRow): number => {
-    switch (key) {
-      case "date":
-        return a.date.localeCompare(b.date);
-      case "invoice":
-      case "store":
-      case "license":
-      case "oilType":
-      case "brand":
-      case "coupon":
-        return (a[key] as string).localeCompare(b[key] as string);
-      case "sales":
-      case "discount":
-        return (a[key] as number) - (b[key] as number);
-      default:
-        return 0;
-    }
-  };
 
 const SAMPLE_INVOICES: OilTypeInvoiceRow[] = [
   { date: "2024-11-28", invoice: "A178-12001", store: "Vallejo, CA", license: "8ABC123", customer: "Jane Smith", vehicle: "2018 Toyota Camry", oilType: "Full Synthetic", brand: "Royal Purple", sales: 128, coupon: "$20 SYN20", discount: 0 },
@@ -96,44 +70,57 @@ const SAMPLE_INVOICES: OilTypeInvoiceRow[] = [
 ];
 
 const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
-  const [sort, setSort] = React.useState<SortState>({
-    key: "sales",
-    dir: "desc",
-  });
+  const [sortKey, setSortKey] = useState<SortKey>("date");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const data = rows ?? SAMPLE_INVOICES;
 
-  const sortedRows = React.useMemo(() => {
-    const factor = sort.dir === "asc" ? 1 : -1;
-    const cmp = compareForKey(sort.key);
-    return [...data].sort((a, b) => factor * cmp(a, b));
-  }, [data, sort]);
-
-  const toggleSort = (key: SortKey) => {
-    setSort((prev) =>
-      prev.key === key
-        ? { key, dir: prev.dir === "asc" ? "desc" : "asc" }
-        : { key, dir: "desc" }
-    );
+  const handleSort = (key: SortKey) => {
+    if (key === sortKey) {
+      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("desc");
+    }
   };
 
-  const renderSortableHeader = (label: string, key: SortKey) => {
-    const isActive = sort.key === key;
-    const isAsc = isActive && sort.dir === "asc";
+  const sortedRows = useMemo(() => {
+    const sorted = [...data];
+    sorted.sort((a, b) => {
+      let aVal: string | number = a[sortKey];
+      let bVal: string | number = b[sortKey];
+      
+      if (typeof aVal === "string" && typeof bVal === "string") {
+        const cmp = aVal.localeCompare(bVal);
+        return sortDir === "asc" ? cmp : -cmp;
+      }
+      
+      if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [data, sortKey, sortDir]);
+
+  const renderHeader = (label: string, key: SortKey) => {
+    const isActive = sortKey === key;
 
     return (
-      <th className="py-2 px-2 text-left text-[11px] font-medium uppercase tracking-wide text-slate-500 whitespace-nowrap">
+      <th
+        key={key}
+        className="py-2 px-2 text-[11px] font-medium uppercase tracking-wide text-slate-500 text-left"
+      >
         <button
           type="button"
-          onClick={() => toggleSort(key)}
+          onClick={() => handleSort(key)}
           className="inline-flex items-center gap-1"
         >
-          <span>{label}</span>
-          <ChevronDown
-            className={`h-3 w-3 transition-transform ${
-              isActive ? "text-slate-700" : "text-slate-300"
-            } ${isAsc ? "rotate-180" : ""}`}
-          />
+          <span className="whitespace-nowrap">{label}</span>
+          {isActive && (
+            <span className="text-[9px] text-slate-400">
+              {sortDir === "desc" ? "▼" : "▲"}
+            </span>
+          )}
         </button>
       </th>
     );
@@ -155,16 +142,16 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
       <div>
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
-              {renderSortableHeader("Date", "date")}
-              {renderSortableHeader("Invoice", "invoice")}
-              {renderSortableHeader("Store", "store")}
-              {renderSortableHeader("License", "license")}
-              {renderSortableHeader("Oil type", "oilType")}
-              {renderSortableHeader("Oil brand", "brand")}
-              {renderSortableHeader("Sales", "sales")}
-              {renderSortableHeader("Coupon", "coupon")}
-              {renderSortableHeader("Discount", "discount")}
+            <tr className="border-b border-slate-200">
+              {renderHeader("Date", "date")}
+              {renderHeader("Invoice", "invoice")}
+              {renderHeader("Store", "store")}
+              {renderHeader("License", "license")}
+              {renderHeader("Oil type", "oilType")}
+              {renderHeader("Oil brand", "brand")}
+              {renderHeader("Sales", "sales")}
+              {renderHeader("Coupon", "coupon")}
+              {renderHeader("Discount", "discount")}
             </tr>
           </thead>
 
