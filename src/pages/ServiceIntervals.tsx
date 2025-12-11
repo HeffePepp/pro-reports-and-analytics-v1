@@ -13,6 +13,8 @@ type LoyaltySegment = {
   id: SegmentId;
   label: string;
   rangeLabel: string;
+  kpiTitle: string;
+  kpiRange: string;
   customers: number;
   vehicles: number;
   avgTicket: number;
@@ -29,6 +31,8 @@ const LOYALTY_SEGMENTS: LoyaltySegment[] = [
     id: "active",
     label: "Active Cust (0–8 mo)",
     rangeLabel: "0–8 months since last service visit",
+    kpiTitle: "Active Customers",
+    kpiRange: "0–8 Months",
     customers: 5400,
     vehicles: 6800,
     avgTicket: 104,
@@ -41,6 +45,8 @@ const LOYALTY_SEGMENTS: LoyaltySegment[] = [
     id: "retained",
     label: "Retained Cust (9–12 mo)",
     rangeLabel: "9–12 months since last service visit",
+    kpiTitle: "Retained Customers",
+    kpiRange: "9–12 Months",
     customers: 3500,
     vehicles: 4100,
     avgTicket: 112,
@@ -53,6 +59,8 @@ const LOYALTY_SEGMENTS: LoyaltySegment[] = [
     id: "lapsed",
     label: "Lapsed Cust (13–18 mo)",
     rangeLabel: "13–18 months since last service visit",
+    kpiTitle: "Lapsed Customers",
+    kpiRange: "13–18 Months",
     customers: 1420,
     vehicles: 1660,
     avgTicket: 101,
@@ -65,6 +73,8 @@ const LOYALTY_SEGMENTS: LoyaltySegment[] = [
     id: "inactive",
     label: "Inactive Cust (19–24 mo)",
     rangeLabel: "19–24 months since last service visit",
+    kpiTitle: "Inactive Customers",
+    kpiRange: "19–24 Months",
     customers: 780,
     vehicles: 880,
     avgTicket: 92,
@@ -77,6 +87,8 @@ const LOYALTY_SEGMENTS: LoyaltySegment[] = [
     id: "lost",
     label: "Lost Cust (25+ mo)",
     rangeLabel: "25+ months since last service visit",
+    kpiTitle: "Lost Customers",
+    kpiRange: "25+ Months",
     customers: 1380,
     vehicles: 1540,
     avgTicket: 88,
@@ -158,9 +170,12 @@ const ServiceIntervalsPage: React.FC = () => {
                   >
                     <div className="space-y-1">
                       <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                        {seg.label}
+                        {seg.kpiTitle}
                       </div>
-                      <div className={`text-xl font-semibold tracking-tight ${seg.kpiTextClass}`}>
+                      <div className="text-[11px] text-slate-500">
+                        {seg.kpiRange}
+                      </div>
+                      <div className={`mt-1 text-xl font-semibold tracking-tight ${seg.kpiTextClass}`}>
                         {seg.customers.toLocaleString()}
                       </div>
                       <div className="text-[11px] text-slate-600">
