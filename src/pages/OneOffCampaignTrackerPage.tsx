@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import { CHANNEL_BAR_CLASS, CHANNEL_LABELS, CampaignChannel } from "@/styles/channelColors";
+import { CHANNEL_BAR_CLASS, CampaignChannel } from "@/styles/channelColors";
+import { ChannelLegend } from "@/components/common/ChannelLegend";
 
 type Channel = "postcard" | "email" | "sms";
 
@@ -251,11 +252,10 @@ const OverviewList: React.FC = () => {
                 return <div key={ch} className={CHANNEL_BAR_CLASS[channelToShared[ch]]} style={{ width: `${share}%` }} />;
               })}
             </div>
-            <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-slate-600">
-              {c.channels.includes("postcard") && <LegendDot colorClass={CHANNEL_BAR_CLASS.postcard} label={CHANNEL_LABELS.postcard} />}
-              {c.channels.includes("email") && <LegendDot colorClass={CHANNEL_BAR_CLASS.email} label={CHANNEL_LABELS.email} />}
-              {c.channels.includes("sms") && <LegendDot colorClass={CHANNEL_BAR_CLASS.text} label={CHANNEL_LABELS.text} />}
-            </div>
+            <ChannelLegend
+              channels={c.channels.map((ch) => channelToShared[ch])}
+              className="mt-2"
+            />
           </div>
           <div className="mt-4 border-b border-slate-100" />
         </div>
@@ -264,12 +264,6 @@ const OverviewList: React.FC = () => {
   );
 };
 
-const LegendDot: React.FC<{ colorClass: string; label: string }> = ({ colorClass, label }) => (
-  <span className="inline-flex items-center gap-1">
-    <span className={`h-2 w-2 rounded-full ${colorClass}`} />
-    <span>{label}</span>
-  </span>
-);
 
 const DropsTable: React.FC = () => {
   return (

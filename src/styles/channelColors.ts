@@ -1,16 +1,24 @@
 // Shared channel → color mapping for campaign bars and legends
 export type CampaignChannel = "postcard" | "email" | "text";
 
+export const CHANNEL_LABELS: Record<CampaignChannel, string> = {
+  postcard: "Postcard",
+  email: "Email",
+  text: "Text Message",
+};
+
+// Bars (the long campaign bars)
 export const CHANNEL_BAR_CLASS: Record<CampaignChannel, string> = {
   postcard: "bg-sky-400",    // Postcard (blue)
   email: "bg-emerald-400",   // Email (green)
   text: "bg-indigo-400",     // Text Message (purple)
 };
 
-export const CHANNEL_LABELS: Record<CampaignChannel, string> = {
-  postcard: "Postcard",
-  email: "Email",
-  text: "Text Message",
+// Dots (the little legend dots) - same as bars for consistency
+export const CHANNEL_DOT_CLASS: Record<CampaignChannel, string> = {
+  postcard: "bg-sky-400",
+  email: "bg-emerald-400",
+  text: "bg-indigo-400",
 };
 
 // Parse a channel string like "Postcard + Email + Text" into array of channels
