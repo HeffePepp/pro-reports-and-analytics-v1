@@ -156,10 +156,12 @@ const OneOffCampaignTrackerPage: React.FC = () => {
         />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map((id) => renderKpiTile(id))}</div>
+          {/* KPI tiles - only rendered when selected */}
+          {selectedIds.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map((id) => renderKpiTile(id))}</div>
+          )}
 
           {/* Main card with tabs */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
@@ -186,9 +188,22 @@ const OneOffCampaignTrackerPage: React.FC = () => {
 
             {tab === "overview" ? <OverviewList /> : <DropsTable />}
           </section>
+
+          {/* AI stacked on small screens - after main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on one-off campaigns"
+              bullets={[
+                "Summer A/C Tune-Up and Black Friday have the strongest ROAS and RESP %, ideal patterns for future offers.",
+                "Back to School underperforms on RESP %; consider stronger offer or more SMS.",
+                "Use Drops view to compare multi-drop campaigns and tune channel mix.",
+              ]}
+            />
+          </div>
         </div>
 
-        <div className="lg:col-span-1">
+        <div className="hidden lg:block lg:col-span-1 self-start">
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on one-off campaigns"

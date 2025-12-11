@@ -291,16 +291,13 @@ const SuggestedServicesPage: React.FC = () => {
       </div>
 
       {/* Layout */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map((id) => renderKpiTile(id))}</div>
-
-          {/* AI stacked on small screens */}
-          <div className="block lg:hidden">
-            <AIInsightsTile {...aiInsightsProps} />
-          </div>
+          {/* KPI tiles - only rendered when selected */}
+          {selectedIds.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map((id) => renderKpiTile(id))}</div>
+          )}
 
           {/* MAIN TWO-TAB TILE: Overview / Details */}
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -398,10 +395,15 @@ const SuggestedServicesPage: React.FC = () => {
               </div>
             )}
           </section>
+
+          {/* AI stacked on small screens - after main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile {...aiInsightsProps} />
+          </div>
         </div>
 
         {/* RIGHT: AI on large screens */}
-        <div className="hidden lg:block lg:col-span-1">
+        <div className="hidden lg:block lg:col-span-1 self-start">
           <AIInsightsTile {...aiInsightsProps} />
         </div>
       </div>

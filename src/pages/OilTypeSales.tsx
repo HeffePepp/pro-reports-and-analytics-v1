@@ -103,20 +103,22 @@ const OilTypeSalesPage: React.FC = () => {
         />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <div className="lg:col-span-3 space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            {selectedIds.map((id) => renderKpiTile(id))}
-          </div>
+          {selectedIds.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+              {selectedIds.map((id) => renderKpiTile(id))}
+            </div>
+          )}
+
+          <OilTypePerformanceTile />
 
           <div className="block lg:hidden">
             <AIInsightsTile title="AI Insights" subtitle="Based on oil mix & revenue" bullets={insights} onRefresh={regenerateInsights} />
           </div>
-
-          <OilTypePerformanceTile />
         </div>
 
-        <div className="hidden lg:block lg:col-span-1">
+        <div className="hidden lg:block lg:col-span-1 self-start">
           <AIInsightsTile title="AI Insights" subtitle="Based on oil mix & revenue" bullets={insights} onRefresh={regenerateInsights} />
         </div>
       </div>

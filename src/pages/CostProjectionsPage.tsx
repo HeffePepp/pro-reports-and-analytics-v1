@@ -150,23 +150,15 @@ const CostProjectionsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPIs */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            {selectedIds.map(renderKpiTile)}
-          </div>
-
-          {/* AI Insights – stacked here on small/medium screens */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on cost projection data"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
+          {/* KPIs - only rendered when selected */}
+          {selectedIds.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+              {selectedIds.map(renderKpiTile)}
+            </div>
+          )}
 
           {/* Cost mix */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
@@ -210,10 +202,20 @@ const CostProjectionsPage: React.FC = () => {
               })}
             </div>
           </section>
+
+          {/* AI Insights – stacked here on small/medium screens - after main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on cost projection data"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
+          </div>
         </div>
 
         {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1">
+        <div className="hidden lg:block lg:col-span-1 self-start">
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on cost projection data"

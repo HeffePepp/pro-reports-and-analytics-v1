@@ -110,15 +110,13 @@ const ServiceIntervalsPage: React.FC = () => {
         />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <div className="lg:col-span-3 space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-            {selectedIds.map((id) => renderKpiTile(id))}
-          </div>
-
-          <div className="block lg:hidden">
-            <AIInsightsTile title="AI Insights" subtitle="Based on interval & retention data" bullets={insights} onRefresh={regenerateInsights} />
-          </div>
+          {selectedIds.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+              {selectedIds.map((id) => renderKpiTile(id))}
+            </div>
+          )}
 
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -173,9 +171,13 @@ const ServiceIntervalsPage: React.FC = () => {
               </table>
             </div>
           </section>
+
+          <div className="block lg:hidden">
+            <AIInsightsTile title="AI Insights" subtitle="Based on interval & retention data" bullets={insights} onRefresh={regenerateInsights} />
+          </div>
         </div>
 
-        <div className="hidden lg:block lg:col-span-1">
+        <div className="hidden lg:block lg:col-span-1 self-start">
           <AIInsightsTile title="AI Insights" subtitle="Based on interval & retention data" bullets={insights} onRefresh={regenerateInsights} />
         </div>
       </div>
