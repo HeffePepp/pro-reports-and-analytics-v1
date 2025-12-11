@@ -1,7 +1,12 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ShellLayout, SummaryTile, DeepLink, AIInsightsTile } from "@/components/layout";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 type CategoryId = "all" | "marketing" | "sales" | "customers" | "vendors" | "internal";
 type ReportType = "chart" | "table" | "kpi" | "mixed";
 
@@ -413,54 +418,66 @@ const Index: React.FC = () => {
             const deepLink = DEEP_LINK_MAP[report.id];
 
             return (
-              <article
-                key={report.id}
-                onClick={() => setSelectedReportId(report.id)}
-                className={[
-                  "group h-full rounded-2xl border bg-white shadow-sm cursor-pointer flex flex-col",
-                  "transition-all hover:shadow-md hover:border-sky-200",
-                  isSelected ? "border-sky-300 ring-1 ring-sky-100" : "border-slate-200",
-                ].join(" ")}
-              >
-                {/* Top color bar */}
-                <div className={`h-1.5 rounded-t-2xl ${accentBar}`} />
-
-                <div className="flex-1 p-4 space-y-2">
-                  <div className="flex items-center text-[11px]">
-                    <span
+              <TooltipProvider key={report.id}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <article
+                      onClick={() => setSelectedReportId(report.id)}
                       className={[
-                        "inline-flex items-center px-2 py-0.5 rounded-full font-medium",
-                        "bg-opacity-80 ring-1 ring-inset",
-                        badgeColors,
+                        "group h-full rounded-2xl border bg-white shadow-sm cursor-pointer flex flex-col",
+                        "transition-all hover:shadow-md hover:border-sky-200",
+                        isSelected ? "border-sky-300 ring-1 ring-sky-100" : "border-slate-200",
                       ].join(" ")}
                     >
-                      {CATEGORIES.find((c) => c.id === report.primaryCategory)?.label ??
-                        "Category"}
-                    </span>
-                  </div>
+                      {/* Top color bar */}
+                      <div className={`h-1.5 rounded-t-2xl ${accentBar}`} />
 
-                  <h2 className="text-sm font-semibold text-slate-900 leading-snug">
-                    {report.name}
-                  </h2>
+                      <div className="flex-1 p-4 space-y-2">
+                        <div className="flex items-center text-[11px]">
+                          <span
+                            className={[
+                              "inline-flex items-center px-2 py-0.5 rounded-full font-medium",
+                              "bg-opacity-80 ring-1 ring-inset",
+                              badgeColors,
+                            ].join(" ")}
+                          >
+                            {CATEGORIES.find((c) => c.id === report.primaryCategory)?.label ??
+                              "Category"}
+                          </span>
+                        </div>
 
-                  <p className="text-[11px] text-slate-600 leading-snug line-clamp-2">
+                        <h2 className="text-sm font-semibold text-slate-900 leading-snug">
+                          {report.name}
+                        </h2>
+
+                        <p className="text-[11px] text-slate-600 leading-snug line-clamp-2">
+                          {report.purpose}
+                        </p>
+
+                        {report.previewMetric && (
+                          <p className="pt-2 mt-1 text-[11px] text-slate-500 border-t border-dashed border-slate-200">
+                            {report.previewMetric}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Footer CTA row */}
+                      <div className="border-t border-slate-100 bg-slate-50/70 px-4 py-2">
+                        {deepLink && (
+                          <DeepLink to={deepLink.to} label={deepLink.label} />
+                        )}
+                      </div>
+                    </article>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="bottom"
+                    align="start"
+                    className="max-w-xs text-[11px] leading-snug"
+                  >
                     {report.purpose}
-                  </p>
-
-                  {report.previewMetric && (
-                    <p className="pt-2 mt-1 text-[11px] text-slate-500 border-t border-dashed border-slate-200">
-                      {report.previewMetric}
-                    </p>
-                  )}
-                </div>
-
-                {/* Footer CTA row */}
-                <div className="border-t border-slate-100 bg-slate-50/70 px-4 py-2">
-                  {deepLink && (
-                    <DeepLink to={deepLink.to} label={deepLink.label} />
-                  )}
-                </div>
-              </article>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             );
           })}
 
