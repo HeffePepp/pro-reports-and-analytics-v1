@@ -6,6 +6,14 @@ import {
   KpiCustomizeButton,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 /* ------------------------------------------------------------------ */
 /* Types & dummy data                                                  */
@@ -338,50 +346,36 @@ const DataCaptureLtvPage: React.FC = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Store</th>
-                    <th className="py-2 pr-3 text-right">Customers</th>
-                    <th className="py-2 pr-3 text-right">Mail only %</th>
-                    <th className="py-2 pr-3 text-right">Email only %</th>
-                    <th className="py-2 pr-3 text-right">Mail &amp; email %</th>
-                    <th className="py-2 pr-3 text-right">Blank %</th>
-                    <th className="py-2 pr-3 text-right">Multi-channel %</th>
-                    <th className="py-2 pr-3 text-right">Ticket – multi</th>
-                    <th className="py-2 pr-3 text-right">Ticket – blank</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Store" />
+                    <ReportTableHeaderCell label="Customers" align="right" />
+                    <ReportTableHeaderCell label="Mail only %" align="right" />
+                    <ReportTableHeaderCell label="Email only %" align="right" />
+                    <ReportTableHeaderCell label="Mail & email %" align="right" />
+                    <ReportTableHeaderCell label="Blank %" align="right" />
+                    <ReportTableHeaderCell label="Multi-channel %" align="right" />
+                    <ReportTableHeaderCell label="Ticket – multi" align="right" />
+                    <ReportTableHeaderCell label="Ticket – blank" align="right" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {STORES.map((s) => (
-                    <tr key={s.store} className="border-t border-slate-100">
-                      <td className="py-2 pr-3">{s.store}</td>
-                      <td className="py-2 pr-3 text-right">
-                        {s.customers.toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {s.mailOnlyPct}%
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {s.emailOnlyPct}%
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {s.mailAndEmailPct}%
-                      </td>
-                      <td className="py-2 pr-3 text-right">{s.blankPct}%</td>
-                      <td className="py-2 pr-3 text-right">
-                        {s.multiChannelPct}%
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        ${s.ticketMulti.toFixed(0)}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        ${s.ticketBlank.toFixed(0)}
-                      </td>
-                    </tr>
+                    <ReportTableRow key={s.store}>
+                      <ReportTableCell>{s.store}</ReportTableCell>
+                      <ReportTableCell align="right">{s.customers.toLocaleString()}</ReportTableCell>
+                      <ReportTableCell align="right">{s.mailOnlyPct}%</ReportTableCell>
+                      <ReportTableCell align="right">{s.emailOnlyPct}%</ReportTableCell>
+                      <ReportTableCell align="right">{s.mailAndEmailPct}%</ReportTableCell>
+                      <ReportTableCell align="right">{s.blankPct}%</ReportTableCell>
+                      <ReportTableCell align="right">{s.multiChannelPct}%</ReportTableCell>
+                      <ReportTableCell align="right">${s.ticketMulti.toFixed(0)}</ReportTableCell>
+                      <ReportTableCell align="right">${s.ticketBlank.toFixed(0)}</ReportTableCell>
+                    </ReportTableRow>
                   ))}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 

@@ -6,6 +6,14 @@ import {
   KpiCustomizeButton,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type ServiceIntervalSummary = {
   totalCustomers: number;
@@ -149,26 +157,26 @@ const ServiceIntervalsPage: React.FC = () => {
               <span className="text-[11px] text-slate-500">Customers, vehicles and revenue potential by bucket</span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Interval</th>
-                    <th className="py-2 pr-3 text-right">Customers</th>
-                    <th className="py-2 pr-3 text-right">Vehicles</th>
-                    <th className="py-2 pr-3 text-right">Avg ticket</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Interval" />
+                    <ReportTableHeaderCell label="Customers" align="right" />
+                    <ReportTableHeaderCell label="Vehicles" align="right" />
+                    <ReportTableHeaderCell label="Avg ticket" align="right" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {siBuckets.map((b) => (
-                    <tr key={b.label} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">{b.label}</td>
-                      <td className="py-2 pr-3 text-right">{b.customers.toLocaleString()}</td>
-                      <td className="py-2 pr-3 text-right">{b.vehicles.toLocaleString()}</td>
-                      <td className="py-2 pr-3 text-right">${b.avgTicket.toFixed(0)}</td>
-                    </tr>
+                    <ReportTableRow key={b.label}>
+                      <ReportTableCell className="text-slate-800">{b.label}</ReportTableCell>
+                      <ReportTableCell align="right">{b.customers.toLocaleString()}</ReportTableCell>
+                      <ReportTableCell align="right">{b.vehicles.toLocaleString()}</ReportTableCell>
+                      <ReportTableCell align="right">${b.avgTicket.toFixed(0)}</ReportTableCell>
+                    </ReportTableRow>
                   ))}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 

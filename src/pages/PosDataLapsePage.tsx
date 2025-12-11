@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type PosLapseRow = {
   storeName: string;
@@ -155,30 +163,24 @@ const PosDataLapsePage: React.FC = () => {
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Store</th>
-                    <th className="py-2 pr-3">Last POS date</th>
-                    <th className="py-2 pr-3 text-right">Days since</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Store" />
+                    <ReportTableHeaderCell label="Last POS date" />
+                    <ReportTableHeaderCell label="Days since" align="right" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {posLapseRows.map((r) => (
-                    <tr key={r.storeName} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">
-                        {r.storeName}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-700">
-                        {r.lastPosDate}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {r.daysSince}
-                      </td>
-                    </tr>
+                    <ReportTableRow key={r.storeName}>
+                      <ReportTableCell className="text-slate-800">{r.storeName}</ReportTableCell>
+                      <ReportTableCell className="text-slate-700">{r.lastPosDate}</ReportTableCell>
+                      <ReportTableCell align="right">{r.daysSince}</ReportTableCell>
+                    </ReportTableRow>
                   ))}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 

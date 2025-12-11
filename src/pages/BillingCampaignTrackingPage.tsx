@@ -1,6 +1,14 @@
 import React, { useState, useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type BillingSummary = {
   periodLabel: string;
@@ -241,44 +249,32 @@ const BillingCampaignTrackingPage: React.FC = () => {
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Billing ID</th>
-                    <th className="py-2 pr-3">Campaign</th>
-                    <th className="py-2 pr-3">Store</th>
-                    <th className="py-2 pr-3">Channel</th>
-                    <th className="py-2 pr-3 text-right">Amount</th>
-                    <th className="py-2 pr-3">Status</th>
-                    <th className="py-2 pr-3">Billing date</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Billing ID" />
+                    <ReportTableHeaderCell label="Campaign" />
+                    <ReportTableHeaderCell label="Store" />
+                    <ReportTableHeaderCell label="Channel" />
+                    <ReportTableHeaderCell label="Amount" align="right" />
+                    <ReportTableHeaderCell label="Status" />
+                    <ReportTableHeaderCell label="Billing date" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {billingRows.map((b) => (
-                    <tr key={b.billingId} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">
-                        {b.billingId}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-700">
-                        {b.campaignName}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-700">
-                        {b.storeName}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-600">
-                        {b.channel}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        ${b.amount.toFixed(0)}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-600">{b.status}</td>
-                      <td className="py-2 pr-3 text-slate-600">
-                        {b.billingDate}
-                      </td>
-                    </tr>
+                    <ReportTableRow key={b.billingId}>
+                      <ReportTableCell className="text-slate-800">{b.billingId}</ReportTableCell>
+                      <ReportTableCell className="text-slate-700">{b.campaignName}</ReportTableCell>
+                      <ReportTableCell className="text-slate-700">{b.storeName}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{b.channel}</ReportTableCell>
+                      <ReportTableCell align="right">${b.amount.toFixed(0)}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{b.status}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{b.billingDate}</ReportTableCell>
+                    </ReportTableRow>
                   ))}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 

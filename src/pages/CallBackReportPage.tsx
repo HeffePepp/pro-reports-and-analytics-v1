@@ -3,6 +3,14 @@ import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/c
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { DateRangePicker, DateRange } from "@/components/ui/date-range-picker";
 import { Button } from "@/components/ui/button";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type Segment = "active" | "retained" | "lapsed" | "inactive" | "lost";
 
@@ -195,53 +203,42 @@ const CallBackReportPage: React.FC = () => {
             </header>
 
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
-                    <th className="px-4 py-2 text-left font-medium">Customer name</th>
-                    <th className="px-4 py-2 text-left font-medium">Phone</th>
-                    <th className="px-4 py-2 text-left font-medium">Email</th>
-                    <th className="px-4 py-2 text-left font-medium">
-                      Last visit (date / invoice #)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Customer name" />
+                    <ReportTableHeaderCell label="Phone" />
+                    <ReportTableHeaderCell label="Email" />
+                    <ReportTableHeaderCell label="Last visit (date / invoice #)" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {customers.map((cust) => (
-                    <tr
+                    <ReportTableRow
                       key={cust.id}
-                      onClick={() => setSelectedCustomer(cust)}
                       className="cursor-pointer hover:bg-slate-50"
+                      onClick={() => setSelectedCustomer(cust)}
                     >
-                      <td className="px-4 py-3 text-slate-900">
-                        {cust.name}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700">
-                        {cust.phone}
-                      </td>
-                      <td className="px-4 py-3 text-emerald-700 underline">
-                        {cust.email}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700">
+                      <ReportTableCell className="text-slate-900">{cust.name}</ReportTableCell>
+                      <ReportTableCell className="text-slate-700">{cust.phone}</ReportTableCell>
+                      <ReportTableCell className="text-emerald-700 underline">{cust.email}</ReportTableCell>
+                      <ReportTableCell className="text-slate-700">
                         <span className="font-medium">{cust.lastVisitDate}</span>{" "}
                         <span className="text-slate-400">·</span>{" "}
                         <span>Inv #{cust.lastInvoiceNumber}</span>
-                      </td>
-                    </tr>
+                      </ReportTableCell>
+                    </ReportTableRow>
                   ))}
 
                   {customers.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="px-4 py-6 text-center text-[11px] text-slate-500"
-                      >
+                    <ReportTableRow>
+                      <ReportTableCell colSpan={4} className="text-center text-slate-500 py-6">
                         No customers found for this time frame.
-                      </td>
-                    </tr>
+                      </ReportTableCell>
+                    </ReportTableRow>
                   )}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 

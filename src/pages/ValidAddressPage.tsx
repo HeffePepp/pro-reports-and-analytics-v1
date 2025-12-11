@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type AddressSummary = {
   totalAddresses: number;
@@ -184,34 +192,26 @@ const ValidAddressPage: React.FC = () => {
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Store</th>
-                    <th className="py-2 pr-3 text-right">Valid %</th>
-                    <th className="py-2 pr-3 text-right">Bad %</th>
-                    <th className="py-2 pr-3 text-right">Vacant %</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Store" />
+                    <ReportTableHeaderCell label="Valid %" align="right" />
+                    <ReportTableHeaderCell label="Bad %" align="right" />
+                    <ReportTableHeaderCell label="Vacant %" align="right" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {addressStoreRows.map((r) => (
-                    <tr key={r.storeName} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">
-                        {r.storeName}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {r.validPct.toFixed(1)}%
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {r.badPct.toFixed(1)}%
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {r.vacantPct.toFixed(1)}%
-                      </td>
-                    </tr>
+                    <ReportTableRow key={r.storeName}>
+                      <ReportTableCell className="text-slate-800">{r.storeName}</ReportTableCell>
+                      <ReportTableCell align="right">{r.validPct.toFixed(1)}%</ReportTableCell>
+                      <ReportTableCell align="right">{r.badPct.toFixed(1)}%</ReportTableCell>
+                      <ReportTableCell align="right">{r.vacantPct.toFixed(1)}%</ReportTableCell>
+                    </ReportTableRow>
                   ))}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 

@@ -1,6 +1,14 @@
 import React, { useState, useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type EmailCaptureSummary = {
   totalCustomers: number;
@@ -200,34 +208,26 @@ const ValidEmailCapturePage: React.FC = () => {
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Store</th>
-                    <th className="py-2 pr-3 text-right">Customers</th>
-                    <th className="py-2 pr-3 text-right">Valid emails</th>
-                    <th className="py-2 pr-3 text-right">Capture %</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Store" />
+                    <ReportTableHeaderCell label="Customers" align="right" />
+                    <ReportTableHeaderCell label="Valid emails" align="right" />
+                    <ReportTableHeaderCell label="Capture %" align="right" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {emailRows.map((r) => (
-                    <tr key={r.storeName} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">
-                        {r.storeName}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {r.customers.toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {r.validEmails.toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        {r.captureRate.toFixed(1)}%
-                      </td>
-                    </tr>
+                    <ReportTableRow key={r.storeName}>
+                      <ReportTableCell className="text-slate-800">{r.storeName}</ReportTableCell>
+                      <ReportTableCell align="right">{r.customers.toLocaleString()}</ReportTableCell>
+                      <ReportTableCell align="right">{r.validEmails.toLocaleString()}</ReportTableCell>
+                      <ReportTableCell align="right">{r.captureRate.toFixed(1)}%</ReportTableCell>
+                    </ReportTableRow>
                   ))}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 

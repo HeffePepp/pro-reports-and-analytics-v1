@@ -268,21 +268,21 @@ const OverviewList: React.FC = () => {
 const DropsTable: React.FC = () => {
   return (
     <div className="mt-2 overflow-x-auto">
-      <table className="min-w-full text-xs">
-        <thead>
-          <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500">
-            <th className="py-2 pr-3">Campaign & drop</th>
-            <th className="py-2 pr-3 text-right">Sent</th>
-            <th className="py-2 pr-3 text-right">Responses</th>
-            <th className="py-2 pr-3 text-right">Resp %</th>
-            <th className="py-2 pr-3 text-right">ROAS</th>
-            <th className="py-2 pr-3 text-right">Revenue</th>
-          </tr>
-        </thead>
-        <tbody>
+      <ReportTable>
+        <ReportTableHead>
+          <ReportTableRow>
+            <ReportTableHeaderCell label="Campaign & drop" />
+            <ReportTableHeaderCell label="Sent" align="right" />
+            <ReportTableHeaderCell label="Responses" align="right" />
+            <ReportTableHeaderCell label="Resp %" align="right" />
+            <ReportTableHeaderCell label="ROAS" align="right" />
+            <ReportTableHeaderCell label="Revenue" align="right" />
+          </ReportTableRow>
+        </ReportTableHead>
+        <ReportTableBody>
           {CAMPAIGNS.map((c) => (
-            <tr key={c.id} className="border-t border-slate-100">
-              <td className="py-3 pr-3 align-top">
+            <ReportTableRow key={c.id}>
+              <ReportTableCell>
                 <div className="text-sm font-semibold text-slate-900">{c.name}</div>
                 <div className="mt-0.5 text-[11px] text-slate-500">
                   {c.dropsLabel} · {c.lastDropDate}
@@ -294,16 +294,16 @@ const DropsTable: React.FC = () => {
                     .join(" · ")}{" "}
                   · {c.sent.toLocaleString()} sent
                 </div>
-              </td>
-              <td className="py-3 pr-3 text-right align-top">{c.sent.toLocaleString()}</td>
-              <td className="py-3 pr-3 text-right align-top">{c.responses.toLocaleString()}</td>
-              <td className="py-3 pr-3 text-right align-top text-amber-600 font-semibold">{c.respPct.toFixed(1)}%</td>
-              <td className="py-3 pr-3 text-right align-top font-semibold text-slate-900">{c.roas.toFixed(1)}x</td>
-              <td className="py-3 pr-3 text-right align-top">${c.revenue.toLocaleString()}</td>
-            </tr>
+              </ReportTableCell>
+              <ReportTableCell align="right">{c.sent.toLocaleString()}</ReportTableCell>
+              <ReportTableCell align="right">{c.responses.toLocaleString()}</ReportTableCell>
+              <ReportTableCell align="right" className="text-amber-600 font-semibold">{c.respPct.toFixed(1)}%</ReportTableCell>
+              <ReportTableCell align="right" className="font-semibold text-slate-900">{c.roas.toFixed(1)}x</ReportTableCell>
+              <ReportTableCell align="right">${c.revenue.toLocaleString()}</ReportTableCell>
+            </ReportTableRow>
           ))}
-        </tbody>
-      </table>
+        </ReportTableBody>
+      </ReportTable>
     </div>
   );
 };

@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type AuditSummary = {
   accountName: string;
@@ -175,26 +183,26 @@ const ComprehensiveAccountAuditPage: React.FC = () => {
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Area</th>
-                    <th className="py-2 pr-3">Check</th>
-                    <th className="py-2 pr-3">Status</th>
-                    <th className="py-2 pr-3">Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Area" />
+                    <ReportTableHeaderCell label="Check" />
+                    <ReportTableHeaderCell label="Status" />
+                    <ReportTableHeaderCell label="Notes" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {auditRows.map((row, idx) => (
-                    <tr key={idx} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">{row.area}</td>
-                      <td className="py-2 pr-3 text-slate-600">{row.check}</td>
-                      <td className="py-2 pr-3 text-slate-600">{row.status}</td>
-                      <td className="py-2 pr-3 text-slate-600">{row.notes}</td>
-                    </tr>
+                    <ReportTableRow key={idx}>
+                      <ReportTableCell className="text-slate-800">{row.area}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.check}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.status}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.notes}</ReportTableCell>
+                    </ReportTableRow>
                   ))}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 

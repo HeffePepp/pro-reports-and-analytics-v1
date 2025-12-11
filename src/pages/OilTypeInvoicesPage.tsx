@@ -1,6 +1,14 @@
 import React, { useState, useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type OilInvoiceSummary = {
   storeGroupName: string;
@@ -196,53 +204,38 @@ const OilTypeInvoicesPage: React.FC = () => {
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Invoice</th>
-                    <th className="py-2 pr-3">Date</th>
-                    <th className="py-2 pr-3">Store</th>
-                    <th className="py-2 pr-3">Customer</th>
-                    <th className="py-2 pr-3">Vehicle</th>
-                    <th className="py-2 pr-3">Oil type</th>
-                    <th className="py-2 pr-3">Brand</th>
-                    <th className="py-2 pr-3 text-right">Invoice total</th>
-                    <th className="py-2 pr-3">Coupon</th>
-                    <th className="py-2 pr-3 text-right">Discount</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Invoice" />
+                    <ReportTableHeaderCell label="Date" />
+                    <ReportTableHeaderCell label="Store" />
+                    <ReportTableHeaderCell label="Customer" />
+                    <ReportTableHeaderCell label="Vehicle" />
+                    <ReportTableHeaderCell label="Oil type" />
+                    <ReportTableHeaderCell label="Brand" />
+                    <ReportTableHeaderCell label="Invoice total" align="right" />
+                    <ReportTableHeaderCell label="Coupon" />
+                    <ReportTableHeaderCell label="Discount" align="right" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {oilInvoiceRows.map((row) => (
-                    <tr
-                      key={row.invoiceNumber}
-                      className="border-t border-slate-100"
-                    >
-                      <td className="py-2 pr-3 text-slate-800">
-                        {row.invoiceNumber}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-600">{row.date}</td>
-                      <td className="py-2 pr-3 text-slate-600">
-                        {row.storeName}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-600">
-                        {row.customerName}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-600">{row.vehicle}</td>
-                      <td className="py-2 pr-3 text-slate-600">{row.oilType}</td>
-                      <td className="py-2 pr-3 text-slate-600">{row.brand}</td>
-                      <td className="py-2 pr-3 text-right">
-                        ${row.invoiceTotal}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-600">
-                        {row.couponCode ?? "–"}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        ${row.discountAmount}
-                      </td>
-                    </tr>
+                    <ReportTableRow key={row.invoiceNumber}>
+                      <ReportTableCell className="text-slate-800">{row.invoiceNumber}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.date}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.storeName}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.customerName}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.vehicle}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.oilType}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.brand}</ReportTableCell>
+                      <ReportTableCell align="right">${row.invoiceTotal}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.couponCode ?? "–"}</ReportTableCell>
+                      <ReportTableCell align="right">${row.discountAmount}</ReportTableCell>
+                    </ReportTableRow>
                   ))}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 
