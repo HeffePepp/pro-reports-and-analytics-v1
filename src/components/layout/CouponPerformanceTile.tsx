@@ -175,30 +175,35 @@ export const CouponPerformanceTile: React.FC = () => {
               <ReportTableHeaderCell label="Description" />
               <ReportTableHeaderCell
                 label="Redemptions"
+                align="right"
                 sortKey="redemptions"
                 sortState={sort}
                 onSortChange={handleSortChange}
               />
               <ReportTableHeaderCell
                 label="Avg ticket"
+                align="right"
                 sortKey="avgTicket"
                 sortState={sort}
                 onSortChange={handleSortChange}
               />
               <ReportTableHeaderCell
                 label="Coupon $"
+                align="right"
                 sortKey="couponAmount"
                 sortState={sort}
                 onSortChange={handleSortChange}
               />
               <ReportTableHeaderCell
                 label="Revenue"
+                align="right"
                 sortKey="revenue"
                 sortState={sort}
                 onSortChange={handleSortChange}
               />
               <ReportTableHeaderCell
                 label="% of redemptions"
+                align="right"
                 sortKey="usagePct"
                 sortState={sort}
                 onSortChange={handleSortChange}
@@ -219,15 +224,15 @@ export const CouponPerformanceTile: React.FC = () => {
                   {row.description}
                 </ReportTableCell>
 
-                <ReportTableCell className="font-semibold">
+                <ReportTableCell align="right" className="font-semibold">
                   {row.redemptions.toLocaleString()}
                 </ReportTableCell>
 
-                <ReportTableCell className="font-semibold">
+                <ReportTableCell align="right" className="font-semibold">
                   ${row.avgTicket.toLocaleString()}
                 </ReportTableCell>
 
-                <ReportTableCell className="font-semibold">
+                <ReportTableCell align="right" className="font-semibold">
                   {row.couponAmount.toLocaleString("en-US", {
                     style: "currency",
                     currency: "USD",
@@ -235,7 +240,7 @@ export const CouponPerformanceTile: React.FC = () => {
                   })}
                 </ReportTableCell>
 
-                <ReportTableCell className="font-semibold">
+                <ReportTableCell align="right" className="font-semibold">
                   {row.revenue.toLocaleString("en-US", {
                     style: "currency",
                     currency: "USD",
@@ -243,7 +248,7 @@ export const CouponPerformanceTile: React.FC = () => {
                   })}
                 </ReportTableCell>
 
-                <ReportTableCell className="font-semibold text-emerald-600">
+                <ReportTableCell align="right" className="font-semibold text-emerald-600">
                   {row.usagePct.toFixed(1)}%
                 </ReportTableCell>
               </ReportTableRow>
