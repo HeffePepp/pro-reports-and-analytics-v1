@@ -5,14 +5,6 @@ import {
   KpiCustomizeButton,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import {
-  ReportTable,
-  ReportTableHead,
-  ReportTableBody,
-  ReportTableRow,
-  ReportTableHeaderCell,
-  ReportTableCell,
-} from "@/components/ui/report-table";
 
 // Segment type definitions
 type SegmentId = "active" | "retained" | "lapsed" | "inactive" | "lost";
@@ -224,38 +216,6 @@ const ServiceIntervalsPage: React.FC = () => {
                   </div>
                 </div>
               ))}
-            </div>
-          </section>
-
-          {/* Interval details table */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">Interval details</h2>
-              <span className="text-[11px] text-slate-500">
-                Customers, vehicles and revenue potential by bucket
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <ReportTable>
-                <ReportTableHead>
-                  <ReportTableRow>
-                    <ReportTableHeaderCell label="Segment" />
-                    <ReportTableHeaderCell label="Customers" align="right" />
-                    <ReportTableHeaderCell label="Vehicles" align="right" />
-                    <ReportTableHeaderCell label="Avg ticket" align="right" />
-                  </ReportTableRow>
-                </ReportTableHead>
-                <ReportTableBody>
-                  {LOYALTY_SEGMENTS.map((seg) => (
-                    <ReportTableRow key={seg.id}>
-                      <ReportTableCell className="text-slate-800">{seg.label}</ReportTableCell>
-                      <ReportTableCell align="right">{seg.customers.toLocaleString()}</ReportTableCell>
-                      <ReportTableCell align="right">{seg.vehicles.toLocaleString()}</ReportTableCell>
-                      <ReportTableCell align="right">${seg.avgTicket.toFixed(0)}</ReportTableCell>
-                    </ReportTableRow>
-                  ))}
-                </ReportTableBody>
-              </ReportTable>
             </div>
           </section>
 
