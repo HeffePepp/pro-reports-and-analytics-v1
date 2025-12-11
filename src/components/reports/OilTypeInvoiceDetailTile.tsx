@@ -10,7 +10,7 @@ type OilTypeInvoiceRow = {
   oilType: string;
   brand: string;
   sales: number;
-  coupon: number;
+  coupon: string;
   discount: number;
 };
 
@@ -33,7 +33,7 @@ type SortState = {
 };
 
 type Props = {
-  rows: OilTypeInvoiceRow[];
+  rows?: OilTypeInvoiceRow[];
 };
 
 const oilTypePillClass = (type: string): string => {
@@ -63,9 +63,9 @@ const compareForKey =
       case "vehicle":
       case "oilType":
       case "brand":
+      case "coupon":
         return (a[key] as string).localeCompare(b[key] as string);
       case "sales":
-      case "coupon":
       case "discount":
         return (a[key] as number) - (b[key] as number);
       default:
@@ -74,67 +74,41 @@ const compareForKey =
   };
 
 const SAMPLE_INVOICES: OilTypeInvoiceRow[] = [
-  {
-    date: "2024-11-28",
-    invoice: "A178-12001",
-    store: "Vallejo, CA",
-    customer: "Jane Smith",
-    vehicle: "2018 Toyota Camry",
-    oilType: "Full Synthetic",
-    brand: "Royal Purple",
-    sales: 128,
-    coupon: 20,
-    discount: 0,
-  },
-  {
-    date: "2024-11-28",
-    invoice: "A178-12002",
-    store: "Vallejo, CA",
-    customer: "Michael Johnson",
-    vehicle: "2016 Ford F-150",
-    oilType: "Synthetic Blend",
-    brand: "House Brand",
-    sales: 96,
-    coupon: 0,
-    discount: 0,
-  },
-  {
-    date: "2024-11-29",
-    invoice: "N101-12018",
-    store: "Napa, CA",
-    customer: "Laura Chen",
-    vehicle: "2021 Subaru Outback",
-    oilType: "Full Synthetic",
-    brand: "Royal Purple",
-    sales: 132,
-    coupon: 13,
-    discount: 0,
-  },
-  {
-    date: "2024-11-30",
-    invoice: "F220-12044",
-    store: "Fairfield, CA",
-    customer: "Carlos Garcia",
-    vehicle: "2012 Honda Civic",
-    oilType: "Conventional",
-    brand: "House Brand",
-    sales: 79,
-    coupon: 5,
-    discount: 0,
-  },
+  { date: "2024-11-28", invoice: "A178-12001", store: "Vallejo, CA", customer: "Jane Smith", vehicle: "2018 Toyota Camry", oilType: "Full Synthetic", brand: "Royal Purple", sales: 128, coupon: "$20 SYN20", discount: 0 },
+  { date: "2024-11-28", invoice: "A178-12002", store: "Vallejo, CA", customer: "Michael Johnson", vehicle: "2016 Ford F-150", oilType: "Synthetic Blend", brand: "House Brand", sales: 96, coupon: "—", discount: 0 },
+  { date: "2024-11-29", invoice: "N101-12018", store: "Napa, CA", customer: "Laura Chen", vehicle: "2021 Subaru Outback", oilType: "Full Synthetic", brand: "Royal Purple", sales: 132, coupon: "$15 OIL10", discount: 5 },
+  { date: "2024-11-30", invoice: "F220-12044", store: "Fairfield, CA", customer: "Carlos Garcia", vehicle: "2012 Honda Civic", oilType: "Conventional", brand: "House Brand", sales: 79, coupon: "$10 WINTERS", discount: 0 },
+  { date: "2024-12-01", invoice: "V330-12055", store: "Vacaville, CA", customer: "Emily Davis", vehicle: "2019 Honda CR-V", oilType: "High Mileage", brand: "House Brand", sales: 110, coupon: "$15 HM15", discount: 0 },
+  { date: "2024-12-02", invoice: "A178-12003", store: "Vallejo, CA", customer: "Brian Lee", vehicle: "2017 Chevy Silverado", oilType: "Full Synthetic", brand: "Royal Purple", sales: 145, coupon: "$25 SYN25", discount: 0 },
+  { date: "2024-12-02", invoice: "N101-12019", store: "Napa, CA", customer: "Sarah Wilson", vehicle: "2020 Subaru Forester", oilType: "Synthetic Blend", brand: "House Brand", sales: 102, coupon: "—", discount: 5 },
+  { date: "2024-12-03", invoice: "F220-12045", store: "Fairfield, CA", customer: "David Martinez", vehicle: "2015 Toyota Corolla", oilType: "Conventional", brand: "House Brand", sales: 72, coupon: "$5 OIL5", discount: 0 },
+  { date: "2024-12-03", invoice: "V330-12056", store: "Vacaville, CA", customer: "Olivia Brown", vehicle: "2018 Ford Escape", oilType: "High Mileage", brand: "House Brand", sales: 118, coupon: "$10 HM10", discount: 0 },
+  { date: "2024-12-04", invoice: "A178-12004", store: "Vallejo, CA", customer: "Kevin Nguyen", vehicle: "2014 Jeep Wrangler", oilType: "Full Synthetic", brand: "Royal Purple", sales: 150, coupon: "$20 SYN20", discount: 0 },
+  { date: "2024-12-04", invoice: "N101-12020", store: "Napa, CA", customer: "Rachel Green", vehicle: "2019 Toyota RAV4", oilType: "Synthetic Blend", brand: "House Brand", sales: 99, coupon: "—", discount: 10 },
+  { date: "2024-12-05", invoice: "F220-12046", store: "Fairfield, CA", customer: "Anthony Perez", vehicle: "2013 Honda Accord", oilType: "Conventional", brand: "House Brand", sales: 84, coupon: "$8 CONV8", discount: 0 },
+  { date: "2024-12-05", invoice: "V330-12057", store: "Vacaville, CA", customer: "Sophia Turner", vehicle: "2022 Hyundai Tucson", oilType: "Full Synthetic", brand: "Royal Purple", sales: 160, coupon: "$25 SYN25", discount: 0 },
+  { date: "2024-12-06", invoice: "A178-12005", store: "Vallejo, CA", customer: "Jason Clark", vehicle: "2011 Ford Focus", oilType: "High Mileage", brand: "House Brand", sales: 105, coupon: "$10 HM10", discount: 0 },
+  { date: "2024-12-06", invoice: "N101-12021", store: "Napa, CA", customer: "Megan Scott", vehicle: "2016 Subaru Crosstrek", oilType: "Synthetic Blend", brand: "House Brand", sales: 108, coupon: "—", discount: 0 },
+  { date: "2024-12-07", invoice: "F220-12047", store: "Fairfield, CA", customer: "Logan Ramirez", vehicle: "2018 Chevy Equinox", oilType: "Full Synthetic", brand: "Royal Purple", sales: 142, coupon: "$15 OIL15", discount: 0 },
+  { date: "2024-12-07", invoice: "V330-12058", store: "Vacaville, CA", customer: "Chloe Adams", vehicle: "2019 Kia Sorento", oilType: "Conventional", brand: "House Brand", sales: 83, coupon: "$5 OIL5", discount: 0 },
+  { date: "2024-12-08", invoice: "A178-12006", store: "Vallejo, CA", customer: "Ethan Hall", vehicle: "2015 Nissan Altima", oilType: "High Mileage", brand: "House Brand", sales: 112, coupon: "$10 HM10", discount: 5 },
+  { date: "2024-12-08", invoice: "N101-12022", store: "Napa, CA", customer: "Hannah Lewis", vehicle: "2020 Subaru Legacy", oilType: "Full Synthetic", brand: "Royal Purple", sales: 155, coupon: "$20 SYN20", discount: 0 },
+  { date: "2024-12-09", invoice: "F220-12048", store: "Fairfield, CA", customer: "Noah Rivera", vehicle: "2017 Toyota Highlander", oilType: "Unclassified", brand: "House Brand", sales: 90, coupon: "—", discount: 0 },
 ];
 
-const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows = SAMPLE_INVOICES }) => {
+const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
   const [sort, setSort] = React.useState<SortState>({
-    key: "date",
+    key: "sales",
     dir: "desc",
   });
+
+  const data = rows ?? SAMPLE_INVOICES;
 
   const sortedRows = React.useMemo(() => {
     const factor = sort.dir === "asc" ? 1 : -1;
     const cmp = compareForKey(sort.key);
-    return [...rows].sort((a, b) => factor * cmp(a, b));
-  }, [rows, sort]);
+    return [...data].sort((a, b) => factor * cmp(a, b));
+  }, [data, sort]);
 
   const toggleSort = (key: SortKey) => {
     setSort((prev) =>
@@ -144,16 +118,16 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows = SAMPLE_INVOICES }) =
     );
   };
 
-  const renderSortableHeader = (label: string, key: SortKey, align: "left" | "right" = "right") => {
+  const renderSortableHeader = (label: string, key: SortKey) => {
     const isActive = sort.key === key;
     const isAsc = isActive && sort.dir === "asc";
 
     return (
-      <th className={`py-2 px-3 text-${align} text-[11px] font-medium uppercase tracking-wide text-slate-500 whitespace-nowrap`}>
+      <th className="py-2 px-2 text-left text-[11px] font-medium uppercase tracking-wide text-slate-500 whitespace-nowrap">
         <button
           type="button"
           onClick={() => toggleSort(key)}
-          className={`inline-flex w-full items-center ${align === "right" ? "justify-end" : "justify-start"} gap-1`}
+          className="inline-flex items-center gap-1"
         >
           <span>{label}</span>
           <ChevronDown
@@ -179,30 +153,17 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows = SAMPLE_INVOICES }) =
         </div>
       </header>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-xs">
-          <colgroup>
-            <col className="w-[10%]" />
-            <col className="w-[10%]" />
-            <col className="w-[12%]" />
-            <col className="w-[14%]" />
-            <col className="w-[18%]" />
-            <col className="w-[12%]" />
-            <col className="w-[10%]" />
-            <col className="w-[7%]" />
-            <col className="w-[7%]" />
-            <col className="w-[7%]" />
-          </colgroup>
-
+      <div>
+        <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
-              {renderSortableHeader("Date", "date", "left")}
-              {renderSortableHeader("Invoice", "invoice", "left")}
-              {renderSortableHeader("Store", "store", "left")}
-              {renderSortableHeader("Customer", "customer", "left")}
-              {renderSortableHeader("Vehicle", "vehicle", "left")}
-              {renderSortableHeader("Oil type", "oilType", "left")}
-              {renderSortableHeader("Oil brand", "brand", "left")}
+              {renderSortableHeader("Date", "date")}
+              {renderSortableHeader("Invoice", "invoice")}
+              {renderSortableHeader("Store", "store")}
+              {renderSortableHeader("Customer", "customer")}
+              {renderSortableHeader("Vehicle", "vehicle")}
+              {renderSortableHeader("Oil type", "oilType")}
+              {renderSortableHeader("Oil brand", "brand")}
               {renderSortableHeader("Sales", "sales")}
               {renderSortableHeader("Coupon", "coupon")}
               {renderSortableHeader("Discount", "discount")}
@@ -210,55 +171,25 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows = SAMPLE_INVOICES }) =
           </thead>
 
           <tbody className="divide-y divide-slate-100">
-            {sortedRows.map((row) => (
-              <tr key={row.invoice + row.date}>
-                <td className="py-3 px-3 text-xs text-slate-900">
-                  {row.date}
-                </td>
-                <td className="py-3 px-3 text-xs font-semibold text-sky-700">
-                  {row.invoice}
-                </td>
-                <td className="py-3 px-3 text-xs text-slate-900">
-                  {row.store}
-                </td>
-                <td className="py-3 px-3 text-xs text-slate-900">
-                  {row.customer}
-                </td>
-                <td className="py-3 px-3 text-xs text-slate-900">
-                  {row.vehicle}
-                </td>
-                <td className="py-3 px-3 text-xs">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${oilTypePillClass(
-                      row.oilType
-                    )}`}
-                  >
+            {sortedRows.map((row, idx) => (
+              <tr key={row.invoice + row.date + idx}>
+                <td className="py-3 px-2 text-xs text-slate-900">{row.date}</td>
+                <td className="py-3 px-2 text-xs font-semibold text-sky-700">{row.invoice}</td>
+                <td className="py-3 px-2 text-xs text-slate-900">{row.store}</td>
+                <td className="py-3 px-2 text-xs text-slate-900">{row.customer}</td>
+                <td className="py-3 px-2 text-xs text-slate-900">{row.vehicle}</td>
+                <td className="py-3 px-2 text-xs">
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${oilTypePillClass(row.oilType)}`}>
                     {row.oilType}
                   </span>
                 </td>
-                <td className="py-3 px-3 text-xs text-slate-900">
-                  {row.brand}
+                <td className="py-3 px-2 text-xs text-slate-900">{row.brand}</td>
+                <td className="py-3 px-2 text-xs text-slate-900">
+                  {row.sales.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
                 </td>
-                <td className="py-3 px-3 text-right text-xs text-slate-900">
-                  {row.sales.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    maximumFractionDigits: 0,
-                  })}
-                </td>
-                <td className="py-3 px-3 text-right text-xs text-slate-900">
-                  {row.coupon.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    maximumFractionDigits: 0,
-                  })}
-                </td>
-                <td className="py-3 px-3 text-right text-xs text-slate-900">
-                  {row.discount.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    maximumFractionDigits: 0,
-                  })}
+                <td className="py-3 px-2 text-xs text-slate-900">{row.coupon}</td>
+                <td className="py-3 px-2 text-xs text-slate-900">
+                  {row.discount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
                 </td>
               </tr>
             ))}
