@@ -1,6 +1,14 @@
 import React, { useState, useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type RoasSummary = {
   storeGroupName: string;
@@ -316,53 +324,37 @@ const RoasPage: React.FC = () => {
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-muted-foreground">
-                    <th className="py-2 pr-3">Campaign</th>
-                    <th className="py-2 pr-3">Audience</th>
-                    <th className="py-2 pr-3">Channel</th>
-                    <th className="py-2 pr-3 text-right">Sent</th>
-                    <th className="py-2 pr-3 text-right">Spend</th>
-                    <th className="py-2 pr-3 text-right">Revenue</th>
-                    <th className="py-2 pr-3 text-right">Vehicles</th>
-                    <th className="py-2 pr-3 text-right">ROAS</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Campaign" />
+                    <ReportTableHeaderCell label="Audience" />
+                    <ReportTableHeaderCell label="Channel" />
+                    <ReportTableHeaderCell label="Sent" align="right" />
+                    <ReportTableHeaderCell label="Spend" align="right" />
+                    <ReportTableHeaderCell label="Revenue" align="right" />
+                    <ReportTableHeaderCell label="Vehicles" align="right" />
+                    <ReportTableHeaderCell label="ROAS" align="right" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {roasCampaigns.map((c) => {
                     const roas = c.revenue / c.spend;
                     return (
-                      <tr key={c.campaignName} className="border-t border-border">
-                        <td className="py-2 pr-3 text-foreground">
-                          {c.campaignName}
-                        </td>
-                        <td className="py-2 pr-3 text-muted-foreground">
-                          {c.audience}
-                        </td>
-                        <td className="py-2 pr-3 text-muted-foreground">
-                          {c.channel}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          {c.sent.toLocaleString()}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          ${c.spend.toFixed(0)}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          ${c.revenue.toLocaleString()}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          {c.vehicles.toLocaleString()}
-                        </td>
-                        <td className="py-2 pr-3 text-right">
-                          {roas.toFixed(1)}x
-                        </td>
-                      </tr>
+                      <ReportTableRow key={c.campaignName}>
+                        <ReportTableCell className="text-foreground">{c.campaignName}</ReportTableCell>
+                        <ReportTableCell className="text-muted-foreground">{c.audience}</ReportTableCell>
+                        <ReportTableCell className="text-muted-foreground">{c.channel}</ReportTableCell>
+                        <ReportTableCell align="right">{c.sent.toLocaleString()}</ReportTableCell>
+                        <ReportTableCell align="right">${c.spend.toFixed(0)}</ReportTableCell>
+                        <ReportTableCell align="right">${c.revenue.toLocaleString()}</ReportTableCell>
+                        <ReportTableCell align="right">{c.vehicles.toLocaleString()}</ReportTableCell>
+                        <ReportTableCell align="right">{roas.toFixed(1)}x</ReportTableCell>
+                      </ReportTableRow>
                     );
                   })}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 

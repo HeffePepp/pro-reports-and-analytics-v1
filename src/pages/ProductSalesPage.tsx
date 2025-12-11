@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type ProductSalesSummary = {
   periodLabel: string;
@@ -165,28 +173,24 @@ const ProductSalesPage: React.FC = () => {
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Vendor</th>
-                    <th className="py-2 pr-3 text-right">Invoices</th>
-                    <th className="py-2 pr-3 text-right">Revenue</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Vendor" />
+                    <ReportTableHeaderCell label="Invoices" align="right" />
+                    <ReportTableHeaderCell label="Revenue" align="right" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {productVendors.map((v) => (
-                    <tr key={v.vendor} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">{v.vendor}</td>
-                      <td className="py-2 pr-3 text-right">
-                        {v.invoices.toLocaleString()}
-                      </td>
-                      <td className="py-2 pr-3 text-right">
-                        ${v.revenue.toLocaleString()}
-                      </td>
-                    </tr>
+                    <ReportTableRow key={v.vendor}>
+                      <ReportTableCell className="text-slate-800">{v.vendor}</ReportTableCell>
+                      <ReportTableCell align="right">{v.invoices.toLocaleString()}</ReportTableCell>
+                      <ReportTableCell align="right">${v.revenue.toLocaleString()}</ReportTableCell>
+                    </ReportTableRow>
                   ))}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 

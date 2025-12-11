@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 type StoreRow = {
   store: string;
   customers: number;
@@ -137,53 +144,34 @@ export const CustomerBaseTile: React.FC = () => {
         </div>
       )}
 
-      {/* DETAILS TAB */}
       {tab === "details" && (
         <div className="mt-4 overflow-x-auto">
-          <table className="min-w-full text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
-                <th className="py-2 pr-3 text-left font-medium">Store</th>
-                <th className="py-2 pr-3 text-right font-medium">Customers</th>
-                <th className="py-2 pr-3 text-right font-medium">Vehicles</th>
-                <th className="py-2 pr-3 text-right font-medium">
-                  Email capture %
-                </th>
-                <th className="py-2 pl-3 text-right font-medium">
-                  Address capture %
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+          <ReportTable>
+            <ReportTableHead>
+              <ReportTableRow>
+                <ReportTableHeaderCell label="Store" />
+                <ReportTableHeaderCell label="Customers" align="right" />
+                <ReportTableHeaderCell label="Vehicles" align="right" />
+                <ReportTableHeaderCell label="Email capture %" align="right" />
+                <ReportTableHeaderCell label="Address capture %" align="right" />
+              </ReportTableRow>
+            </ReportTableHead>
+            <ReportTableBody>
               {STORES.map((row) => (
-                <tr key={row.store}>
-                  <td className="py-3 pr-3 align-middle text-xs text-slate-900">
-                    {row.store}
-                  </td>
-                  <td className="py-3 pr-3 text-right align-middle text-xs text-slate-900">
-                    {row.customers.toLocaleString()}
-                  </td>
-                  <td className="py-3 pr-3 text-right align-middle text-xs text-slate-900">
-                    {row.vehicles.toLocaleString()}
-                  </td>
-                  <td
-                    className={`py-3 pr-3 text-right align-middle text-xs font-semibold ${getCaptureColorClass(
-                      row.emailCapturePct
-                    )}`}
-                  >
+                <ReportTableRow key={row.store}>
+                  <ReportTableCell className="text-slate-900">{row.store}</ReportTableCell>
+                  <ReportTableCell align="right" className="text-slate-900">{row.customers.toLocaleString()}</ReportTableCell>
+                  <ReportTableCell align="right" className="text-slate-900">{row.vehicles.toLocaleString()}</ReportTableCell>
+                  <ReportTableCell align="right" className={`font-semibold ${getCaptureColorClass(row.emailCapturePct)}`}>
                     {row.emailCapturePct.toFixed(1)}%
-                  </td>
-                  <td
-                    className={`py-3 pl-3 text-right align-middle text-xs font-semibold ${getCaptureColorClass(
-                      row.addressCapturePct
-                    )}`}
-                  >
+                  </ReportTableCell>
+                  <ReportTableCell align="right" className={`font-semibold ${getCaptureColorClass(row.addressCapturePct)}`}>
                     {row.addressCapturePct.toFixed(1)}%
-                  </td>
-                </tr>
+                  </ReportTableCell>
+                </ReportTableRow>
               ))}
-            </tbody>
-          </table>
+            </ReportTableBody>
+          </ReportTable>
         </div>
       )}
     </section>

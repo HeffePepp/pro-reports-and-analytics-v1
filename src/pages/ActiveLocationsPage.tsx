@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import {
+  ReportTable,
+  ReportTableHead,
+  ReportTableBody,
+  ReportTableRow,
+  ReportTableHeaderCell,
+  ReportTableCell,
+} from "@/components/ui/report-table";
 
 type ActiveLocationSummary = {
   groupName: string;
@@ -160,36 +168,32 @@ const ActiveLocationsPage: React.FC = () => {
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full text-xs">
-                <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wide text-slate-400">
-                    <th className="py-2 pr-3">Store</th>
-                    <th className="py-2 pr-3">Throttle ID</th>
-                    <th className="py-2 pr-3">City</th>
-                    <th className="py-2 pr-3">State</th>
-                    <th className="py-2 pr-3">Status</th>
-                    <th className="py-2 pr-3">Open date</th>
-                    <th className="py-2 pr-3">Last POS date</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <ReportTable>
+                <ReportTableHead>
+                  <ReportTableRow>
+                    <ReportTableHeaderCell label="Store" />
+                    <ReportTableHeaderCell label="Throttle ID" />
+                    <ReportTableHeaderCell label="City" />
+                    <ReportTableHeaderCell label="State" />
+                    <ReportTableHeaderCell label="Status" />
+                    <ReportTableHeaderCell label="Open date" />
+                    <ReportTableHeaderCell label="Last POS date" />
+                  </ReportTableRow>
+                </ReportTableHead>
+                <ReportTableBody>
                   {activeLocationRows.map((row) => (
-                    <tr key={row.throttleId} className="border-t border-slate-100">
-                      <td className="py-2 pr-3 text-slate-800">{row.storeName}</td>
-                      <td className="py-2 pr-3 text-slate-600">
-                        {row.throttleId}
-                      </td>
-                      <td className="py-2 pr-3 text-slate-600">{row.city}</td>
-                      <td className="py-2 pr-3 text-slate-600">{row.state}</td>
-                      <td className="py-2 pr-3 text-slate-600">{row.status}</td>
-                      <td className="py-2 pr-3 text-slate-600">{row.openDate}</td>
-                      <td className="py-2 pr-3 text-slate-600">
-                        {row.lastPosDate}
-                      </td>
-                    </tr>
+                    <ReportTableRow key={row.throttleId}>
+                      <ReportTableCell className="text-slate-800">{row.storeName}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.throttleId}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.city}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.state}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.status}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.openDate}</ReportTableCell>
+                      <ReportTableCell className="text-slate-600">{row.lastPosDate}</ReportTableCell>
+                    </ReportTableRow>
                   ))}
-                </tbody>
-              </table>
+                </ReportTableBody>
+              </ReportTable>
             </div>
           </section>
 
