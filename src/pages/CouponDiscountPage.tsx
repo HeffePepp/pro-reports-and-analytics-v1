@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   ShellLayout,
   MetricTile,
@@ -7,6 +7,7 @@ import {
   CouponPerformanceTile,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import { DiscountByCouponShareChart } from "@/components/reports/DiscountByCouponShareChart";
 
 type CouponSummary = {
   periodLabel: string;
@@ -91,6 +92,14 @@ const CouponDiscountPage: React.FC = () => {
   ]);
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("coupon-discount", KPI_OPTIONS);
+
+  // Aggregate discount dollars by coupon code for the share chart
+  const discountByCouponRows = useMemo(() => {
+    return couponRows.map((row) => ({
+      code: row.code,
+      discountAmount: row.redemptions * row.avgTicket * (row.discountPct / 100),
+    }));
+  }, []);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -204,6 +213,9 @@ const CouponDiscountPage: React.FC = () => {
           {selectedIds.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map(renderKpiTile)}</div>
           )}
+
+          {/* Discount $ by coupon share chart */}
+          <DiscountByCouponShareChart rows={discountByCouponRows} />
 
           {/* Coupon performance tile with Overview/Details tabs */}
           <CouponPerformanceTile />
