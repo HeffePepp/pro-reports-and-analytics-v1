@@ -17,10 +17,11 @@ type CouponRow = {
   kind: CouponKind;
   redemptions: number;
   avgTicket: number;
+  couponAmount: number;
   revenue: number;
 };
 
-type SortKey = "code" | "redemptions" | "avgTicket" | "revenue" | "usagePct";
+type SortKey = "code" | "redemptions" | "avgTicket" | "couponAmount" | "revenue" | "usagePct";
 
 const COUPON_ROWS: CouponRow[] = [
   {
@@ -29,6 +30,7 @@ const COUPON_ROWS: CouponRow[] = [
     kind: "coupon",
     redemptions: 980,
     avgTicket: 94,
+    couponAmount: 9800,
     revenue: 92200,
   },
   {
@@ -37,6 +39,7 @@ const COUPON_ROWS: CouponRow[] = [
     kind: "coupon",
     redemptions: 640,
     avgTicket: 138,
+    couponAmount: 12800,
     revenue: 88320,
   },
   {
@@ -45,6 +48,7 @@ const COUPON_ROWS: CouponRow[] = [
     kind: "coupon",
     redemptions: 420,
     avgTicket: 186,
+    couponAmount: 10500,
     revenue: 78120,
   },
   {
@@ -53,6 +57,7 @@ const COUPON_ROWS: CouponRow[] = [
     kind: "discount",
     redemptions: 760,
     avgTicket: 112,
+    couponAmount: 12768,
     revenue: 85120,
   },
   {
@@ -61,6 +66,7 @@ const COUPON_ROWS: CouponRow[] = [
     kind: "coupon",
     redemptions: 1020,
     avgTicket: 76,
+    couponAmount: 5100,
     revenue: 77520,
   },
 ];
@@ -169,28 +175,30 @@ export const CouponPerformanceTile: React.FC = () => {
               <ReportTableHeaderCell label="Description" />
               <ReportTableHeaderCell
                 label="Redemptions"
-                align="right"
                 sortKey="redemptions"
                 sortState={sort}
                 onSortChange={handleSortChange}
               />
               <ReportTableHeaderCell
                 label="Avg ticket"
-                align="right"
                 sortKey="avgTicket"
                 sortState={sort}
                 onSortChange={handleSortChange}
               />
               <ReportTableHeaderCell
+                label="Coupon $"
+                sortKey="couponAmount"
+                sortState={sort}
+                onSortChange={handleSortChange}
+              />
+              <ReportTableHeaderCell
                 label="Revenue"
-                align="right"
                 sortKey="revenue"
                 sortState={sort}
                 onSortChange={handleSortChange}
               />
               <ReportTableHeaderCell
                 label="% of redemptions"
-                align="right"
                 sortKey="usagePct"
                 sortState={sort}
                 onSortChange={handleSortChange}
@@ -211,15 +219,23 @@ export const CouponPerformanceTile: React.FC = () => {
                   {row.description}
                 </ReportTableCell>
 
-                <ReportTableCell align="right" className="font-semibold">
+                <ReportTableCell className="font-semibold">
                   {row.redemptions.toLocaleString()}
                 </ReportTableCell>
 
-                <ReportTableCell align="right" className="font-semibold">
+                <ReportTableCell className="font-semibold">
                   ${row.avgTicket.toLocaleString()}
                 </ReportTableCell>
 
-                <ReportTableCell align="right" className="font-semibold">
+                <ReportTableCell className="font-semibold">
+                  {row.couponAmount.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    maximumFractionDigits: 0,
+                  })}
+                </ReportTableCell>
+
+                <ReportTableCell className="font-semibold">
                   {row.revenue.toLocaleString("en-US", {
                     style: "currency",
                     currency: "USD",
@@ -227,7 +243,7 @@ export const CouponPerformanceTile: React.FC = () => {
                   })}
                 </ReportTableCell>
 
-                <ReportTableCell align="right" className="font-semibold text-emerald-600">
+                <ReportTableCell className="font-semibold text-emerald-600">
                   {row.usagePct.toFixed(1)}%
                 </ReportTableCell>
               </ReportTableRow>
