@@ -1,14 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, ZipMapPlaceholder, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import {
-  ReportTable,
-  ReportTableHead,
-  ReportTableBody,
-  ReportTableRow,
-  ReportTableHeaderCell,
-  ReportTableCell,
-} from "@/components/ui/report-table";
 
 type SuggestedServicesSummary = {
   storeGroupName: string;
@@ -374,32 +366,53 @@ const SuggestedServicesPage: React.FC = () => {
             {/* DETAILS TAB – touch point timing table */}
             {ssTab === "details" && (
               <div className="mt-4 overflow-x-auto">
-                <ReportTable>
-                  <ReportTableHead>
-                    <ReportTableRow>
-                      <ReportTableHeaderCell label="Touch point" />
-                      <ReportTableHeaderCell label="Sent" align="right" />
-                      <ReportTableHeaderCell label="Responses" align="right" />
-                      <ReportTableHeaderCell label="Resp %" align="right" />
-                      <ReportTableHeaderCell label="ROAS" align="right" />
-                    </ReportTableRow>
-                  </ReportTableHead>
-                  <ReportTableBody>
+                <table className="min-w-full table-fixed text-[11px]">
+                  {/* Column widths so right side stays tight + grouped */}
+                  <colgroup>
+                    <col className="w-[52%]" />  {/* Touch point */}
+                    <col className="w-[11%]" />  {/* Sent */}
+                    <col className="w-[13%]" />  {/* Responses */}
+                    <col className="w-[11%]" />  {/* Resp % */}
+                    <col className="w-[13%]" />  {/* ROAS */}
+                  </colgroup>
+
+                  <thead className="border-b border-slate-100 text-slate-500 uppercase tracking-wide">
+                    <tr>
+                      <th className="py-2 pr-4 text-left font-medium">Touch point</th>
+                      <th className="py-2 pl-4 text-right font-medium">Sent</th>
+                      <th className="py-2 pl-4 text-right font-medium">Responses</th>
+                      <th className="py-2 pl-4 text-right font-medium">Resp %</th>
+                      <th className="py-2 pl-4 text-right font-medium">ROAS</th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-slate-100">
                     {SS_TOUCHPOINTS.map((tp) => (
-                      <ReportTableRow key={tp.timing}>
-                        <ReportTableCell>
-                          <div className="text-xs font-medium text-slate-800">Suggested Services</div>
-                          <div className="text-[11px] text-slate-500">{tp.timing}</div>
+                      <tr key={tp.timing}>
+                        {/* LEFT: touch point info */}
+                        <td className="py-3 pr-4 align-top">
+                          <div className="text-[16px] font-semibold text-slate-900">Suggested Services</div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">{tp.timing}</div>
                           <div className="text-[11px] text-slate-500">{tp.channel}</div>
-                        </ReportTableCell>
-                        <ReportTableCell align="right">{tp.sent.toLocaleString()}</ReportTableCell>
-                        <ReportTableCell align="right">{tp.responses.toLocaleString()}</ReportTableCell>
-                        <ReportTableCell align="right">{tp.respPct.toFixed(1)}%</ReportTableCell>
-                        <ReportTableCell align="right">{tp.roas.toFixed(1)}x</ReportTableCell>
-                      </ReportTableRow>
+                        </td>
+
+                        {/* RIGHT: tight stat block */}
+                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          {tp.sent.toLocaleString()}
+                        </td>
+                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          {tp.responses.toLocaleString()}
+                        </td>
+                        <td className="py-3 pl-4 text-right align-middle">
+                          <span className="font-semibold text-emerald-600">{tp.respPct.toFixed(1)}%</span>
+                        </td>
+                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          {tp.roas.toFixed(1)}x
+                        </td>
+                      </tr>
                     ))}
-                  </ReportTableBody>
-                </ReportTable>
+                  </tbody>
+                </table>
               </div>
             )}
           </section>
