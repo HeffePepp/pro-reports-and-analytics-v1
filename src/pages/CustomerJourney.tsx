@@ -410,19 +410,19 @@ const CustomerJourneyPage: React.FC = () => {
                       <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
                         Touch point
                       </th>
-                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                      <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
                         Sent
                       </th>
-                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                      <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
                         Responses
                       </th>
-                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                      <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
                         Resp %
                       </th>
-                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                      <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
                         ROAS
                       </th>
-                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                      <th className="py-2 pl-3 text-right font-medium whitespace-nowrap">
                         Revenue
                       </th>
                     </tr>
@@ -446,20 +446,20 @@ const CustomerJourneyPage: React.FC = () => {
                             </div>
                           </td>
 
-                          {/* Metrics – left aligned, tight to headers */}
-                          <td className="py-3 pr-3 text-xs text-slate-900">
+                          {/* Metrics – right aligned */}
+                          <td className="py-3 px-3 text-right text-xs text-slate-900">
                             {tp.sends.toLocaleString()}
                           </td>
-                          <td className="py-3 pr-3 text-xs text-slate-900">
+                          <td className="py-3 px-3 text-right text-xs text-slate-900">
                             {responses.toLocaleString()}
                           </td>
-                          <td className="py-3 pr-3 text-xs font-semibold text-emerald-600">
+                          <td className="py-3 px-3 text-right text-xs font-semibold text-emerald-600">
                             {tp.respPct.toFixed(1)}%
                           </td>
-                          <td className="py-3 pr-3 text-xs text-slate-900">
+                          <td className="py-3 px-3 text-right text-xs text-slate-900">
                             {tp.roas.toFixed(1)}x
                           </td>
-                          <td className="py-3 pr-3 text-xs text-slate-900">
+                          <td className="py-3 pl-3 text-right text-xs text-slate-900">
                             {tp.revenue.toLocaleString("en-US", {
                               style: "currency",
                               currency: "USD",
