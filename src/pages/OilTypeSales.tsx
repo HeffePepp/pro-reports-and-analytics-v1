@@ -55,7 +55,7 @@ const OilTypeSalesPage: React.FC = () => {
 
           <OilTypeRevenueDetailsTable />
 
-          <OilTypeInvoiceDetailTile rows={[]} />
+          <OilTypeInvoiceDetailTile />
 
           <div className="block lg:hidden">
             <AIInsightsTile title="AI Insights" subtitle="Based on oil mix & revenue" bullets={insights} onRefresh={regenerateInsights} />
