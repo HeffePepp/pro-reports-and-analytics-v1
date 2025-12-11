@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import { CHANNEL_BAR_CLASS, CHANNEL_LABELS, CampaignChannel } from "@/styles/channelColors";
 
 type Channel = "postcard" | "email" | "sms";
 
@@ -84,10 +85,11 @@ const CAMPAIGNS: Campaign[] = [
   },
 ];
 
-const channelColor: Record<Channel, string> = {
-  postcard: "bg-sky-400",
-  email: "bg-emerald-400",
-  sms: "bg-indigo-400",
+// Map local Channel type to shared CampaignChannel
+const channelToShared: Record<Channel, CampaignChannel> = {
+  postcard: "postcard",
+  email: "email",
+  sms: "text",
 };
 
 const KPI_OPTIONS: KpiOption[] = [
@@ -246,13 +248,13 @@ const OverviewList: React.FC = () => {
               {(["postcard", "email", "sms"] as const).map((ch) => {
                 const share = c.channelMix[ch];
                 if (!share) return null;
-                return <div key={ch} className={channelColor[ch]} style={{ width: `${share}%` }} />;
+                return <div key={ch} className={CHANNEL_BAR_CLASS[channelToShared[ch]]} style={{ width: `${share}%` }} />;
               })}
             </div>
             <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-slate-600">
-              {c.channels.includes("postcard") && <LegendDot colorClass="bg-sky-400" label="Postcard" />}
-              {c.channels.includes("email") && <LegendDot colorClass="bg-emerald-400" label="Email" />}
-              {c.channels.includes("sms") && <LegendDot colorClass="bg-indigo-400" label="Text Message" />}
+              {c.channels.includes("postcard") && <LegendDot colorClass={CHANNEL_BAR_CLASS.postcard} label={CHANNEL_LABELS.postcard} />}
+              {c.channels.includes("email") && <LegendDot colorClass={CHANNEL_BAR_CLASS.email} label={CHANNEL_LABELS.email} />}
+              {c.channels.includes("sms") && <LegendDot colorClass={CHANNEL_BAR_CLASS.text} label={CHANNEL_LABELS.text} />}
             </div>
           </div>
           <div className="mt-4 border-b border-slate-100" />

@@ -6,6 +6,7 @@ import {
   KpiCustomizeButton,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import { parseChannels, CHANNEL_BAR_CLASS, CHANNEL_LABELS } from "@/styles/channelColors";
 
 type JourneyTouchPoint = {
   id: number;
@@ -365,13 +366,34 @@ const CustomerJourneyPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* simple bar */}
-                    <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100">
-                      <div
-                        className="h-1.5 rounded-full bg-sky-400"
-                        style={{ width: `${Math.min(tp.respPct, 100)}%` }}
-                      />
-                    </div>
+                    {/* Channel-colored bar */}
+                    {(() => {
+                      const channels = parseChannels(tp.channel);
+                      const segmentWidth = 100 / channels.length;
+                      return (
+                        <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden flex">
+                          {channels.map((ch) => (
+                            <div
+                              key={ch}
+                              className={CHANNEL_BAR_CLASS[ch]}
+                              style={{ width: `${Math.min(tp.respPct, 100) * segmentWidth / 100}%` }}
+                            />
+                          ))}
+                        </div>
+                      );
+                    })()}
+
+                    {/* Channel legend for multi-channel touch points */}
+                    {parseChannels(tp.channel).length > 1 && (
+                      <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-slate-500">
+                        {parseChannels(tp.channel).map((ch) => (
+                          <span key={ch} className="inline-flex items-center gap-1">
+                            <span className={`h-1.5 w-1.5 rounded-full ${CHANNEL_BAR_CLASS[ch]}`} />
+                            {CHANNEL_LABELS[ch]}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
