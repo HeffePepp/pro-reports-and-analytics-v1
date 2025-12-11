@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import {
   ShellLayout,
   AIInsightsTile,
+  KpiCustomizeButton,
 } from "@/components/layout";
 import OilTypeMixSection from "@/components/reports/OilTypeMixSection";
 import OilTypeUsageKpis from "@/components/reports/OilTypeUsageKpis";
 import OilTypeRevenueDetailsTable from "@/components/reports/OilTypeRevenueDetailsTable";
 import OilTypeInvoiceDetailTile from "@/components/reports/OilTypeInvoiceDetailTile";
+import { useKpiPreferences } from "@/hooks/useKpiPreferences";
+
 type OilMixSummary = {
   periodLabel: string;
 };
@@ -15,7 +18,17 @@ const oilMixSummary: OilMixSummary = {
   periodLabel: "Last 90 days",
 };
 
+const KPI_OPTIONS = [
+  { id: "conventional", label: "Conventional" },
+  { id: "synBlend", label: "Synthetic Blend" },
+  { id: "fullSyn", label: "Full Synthetic" },
+  { id: "highMileage", label: "High Mileage" },
+  { id: "unclassified", label: "Unclassified" },
+];
+
 const OilTypeSalesPage: React.FC = () => {
+  const { selectedIds, setSelectedIds } = useKpiPreferences("oil-type-sales", KPI_OPTIONS);
+  
   const [insights, setInsights] = useState<string[]>([
     "Synthetic and high mileage oils now account for the majority of oil change revenue.",
     "Conventional still represents a large number of visits but at a lower average ticket.",
@@ -37,7 +50,17 @@ const OilTypeSalesPage: React.FC = () => {
         { label: "Reports & Insights", to: "/" },
         { label: "Oil Type Sales" },
       ]}
-      rightInfo={<span>Period: <span className="font-medium">{oilMixSummary.periodLabel}</span></span>}
+      rightInfo={
+        <div className="flex items-center gap-3">
+          <KpiCustomizeButton
+            reportId="oil-type-sales"
+            options={KPI_OPTIONS}
+            selectedIds={selectedIds}
+            onChangeSelected={setSelectedIds}
+          />
+          <span>Period: <span className="font-medium">{oilMixSummary.periodLabel}</span></span>
+        </div>
+      }
     >
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
@@ -49,7 +72,7 @@ const OilTypeSalesPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <div className="lg:col-span-3 space-y-4">
           {/* Oil type KPI tiles */}
-          <OilTypeUsageKpis />
+          <OilTypeUsageKpis selectedIds={selectedIds} />
 
           <OilTypeMixSection />
 

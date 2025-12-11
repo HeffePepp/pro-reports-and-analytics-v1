@@ -52,10 +52,20 @@ const OIL_TYPE_USAGE_TILES: OilTypeUsageTile[] = [
   },
 ];
 
-const OilTypeUsageKpis: React.FC = () => {
+type Props = {
+  selectedIds?: string[];
+};
+
+const OilTypeUsageKpis: React.FC<Props> = ({ selectedIds }) => {
+  const visibleTiles = selectedIds 
+    ? OIL_TYPE_USAGE_TILES.filter((tile) => selectedIds.includes(tile.id))
+    : OIL_TYPE_USAGE_TILES;
+
+  if (visibleTiles.length === 0) return null;
+
   return (
     <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
-      {OIL_TYPE_USAGE_TILES.map((tile) => (
+      {visibleTiles.map((tile) => (
         <div
           key={tile.id}
           className={`rounded-2xl border border-slate-200 p-3 shadow-sm ${tile.bgClass}`}
