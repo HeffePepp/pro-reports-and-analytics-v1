@@ -395,20 +395,40 @@ const CustomerJourneyPage: React.FC = () => {
             {tab === "details" && (
               <div className="mt-4 overflow-x-auto">
                 <table className="min-w-full text-xs">
+                  {/* Keep first column wide, stats compressed on the right */}
+                  <colgroup>
+                    <col className="w-[44%]" />  {/* touch point */}
+                    <col className="w-[14%]" />  {/* resp % */}
+                    <col className="w-[12%]" />  {/* roas */}
+                    <col className="w-[14%]" />  {/* comms sent */}
+                    <col className="w-[16%]" />  {/* revenue */}
+                  </colgroup>
+
                   <thead>
                     <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
-                      <th className="py-2 text-left font-medium">Touch point</th>
-                      <th className="py-2 pl-4 text-right font-medium">Resp %</th>
-                      <th className="py-2 pl-4 text-right font-medium">ROAS</th>
-                      <th className="py-2 pl-4 text-right font-medium">Comms sent</th>
-                      <th className="py-2 pl-4 text-right font-medium">Revenue</th>
+                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                        Touch point
+                      </th>
+                      <th className="py-2 pr-3 text-right font-medium whitespace-nowrap">
+                        Resp %
+                      </th>
+                      <th className="py-2 pr-3 text-right font-medium whitespace-nowrap">
+                        ROAS
+                      </th>
+                      <th className="py-2 pr-3 text-right font-medium whitespace-nowrap">
+                        Comms sent
+                      </th>
+                      <th className="py-2 pl-3 text-right font-medium whitespace-nowrap">
+                        Revenue
+                      </th>
                     </tr>
                   </thead>
+
                   <tbody className="divide-y divide-slate-100">
                     {TOUCH_POINTS.map((tp) => (
                       <tr key={tp.id} className="align-top">
-                        {/* Stacked left side – touch point + offset + channel */}
-                        <td className="py-3">
+                        {/* LEFT: stacked touch point + offset + channel */}
+                        <td className="py-3 pr-3">
                           <div className="text-xs font-semibold text-slate-900">
                             {tp.id}. {tp.name}
                           </div>
@@ -420,17 +440,17 @@ const CustomerJourneyPage: React.FC = () => {
                           </div>
                         </td>
 
-                        {/* Stats on the right – right aligned & grouped */}
-                        <td className="py-3 pl-4 text-right text-xs font-semibold text-emerald-600">
+                        {/* RIGHT: tight stat block, right-aligned */}
+                        <td className="py-3 pr-3 text-right text-xs font-semibold text-emerald-600">
                           {tp.respPct.toFixed(1)}%
                         </td>
-                        <td className="py-3 pl-4 text-right text-xs text-slate-900">
+                        <td className="py-3 pr-3 text-right text-xs text-slate-900">
                           {tp.roas.toFixed(1)}x
                         </td>
-                        <td className="py-3 pl-4 text-right text-xs text-slate-900">
+                        <td className="py-3 pr-3 text-right text-xs text-slate-900">
                           {tp.sends.toLocaleString()}
                         </td>
-                        <td className="py-3 pl-4 text-right text-xs text-slate-900">
+                        <td className="py-3 pl-3 text-right text-xs text-slate-900">
                           {tp.revenue.toLocaleString("en-US", {
                             style: "currency",
                             currency: "USD",
