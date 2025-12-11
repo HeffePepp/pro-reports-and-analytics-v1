@@ -7,18 +7,18 @@ export const CHANNEL_LABELS: Record<CampaignChannel, string> = {
   text: "Text Message",
 };
 
-// Bars (the long campaign bars)
+// Bars (the long campaign bars) - using approved Throttle Pro pastel palette
 export const CHANNEL_BAR_CLASS: Record<CampaignChannel, string> = {
-  postcard: "bg-sky-400",    // Postcard (blue)
-  email: "bg-emerald-400",   // Email (green)
-  text: "bg-indigo-400",     // Text Message (purple)
+  postcard: "bg-tp-pastel-blue",    // Postcard (blue)
+  email: "bg-tp-pastel-green",      // Email (green)
+  text: "bg-tp-pastel-purple",      // Text Message (purple)
 };
 
 // Dots (the little legend dots) - same as bars for consistency
 export const CHANNEL_DOT_CLASS: Record<CampaignChannel, string> = {
-  postcard: "bg-sky-400",
-  email: "bg-emerald-400",
-  text: "bg-indigo-400",
+  postcard: "bg-tp-pastel-blue",
+  email: "bg-tp-pastel-green",
+  text: "bg-tp-pastel-purple",
 };
 
 // Parse a channel string like "Postcard + Email + Text" into array of channels
