@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { KpiOption } from "@/hooks/useKpiPreferences";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { GripVertical } from "lucide-react";
 
 interface KpiCustomizeButtonProps {
   reportId: string;
@@ -18,8 +18,8 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
   title = "KPI tiles",
 }) => {
   const [open, setOpen] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const panelRef = useRef<HTMLDivElement | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const allIds = options.map((o) => o.id);
   const allSelected = selectedIds.length === allIds.length;
@@ -42,16 +42,44 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
     }
   };
 
-  const moveId = (id: string, direction: "up" | "down") => {
-    const idx = selectedIds.indexOf(id);
-    if (idx === -1) return;
-    if (direction === "up" && idx === 0) return;
-    if (direction === "down" && idx === selectedIds.length - 1) return;
+  // Reorder selectedIds when a selected KPI is dragged onto another selected KPI
+  const reorderSelected = (sourceId: string, targetId: string) => {
+    if (sourceId === targetId) return;
+
+    const sourceIndex = selectedIds.indexOf(sourceId);
+    const targetIndex = selectedIds.indexOf(targetId);
+    if (sourceIndex === -1 || targetIndex === -1) return;
 
     const next = [...selectedIds];
-    const swapWith = direction === "up" ? idx - 1 : idx + 1;
-    [next[idx], next[swapWith]] = [next[swapWith], next[idx]];
+    next.splice(sourceIndex, 1);
+    next.splice(targetIndex, 0, sourceId);
     onChangeSelected(next);
+  };
+
+  const handleDragStart = (id: string, e: React.DragEvent<HTMLDivElement>) => {
+    if (!selectedIds.includes(id)) return;
+    setDraggingId(id);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", id);
+  };
+
+  const handleDragOver = (targetId: string, e: React.DragEvent<HTMLDivElement>) => {
+    if (!draggingId) return;
+    if (!selectedIds.includes(draggingId)) return;
+    if (!selectedIds.includes(targetId)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (targetId: string, e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!draggingId) return;
+    reorderSelected(draggingId, targetId);
+    setDraggingId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingId(null);
   };
 
   const handleToggleAll = () => {
@@ -67,12 +95,7 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
 
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node;
-      if (
-        panelRef.current &&
-        !panelRef.current.contains(target) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(target)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(target)) {
         setOpen(false);
       }
     }
@@ -92,9 +115,8 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
   }, [open]);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
-        ref={buttonRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-600 shadow-sm hover:bg-slate-50"
@@ -104,13 +126,15 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
       </button>
 
       {open && (
-        <div
-          ref={panelRef}
-          className="absolute right-0 mt-2 w-72 rounded-2xl border border-slate-200 bg-white shadow-lg z-20"
-        >
+        <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-slate-200 bg-white shadow-lg z-20">
           <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100">
-            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
-              {title}
+            <div className="flex flex-col">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                {title}
+              </span>
+              <span className="text-[10px] text-slate-400">
+                Drag to reorder
+              </span>
             </div>
             <button
               type="button"
@@ -121,17 +145,24 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
             </button>
           </div>
 
-          <div className="max-h-64 overflow-y-auto py-2">
+          <div className="max-h-64 overflow-y-auto py-2 px-2">
             {orderedOptions.map((opt) => {
               const isSelected = selectedIds.includes(opt.id);
-              const selIndex = selectedIds.indexOf(opt.id);
-              const canMoveUp = isSelected && selIndex > 0;
-              const canMoveDown = isSelected && selIndex < selectedIds.length - 1;
+              const isDragging = draggingId === opt.id;
 
               return (
                 <div
                   key={opt.id}
-                  className="flex items-center justify-between px-4 py-1.5 hover:bg-slate-50"
+                  draggable={isSelected}
+                  onDragStart={(e) => handleDragStart(opt.id, e)}
+                  onDragOver={(e) => handleDragOver(opt.id, e)}
+                  onDrop={(e) => handleDrop(opt.id, e)}
+                  onDragEnd={handleDragEnd}
+                  className={`flex items-center justify-between px-2 py-1.5 rounded-md ${
+                    isDragging
+                      ? "bg-sky-50 border border-sky-200"
+                      : "hover:bg-slate-50"
+                  }`}
                 >
                   <button
                     type="button"
@@ -154,34 +185,16 @@ const KpiCustomizeButton: React.FC<KpiCustomizeButtonProps> = ({
                     <span className="text-slate-700">{opt.label}</span>
                   </button>
 
-                  {/* Up / Down reorder buttons */}
-                  <div className="flex items-center gap-0.5 ml-2">
-                    <button
-                      type="button"
-                      onClick={() => moveId(opt.id, "up")}
-                      disabled={!canMoveUp}
-                      className={`rounded p-0.5 ${
-                        canMoveUp
-                          ? "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-                          : "text-slate-200 cursor-default"
-                      }`}
-                      aria-label="Move up"
-                    >
-                      <ChevronUp className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => moveId(opt.id, "down")}
-                      disabled={!canMoveDown}
-                      className={`rounded p-0.5 ${
-                        canMoveDown
-                          ? "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-                          : "text-slate-200 cursor-default"
-                      }`}
-                      aria-label="Move down"
-                    >
-                      <ChevronDown className="h-3.5 w-3.5" />
-                    </button>
+                  {/* Drag handle */}
+                  <div
+                    className={`flex h-6 w-6 items-center justify-center rounded-md ${
+                      isSelected
+                        ? "cursor-grab text-slate-400 hover:text-slate-600"
+                        : "cursor-not-allowed text-slate-200"
+                    }`}
+                    title={isSelected ? "Drag to reorder" : "Select to reorder"}
+                  >
+                    <GripVertical className="h-3.5 w-3.5" />
                   </div>
                 </div>
               );
