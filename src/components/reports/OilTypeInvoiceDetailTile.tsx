@@ -145,7 +145,7 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
             <tr className="border-b border-slate-200">
               {renderHeader("Date", "date")}
               {renderHeader("Invoice", "invoice")}
-              {renderHeader("License", "license")}
+              {renderHeader("License / Store / Cust", "license")}
               {renderHeader("Oil type", "oilType")}
               {renderHeader("Oil brand", "brand")}
               {renderHeader("Sales", "sales")}
