@@ -394,63 +394,58 @@ const CustomerJourneyPage: React.FC = () => {
             {/* Details tab: stacked layout like Drops table */}
             {tab === "details" && (
               <div className="mt-4 overflow-x-auto">
-                <table className="min-w-full text-xs">
-                  {/* Keep first column wide, stats compressed on the right */}
+                <table className="min-w-full table-fixed text-[11px]">
+                  {/* Column widths so right side stays tight + grouped */}
                   <colgroup>
-                    <col className="w-[44%]" />  {/* touch point */}
-                    <col className="w-[14%]" />  {/* resp % */}
-                    <col className="w-[12%]" />  {/* roas */}
-                    <col className="w-[14%]" />  {/* comms sent */}
-                    <col className="w-[16%]" />  {/* revenue */}
+                    <col className="w-[46%]" />  {/* Touch point */}
+                    <col className="w-[12%]" />  {/* Resp % */}
+                    <col className="w-[14%]" />  {/* ROAS */}
+                    <col className="w-[14%]" />  {/* Comms sent */}
+                    <col className="w-[14%]" />  {/* Revenue */}
                   </colgroup>
 
-                  <thead>
-                    <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
-                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-                        Touch point
-                      </th>
-                      <th className="py-2 pr-3 text-right font-medium whitespace-nowrap">
-                        Resp %
-                      </th>
-                      <th className="py-2 pr-3 text-right font-medium whitespace-nowrap">
-                        ROAS
-                      </th>
-                      <th className="py-2 pr-3 text-right font-medium whitespace-nowrap">
-                        Comms sent
-                      </th>
-                      <th className="py-2 pl-3 text-right font-medium whitespace-nowrap">
-                        Revenue
-                      </th>
+                  <thead className="border-b border-slate-100 text-slate-500">
+                    <tr>
+                      <th className="py-2 pr-4 text-left font-medium">Touch point</th>
+                      <th className="py-2 pr-4 text-right font-medium">Resp %</th>
+                      <th className="py-2 pl-4 text-right font-medium">ROAS</th>
+                      <th className="py-2 pl-4 text-right font-medium">Comms sent</th>
+                      <th className="py-2 pl-4 text-right font-medium">Revenue</th>
                     </tr>
                   </thead>
 
                   <tbody className="divide-y divide-slate-100">
                     {TOUCH_POINTS.map((tp) => (
-                      <tr key={tp.id} className="align-top">
-                        {/* LEFT: stacked touch point + offset + channel */}
-                        <td className="py-3 pr-3">
-                          <div className="text-xs font-semibold text-slate-900">
+                      <tr key={tp.id}>
+                        {/* LEFT: touch point name + timing + channel */}
+                        <td className="py-3 pr-4 align-top">
+                          {/* name = bigger / "doubled" size */}
+                          <div className="text-[16px] font-semibold text-slate-900">
                             {tp.id}. {tp.name}
                           </div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
                             {tp.offsetLabel}
                           </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
+                          <div className="text-[11px] text-slate-500">
                             {tp.channel}
                           </div>
                         </td>
 
-                        {/* RIGHT: tight stat block, right-aligned */}
-                        <td className="py-3 pr-3 text-right text-xs font-semibold text-emerald-600">
-                          {tp.respPct.toFixed(1)}%
+                        {/* RESP % */}
+                        <td className="py-3 pr-4 text-right align-middle">
+                          <span className="font-semibold text-emerald-600">
+                            {tp.respPct.toFixed(1)}%
+                          </span>
                         </td>
-                        <td className="py-3 pr-3 text-right text-xs text-slate-900">
+
+                        {/* RIGHT-SIDE TIGHT BLOCK */}
+                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
                           {tp.roas.toFixed(1)}x
                         </td>
-                        <td className="py-3 pr-3 text-right text-xs text-slate-900">
+                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
                           {tp.sends.toLocaleString()}
                         </td>
-                        <td className="py-3 pl-3 text-right text-xs text-slate-900">
+                        <td className="py-3 pl-4 text-right align-middle text-slate-900">
                           {tp.revenue.toLocaleString("en-US", {
                             style: "currency",
                             currency: "USD",
