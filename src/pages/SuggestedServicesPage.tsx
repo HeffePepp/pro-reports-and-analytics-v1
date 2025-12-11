@@ -306,8 +306,7 @@ const SuggestedServicesPage: React.FC = () => {
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <header className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">Suggested Services Items</h2>
-                <p className="text-[11px] text-slate-500">By service type – click Details for table view.</p>
+                <h2 className="text-[13px] font-semibold text-slate-900">Active Suggested Services</h2>
               </div>
 
               {/* Two-tab pill, like One-off Campaigns, but just Overview / Details */}
