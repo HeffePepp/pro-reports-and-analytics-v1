@@ -65,12 +65,11 @@ const CouponDiscountPage: React.FC = () => {
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("coupon-discount", KPI_OPTIONS);
 
-  // Compute KPI values from sample data
-  const totalCouponAmount = 50968;
-  const totalDiscountAmount = 50968;
-  const avgCouponPerInvoice = 3.31;
-  const totalRevenue = 421280;
-
+  // KPI values matching the reference image
+  const totalCouponAmount = 15420;
+  const totalDiscountAmount = 28950;
+  const avgCouponDiscount = 7.85;
+  const totalRevenue = 312400;
   const currency = (v: number, decimals = 0) =>
     v.toLocaleString("en-US", {
       style: "currency",
@@ -95,9 +94,9 @@ const CouponDiscountPage: React.FC = () => {
         return (
           <MetricTile
             key={id}
-            label="Total discount $"
+            label="Total discount amount"
             value={currency(totalDiscountAmount)}
-            helpText="All discounts from coupon offers."
+            helpText="All discounts from discount offers."
             variant="discount"
           />
         );
@@ -105,8 +104,8 @@ const CouponDiscountPage: React.FC = () => {
         return (
           <MetricTile
             key={id}
-            label="Avg coupon/discount per invoice"
-            value={currency(avgCouponPerInvoice, 2)}
+            label="Avg coupon/discount"
+            value={currency(avgCouponDiscount, 2)}
             helpText="Average reduction per discounted invoice."
           />
         );
