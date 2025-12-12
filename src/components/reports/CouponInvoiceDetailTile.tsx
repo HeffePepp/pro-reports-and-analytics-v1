@@ -133,7 +133,7 @@ export const CouponInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
             <ReportTableHeaderCell label="Offer" />
             {renderHeader("Discount", "discount", "right")}
             {renderHeader("Sales", "sales", "right")}
-            {renderHeader("Channel", "channel")}
+            {renderHeader("Channel", "channel", "right")}
           </ReportTableRow>
         </ReportTableHead>
         <ReportTableBody>
@@ -162,7 +162,7 @@ export const CouponInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
               <ReportTableCell>{row.offer}</ReportTableCell>
               <ReportTableCell align="right">{currency(row.discount)}</ReportTableCell>
               <ReportTableCell align="right">{currency(row.sales)}</ReportTableCell>
-              <ReportTableCell>{row.channel}</ReportTableCell>
+              <ReportTableCell align="right">{row.channel}</ReportTableCell>
             </ReportTableRow>
           ))}
         </ReportTableBody>
