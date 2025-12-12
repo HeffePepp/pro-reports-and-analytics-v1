@@ -1,29 +1,31 @@
 import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, ZipMapPlaceholder, KpiCustomizeButton } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type SuggestedServicesSummary = {
   storeGroupName: string;
   periodLabel: string;
+  invoices: number;
+  suggestedServices: number;
   emailsSent: number;
+  emailsOpened: number;
+  responses: number;
   ssRevenue: number;
-  totalInvoiceRevenue: number;
-  acceptanceRate: number;
-  totalInvoices: number;
-  validEmailOnSsInvoicesPct: number;
-  invoicesWithSsItemPct: number;
+  totalRevenue: number;
+  invoicesWithSsPct: number;
 };
 
 const ssSummary: SuggestedServicesSummary = {
   storeGroupName: "All Stores",
   periodLabel: "Last 12 months",
+  invoices: 21500,
+  suggestedServices: 8420,
   emailsSent: 18200,
+  emailsOpened: 12740,
+  responses: 4331,
   ssRevenue: 186400,
-  totalInvoiceRevenue: 742000,
-  acceptanceRate: 23.8,
-  totalInvoices: 21500,
-  validEmailOnSsInvoicesPct: 81.2,
-  invoicesWithSsItemPct: 34.5,
+  totalRevenue: 742000,
+  invoicesWithSsPct: 34.5,
 };
 
 type SuggestedServiceTypeRow = {
@@ -33,7 +35,6 @@ type SuggestedServiceTypeRow = {
   respPct: number;
 };
 
-// ✅ Updated to your full 25-service list
 const SS_SERVICE_TYPES: SuggestedServiceTypeRow[] = [
   { service: "PCV VALVE", invoices: 2200, validEmailPct: 75, respPct: 15.0 },
   { service: "PWR STEERING FLUSH", invoices: 2160, validEmailPct: 78, respPct: 16.2 },
@@ -66,16 +67,17 @@ type SuggestedServicesTouchPoint = {
   timing: string;
   channel: string;
   sent: number;
+  opened: number;
   responses: number;
   respPct: number;
   roas: number;
 };
 
 const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
-  { timing: "1 week after Service", channel: "Email", sent: 1850, responses: 420, respPct: 22.7, roas: 9.5 },
-  { timing: "1 month after Service", channel: "Email", sent: 1760, responses: 310, respPct: 17.6, roas: 12.1 },
-  { timing: "3 months after Service", channel: "Email", sent: 1640, responses: 240, respPct: 14.6, roas: 11.2 },
-  { timing: "6 months after Service", channel: "Email", sent: 1380, responses: 280, respPct: 20.3, roas: 16.4 },
+  { timing: "1 week after Service", channel: "Email", sent: 1850, opened: 1295, responses: 420, respPct: 22.7, roas: 9.5 },
+  { timing: "1 month after Service", channel: "Email", sent: 1760, opened: 1232, responses: 310, respPct: 17.6, roas: 12.1 },
+  { timing: "3 months after Service", channel: "Email", sent: 1640, opened: 1148, responses: 240, respPct: 14.6, roas: 11.2 },
+  { timing: "6 months after Service", channel: "Email", sent: 1380, opened: 966, responses: 280, respPct: 20.3, roas: 16.4 },
 ];
 
 const getRespColorClass = (rate: number): string => {
@@ -85,152 +87,103 @@ const getRespColorClass = (rate: number): string => {
   return "text-rose-600";
 };
 
-type ZipStat = {
-  zip: string;
-  city: string;
-  state: string;
-  responses: number;
-  respPct: number;
-  ssRevenue: number;
-  activeCustomers: number;
-  loyalCustomers: number;
-  age0to5: number;
-  age6to10: number;
-  age11plus: number;
-};
-
-const SS_ZIP_STATS: ZipStat[] = [
-  {
-    zip: "94110",
-    city: "San Francisco",
-    state: "CA",
-    responses: 92,
-    respPct: 21.5,
-    ssRevenue: 18600,
-    activeCustomers: 154,
-    loyalCustomers: 48,
-    age0to5: 37,
-    age6to10: 43,
-    age11plus: 20,
-  },
-  {
-    zip: "94901",
-    city: "San Rafael",
-    state: "CA",
-    responses: 66,
-    respPct: 19.3,
-    ssRevenue: 13200,
-    activeCustomers: 118,
-    loyalCustomers: 36,
-    age0to5: 33,
-    age6to10: 44,
-    age11plus: 23,
-  },
-  {
-    zip: "95401",
-    city: "Santa Rosa",
-    state: "CA",
-    responses: 54,
-    respPct: 17.1,
-    ssRevenue: 10800,
-    activeCustomers: 101,
-    loyalCustomers: 29,
-    age0to5: 28,
-    age6to10: 40,
-    age11plus: 32,
-  },
-];
-
-type SsTab = "overview" | "details";
+type SsTab = "touchpoints" | "activess";
 
 const KPI_OPTIONS: KpiOption[] = [
-  { id: "ssMsgsSent", label: "SS msgs sent" },
-  { id: "ssResponses", label: "SS responses" },
-  { id: "respPct", label: "Resp %" },
-  { id: "ssRevenue", label: "SS revenue" },
-  { id: "totalInvRev", label: "Total inv. rev." },
-  { id: "validEmail", label: "SS inv. valid email" },
-  { id: "withSsItem", label: "% inv. w/ SS item" },
+  { id: "invoices", label: "Invoices" },
+  { id: "suggestedServices", label: "Suggested Services" },
+  { id: "emailsSent", label: "Emails Sent" },
+  { id: "emailsOpened", label: "Emails Opened" },
+  { id: "responses", label: "Responses" },
+  { id: "ssRevenue", label: "SS Revenue" },
+  { id: "totalRevenue", label: "Total Revenue" },
+  { id: "invoicesWithSs", label: "% Invoices with a SS" },
 ];
 
 const SuggestedServicesPage: React.FC = () => {
-  const [ssTab, setSsTab] = useState<SsTab>("overview");
-  const [selectedZip, setSelectedZip] = useState<ZipStat | null>(SS_ZIP_STATS[0]);
-
-  const ssResponses = useMemo(() => Math.round(ssSummary.emailsSent * (ssSummary.acceptanceRate / 100)), []);
+  const [ssTab, setSsTab] = useState<SsTab>("touchpoints");
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("suggested-services", KPI_OPTIONS);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "ssMsgsSent":
+      case "invoices":
         return (
           <MetricTile
             key={id}
-            label="SS msgs sent"
+            label="Invoices"
+            value={ssSummary.invoices.toLocaleString()}
+            helpText="Total number of invoices during the selected period."
+          />
+        );
+      case "suggestedServices":
+        return (
+          <MetricTile
+            key={id}
+            label="Suggested Services"
+            value={ssSummary.suggestedServices.toLocaleString()}
+            helpText="Total number of suggested service items recorded across all invoices."
+          />
+        );
+      case "emailsSent":
+        return (
+          <MetricTile
+            key={id}
+            label="Emails Sent"
             value={ssSummary.emailsSent.toLocaleString()}
-            helpText="Number of suggested-service follow-up messages sent during the selected period."
+            helpText="Number of suggested-service follow-up emails sent during the selected period."
           />
         );
-      case "ssResponses":
+      case "emailsOpened":
         return (
           <MetricTile
             key={id}
-            label="SS responses"
-            value={ssResponses.toLocaleString()}
+            label="Emails Opened"
+            value={ssSummary.emailsOpened.toLocaleString()}
+            helpText="Number of suggested-service emails that were opened by customers."
+          />
+        );
+      case "responses":
+        return (
+          <MetricTile
+            key={id}
+            label="Responses"
+            value={ssSummary.responses.toLocaleString()}
             helpText="Number of customers who responded to a suggested-service message by clicking, calling, or booking."
-          />
-        );
-      case "respPct":
-        return (
-          <MetricTile
-            key={id}
-            label="Resp %"
-            value={`${ssSummary.acceptanceRate.toFixed(1)}%`}
-            helpText="Response rate for suggested-service messages: responses divided by messages sent."
           />
         );
       case "ssRevenue":
         return (
           <MetricTile
             key={id}
-            label="SS revenue"
+            label="SS Revenue"
             value={ssSummary.ssRevenue.toLocaleString("en-US", {
               style: "currency",
               currency: "USD",
               maximumFractionDigits: 0,
             })}
-            helpText="Total repair-order revenue tied to accepted suggested services during the selected period."
+            helpText="Total revenue tied to accepted suggested services during the selected period."
           />
         );
-      case "totalInvRev":
+      case "totalRevenue":
         return (
           <MetricTile
             key={id}
-            label="Total inv. rev."
-            value={ssSummary.totalInvoiceRevenue.toLocaleString("en-US", {
+            label="Total Revenue"
+            value={ssSummary.totalRevenue.toLocaleString("en-US", {
               style: "currency",
               currency: "USD",
               maximumFractionDigits: 0,
             })}
-            helpText="Total repair-order revenue for all invoices in the selected period, whether or not they included suggested services."
+            helpText="Total invoice revenue for all invoices in the selected period."
           />
         );
-      case "validEmail":
+      case "invoicesWithSs":
         return (
           <MetricTile
             key={id}
-            label="SS inv. valid email"
-            value={`${ssSummary.validEmailOnSsInvoicesPct.toFixed(1)}%`}
-            helpText="Percent of invoices with suggested services where the customer record has a valid email address on file."
-          />
-        );
-      case "withSsItem":
-        return (
-          <MetricTile
-            key={id}
-            label="% inv. w/ SS item"
-            value={`${ssSummary.invoicesWithSsItemPct.toFixed(1)}%`}
+            label="% Invoices with a SS"
+            value={`${ssSummary.invoicesWithSsPct.toFixed(1)}%`}
             helpText="Percent of all invoices that include at least one suggested-service line item."
           />
         );
@@ -243,17 +196,15 @@ const SuggestedServicesPage: React.FC = () => {
     title: "AI insights: Suggested services",
     timeframeLabel: ssSummary.periodLabel,
     bullets: [
-      `Suggested services messages generated ${ssSummary.ssRevenue.toLocaleString("en-US", {
+      `Suggested services emails generated ${ssSummary.ssRevenue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
         maximumFractionDigits: 0,
-      })} in revenue at a ${ssSummary.acceptanceRate.toFixed(1)}% response rate.`,
+      })} in revenue with ${ssSummary.responses.toLocaleString()} responses.`,
       "Focus on service types with higher RESP% and strong email coverage to lift total RO value.",
-      "Use the ZIP-level map below to adjust offers and channels by ZIP and customer mix.",
+      "The 1-week touch point has the highest response rate — consider adding a second reminder at 2 weeks.",
     ],
   };
-
-  const currentZip = selectedZip ?? SS_ZIP_STATS[0] ?? null;
 
   return (
     <ShellLayout
@@ -299,16 +250,16 @@ const SuggestedServicesPage: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map((id) => renderKpiTile(id))}</div>
           )}
 
-          {/* MAIN TWO-TAB TILE: Overview / Details */}
+          {/* MAIN TWO-TAB TILE: Touch Points / Active SS Items */}
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <header className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">Active Suggested Services</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900">Suggested Services Performance</h2>
               </div>
 
-              {/* Two-tab pill, like One-off Campaigns, but just Overview / Details */}
+              {/* Two-tab pill */}
               <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1 text-[11px]">
-                {(["overview", "details"] as SsTab[]).map((tab) => {
+                {(["touchpoints", "activess"] as SsTab[]).map((tab) => {
                   const isActive = ssTab === tab;
                   return (
                     <button
@@ -319,68 +270,32 @@ const SuggestedServicesPage: React.FC = () => {
                         isActive ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-800"
                       }`}
                     >
-                      {tab === "overview" ? "Overview" : "Details"}
+                      {tab === "touchpoints" ? "Touch Points" : "Active SS Items"}
                     </button>
                   );
                 })}
               </div>
             </header>
 
-            {/* OVERVIEW TAB – list styling like campaign overview, NO colored bar */}
-            {ssTab === "overview" && (
-              <div className="mt-4 divide-y divide-slate-100">
-                {SS_SERVICE_TYPES.map((row) => {
-                  const responses = Math.round(row.invoices * (row.respPct / 100));
-                  const respClass = getRespColorClass(row.respPct);
-
-                  return (
-                    <div key={row.service} className="py-3 first:pt-0 last:pb-0">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="min-w-0 flex-1">
-                          {/* Service name */}
-                          <div className="truncate text-xs font-medium text-slate-900">{row.service}</div>
-
-                          {/* Stats above/below for breathing room */}
-                          <div className="mt-1 text-[11px] text-slate-500">
-                            {row.invoices.toLocaleString()} invoices with this service
-                          </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            {row.validEmailPct.toFixed(1)}% of these invoices have a valid email address
-                          </div>
-                        </div>
-
-                        {/* Right side: response stats */}
-                        <div className="text-right">
-                          <div className={`text-sm font-semibold ${respClass}`}>{row.respPct.toFixed(1)}% RESP</div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            {responses.toLocaleString()} responses
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* DETAILS TAB – touch point timing table */}
-            {ssTab === "details" && (
+            {/* TOUCH POINTS TAB (default) – touch point timing table */}
+            {ssTab === "touchpoints" && (
               <div className="mt-4 overflow-x-auto">
                 <table className="min-w-full table-fixed text-[11px]">
-                  {/* Column widths so right side stays tight + grouped */}
                   <colgroup>
-                    <col className="w-[46%]" />  {/* Touch point */}
-                    <col className="w-[9%]" />   {/* Sent */}
-                    <col className="w-[11%]" />  {/* Responses */}
-                    <col className="w-[9%]" />   {/* Resp % */}
-                    <col className="w-[10%]" />  {/* ROAS */}
-                    <col className="w-[15%]" />  {/* Revenue */}
+                    <col className="w-[40%]" />
+                    <col className="w-[10%]" />
+                    <col className="w-[10%]" />
+                    <col className="w-[10%]" />
+                    <col className="w-[10%]" />
+                    <col className="w-[10%]" />
+                    <col className="w-[10%]" />
                   </colgroup>
 
-                  <thead className="border-b border-slate-100 text-slate-500 uppercase tracking-wide">
+                  <thead className="border-b border-slate-100 text-slate-500 tracking-wide">
                     <tr>
                       <th className="py-2 pr-4 text-left font-medium">Touch point</th>
                       <th className="py-2 pl-4 text-right font-medium">Sent</th>
+                      <th className="py-2 pl-4 text-right font-medium">Opened</th>
                       <th className="py-2 pl-4 text-right font-medium">Responses</th>
                       <th className="py-2 pl-4 text-right font-medium">Resp %</th>
                       <th className="py-2 pl-4 text-right font-medium">ROAS</th>
@@ -390,19 +305,22 @@ const SuggestedServicesPage: React.FC = () => {
 
                   <tbody className="divide-y divide-slate-100">
                     {SS_TOUCHPOINTS.map((tp) => {
-                      const revenue = Math.round(tp.responses * tp.roas * 50); // mock revenue calculation
+                      const revenue = Math.round(tp.responses * tp.roas * 50);
                       return (
                         <tr key={tp.timing}>
-                          {/* LEFT: touch point info */}
                           <td className="py-3 pr-4 align-top">
-                            <div className="text-[16px] font-semibold text-slate-900">Suggested Services</div>
+                            <div className="text-[14px] font-semibold text-slate-900">Suggested Services</div>
                             <div className="mt-0.5 text-[11px] text-slate-500">{tp.timing}</div>
-                            <div className="text-[11px] text-slate-500">{tp.channel}</div>
+                            <span className="mt-1 inline-flex items-center rounded-full bg-emerald-50 border border-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                              Email
+                            </span>
                           </td>
 
-                          {/* RIGHT: tight stat block */}
                           <td className="py-3 pl-4 text-right align-middle text-slate-900">
                             {tp.sent.toLocaleString()}
+                          </td>
+                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                            {tp.opened.toLocaleString()}
                           </td>
                           <td className="py-3 pl-4 text-right align-middle text-slate-900">
                             {tp.responses.toLocaleString()}
@@ -427,9 +345,42 @@ const SuggestedServicesPage: React.FC = () => {
                 </table>
               </div>
             )}
+
+            {/* ACTIVE SS ITEMS TAB – list styling like campaign overview */}
+            {ssTab === "activess" && (
+              <div className="mt-4 divide-y divide-slate-100">
+                {SS_SERVICE_TYPES.map((row) => {
+                  const responses = Math.round(row.invoices * (row.respPct / 100));
+                  const respClass = getRespColorClass(row.respPct);
+
+                  return (
+                    <div key={row.service} className="py-3 first:pt-0 last:pb-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-xs font-medium text-slate-900">{row.service}</div>
+                          <div className="mt-1 text-[11px] text-slate-500">
+                            {row.invoices.toLocaleString()} invoices with this service
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            {row.validEmailPct.toFixed(1)}% of these invoices have a valid email address
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className={`text-sm font-semibold ${respClass}`}>{row.respPct.toFixed(1)}% RESP</div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            {responses.toLocaleString()} responses
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </section>
 
-          {/* AI stacked on small screens - after main content */}
+          {/* AI stacked on small screens */}
           <div className="block lg:hidden">
             <AIInsightsTile {...aiInsightsProps} />
           </div>
