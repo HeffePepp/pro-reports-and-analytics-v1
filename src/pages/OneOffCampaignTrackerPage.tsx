@@ -300,42 +300,81 @@ const OneOffCampaignTrackerPage: React.FC = () => {
 };
 
 const OverviewList: React.FC = () => {
-  return (
-    <div className="space-y-5">
-      {CAMPAIGNS.map((c) => (
-        <div key={c.id} className="border-t border-slate-100 pt-4 first:border-t-0 first:pt-0">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="text-base md:text-lg font-semibold text-slate-900">{c.name}</div>
-              <div className="mt-0.5 text-[11px] text-slate-500">{c.audience}</div>
-              <div className="mt-0.5 text-[11px] text-slate-500">
-                {c.drops} {c.drops === 1 ? "drop" : "drops"} · Last drop {c.lastDropDate}
-              </div>
-            </div>
-            <div className="text-right text-xs md:text-sm text-slate-700 min-w-[120px]">
-              <div className="font-semibold text-amber-600 text-sm md:text-base">{c.respPct.toFixed(1)}% RESP</div>
-              <div className="font-semibold text-slate-900 text-sm md:text-base">{c.roas.toFixed(1)}x ROAS</div>
-              <div className="mt-1 text-[11px] text-slate-500">
-                {c.sent.toLocaleString()} sent · ${c.revenue.toLocaleString()} rev
-              </div>
-            </div>
-          </div>
+  const handleViewProofs = (campaign: Campaign) => {
+    // TODO: open modal / navigate to proofs view
+    console.log("View proofs for:", campaign.name);
+  };
 
-          <div className="mt-3">
-            <div className="h-2 rounded-full bg-slate-100 overflow-hidden flex">
-              {(["postcard", "email", "sms"] as const).map((ch) => {
-                const share = c.channelMix[ch];
-                if (!share) return null;
-                return <div key={ch} className={CHANNEL_BAR_CLASS[channelToShared[ch]]} style={{ width: `${share}%` }} />;
-              })}
+  return (
+    <div className="divide-y divide-slate-100">
+      {CAMPAIGNS.map((c) => (
+        <section key={c.id} className="py-4 first:pt-0 last:pb-0">
+          <div className="flex items-start justify-between gap-4">
+            {/* LEFT: campaign copy + drops + channel pills */}
+            <div className="min-w-0 flex-1">
+              {/* Title */}
+              <div className="text-[13px] font-semibold text-slate-900">
+                {c.name}
+              </div>
+
+              {/* Audience / description */}
+              <div className="mt-0.5 text-[11px] text-slate-500">
+                {c.audience}
+              </div>
+
+              {/* Drops list */}
+              <div className="mt-1 text-[11px] text-slate-500">
+                {c.dropStats?.map((drop, index) => (
+                  <div key={drop.label}>
+                    Drop {index + 1} · {drop.date}
+                  </div>
+                ))}
+              </div>
+
+              {/* Channel pills */}
+              <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+                {c.channels.map((ch) => (
+                  <span
+                    key={ch}
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-medium ${channelPillClass(ch)}`}
+                  >
+                    {channelDisplayName(ch)}
+                  </span>
+                ))}
+              </div>
             </div>
-            <ChannelLegend
-              channels={c.channels.map((ch) => channelToShared[ch])}
-              className="mt-2"
-            />
+
+            {/* RIGHT: responses + revenue + proof button */}
+            <div className="shrink-0 text-right text-[11px]">
+              {/* Response Count (Response %) */}
+              <div className="text-[16px] font-semibold text-emerald-600 leading-none">
+                {c.responses.toLocaleString()}
+              </div>
+              <div className="mt-0.5 text-[11px] text-slate-500">
+                Responses ({c.respPct.toFixed(1)}%)
+              </div>
+
+              {/* Revenue */}
+              <div className="mt-3 text-[11px] text-slate-500">Revenue</div>
+              <div className="text-[13px] font-semibold text-slate-900">
+                {c.revenue.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  maximumFractionDigits: 0,
+                })}
+              </div>
+
+              {/* View proofs button */}
+              <button
+                type="button"
+                onClick={() => handleViewProofs(c)}
+                className="mt-3 inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+              >
+                View proofs
+              </button>
+            </div>
           </div>
-          <div className="mt-4 border-b border-slate-100" />
-        </div>
+        </section>
       ))}
     </div>
   );
