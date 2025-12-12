@@ -72,15 +72,15 @@ const CustomerDataPage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "customers":
-        return <MetricTile key={id} label="Customers" value={customerDataSummary.customers.toLocaleString()} helpText="Total unique customers in the database." />;
+        return <MetricTile key={id} label="Customers" value={customerDataSummary.customers.toLocaleString()} helpText="Total unique customers in the database across all locations. This count includes both active and inactive customer records." />;
       case "vehicles":
-        return <MetricTile key={id} label="Vehicles" value={customerDataSummary.vehicles.toLocaleString()} helpText="Total vehicles associated with customer records." />;
+        return <MetricTile key={id} label="Vehicles" value={customerDataSummary.vehicles.toLocaleString()} helpText="Total vehicles associated with customer records. Vehicles are the primary unit for journey targeting and service reminders." />;
       case "vehiclesPerCustomer":
-        return <MetricTile key={id} label="Vehicles / customer" value={customerDataSummary.avgVehiclesPerCustomer.toFixed(2)} helpText="Average number of vehicles per customer household." />;
+        return <MetricTile key={id} label="Vehicles / customer" value={customerDataSummary.avgVehiclesPerCustomer.toFixed(2)} helpText="Average number of vehicles per customer household. Higher ratios indicate multi-vehicle households with greater lifetime value potential." />;
       case "reachableEmail":
-        return <MetricTile key={id} label="Reachable by email" value={`${customerDataSummary.reachableEmailPct.toFixed(0)}%`} helpText="Percentage of customers with a valid email address on file." />;
+        return <MetricTile key={id} label="Reachable by email" value={`${customerDataSummary.reachableEmailPct.toFixed(0)}%`} helpText="Percentage of customers with a valid email address on file. Email is typically the most cost-effective channel for regular communications." />;
       case "reachableMail":
-        return <MetricTile key={id} label="Reachable by mail" value={`${customerDataSummary.reachableMailPct.toFixed(0)}%`} helpText="Percentage of customers with a valid mailing address on file." />;
+        return <MetricTile key={id} label="Reachable by mail" value={`${customerDataSummary.reachableMailPct.toFixed(0)}%`} helpText="Percentage of customers with a valid mailing address on file. Mail is essential for postcard-based reminders and high-impact campaigns." />;
       default:
         return null;
     }

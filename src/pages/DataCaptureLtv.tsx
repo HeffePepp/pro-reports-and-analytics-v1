@@ -159,7 +159,7 @@ const DataCaptureLtvPage: React.FC = () => {
             label="Multi-channel customers"
             value={`${CAPTURE_SUMMARY.multiChannelPct.toFixed(0)}%`}
             helper="Mail + email on file"
-            helpText="Percentage of customers with both a valid mailing address and email on file."
+            helpText="Percentage of customers with both a valid mailing address and email on file. Multi-channel customers can be reached through multiple touch points, increasing engagement."
           />
         );
       case "blank":
@@ -169,7 +169,7 @@ const DataCaptureLtvPage: React.FC = () => {
             label="Blank (no contact)"
             value={`${CAPTURE_SUMMARY.blankPct.toFixed(0)}%`}
             helper="No mail or email"
-            helpText="Percentage of customers with no valid contact information on file."
+            helpText="Percentage of customers with no valid contact information on file. These customers cannot be reached for marketing and represent lost engagement opportunities."
           />
         );
       case "multiTicket":
@@ -179,7 +179,7 @@ const DataCaptureLtvPage: React.FC = () => {
             label="Avg ticket – multi-channel"
             value={`$${CAPTURE_SUMMARY.multiTicket.toFixed(0)}`}
             helper="Mail + email customers"
-            helpText="Average repair order value for customers reachable by both mail and email."
+            helpText="Average repair order value for customers reachable by both mail and email. Multi-channel customers typically have higher lifetime value and spend more per visit."
           />
         );
       case "blankTicket":
@@ -189,7 +189,7 @@ const DataCaptureLtvPage: React.FC = () => {
             label="Avg ticket – blank"
             value={`$${CAPTURE_SUMMARY.blankTicket.toFixed(0)}`}
             helper="No mail or email"
-            helpText="Average repair order value for customers with no contact information."
+            helpText="Average repair order value for customers with no contact information. These customers tend to spend less and have lower retention rates."
           />
         );
       case "ticketLift":
@@ -199,7 +199,7 @@ const DataCaptureLtvPage: React.FC = () => {
             label="Ticket lift"
             value={`+$${CAPTURE_SUMMARY.ticketLift.toFixed(0)}`}
             helper="Multi-channel vs blank"
-            helpText="Dollar difference in average ticket between multi-channel and blank customers."
+            helpText="Dollar difference in average ticket between multi-channel and blank customers. This represents the value of improving data capture rates."
           />
         );
       case "totalCustomers":
@@ -208,7 +208,7 @@ const DataCaptureLtvPage: React.FC = () => {
             key={id}
             label="Total customers"
             value={CAPTURE_SUMMARY.totalCustomers.toLocaleString()}
-            helpText="Total number of unique customers in the database."
+            helpText="Total number of unique customers in the database. This is the base population for all capture rate calculations."
           />
         );
       default:

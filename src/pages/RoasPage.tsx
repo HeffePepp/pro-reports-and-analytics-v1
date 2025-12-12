@@ -159,15 +159,15 @@ const RoasPage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "totalSpend":
-        return <MetricTile key={id} label="Total spend" value={`$${roasSummary.totalSpend.toLocaleString()}`} helpText="Total marketing spend across all campaigns during the selected period." />;
+        return <MetricTile key={id} label="Total spend" value={`$${roasSummary.totalSpend.toLocaleString()}`} helpText="Total marketing spend across all campaigns during the selected period. This includes all channel costs such as postage, email platform fees, and SMS charges." />;
       case "totalRevenue":
-        return <MetricTile key={id} label="Total revenue" value={`$${roasSummary.totalRevenue.toLocaleString()}`} helpText="Total revenue attributed to marketing campaigns during the selected period." />;
+        return <MetricTile key={id} label="Total revenue" value={`$${roasSummary.totalRevenue.toLocaleString()}`} helpText="Total revenue attributed to marketing campaigns during the selected period. Attribution is based on customer response within the campaign window." />;
       case "overallRoas":
-        return <MetricTile key={id} label="Overall ROAS" value={`${overallRoas.toFixed(1)}x`} helper={`${roasSummary.campaigns} campaigns`} helpText="Overall return on ad spend: total revenue divided by total spend." />;
+        return <MetricTile key={id} label="Overall ROAS" value={`${overallRoas.toFixed(1)}x`} helper={`${roasSummary.campaigns} campaigns`} helpText="Overall return on ad spend calculated as total revenue divided by total spend. A ROAS above 5x is typically considered strong for automotive marketing." />;
       case "vehiclesCampaigns":
-        return <MetricTile key={id} label="Vehicles from campaigns" value={roasSummary.totalVehicles.toLocaleString()} helpText="Number of vehicles that responded to marketing campaigns." />;
+        return <MetricTile key={id} label="Vehicles from campaigns" value={roasSummary.totalVehicles.toLocaleString()} helpText="Number of unique vehicles that responded to marketing campaigns. Each vehicle represents a customer who took action after receiving a campaign message." />;
       case "avgSpend":
-        return <MetricTile key={id} label="Avg spend / campaign" value={`$${(roasSummary.totalSpend / roasSummary.campaigns).toFixed(0)}`} helpText="Average marketing spend per campaign." />;
+        return <MetricTile key={id} label="Avg spend / campaign" value={`$${(roasSummary.totalSpend / roasSummary.campaigns).toFixed(0)}`} helpText="Average marketing spend per campaign during the period. Use this to benchmark campaign budgets and identify outliers." />;
       default:
         return null;
     }

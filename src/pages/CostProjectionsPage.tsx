@@ -79,11 +79,11 @@ const CostProjectionsPage: React.FC = () => {
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "projectedVehicles": return <MetricTile key={id} label="Projected vehicles" value={costSummary.projectedVehicles.toString()} helpText="Estimated number of vehicles expected to respond to journey campaigns." />;
-      case "projectedRoas": return <MetricTile key={id} label="Projected ROAS" value={`${overallRoas.toFixed(1)}x`} helpText="Expected return on ad spend based on projected revenue and costs." />;
-      case "postcardHeavy": return <MetricTile key={id} label="Postcard-heavy?" value="Yes" helper="Most cost is postcards" helpText="Indicates whether the majority of projected spend is allocated to postcards." />;
-      case "emailSmsCost": return <MetricTile key={id} label="Email/SMS cost" value="Low" helper="High ROAS potential" helpText="Relative cost level for email and SMS channels in the journey." />;
-      case "scenario": return <MetricTile key={id} label="Scenario" value="Standard" helper="Demo only" helpText="Budget scenario used for this projection (e.g., standard, aggressive, conservative)." />;
+      case "projectedVehicles": return <MetricTile key={id} label="Projected vehicles" value={costSummary.projectedVehicles.toString()} helpText="Estimated number of vehicles expected to respond to journey campaigns this period. Projections are based on historical response rates and current customer counts." />;
+      case "projectedRoas": return <MetricTile key={id} label="Projected ROAS" value={`${overallRoas.toFixed(1)}x`} helpText="Expected return on ad spend based on projected revenue and costs. Use this to validate budget allocations before the period begins." />;
+      case "postcardHeavy": return <MetricTile key={id} label="Postcard-heavy?" value="Yes" helper="Most cost is postcards" helpText="Indicates whether the majority of projected spend is allocated to postcards. Postcard-heavy mixes have higher costs but often stronger response rates." />;
+      case "emailSmsCost": return <MetricTile key={id} label="Email/SMS cost" value="Low" helper="High ROAS potential" helpText="Relative cost level for email and SMS channels in the journey. These low-cost channels typically deliver the highest ROAS." />;
+      case "scenario": return <MetricTile key={id} label="Scenario" value="Standard" helper="Demo only" helpText="Budget scenario used for this projection such as standard, aggressive, or conservative. Change scenarios to model different spend levels." />;
       default: return null;
     }
   };

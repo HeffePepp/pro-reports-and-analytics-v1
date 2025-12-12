@@ -47,13 +47,13 @@ const PosDataLapsePage: React.FC = () => {
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "totalStores":
-        return <MetricTile key={id} label="Total stores" value="4" helpText="Total number of store locations in the account." />;
+        return <MetricTile key={id} label="Total stores" value="4" helpText="Total number of store locations in the account. All stores should be sending regular POS data for accurate reporting." />;
       case "zeroTwo":
-        return <MetricTile key={id} label="0–2 days" value="2" helpText="Stores with POS data received within the last 0–2 days (healthy)." />;
+        return <MetricTile key={id} label="0–2 days" value="2" helpText="Stores with POS data received within the last 0–2 days. These stores are healthy and data is current for journey and reporting purposes." />;
       case "threeSeven":
-        return <MetricTile key={id} label="3–7 days" value="1" helpText="Stores with POS data 3–7 days old (warning – may need attention)." />;
+        return <MetricTile key={id} label="3–7 days" value="1" helpText="Stores with POS data 3–7 days old and needing attention. Check connectivity and export schedules to prevent data gaps." />;
       case "overSeven":
-        return <MetricTile key={id} label="> 7 days" value="1" helpText="Stores with POS data over 7 days old (critical – investigate immediately)." />;
+        return <MetricTile key={id} label="> 7 days" value="1" helpText="Stores with POS data over 7 days old requiring immediate investigation. Extended lapses affect journey accuracy and reporting reliability." />;
       default:
         return null;
     }

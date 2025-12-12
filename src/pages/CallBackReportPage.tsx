@@ -109,11 +109,11 @@ const CallBackReportPage: React.FC = () => {
   }, []);
 
   const segmentHelpText: Record<Segment, string> = {
-    active: "Customers whose last visit was 0–8 months ago and are still considered active.",
-    retained: "Customers whose last visit was 9–12 months ago and are still on track to stay retained.",
-    lapsed: "Customers 13–18 months since their last visit who are at risk of defecting.",
-    inactive: "Customers 19–24 months since their last visit who typically require proactive outreach.",
-    lost: "Customers 25+ months since their last visit who are treated as lost unless reactivated.",
+    active: "Customers whose last visit was 0–8 months ago and are still considered active. These customers form the core of your retention base and typically don't need callback outreach.",
+    retained: "Customers whose last visit was 9–12 months ago and are still on track. A gentle reminder can help keep them engaged before they drift into at-risk territory.",
+    lapsed: "Customers 13–18 months since their last visit who are at risk of defecting. These are prime callback targets for re-engagement before they're lost.",
+    inactive: "Customers 19–24 months since their last visit who typically require proactive outreach. Personal calls or special offers may be needed to win them back.",
+    lost: "Customers 25+ months since their last visit who are treated as lost unless reactivated. Win-back campaigns with strong incentives are usually required.",
   };
 
   const renderKpiTile = (id: string) => {

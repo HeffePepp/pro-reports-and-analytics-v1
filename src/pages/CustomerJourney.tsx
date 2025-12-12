@@ -378,7 +378,7 @@ const CustomerJourneyPage: React.FC = () => {
             key={id}
             label="Valid Mailing Addresses"
             value={journeySummary.validMailingAddresses.toLocaleString()}
-            helpText="Number of customers with verified mailing addresses for postcard delivery."
+            helpText="Customers with verified mailing addresses for postcard delivery. Higher counts improve reach for mail-based journey touch points."
           />
         );
       case "validEmail":
@@ -387,7 +387,7 @@ const CustomerJourneyPage: React.FC = () => {
             key={id}
             label="Valid Email Addresses"
             value={journeySummary.validEmailAddresses.toLocaleString()}
-            helpText="Number of customers with verified email addresses for digital communications."
+            helpText="Customers with verified email addresses for digital communications. Email is typically the most cost-effective channel for reminders and follow-ups."
           />
         );
       case "validCell":
@@ -396,7 +396,7 @@ const CustomerJourneyPage: React.FC = () => {
             key={id}
             label="Valid Cell Numbers"
             value={journeySummary.validCellNumbers.toLocaleString()}
-            helpText="Number of customers with verified cell phone numbers for text messaging."
+            helpText="Customers with verified cell phone numbers for text messaging. Text messages often have the highest open and response rates."
           />
         );
       case "avgInvoice":
@@ -405,7 +405,7 @@ const CustomerJourneyPage: React.FC = () => {
             key={id}
             label="Avg Invoice"
             value={journeySummary.avgInvoice.toLocaleString("en-US", { style: "currency", currency: "USD" })}
-            helpText="Average invoice amount across all journey-related transactions."
+            helpText="Average invoice amount across all journey-related transactions. This metric helps gauge overall ticket value driven by journey touches."
           />
         );
       case "emailReminders":
@@ -414,7 +414,7 @@ const CustomerJourneyPage: React.FC = () => {
             key={id}
             label="Email Reminders"
             value={journeySummary.emailReminders.toLocaleString()}
-            helpText="Total email reminders sent across all journey touch points."
+            helpText="Total email reminders sent across all journey touch points. Email is a low-cost, high-reach channel for scheduled communications."
             className="bg-tp-pastel-green border-emerald-200"
             valueHighlightClass="bg-emerald-100 text-emerald-700"
           />
@@ -425,7 +425,7 @@ const CustomerJourneyPage: React.FC = () => {
             key={id}
             label="Text Reminders"
             value={journeySummary.textReminders.toLocaleString()}
-            helpText="Total text message reminders sent across all journey touch points."
+            helpText="Total text message reminders sent across all journey touch points. Text messages typically drive higher immediate response rates than other channels."
             className="bg-tp-pastel-purple border-indigo-200"
             valueHighlightClass="bg-indigo-100 text-indigo-700"
           />
@@ -436,7 +436,7 @@ const CustomerJourneyPage: React.FC = () => {
             key={id}
             label="PC Reminders"
             value={journeySummary.pcReminders.toLocaleString()}
-            helpText="Total postcard reminders sent across all journey touch points."
+            helpText="Total postcard reminders sent across all journey touch points. Postcards are tangible and often have strong retention with customers."
             className="bg-tp-pastel-blue border-sky-200"
             valueHighlightClass="bg-sky-100 text-sky-700"
           />
