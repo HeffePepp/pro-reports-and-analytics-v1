@@ -679,69 +679,54 @@ const SuggestedServicesPage: React.FC = () => {
             })()}
 
             {/* ACTIVE SS ITEMS TAB */}
-            {ssTab === "activess" && (() => {
-              // Calculate max invoices for bar scaling
-              const maxInvoices = Math.max(...SS_SERVICE_TYPES.map(item => item.invoices));
-              
-              return (
-                <div className="mt-4">
-                  <header>
-                    <h2 className="text-[13px] font-semibold text-slate-900">
-                      Active Suggested Service Items
-                    </h2>
-                  </header>
+            {ssTab === "activess" && (
+              <div className="mt-4">
+                <header>
+                  <h2 className="text-[13px] font-semibold text-slate-900">
+                    Active Suggested Service Items
+                  </h2>
+                </header>
 
-                  <div className="mt-4 space-y-3">
-                    {SS_SERVICE_TYPES.map((item) => {
-                      const shareWidth = maxInvoices > 0 ? (item.invoices / maxInvoices) * 100 : 0;
-                      
-                      return (
-                        <div
-                          key={item.service}
-                          className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3"
-                        >
-                          {/* LEFT: service name + mini bar */}
-                          <div className="min-w-0 flex-1">
-                            <div className="text-sm font-semibold text-slate-900">
-                              {item.service}
-                            </div>
-                            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white">
-                              <div
-                                className="h-full rounded-full bg-amber-300"
-                                style={{ width: `${shareWidth}%` }}
-                              />
-                            </div>
+                <ul className="mt-4 divide-y divide-slate-100">
+                  {SS_SERVICE_TYPES.map((item) => (
+                    <li
+                      key={item.service}
+                      className="flex items-center justify-between gap-4 py-3"
+                    >
+                      {/* LEFT: service name - vertically centered */}
+                      <div className="min-w-0 flex-1 flex items-center">
+                        <div className="truncate text-[15px] font-semibold tracking-wide text-slate-900">
+                          {item.service}
+                        </div>
+                      </div>
+
+                      {/* RIGHT: both metrics side by side */}
+                      <div className="shrink-0 flex items-center gap-4">
+                        {/* Invoice stat pill */}
+                        <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-center min-w-[120px]">
+                          <div className="text-[18px] font-semibold text-slate-700 leading-none">
+                            {item.invoices.toLocaleString()}
                           </div>
-
-                          {/* RIGHT: metric pills */}
-                          <div className="shrink-0 flex items-center gap-3">
-                            {/* Inv. w/ this SS – amber pill */}
-                            <div className="inline-flex flex-col items-center rounded-2xl bg-amber-50 px-4 py-2 text-center min-w-[110px]">
-                              <div className="text-sm font-semibold text-amber-800">
-                                {item.invoices.toLocaleString()}
-                              </div>
-                              <div className="text-[11px] font-medium text-amber-700">
-                                Inv. w/ this SS
-                              </div>
-                            </div>
-
-                            {/* SS Inv. w/ email – indigo pill */}
-                            <div className="inline-flex flex-col items-center rounded-2xl bg-indigo-50 px-4 py-2 text-center min-w-[110px]">
-                              <div className="text-sm font-semibold text-indigo-800">
-                                {item.conversions.toLocaleString()}
-                              </div>
-                              <div className="text-[11px] font-medium text-indigo-700">
-                                SS Inv. w/ email
-                              </div>
-                            </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            Inv. w/ this SS
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })()}
+
+                        {/* Conversions stat pill */}
+                        <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-center min-w-[120px]">
+                          <div className="text-[18px] font-semibold text-slate-700 leading-none">
+                            {item.conversions.toLocaleString()}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            SS Inv. w/ email
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* RESPONSES TAB – card-based before/after layout */}
             {ssTab === "responses" && (() => {
@@ -759,36 +744,21 @@ const SuggestedServicesPage: React.FC = () => {
 
               return (
                 <div className="mt-4 space-y-4">
-                  {/* Summary stats - colored pills */}
-                  <div className="flex flex-wrap gap-3">
-                    {/* Responses pill - amber */}
-                    <div className="inline-flex flex-col items-center rounded-2xl bg-amber-50 px-4 py-2 text-center">
-                      <div className="text-sm font-semibold text-amber-800">
-                        {filteredResponses.length}
-                      </div>
-                      <div className="text-[11px] font-medium text-amber-700">
-                        SS responses
-                      </div>
+                  {/* Summary stats - floating numbers */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-slate-900">{filteredResponses.length}</div>
+                      <div className="text-[11px] text-slate-500">Responses</div>
                     </div>
-
-                    {/* Revenue pill - indigo */}
-                    <div className="inline-flex flex-col items-center rounded-2xl bg-indigo-50 px-4 py-2 text-center">
-                      <div className="text-sm font-semibold text-indigo-800">
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-slate-900">
                         {totalRevenue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
                       </div>
-                      <div className="text-[11px] font-medium text-indigo-700">
-                        SS revenue
-                      </div>
+                      <div className="text-[11px] text-slate-500">SS Revenue</div>
                     </div>
-
-                    {/* Conversion rate pill - emerald */}
-                    <div className="inline-flex flex-col items-center rounded-2xl bg-emerald-50 px-4 py-2 text-center">
-                      <div className="text-sm font-semibold text-emerald-800">
-                        {conversionRate.toFixed(1)}%
-                      </div>
-                      <div className="text-[11px] font-medium text-emerald-700">
-                        Conversion rate
-                      </div>
+                    <div className="text-center">
+                      <div className="text-lg font-semibold text-emerald-600">{conversionRate.toFixed(1)}%</div>
+                      <div className="text-[11px] text-slate-500">Conversion Rate</div>
                     </div>
                   </div>
 
