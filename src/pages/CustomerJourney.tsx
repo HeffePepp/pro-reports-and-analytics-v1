@@ -4,6 +4,7 @@ import {
   MetricTile,
   AIInsightsTile,
   KpiCustomizeButton,
+  DraggableKpiRow,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { parseChannels, CHANNEL_BAR_CLASS, CHANNEL_LABELS } from "@/styles/channelColors";
@@ -500,11 +501,17 @@ const CustomerJourneyPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles - only rendered when selected */}
+          {/* KPI tiles - draggable and only rendered when selected */}
           {selectedIds.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {selectedIds.map((id) => renderKpiTile(id))}
-            </div>
+            <DraggableKpiRow
+              reportKey="customer-journey"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
+            />
           )}
 
           {/* Customer Journey tile */}
