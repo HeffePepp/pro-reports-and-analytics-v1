@@ -5,7 +5,7 @@ import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 // ----------------- types -----------------
 type ChannelRoas = {
   id: string;
-  channel: "Email" | "Postcard" | "Mixed";
+  channel: "Email" | "Postcard" | "Text" | "Mixed";
   spend: number;
   revenue: number;
   roas: number;
@@ -35,6 +35,7 @@ type JourneyRoas = {
 const channelRoasData: ChannelRoas[] = [
   { id: "email", channel: "Email", spend: 2040, revenue: 39450, roas: 19.3 },
   { id: "postcard", channel: "Postcard", spend: 1760, revenue: 26900, roas: 15.3 },
+  { id: "text", channel: "Text", spend: 1620, revenue: 25100, roas: 15.5 },
   { id: "mixed", channel: "Mixed", spend: 1400, revenue: 23800, roas: 17.0 },
 ];
 
