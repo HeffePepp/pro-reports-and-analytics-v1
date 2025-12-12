@@ -15,3 +15,4 @@ export { default as CouponPerformanceTile } from "./CouponPerformanceTile";
 export { default as OilTypePerformanceTile } from "./OilTypePerformanceTile";
 export { default as CustomerBaseTile } from "./CustomerBaseTile";
 export { default as AddressQualityByStoreTile } from "./AddressQualityByStoreTile";
+export { default as DraggableKpiRow } from "./DraggableKpiRow";
