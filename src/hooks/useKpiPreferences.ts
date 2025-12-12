@@ -14,10 +14,13 @@ export function useKpiPreferences(reportId: string, options: KpiOption[]) {
     try {
       const raw = window.localStorage.getItem(STORAGE_PREFIX + reportId);
       if (!raw) return options.map((o) => o.id);
-      const parsed = JSON.parse(raw) as string[];
+
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return options.map((o) => o.id);
+
       const validSet = new Set(options.map((o) => o.id));
-      const filtered = parsed.filter((id) => validSet.has(id));
-      return filtered.length ? filtered : options.map((o) => o.id);
+      const filtered = (parsed as string[]).filter((id) => validSet.has(id));
+      return filtered;
     } catch {
       return options.map((o) => o.id);
     }
