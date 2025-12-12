@@ -322,7 +322,7 @@ const OverviewList: React.FC = () => {
     <div className="divide-y divide-slate-100">
       {CAMPAIGNS.map((c) => (
         <section key={c.id} className="py-4 first:pt-0 last:pb-0">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center justify-between gap-4">
             {/* LEFT: campaign copy + drops + channel pills */}
             <div className="min-w-0 flex-1">
               {/* Title */}
