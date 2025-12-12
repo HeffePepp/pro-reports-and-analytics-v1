@@ -113,25 +113,15 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
           >
             {hasResponse ? "Converted" : "Email Opened – No Response Yet"}
           </span>
-          {/* Coupon/Discount code and description in header */}
-          {hasResponse && row.response.offerType && row.response.offerCode && (
-            <div className="space-y-0.5 text-[11px] text-slate-600">
-              <div className="flex items-center justify-end gap-1.5">
-                <span className="font-semibold">
-                  {row.response.offerType === "coupon" ? "Coupon:" : "Discount:"}
-                </span>
-                <OfferPill type={row.response.offerType} code={row.response.offerCode} />
-              </div>
-              {row.response.offerDescription && (
-                <div className="text-right">
-                  <span className="font-semibold">
-                    {row.response.offerType === "coupon" ? "Coupon Description: " : "Discount Description: "}
-                  </span>
-                  {row.response.offerDescription}
-                </div>
-              )}
-            </div>
-          )}
+          {/* Email sent/opened info moved to header */}
+          <span className="text-[11px] text-slate-600">
+            {row.original.channelLabel} sent {row.original.sentDate}
+            {row.original.openedDate ? (
+              <> · Opened {row.original.openedDate}</>
+            ) : (
+              <> · Not yet opened</>
+            )}
+          </span>
           <span className="text-[11px] text-slate-500">
             {row.original.touchpointLabel}
           </span>
@@ -168,15 +158,6 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
             </div>
           </div>
 
-          <div className="mt-3 text-[11px] text-slate-600">
-            <span className="font-medium">{row.original.channelLabel}</span>{" "}
-            sent {row.original.sentDate}
-            {row.original.openedDate ? (
-              <> · Opened {row.original.openedDate}</>
-            ) : (
-              <> · Not yet opened</>
-            )}
-          </div>
 
           {/* Suggested services - with mt-auto equivalent via flex-grow for alignment */}
           <div className="mt-4 space-y-2">
@@ -273,6 +254,25 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
                     <div className="text-[11px] text-slate-500">—</div>
                   )}
 
+                {/* Coupon/Discount code and description */}
+                {row.response.offerType && row.response.offerCode && (
+                  <div className="space-y-1 text-[11px] text-slate-600">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold">
+                        {row.response.offerType === "coupon" ? "Coupon:" : "Discount:"}
+                      </span>
+                      <OfferPill type={row.response.offerType} code={row.response.offerCode} />
+                    </div>
+                    {row.response.offerDescription && (
+                      <div>
+                        <span className="font-semibold">
+                          {row.response.offerType === "coupon" ? "Coupon Description: " : "Discount Description: "}
+                        </span>
+                        {row.response.offerDescription}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </>
           ) : (
