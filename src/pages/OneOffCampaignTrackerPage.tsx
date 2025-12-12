@@ -512,8 +512,8 @@ const DetailsTable: React.FC = () => {
                 </tr>
               ))}
 
-              {/* Campaign totals row */}
-              {(() => {
+              {/* Campaign totals row - only show for multi-drop campaigns */}
+              {group.rows.length > 1 && (() => {
                 const totals = {
                   sent: group.rows.reduce((sum, r) => sum + r.sent, 0),
                   opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
@@ -523,7 +523,7 @@ const DetailsTable: React.FC = () => {
                 const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
                 
                 return (
-                  <tr className="bg-slate-50 font-semibold">
+                  <tr className="border-t border-slate-200 font-semibold">
                     <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700">
                       Campaign Total
                     </td>
