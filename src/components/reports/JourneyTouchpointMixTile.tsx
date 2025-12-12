@@ -93,24 +93,26 @@ export const JourneyTouchpointMixTile: React.FC<Props> = ({ items }) => {
         })}
       </div>
 
-      {/* Legend - columns of 3, evenly spaced */}
-      <div className="mt-4 flex justify-between">
-        {columns.map((col, colIndex) => (
-          <div key={colIndex} className="flex flex-col gap-1.5">
-            {col.map(({ item, index, share }) => (
-              <div
-                key={item.id}
-                className="inline-flex items-center gap-1.5 text-[11px] text-slate-700"
-              >
-                <span
-                  className={`inline-block h-2 w-2 shrink-0 rounded-full ${getColor(index).dot}`}
-                />
-                <span className="font-medium whitespace-nowrap">{item.label}</span>
-                <span className="text-slate-500">· {share.toFixed(1)}%</span>
-              </div>
-            ))}
-          </div>
-        ))}
+      {/* Legend - columns of 3, evenly spaced with horizontal scroll on overflow */}
+      <div className="mt-4 overflow-x-auto">
+        <div className="flex justify-between min-w-max gap-4">
+          {columns.map((col, colIndex) => (
+            <div key={colIndex} className="flex flex-col gap-1.5">
+              {col.map(({ item, index, share }) => (
+                <div
+                  key={item.id}
+                  className="inline-flex items-center gap-1.5 text-[11px] text-slate-700"
+                >
+                  <span
+                    className={`inline-block h-2 w-2 shrink-0 rounded-full ${getColor(index).dot}`}
+                  />
+                  <span className="font-medium whitespace-nowrap">{item.label}</span>
+                  <span className="text-slate-500 whitespace-nowrap">· {share.toFixed(1)}%</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
