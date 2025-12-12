@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   ShellLayout,
   MetricTile,
@@ -189,9 +189,44 @@ const KPI_OPTIONS: KpiOption[] = [
   { id: "totalComms", label: "Total comms sent" },
 ];
 
+type DetailsSortKey = "id" | "sends" | "responses" | "respPct" | "roas" | "revenue";
+type SortDir = "asc" | "desc";
+
 const CustomerJourneyPage: React.FC = () => {
   const [tab, setTab] = useState<CJTab>("visualization");
   const { selectedIds, setSelectedIds } = useKpiPreferences("customer-journey", KPI_OPTIONS);
+  const [detailsSortKey, setDetailsSortKey] = useState<DetailsSortKey>("id");
+  const [detailsSortDir, setDetailsSortDir] = useState<SortDir>("asc");
+
+  const handleDetailsSort = (key: DetailsSortKey) => {
+    if (key === detailsSortKey) {
+      setDetailsSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setDetailsSortKey(key);
+      setDetailsSortDir(key === "id" ? "asc" : "desc");
+    }
+  };
+
+  const sortedTouchPoints = useMemo(() => {
+    const sorted = [...TOUCH_POINTS];
+    sorted.sort((a, b) => {
+      let aVal: number;
+      let bVal: number;
+
+      if (detailsSortKey === "responses") {
+        aVal = Math.round(a.sends * (a.respPct / 100));
+        bVal = Math.round(b.sends * (b.respPct / 100));
+      } else {
+        aVal = a[detailsSortKey];
+        bVal = b[detailsSortKey];
+      }
+
+      if (aVal < bVal) return detailsSortDir === "asc" ? -1 : 1;
+      if (aVal > bVal) return detailsSortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [detailsSortKey, detailsSortDir]);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -408,28 +443,94 @@ const CustomerJourneyPage: React.FC = () => {
                   <thead>
                     <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
                       <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-                        Touch point
+                        <button
+                          type="button"
+                          onClick={() => handleDetailsSort("id")}
+                          className="inline-flex items-center gap-1 hover:text-slate-700"
+                        >
+                          Touch point
+                          {detailsSortKey === "id" && (
+                            <span className="text-[9px] text-slate-400">
+                              {detailsSortDir === "asc" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </button>
                       </th>
                       <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
-                        Sent
+                        <button
+                          type="button"
+                          onClick={() => handleDetailsSort("sends")}
+                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
+                        >
+                          Sent
+                          {detailsSortKey === "sends" && (
+                            <span className="text-[9px] text-slate-400">
+                              {detailsSortDir === "asc" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </button>
                       </th>
                       <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
-                        Responses
+                        <button
+                          type="button"
+                          onClick={() => handleDetailsSort("responses")}
+                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
+                        >
+                          Responses
+                          {detailsSortKey === "responses" && (
+                            <span className="text-[9px] text-slate-400">
+                              {detailsSortDir === "asc" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </button>
                       </th>
                       <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
-                        Resp %
+                        <button
+                          type="button"
+                          onClick={() => handleDetailsSort("respPct")}
+                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
+                        >
+                          Resp %
+                          {detailsSortKey === "respPct" && (
+                            <span className="text-[9px] text-slate-400">
+                              {detailsSortDir === "asc" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </button>
                       </th>
                       <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
-                        ROAS
+                        <button
+                          type="button"
+                          onClick={() => handleDetailsSort("roas")}
+                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
+                        >
+                          ROAS
+                          {detailsSortKey === "roas" && (
+                            <span className="text-[9px] text-slate-400">
+                              {detailsSortDir === "asc" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </button>
                       </th>
                       <th className="py-2 pl-3 text-right font-medium whitespace-nowrap">
-                        Revenue
+                        <button
+                          type="button"
+                          onClick={() => handleDetailsSort("revenue")}
+                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
+                        >
+                          Revenue
+                          {detailsSortKey === "revenue" && (
+                            <span className="text-[9px] text-slate-400">
+                              {detailsSortDir === "asc" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </button>
                       </th>
                     </tr>
                   </thead>
 
                   <tbody className="divide-y divide-slate-100">
-                    {TOUCH_POINTS.map((tp) => {
+                    {sortedTouchPoints.map((tp) => {
                       const responses = Math.round(tp.sends * (tp.respPct / 100));
                       return (
                         <tr key={tp.id} className="align-top">
