@@ -384,10 +384,10 @@ const RoasCampaignDetailsTable: React.FC<{ data: CampaignRoas[] }> = ({ data }) 
               <td className="py-2 px-2 text-right text-xs text-foreground">
                 {formatCurrency(row.revenue)}
               </td>
-              <td className="py-2 px-2 text-right text-xs text-foreground">
+              <td className="py-2 px-2 text-right text-xs text-tp-grey-dark">
                 {row.vehicles.toLocaleString()}
               </td>
-              <td className="py-2 pl-2 pr-1 text-right text-xs text-foreground">
+              <td className="py-2 pl-2 pr-1 text-right text-xs text-tp-grey-dark">
                 {row.roas.toFixed(1)}x
               </td>
             </tr>
