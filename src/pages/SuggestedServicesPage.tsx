@@ -603,23 +603,27 @@ const SuggestedServicesPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* MIDDLE: centered invoice stat (count + definition stacked) */}
-                      <div className="shrink-0 min-w-[150px] text-center text-[11px]">
-                        <div className="text-[18px] font-semibold text-slate-900 leading-none">
-                          {item.invoices.toLocaleString()}
-                        </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500">
-                          Inv. w/ this SS
+                      {/* MIDDLE: centered invoice stat with pill */}
+                      <div className="shrink-0 min-w-[140px] flex justify-center">
+                        <div className="rounded-xl bg-sky-50 border border-sky-100 px-4 py-2 text-center">
+                          <div className="text-[18px] font-semibold text-sky-700 leading-none">
+                            {item.invoices.toLocaleString()}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            Inv. w/ this SS
+                          </div>
                         </div>
                       </div>
 
-                      {/* RIGHT: conversions block */}
-                      <div className="shrink-0 text-right">
-                        <div className="text-[20px] font-semibold text-slate-900 leading-none">
-                          {item.conversions.toLocaleString()}
-                        </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500">
-                          Conversions
+                      {/* RIGHT: conversions with pill, centered */}
+                      <div className="shrink-0 min-w-[140px] flex justify-center">
+                        <div className="rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-2 text-center">
+                          <div className="text-[20px] font-semibold text-emerald-700 leading-none">
+                            {item.conversions.toLocaleString()}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            Conversions
+                          </div>
                         </div>
                       </div>
                     </li>
