@@ -154,7 +154,7 @@ const OilTypeRevenueDetailsTable: React.FC = () => {
         <table className="min-w-full text-xs">
           <thead>
             <tr className="border-b border-slate-200">
-              <th className="py-2 px-3 text-[11px] font-medium uppercase tracking-wide text-slate-500 text-left">
+              <th className="py-2 px-3 text-[11px] font-medium tracking-wide text-slate-500 text-left">
                 Oil type
               </th>
               {renderHeader("Invoices", "invoices")}
