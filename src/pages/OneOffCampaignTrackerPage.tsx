@@ -414,7 +414,7 @@ const DetailsTable: React.FC = () => {
               onClick={() => handleViewProofs(group.campaignId)}
               className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
             >
-              View proofs
+              View proof
             </button>
           </div>
 
