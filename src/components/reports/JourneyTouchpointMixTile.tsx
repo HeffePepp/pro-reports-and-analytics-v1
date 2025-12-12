@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { InlineLegend } from "@/components/common/InlineLegend";
 
 type JourneyTouchpointMixItem = {
   id: number;
@@ -38,20 +37,28 @@ export const JourneyTouchpointMixTile: React.FC<Props> = ({ items }) => {
     [items]
   );
 
-  const legendItems = useMemo(
-    () =>
-      items.map((item, index) => {
-        const share =
-          totalResponses > 0
-            ? ((item.responses / totalResponses) * 100).toFixed(1)
-            : "0.0";
-        return {
-          label: `${item.label} · ${share}%`,
-          colorClass: getColor(index).dot,
-        };
-      }),
-    [items, totalResponses]
-  );
+  // Organize items into columns of 3
+  const columns = useMemo(() => {
+    const cols: { item: typeof items[0]; index: number; share: number }[][] = [];
+    const itemsPerColumn = 3;
+    const numColumns = Math.ceil(items.length / itemsPerColumn);
+
+    for (let col = 0; col < numColumns; col++) {
+      const columnItems: { item: typeof items[0]; index: number; share: number }[] = [];
+      for (let row = 0; row < itemsPerColumn; row++) {
+        const itemIndex = col * itemsPerColumn + row;
+        if (itemIndex < items.length) {
+          const item = items[itemIndex];
+          const share = totalResponses > 0
+            ? (item.responses / totalResponses) * 100
+            : 0;
+          columnItems.push({ item, index: itemIndex, share });
+        }
+      }
+      cols.push(columnItems);
+    }
+    return cols;
+  }, [items, totalResponses]);
 
   if (!items.length || totalResponses <= 0) return null;
 
@@ -86,9 +93,24 @@ export const JourneyTouchpointMixTile: React.FC<Props> = ({ items }) => {
         })}
       </div>
 
-      {/* Legend */}
-      <div className="mt-3">
-        <InlineLegend items={legendItems} />
+      {/* Legend - columns of 3, evenly spaced */}
+      <div className="mt-4 flex justify-between">
+        {columns.map((col, colIndex) => (
+          <div key={colIndex} className="flex flex-col gap-1.5">
+            {col.map(({ item, index, share }) => (
+              <div
+                key={item.id}
+                className="inline-flex items-center gap-1.5 text-[11px] text-slate-700"
+              >
+                <span
+                  className={`inline-block h-2 w-2 shrink-0 rounded-full ${getColor(index).dot}`}
+                />
+                <span className="font-medium whitespace-nowrap">{item.label}</span>
+                <span className="text-slate-500">· {share.toFixed(1)}%</span>
+              </div>
+            ))}
+          </div>
+        ))}
       </div>
     </section>
   );
