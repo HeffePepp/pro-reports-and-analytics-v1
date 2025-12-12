@@ -606,20 +606,25 @@ const SuggestedServicesPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* RIGHT: invoices + % with valid email */}
+                      {/* RIGHT: invoices + % with valid email, big numbers */}
                       <div className="shrink-0 min-w-[190px] text-right text-[11px]">
-                        <div className="text-slate-500">
-                          Invoices with this suggested service
-                        </div>
-                        <div className="font-semibold text-slate-900">
+                        {/* Inv. w/ this SS */}
+                        <div className="text-[16px] font-semibold text-slate-900">
                           {item.invoices.toLocaleString()}
                         </div>
-
-                        <div className="mt-2 text-slate-500">
-                          % of invoices with a valid email address
+                        <div className="mt-0.5 text-[11px] text-slate-500">
+                          Inv. w/ this SS
                         </div>
-                        <div className="font-semibold text-slate-900">
+
+                        {/* spacer between stats */}
+                        <div className="mt-3" />
+
+                        {/* % Inv. w/ valid email address */}
+                        <div className="text-[16px] font-semibold text-slate-900">
                           {item.validEmailPct.toFixed(1)}%
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-slate-500">
+                          % Inv. w/ valid email address
                         </div>
                       </div>
                     </li>
