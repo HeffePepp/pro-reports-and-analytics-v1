@@ -94,7 +94,7 @@ export const JourneyTouchpointMixTile: React.FC<Props> = ({ items }) => {
       </div>
 
       {/* Legend - columns of 3, evenly spaced with horizontal scroll on overflow */}
-      <div className="mt-4 overflow-x-auto">
+      <div className="mt-4 overflow-hidden">
         <div className="flex justify-between min-w-max gap-4">
           {columns.map((col, colIndex) => (
             <div key={colIndex} className="flex flex-col gap-1.5">
