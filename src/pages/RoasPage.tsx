@@ -23,7 +23,6 @@ type CampaignRoas = {
   roas: number;
 };
 
-
 // ----------------- mock data -----------------
 const channelRoasData: ChannelRoas[] = [
   { id: "email", channel: "Email", spend: 2040, revenue: 39450, roas: 19.3 },
@@ -101,7 +100,6 @@ const campaignRoasData: CampaignRoas[] = [
   },
 ];
 
-
 // ----------------- helpers -----------------
 const formatCurrency = (value: number) =>
   value.toLocaleString("en-US", {
@@ -149,12 +147,8 @@ const RoasByChannelTile: React.FC<{ data: ChannelRoas[] }> = ({ data }) => {
     <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <header className="flex items-start justify-between">
         <div>
-          <h2 className="text-[13px] font-semibold text-foreground">
-            ROAS by channel
-          </h2>
-          <p className="text-[11px] text-muted-foreground">
-            Relative ROAS and spend by primary communication channel.
-          </p>
+          <h2 className="text-[13px] font-semibold text-foreground">ROAS by channel</h2>
+          <p className="text-[11px] text-muted-foreground">Relative ROAS and spend by primary communication channel.</p>
         </div>
       </header>
 
@@ -164,7 +158,7 @@ const RoasByChannelTile: React.FC<{ data: ChannelRoas[] }> = ({ data }) => {
             <div className="shrink-0 w-20">
               <span
                 className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${channelPillClass(
-                  row.channel
+                  row.channel,
                 )}`}
               >
                 {row.channel}
@@ -179,9 +173,7 @@ const RoasByChannelTile: React.FC<{ data: ChannelRoas[] }> = ({ data }) => {
                     style={{ width: `${(row.roas / maxRoas) * 100}%` }}
                   />
                 </div>
-                <div className="w-20 text-right text-[11px] text-muted-foreground">
-                  {row.roas.toFixed(1)}x ROAS
-                </div>
+                <div className="w-20 text-right text-[11px] text-muted-foreground">{row.roas.toFixed(1)}x ROAS</div>
               </div>
               <div className="mt-0.5 text-[11px] text-muted-foreground">
                 {formatCurrency(row.spend)} spend · {formatCurrency(row.revenue)} revenue
@@ -194,28 +186,21 @@ const RoasByChannelTile: React.FC<{ data: ChannelRoas[] }> = ({ data }) => {
   );
 };
 
-
 const RoasByCampaignTile: React.FC<{ data: CampaignRoas[] }> = ({ data }) => {
   const maxRoas = Math.max(...data.map((d) => d.roas), 1);
 
   return (
     <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <header>
-        <h2 className="text-[13px] font-semibold text-foreground">
-          ROAS by campaign
-        </h2>
-        <p className="text-[11px] text-muted-foreground">
-          Relative ROAS, channel and spend for each one-off campaign.
-        </p>
+        <h2 className="text-[13px] font-semibold text-foreground">ROAS by one-off campaign</h2>
+        <p className="text-[11px] text-muted-foreground">Relative ROAS, channel and spend for each one-off campaign.</p>
       </header>
 
       <div className="mt-3 space-y-3">
         {data.map((row) => (
           <div key={row.id} className="flex items-center gap-3">
             <div className="min-w-0 w-56 shrink-0">
-              <div className="truncate text-[13px] font-semibold text-foreground">
-                {row.name}
-              </div>
+              <div className="truncate text-[13px] font-semibold text-foreground">{row.name}</div>
               <div className="mt-0.5 flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground">
                 <span className="truncate">{row.audience}</span>
                 {row.channels.map((ch) => (
@@ -237,9 +222,7 @@ const RoasByCampaignTile: React.FC<{ data: CampaignRoas[] }> = ({ data }) => {
                     style={{ width: `${(row.roas / maxRoas) * 100}%` }}
                   />
                 </div>
-                <div className="w-20 text-right text-[11px] text-muted-foreground">
-                  {row.roas.toFixed(1)}x ROAS
-                </div>
+                <div className="w-20 text-right text-[11px] text-muted-foreground">{row.roas.toFixed(1)}x ROAS</div>
               </div>
               <div className="mt-0.5 text-[11px] text-muted-foreground">
                 {formatCurrency(row.spend)} spend · {formatCurrency(row.revenue)} revenue
@@ -320,9 +303,7 @@ const RoasPage: React.FC = () => {
   };
 
   const regenerateInsights = () => {
-    const bestCampaign = campaignRoasData.reduce((best, c) =>
-      !best || c.roas > best.roas ? c : best
-    );
+    const bestCampaign = campaignRoasData.reduce((best, c) => (!best || c.roas > best.roas ? c : best));
 
     setInsights([
       `Overall ROAS is ${overallRoas.toFixed(1)}x, with best performance from "${bestCampaign.name}".`,
@@ -333,11 +314,7 @@ const RoasPage: React.FC = () => {
 
   return (
     <ShellLayout
-      breadcrumb={[
-        { label: "Home", to: "/" },
-        { label: "Reports & Insights", to: "/" },
-        { label: "ROAS" },
-      ]}
+      breadcrumb={[{ label: "Home", to: "/" }, { label: "Reports & Insights", to: "/" }, { label: "ROAS" }]}
       rightInfo={
         <>
           <span>
@@ -352,9 +329,7 @@ const RoasPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-foreground">
-            ROAS (Return on Ad Spend)
-          </h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-foreground">ROAS (Return on Ad Spend)</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Evaluate campaigns and channels on spend, vehicles, revenue and ROAS.
           </p>
@@ -375,12 +350,14 @@ const RoasPage: React.FC = () => {
           {selectedIds.length > 0 && (
             <DraggableKpiRow
               reportKey="roas"
-              tiles={selectedIds
-                .map((id) => {
-                  const tile = renderKpiTile(id);
-                  return tile ? { id, element: tile } : null;
-                })
-                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
+              tiles={
+                selectedIds
+                  .map((id) => {
+                    const tile = renderKpiTile(id);
+                    return tile ? { id, element: tile } : null;
+                  })
+                  .filter(Boolean) as { id: string; element: React.ReactNode }[]
+              }
             />
           )}
 
