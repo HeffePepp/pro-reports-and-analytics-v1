@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { RoasCustomerJourneyTile } from "@/components/reports/RoasCustomerJourneyTile";
@@ -220,7 +221,9 @@ const RoasByCampaignTile: React.FC<{ data: CampaignRoas[] }> = ({ data }) => {
         {data.map((row) => (
           <div key={row.id} className="flex items-center gap-3">
             <div className="min-w-0 w-56 shrink-0">
-              <div className="truncate text-[13px] font-semibold text-foreground">{row.name}</div>
+              <Link to="/reports/one-off-campaign-tracker" className="truncate text-[13px] font-semibold text-foreground hover:text-primary hover:underline block">
+                {row.name}
+              </Link>
               <div className="mt-0.5 flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground">
                 <span className="truncate">{row.audience}</span>
                 {row.channels.map((ch) => (

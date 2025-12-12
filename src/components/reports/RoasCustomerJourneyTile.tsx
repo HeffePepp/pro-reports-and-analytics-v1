@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 type JourneyTouchpointRoas = {
   id: string;
@@ -76,9 +77,9 @@ export const RoasCustomerJourneyTile: React.FC<Props> = ({ data }) => {
         {data.map((row, index) => (
           <div key={row.id} className="flex items-center gap-3">
             <div className="min-w-0 w-56 shrink-0">
-              <div className="truncate text-[13px] font-semibold text-foreground">
+              <Link to="/reports/customer-journey" className="truncate text-[13px] font-semibold text-foreground hover:text-primary hover:underline block">
                 {index + 1}. {row.name}
-              </div>
+              </Link>
               <div className="mt-0.5 flex flex-wrap items-center gap-1">
                 <span className="text-[11px] text-muted-foreground">{row.interval}</span>
                 <span
