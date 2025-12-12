@@ -583,7 +583,7 @@ const SuggestedServicesPage: React.FC = () => {
 
             {/* ACTIVE SS ITEMS TAB */}
             {ssTab === "activess" && (
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="mt-4">
                 <header>
                   <h2 className="text-[13px] font-semibold text-slate-900">
                     Active Suggested Service Items
@@ -653,19 +653,19 @@ const SuggestedServicesPage: React.FC = () => {
 
               return (
                 <div className="mt-4 space-y-4">
-                  {/* Summary tiles */}
+                  {/* Summary stats - floating numbers */}
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
+                    <div className="text-center">
                       <div className="text-lg font-semibold text-slate-900">{filteredResponses.length}</div>
                       <div className="text-[11px] text-slate-500">Responses</div>
                     </div>
-                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
+                    <div className="text-center">
                       <div className="text-lg font-semibold text-slate-900">
                         {totalRevenue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
                       </div>
                       <div className="text-[11px] text-slate-500">SS Revenue</div>
                     </div>
-                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
+                    <div className="text-center">
                       <div className="text-lg font-semibold text-emerald-600">{conversionRate.toFixed(1)}%</div>
                       <div className="text-[11px] text-slate-500">Conversion Rate</div>
                     </div>
