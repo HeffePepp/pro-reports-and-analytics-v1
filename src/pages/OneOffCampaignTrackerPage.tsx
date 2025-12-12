@@ -362,10 +362,10 @@ const OverviewList: React.FC = () => {
               {/* Responses pill */}
               <div className="inline-flex flex-col items-center rounded-xl bg-amber-50 border border-amber-100 px-4 py-2 text-center min-w-[100px]">
                 <div className="text-sm font-semibold text-amber-700">
-                  {c.responses.toLocaleString()}
+                  {c.responses.toLocaleString()} ({c.respPct.toFixed(1)}%)
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  Responses ({c.respPct.toFixed(1)}%)
+                  Responses
                 </div>
               </div>
 
