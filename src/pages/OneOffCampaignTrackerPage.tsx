@@ -479,35 +479,62 @@ const groupDropsByCampaign = (rows: JourneyDropRow[]) => {
     map.get(row.campaignName)!.push(row);
   });
 
-  return Array.from(map.entries()).map(([campaignName, campaignRows]) => ({
-    campaignName,
-    rows: campaignRows,
-  }));
+  // Get campaign data for description
+  return Array.from(map.entries()).map(([campaignName, campaignRows]) => {
+    const campaign = CAMPAIGNS.find(c => c.name === campaignName);
+    return {
+      campaignId: campaign?.id || campaignName,
+      campaignName,
+      description: campaign?.audience || "",
+      rows: campaignRows,
+    };
+  });
 };
 
 const DetailsTable: React.FC = () => {
   const grouped = React.useMemo(() => groupDropsByCampaign(JOURNEY_DROPS), []);
 
+  const handleViewProofs = (campaignId: string) => {
+    console.log("View proofs for:", campaignId);
+  };
+
   return (
     <section className="mt-4 space-y-4">
       {grouped.map((group) => (
         <div
-          key={group.campaignName}
+          key={group.campaignId}
           className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
         >
-          {/* Campaign header inside the ghost pill */}
-          <div className="mb-3 text-sm font-semibold text-slate-900">
-            {group.campaignName}
+          {/* Header row: campaign name/description + View proofs button */}
+          <div className="mb-3 flex items-start justify-between gap-4">
+            <div>
+              <div className="text-sm font-semibold text-slate-900">
+                {group.campaignName}
+              </div>
+              {group.description && (
+                <div className="mt-0.5 text-[11px] text-slate-500">
+                  {group.description}
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleViewProofs(group.campaignId)}
+              className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+            >
+              View proofs
+            </button>
           </div>
 
           {/* Mini table for this campaign's drops */}
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
+              <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
                 <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
                   Drop &amp; channels
                 </th>
-                <th className="py-2 px-2 text-left font-medium whitespace-nowrap">
+                <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
                   Date
                 </th>
                 <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
@@ -519,7 +546,7 @@ const DetailsTable: React.FC = () => {
                 <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
                   Resp %
                 </th>
-                <th className="py-2 pl-2 text-right font-medium whitespace-nowrap">
+                <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
                   Revenue
                 </th>
               </tr>
@@ -528,8 +555,8 @@ const DetailsTable: React.FC = () => {
             <tbody className="divide-y divide-slate-100">
               {group.rows.map((row) => (
                 <tr key={row.id} className="align-top">
-                  {/* Drop # + channel pills */}
-                  <td className="py-3 pr-3">
+                  {/* Drop & channels – left aligned */}
+                  <td className="py-2 pr-3">
                     <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-700">
                       Drop {row.dropNumber}
                     </div>
@@ -545,28 +572,28 @@ const DetailsTable: React.FC = () => {
                     </div>
                   </td>
 
-                  {/* Date */}
-                  <td className="py-3 px-2 text-xs text-slate-900">
+                  {/* Date – right aligned */}
+                  <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
                     {row.dropDate}
                   </td>
 
                   {/* Sent */}
-                  <td className="py-3 px-2 text-right text-xs text-slate-900">
+                  <td className="py-2 px-2 text-right text-xs text-slate-900">
                     {row.sent.toLocaleString()}
                   </td>
 
                   {/* Opened */}
-                  <td className="py-3 px-2 text-right text-xs text-slate-900">
+                  <td className="py-2 px-2 text-right text-xs text-slate-900">
                     {row.opened.toLocaleString()}
                   </td>
 
                   {/* Resp % */}
-                  <td className="py-3 px-2 text-right text-xs font-semibold text-emerald-600">
+                  <td className="py-2 px-2 text-right text-xs font-semibold text-emerald-600">
                     {row.respPct.toFixed(1)}%
                   </td>
 
                   {/* Revenue */}
-                  <td className="py-3 pl-2 pr-2 text-right text-xs text-slate-900">
+                  <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
                     {row.revenue.toLocaleString("en-US", {
                       style: "currency",
                       currency: "USD",
