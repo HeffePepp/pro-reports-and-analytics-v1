@@ -581,36 +581,56 @@ const SuggestedServicesPage: React.FC = () => {
               </div>
             )}
 
-            {/* ACTIVE SS ITEMS TAB – list styling like campaign overview */}
+            {/* ACTIVE SS ITEMS TAB */}
             {ssTab === "activess" && (
-              <div className="mt-4 divide-y divide-slate-100">
-                {SS_SERVICE_TYPES.map((row) => {
-                  const responses = Math.round(row.invoices * (row.respPct / 100));
-                  const respClass = getRespColorClass(row.respPct);
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <header>
+                  <h2 className="text-[13px] font-semibold text-slate-900">
+                    Active Suggested Service Items
+                  </h2>
+                  <p className="text-[11px] text-slate-500">
+                    Volume, email reach and response performance by service.
+                  </p>
+                </header>
 
-                  return (
-                    <div key={row.service} className="py-3 first:pt-0 last:pb-0">
-                      <div className="flex items-start justify-between gap-4">
+                <ul className="mt-4 divide-y divide-slate-100">
+                  {SS_SERVICE_TYPES.map((item) => {
+                    const responses = Math.round(item.invoices * (item.respPct / 100));
+                    return (
+                      <li
+                        key={item.service}
+                        className="flex items-center justify-between gap-4 py-3"
+                      >
+                        {/* LEFT: service + invoice/email details */}
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-xs font-medium text-slate-900">{row.service}</div>
-                          <div className="mt-1 text-[11px] text-slate-500">
-                            {row.invoices.toLocaleString()} invoices with this service
+                          <div className="truncate text-[13px] font-semibold tracking-wide text-slate-900">
+                            {item.service}
                           </div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
-                            {row.validEmailPct.toFixed(1)}% of these invoices have a valid email address
+                            {item.invoices.toLocaleString()} invoices with this service
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            {item.validEmailPct.toFixed(1)}% of these invoices have a valid email address
                           </div>
                         </div>
 
-                        <div className="text-right">
-                          <div className={`text-sm font-semibold ${respClass}`}>{row.respPct.toFixed(1)}% RESP</div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
+                        {/* RIGHT: tight stats block */}
+                        <div className="shrink-0 min-w-[110px] text-right text-[11px]">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            Resp %
+                          </div>
+                          <div className="mt-0.5 text-[16px] font-semibold text-emerald-600">
+                            {item.respPct.toFixed(1)}%
+                            <span className="ml-1 text-[11px] font-semibold">RESP</span>
+                          </div>
+                          <div className="mt-1 text-[11px] text-slate-500">
                             {responses.toLocaleString()} responses
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             )}
 
