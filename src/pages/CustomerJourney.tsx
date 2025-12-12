@@ -383,12 +383,12 @@ const CustomerJourneyPage: React.FC = () => {
                           {parseChannels(tp.channel).map((ch) => (
                             <span
                               key={ch}
-                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
                                 ch === "postcard"
-                                  ? "bg-sky-50 text-sky-700 border border-sky-100"
+                                  ? "bg-tp-pastel-blue text-sky-700 border-sky-200"
                                   : ch === "email"
-                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                                  : "bg-indigo-50 text-indigo-700 border border-indigo-100"
+                                  ? "bg-tp-pastel-green text-emerald-700 border-emerald-200"
+                                  : "bg-tp-pastel-purple text-indigo-700 border-indigo-200"
                               }`}
                             >
                               {CHANNEL_LABELS[ch]}
@@ -559,12 +559,12 @@ const CustomerJourneyPage: React.FC = () => {
                               {parseChannels(tp.channel).map((ch) => (
                                 <span
                                   key={ch}
-                                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
                                     ch === "postcard"
-                                      ? "bg-sky-50 text-sky-700 border border-sky-100"
+                                      ? "bg-tp-pastel-blue text-sky-700 border-sky-200"
                                       : ch === "email"
-                                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                                      : "bg-indigo-50 text-indigo-700 border border-indigo-100"
+                                      ? "bg-tp-pastel-green text-emerald-700 border-emerald-200"
+                                      : "bg-tp-pastel-purple text-indigo-700 border-indigo-200"
                                   }`}
                                 >
                                   {CHANNEL_LABELS[ch]}
