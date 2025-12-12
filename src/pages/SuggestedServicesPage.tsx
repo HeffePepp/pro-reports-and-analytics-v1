@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import { SuggestedServiceResponseCard, type SuggestedServiceResponse } from "@/components/reports/SuggestedServiceResponseCard";
 
 type SuggestedServicesSummary = {
   storeGroupName: string;
@@ -112,6 +113,142 @@ const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
   },
 ];
 
+// Mock response data for the new Responses tab
+const SS_RESPONSES: SuggestedServiceResponse[] = [
+  {
+    id: "r1",
+    customerName: "Sarah Johnson",
+    customerEmail: "sarah.j@email.com",
+    storeLabel: "0334 · GMF · Richmond, VA",
+    vehicleLabel: "2019 Honda Accord [VA-ABC1234]",
+    original: {
+      invoiceNumber: "INV-198001",
+      date: "10/01/2025",
+      amount: 89.95,
+      mileage: 52340,
+      touchpointLabel: "Suggested Services – 1 week",
+      channelLabel: "Email",
+      sentDate: "10/05/2025",
+      openedDate: "10/05/2025",
+    },
+    suggestions: [
+      { id: "s1", name: "Transmission Service", videoWatched: true, couponOpened: true, offerText: "$20 off" },
+      { id: "s2", name: "Cabin Air Filter", videoWatched: false, couponOpened: true },
+    ],
+    response: {
+      invoiceNumber: "INV-198041",
+      date: "10/12/2025",
+      amount: 245.00,
+      daysLater: 7,
+      milesLater: 120,
+      servicesPurchased: ["Transmission Service", "Cabin Air Filter"],
+      discountText: "$20 off transmission service",
+    },
+  },
+  {
+    id: "r2",
+    customerName: "Michael Chen",
+    customerEmail: "mchen@gmail.com",
+    storeLabel: "0221 · Express Lube · Arlington, VA",
+    vehicleLabel: "2017 Toyota Camry [VA-XYZ5678]",
+    original: {
+      invoiceNumber: "INV-197845",
+      date: "09/28/2025",
+      amount: 45.99,
+      mileage: 78200,
+      touchpointLabel: "Suggested Services – 1 month",
+      channelLabel: "Email",
+      sentDate: "10/28/2025",
+      openedDate: "10/29/2025",
+    },
+    suggestions: [
+      { id: "s3", name: "Brake Service", videoWatched: true, couponOpened: false, offerText: "$15 off" },
+      { id: "s4", name: "Serpentine Belt", videoWatched: false, couponOpened: false },
+    ],
+    response: {
+      invoiceNumber: "INV-198102",
+      date: "11/02/2025",
+      amount: 189.00,
+      daysLater: 5,
+      milesLater: 85,
+      servicesPurchased: ["Brake Service"],
+      discountText: "$15 off brake service",
+    },
+  },
+  {
+    id: "r3",
+    customerName: "Emily Rodriguez",
+    customerEmail: "emily.rod@yahoo.com",
+    storeLabel: "0445 · Quick Oil · Fairfax, VA",
+    vehicleLabel: "2020 Mazda CX-5 [VA-DEF9012]",
+    original: {
+      invoiceNumber: "INV-197990",
+      date: "10/15/2025",
+      amount: 62.50,
+      mileage: 34500,
+      touchpointLabel: "Suggested Services – 1 week",
+      channelLabel: "Email",
+      sentDate: "10/22/2025",
+    },
+    suggestions: [
+      { id: "s5", name: "Air Filter", videoWatched: false, couponOpened: false },
+      { id: "s6", name: "Wiper Blades", videoWatched: false, couponOpened: false },
+    ],
+    response: {},
+  },
+  {
+    id: "r4",
+    customerName: "David Thompson",
+    customerEmail: "dthompson@work.com",
+    storeLabel: "0334 · GMF · Richmond, VA",
+    vehicleLabel: "2016 Ford F-150 [VA-TRK4567]",
+    original: {
+      invoiceNumber: "INV-197802",
+      date: "09/20/2025",
+      amount: 125.00,
+      mileage: 95200,
+      touchpointLabel: "Suggested Services – 3 months",
+      channelLabel: "Email",
+      sentDate: "12/20/2025",
+      openedDate: "12/21/2025",
+    },
+    suggestions: [
+      { id: "s7", name: "Transfer Case Service", videoWatched: true, couponOpened: true, offerText: "$25 off" },
+      { id: "s8", name: "Rear Diff Service", videoWatched: true, couponOpened: false },
+      { id: "s9", name: "Front Diff Service", videoWatched: false, couponOpened: false },
+    ],
+    response: {
+      invoiceNumber: "INV-198250",
+      date: "12/28/2025",
+      amount: 385.00,
+      daysLater: 8,
+      milesLater: 450,
+      servicesPurchased: ["Transfer Case Service", "Rear Diff Service"],
+      discountText: "$25 off transfer case service",
+    },
+  },
+  {
+    id: "r5",
+    customerName: "Jennifer Martinez",
+    storeLabel: "0221 · Express Lube · Arlington, VA",
+    vehicleLabel: "2021 Hyundai Sonata [VA-HYU8901]",
+    original: {
+      invoiceNumber: "INV-198050",
+      date: "10/25/2025",
+      amount: 55.00,
+      mileage: 22100,
+      touchpointLabel: "Suggested Services – 1 week",
+      channelLabel: "Email",
+      sentDate: "11/01/2025",
+      openedDate: "11/02/2025",
+    },
+    suggestions: [
+      { id: "s10", name: "Fuel Injection Service", videoWatched: true, couponOpened: true, offerText: "$10 off" },
+    ],
+    response: {},
+  },
+];
+
 const getRespColorClass = (rate: number): string => {
   if (rate >= 15) return "text-emerald-600";
   if (rate >= 10) return "text-orange-500";
@@ -119,7 +256,7 @@ const getRespColorClass = (rate: number): string => {
   return "text-rose-600";
 };
 
-type SsTab = "touchpoints" | "activess";
+type SsTab = "touchpoints" | "activess" | "responses";
 
 const KPI_OPTIONS: KpiOption[] = [
   { id: "invoices", label: "Invoices" },
@@ -289,10 +426,11 @@ const SuggestedServicesPage: React.FC = () => {
                 <h2 className="text-[13px] font-semibold text-slate-900">Active Suggested Services Items</h2>
               </div>
 
-              {/* Two-tab pill */}
+              {/* Three-tab pill */}
               <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1 text-[11px]">
-                {(["touchpoints", "activess"] as SsTab[]).map((tab) => {
+                {(["touchpoints", "activess", "responses"] as SsTab[]).map((tab) => {
                   const isActive = ssTab === tab;
+                  const label = tab === "touchpoints" ? "Touch Points" : tab === "activess" ? "Active SS Items" : "Responses";
                   return (
                     <button
                       key={tab}
@@ -302,7 +440,7 @@ const SuggestedServicesPage: React.FC = () => {
                         isActive ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-800"
                       }`}
                     >
-                      {tab === "touchpoints" ? "Touch Points" : "Active SS Items"}
+                      {label}
                     </button>
                   );
                 })}
@@ -406,6 +544,37 @@ const SuggestedServicesPage: React.FC = () => {
                     </div>
                   );
                 })}
+              </div>
+            )}
+
+            {/* RESPONSES TAB – card-based before/after layout */}
+            {ssTab === "responses" && (
+              <div className="mt-4 space-y-4">
+                {/* Summary strip */}
+                <div className="flex flex-wrap items-center gap-4 rounded-xl bg-slate-50 px-4 py-3 text-[11px] text-slate-600">
+                  <span>
+                    <span className="font-semibold text-slate-900">{SS_RESPONSES.length}</span> responses
+                  </span>
+                  <span>
+                    <span className="font-semibold text-emerald-600">
+                      {((SS_RESPONSES.filter(r => r.response.invoiceNumber).length / SS_RESPONSES.length) * 100).toFixed(1)}%
+                    </span>{" "}
+                    conversion rate
+                  </span>
+                  <span>
+                    <span className="font-semibold text-slate-900">
+                      {SS_RESPONSES.filter(r => r.response.amount)
+                        .reduce((sum, r) => sum + (r.response.amount || 0), 0)
+                        .toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
+                    </span>{" "}
+                    revenue
+                  </span>
+                </div>
+
+                {/* Response cards */}
+                {SS_RESPONSES.map((row) => (
+                  <SuggestedServiceResponseCard key={row.id} row={row} />
+                ))}
               </div>
             )}
           </section>
