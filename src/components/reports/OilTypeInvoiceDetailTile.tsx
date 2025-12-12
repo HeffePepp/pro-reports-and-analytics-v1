@@ -11,8 +11,8 @@ type OilTypeInvoiceRow = {
   oilType: string;
   brand: string;
   sales: number;
-  coupon: string;
-  discount: number;
+  couponCode: string | null;
+  discountCode: string | null;
 };
 
 type SortKey =
@@ -23,8 +23,8 @@ type SortKey =
   | "oilType"
   | "brand"
   | "sales"
-  | "coupon"
-  | "discount";
+  | "couponCode"
+  | "discountCode";
 
 type SortDir = "asc" | "desc";
 
@@ -50,26 +50,26 @@ const oilTypePillClass = (type: string): string => {
 };
 
 const SAMPLE_INVOICES: OilTypeInvoiceRow[] = [
-  { date: "2024-11-28", invoice: "A178-12001", store: "Vallejo, CA", license: "8ABC123", customer: "Jane Smith", vehicle: "2018 Toyota Camry", oilType: "Full Synthetic", brand: "Royal Purple", sales: 128, coupon: "$20 SYN20", discount: 0 },
-  { date: "2024-11-28", invoice: "A178-12002", store: "Vallejo, CA", license: "7XYZ789", customer: "Michael Johnson", vehicle: "2016 Ford F-150", oilType: "Synthetic Blend", brand: "House Brand", sales: 96, coupon: "—", discount: 0 },
-  { date: "2024-11-29", invoice: "N101-12018", store: "Napa, CA", license: "6DEF456", customer: "Laura Chen", vehicle: "2021 Subaru Outback", oilType: "Full Synthetic", brand: "Royal Purple", sales: 132, coupon: "$15 OIL10", discount: 5 },
-  { date: "2024-11-30", invoice: "F220-12044", store: "Fairfield, CA", license: "5GHI321", customer: "Carlos Garcia", vehicle: "2012 Honda Civic", oilType: "Conventional", brand: "House Brand", sales: 79, coupon: "$10 WINTERS", discount: 0 },
-  { date: "2024-12-01", invoice: "V330-12055", store: "Vacaville, CA", license: "4JKL654", customer: "Emily Davis", vehicle: "2019 Honda CR-V", oilType: "High Mileage", brand: "House Brand", sales: 110, coupon: "$15 HM15", discount: 0 },
-  { date: "2024-12-02", invoice: "A178-12003", store: "Vallejo, CA", license: "3MNO987", customer: "Brian Lee", vehicle: "2017 Chevy Silverado", oilType: "Full Synthetic", brand: "Royal Purple", sales: 145, coupon: "$25 SYN25", discount: 0 },
-  { date: "2024-12-02", invoice: "N101-12019", store: "Napa, CA", license: "2PQR147", customer: "Sarah Wilson", vehicle: "2020 Subaru Forester", oilType: "Synthetic Blend", brand: "House Brand", sales: 102, coupon: "—", discount: 5 },
-  { date: "2024-12-03", invoice: "F220-12045", store: "Fairfield, CA", license: "1STU258", customer: "David Martinez", vehicle: "2015 Toyota Corolla", oilType: "Conventional", brand: "House Brand", sales: 72, coupon: "$5 OIL5", discount: 0 },
-  { date: "2024-12-03", invoice: "V330-12056", store: "Vacaville, CA", license: "9VWX369", customer: "Olivia Brown", vehicle: "2018 Ford Escape", oilType: "High Mileage", brand: "House Brand", sales: 118, coupon: "$10 HM10", discount: 0 },
-  { date: "2024-12-04", invoice: "A178-12004", store: "Vallejo, CA", license: "8YZA741", customer: "Kevin Nguyen", vehicle: "2014 Jeep Wrangler", oilType: "Full Synthetic", brand: "Royal Purple", sales: 150, coupon: "$20 SYN20", discount: 0 },
-  { date: "2024-12-04", invoice: "N101-12020", store: "Napa, CA", license: "7BCD852", customer: "Rachel Green", vehicle: "2019 Toyota RAV4", oilType: "Synthetic Blend", brand: "House Brand", sales: 99, coupon: "—", discount: 10 },
-  { date: "2024-12-05", invoice: "F220-12046", store: "Fairfield, CA", license: "6EFG963", customer: "Anthony Perez", vehicle: "2013 Honda Accord", oilType: "Conventional", brand: "House Brand", sales: 84, coupon: "$8 CONV8", discount: 0 },
-  { date: "2024-12-05", invoice: "V330-12057", store: "Vacaville, CA", license: "5HIJ074", customer: "Sophia Turner", vehicle: "2022 Hyundai Tucson", oilType: "Full Synthetic", brand: "Royal Purple", sales: 160, coupon: "$25 SYN25", discount: 0 },
-  { date: "2024-12-06", invoice: "A178-12005", store: "Vallejo, CA", license: "4KLM185", customer: "Jason Clark", vehicle: "2011 Ford Focus", oilType: "High Mileage", brand: "House Brand", sales: 105, coupon: "$10 HM10", discount: 0 },
-  { date: "2024-12-06", invoice: "N101-12021", store: "Napa, CA", license: "3NOP296", customer: "Megan Scott", vehicle: "2016 Subaru Crosstrek", oilType: "Synthetic Blend", brand: "House Brand", sales: 108, coupon: "—", discount: 0 },
-  { date: "2024-12-07", invoice: "F220-12047", store: "Fairfield, CA", license: "2QRS307", customer: "Logan Ramirez", vehicle: "2018 Chevy Equinox", oilType: "Full Synthetic", brand: "Royal Purple", sales: 142, coupon: "$15 OIL15", discount: 0 },
-  { date: "2024-12-07", invoice: "V330-12058", store: "Vacaville, CA", license: "1TUV418", customer: "Chloe Adams", vehicle: "2019 Kia Sorento", oilType: "Conventional", brand: "House Brand", sales: 83, coupon: "$5 OIL5", discount: 0 },
-  { date: "2024-12-08", invoice: "A178-12006", store: "Vallejo, CA", license: "9WXY529", customer: "Ethan Hall", vehicle: "2015 Nissan Altima", oilType: "High Mileage", brand: "House Brand", sales: 112, coupon: "$10 HM10", discount: 5 },
-  { date: "2024-12-08", invoice: "N101-12022", store: "Napa, CA", license: "8ZAB630", customer: "Hannah Lewis", vehicle: "2020 Subaru Legacy", oilType: "Full Synthetic", brand: "Royal Purple", sales: 155, coupon: "$20 SYN20", discount: 0 },
-  { date: "2024-12-09", invoice: "F220-12048", store: "Fairfield, CA", license: "7CDE741", customer: "Noah Rivera", vehicle: "2017 Toyota Highlander", oilType: "Unclassified", brand: "House Brand", sales: 90, coupon: "—", discount: 0 },
+  { date: "2024-11-28", invoice: "A178-12001", store: "Vallejo, CA", license: "8ABC123", customer: "Jane Smith", vehicle: "2018 Toyota Camry", oilType: "Full Synthetic", brand: "Royal Purple", sales: 128, couponCode: "SYN20", discountCode: null },
+  { date: "2024-11-28", invoice: "A178-12002", store: "Vallejo, CA", license: "7XYZ789", customer: "Michael Johnson", vehicle: "2016 Ford F-150", oilType: "Synthetic Blend", brand: "House Brand", sales: 96, couponCode: null, discountCode: "FLEET10" },
+  { date: "2024-11-29", invoice: "N101-12018", store: "Napa, CA", license: "6DEF456", customer: "Laura Chen", vehicle: "2021 Subaru Outback", oilType: "Full Synthetic", brand: "Royal Purple", sales: 132, couponCode: "OIL10", discountCode: null },
+  { date: "2024-11-30", invoice: "F220-12044", store: "Fairfield, CA", license: "5GHI321", customer: "Carlos Garcia", vehicle: "2012 Honda Civic", oilType: "Conventional", brand: "House Brand", sales: 79, couponCode: "WINTERS", discountCode: null },
+  { date: "2024-12-01", invoice: "V330-12055", store: "Vacaville, CA", license: "4JKL654", customer: "Emily Davis", vehicle: "2019 Honda CR-V", oilType: "High Mileage", brand: "House Brand", sales: 110, couponCode: null, discountCode: null },
+  { date: "2024-12-02", invoice: "A178-12003", store: "Vallejo, CA", license: "3MNO987", customer: "Brian Lee", vehicle: "2017 Chevy Silverado", oilType: "Full Synthetic", brand: "Royal Purple", sales: 145, couponCode: "SYN25", discountCode: null },
+  { date: "2024-12-02", invoice: "N101-12019", store: "Napa, CA", license: "2PQR147", customer: "Sarah Wilson", vehicle: "2020 Subaru Forester", oilType: "Synthetic Blend", brand: "House Brand", sales: 102, couponCode: null, discountCode: "TRANS20" },
+  { date: "2024-12-03", invoice: "F220-12045", store: "Fairfield, CA", license: "1STU258", customer: "David Martinez", vehicle: "2015 Toyota Corolla", oilType: "Conventional", brand: "House Brand", sales: 72, couponCode: "OIL5", discountCode: null },
+  { date: "2024-12-03", invoice: "V330-12056", store: "Vacaville, CA", license: "9VWX369", customer: "Olivia Brown", vehicle: "2018 Ford Escape", oilType: "High Mileage", brand: "House Brand", sales: 118, couponCode: "HM10", discountCode: null },
+  { date: "2024-12-04", invoice: "A178-12004", store: "Vallejo, CA", license: "8YZA741", customer: "Kevin Nguyen", vehicle: "2014 Jeep Wrangler", oilType: "Full Synthetic", brand: "Royal Purple", sales: 150, couponCode: null, discountCode: "WEB15" },
+  { date: "2024-12-04", invoice: "N101-12020", store: "Napa, CA", license: "7BCD852", customer: "Rachel Green", vehicle: "2019 Toyota RAV4", oilType: "Synthetic Blend", brand: "House Brand", sales: 99, couponCode: "BLEND15", discountCode: null },
+  { date: "2024-12-05", invoice: "F220-12046", store: "Fairfield, CA", license: "6EFG963", customer: "Anthony Perez", vehicle: "2013 Honda Accord", oilType: "Conventional", brand: "House Brand", sales: 84, couponCode: null, discountCode: null },
+  { date: "2024-12-05", invoice: "V330-12057", store: "Vacaville, CA", license: "5HIJ074", customer: "Sophia Turner", vehicle: "2022 Hyundai Tucson", oilType: "Full Synthetic", brand: "Royal Purple", sales: 160, couponCode: "SYN25", discountCode: null },
+  { date: "2024-12-06", invoice: "A178-12005", store: "Vallejo, CA", license: "4KLM185", customer: "Jason Clark", vehicle: "2011 Ford Focus", oilType: "High Mileage", brand: "House Brand", sales: 105, couponCode: null, discountCode: "TRANS20" },
+  { date: "2024-12-06", invoice: "N101-12021", store: "Napa, CA", license: "3NOP296", customer: "Megan Scott", vehicle: "2016 Subaru Crosstrek", oilType: "Synthetic Blend", brand: "House Brand", sales: 108, couponCode: "WEB15", discountCode: null },
+  { date: "2024-12-07", invoice: "F220-12047", store: "Fairfield, CA", license: "2QRS307", customer: "Logan Ramirez", vehicle: "2018 Chevy Equinox", oilType: "Full Synthetic", brand: "Royal Purple", sales: 142, couponCode: "OIL15", discountCode: null },
+  { date: "2024-12-07", invoice: "V330-12058", store: "Vacaville, CA", license: "1TUV418", customer: "Chloe Adams", vehicle: "2019 Kia Sorento", oilType: "Conventional", brand: "House Brand", sales: 83, couponCode: null, discountCode: "WEB15" },
+  { date: "2024-12-08", invoice: "A178-12006", store: "Vallejo, CA", license: "9WXY529", customer: "Ethan Hall", vehicle: "2015 Nissan Altima", oilType: "High Mileage", brand: "House Brand", sales: 112, couponCode: "TRANS20", discountCode: null },
+  { date: "2024-12-08", invoice: "N101-12022", store: "Napa, CA", license: "8ZAB630", customer: "Hannah Lewis", vehicle: "2020 Subaru Legacy", oilType: "Full Synthetic", brand: "Royal Purple", sales: 155, couponCode: "WEB15", discountCode: null },
+  { date: "2024-12-09", invoice: "F220-12048", store: "Fairfield, CA", license: "7CDE741", customer: "Noah Rivera", vehicle: "2017 Toyota Highlander", oilType: "Unclassified", brand: "House Brand", sales: 90, couponCode: null, discountCode: "WEB15" },
 ];
 
 const OilTypeInvoiceDetailTile: React.FC<Props> = ({ 
@@ -177,8 +177,8 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({
               {renderHeader("Oil type", "oilType")}
               {renderHeader("Oil brand", "brand")}
               {renderHeader("Sales", "sales", true)}
-              {renderHeader("Coupon", "coupon", true)}
-              {renderHeader("Discount", "discount", true)}
+              {renderHeader("Coupon", "couponCode")}
+              {renderHeader("Discount", "discountCode")}
             </tr>
           </thead>
 
@@ -201,9 +201,23 @@ const OilTypeInvoiceDetailTile: React.FC<Props> = ({
                 <td className="py-3 px-2 text-xs text-slate-900 text-right">
                   {row.sales.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
                 </td>
-                <td className="py-3 px-2 text-xs text-slate-900 text-right">{row.coupon}</td>
-                <td className="py-3 px-2 text-xs text-slate-900 text-right">
-                  {row.discount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
+                <td className="py-3 px-2 text-xs">
+                  {row.couponCode ? (
+                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-emerald-50 text-emerald-700">
+                      {row.couponCode}
+                    </span>
+                  ) : (
+                    <span className="text-slate-400">—</span>
+                  )}
+                </td>
+                <td className="py-3 px-2 text-xs">
+                  {row.discountCode ? (
+                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-sky-50 text-sky-700">
+                      {row.discountCode}
+                    </span>
+                  ) : (
+                    <span className="text-slate-400">—</span>
+                  )}
                 </td>
               </tr>
             ))}
