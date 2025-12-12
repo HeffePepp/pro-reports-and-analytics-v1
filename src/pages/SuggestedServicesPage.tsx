@@ -583,14 +583,11 @@ const SuggestedServicesPage: React.FC = () => {
 
             {/* ACTIVE SS ITEMS TAB */}
             {ssTab === "activess" && (
-              <div className="mt-4">
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <header>
                   <h2 className="text-[13px] font-semibold text-slate-900">
                     Active Suggested Service Items
                   </h2>
-                  <p className="text-[11px] text-slate-500">
-                    Invoices and email reach by suggested service.
-                  </p>
                 </header>
 
                 <ul className="mt-4 divide-y divide-slate-100">
@@ -606,19 +603,13 @@ const SuggestedServicesPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* MIDDLE: two stats, stacked, left-justified */}
-                      <div className="flex-1 text-[11px] text-slate-500">
-                        <div>
-                          <span className="font-semibold text-slate-900">
-                            {item.invoices.toLocaleString()}
-                          </span>{" "}
-                          <span>Inv. w/ this SS</span>
+                      {/* MIDDLE: centered invoice stat (count + definition stacked) */}
+                      <div className="shrink-0 min-w-[150px] text-center text-[11px]">
+                        <div className="text-[18px] font-semibold text-slate-900 leading-none">
+                          {item.invoices.toLocaleString()}
                         </div>
-                        <div className="mt-0.5">
-                          <span className="font-semibold text-slate-900">
-                            {item.validEmailPct.toFixed(1)}%
-                          </span>{" "}
-                          <span>Inv. w/ valid email address</span>
+                        <div className="mt-0.5 text-[11px] text-slate-500">
+                          Inv. w/ this SS
                         </div>
                       </div>
 
