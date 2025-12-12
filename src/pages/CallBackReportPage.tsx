@@ -11,6 +11,7 @@ import {
   ReportTableHeaderCell,
   ReportTableCell,
 } from "@/components/ui/report-table";
+import { formatInvoiceNumber } from "@/lib/formatters";
 
 type Segment = "active" | "retained" | "lapsed" | "inactive" | "lost";
 
@@ -32,8 +33,8 @@ const SAMPLE_CUSTOMERS: CallbackCustomer[] = [
     name: "Bob GoodFellow",
     phone: "(555) 555-5555",
     email: "bgoodfellow@gmail.com",
-    lastVisitDate: "05/24/2025",
-    lastInvoiceNumber: "INV-732145",
+    lastVisitDate: "05-24-2025",
+    lastInvoiceNumber: "732145",
     totalVisits: 4,
     lastVisitServices:
       "General Repair Parts; General Repair Labor; Job Supplies; Wiper Blades; Tire Replacement; Mount And Balance 4 Tires",
@@ -44,8 +45,8 @@ const SAMPLE_CUSTOMERS: CallbackCustomer[] = [
     name: "Jane Driver",
     phone: "(555) 555-1234",
     email: "jdriver@example.com",
-    lastVisitDate: "03/10/2025",
-    lastInvoiceNumber: "INV-731882",
+    lastVisitDate: "03-10-2025",
+    lastInvoiceNumber: "731882",
     totalVisits: 6,
     lastVisitServices: "Full Synthetic Oil Change; Cabin Air Filter",
     segment: "inactive",
@@ -55,8 +56,8 @@ const SAMPLE_CUSTOMERS: CallbackCustomer[] = [
     name: "Sarah Mitchell",
     phone: "(555) 123-4567",
     email: "smitchell@yahoo.com",
-    lastVisitDate: "08/15/2025",
-    lastInvoiceNumber: "INV-733021",
+    lastVisitDate: "08-15-2025",
+    lastInvoiceNumber: "733021",
     totalVisits: 7,
     lastVisitServices: "Oil Change; Air Filter; Brake Inspection",
     segment: "active",
@@ -225,7 +226,7 @@ const CallBackReportPage: React.FC = () => {
                       <ReportTableCell className="text-slate-700">
                         <span className="font-medium">{cust.lastVisitDate}</span>{" "}
                         <span className="text-slate-400">·</span>{" "}
-                        <span>Inv #{cust.lastInvoiceNumber}</span>
+                        <span>Inv #{formatInvoiceNumber(cust.lastInvoiceNumber)}</span>
                       </ReportTableCell>
                     </ReportTableRow>
                   ))}
