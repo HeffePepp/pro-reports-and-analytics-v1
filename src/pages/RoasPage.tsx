@@ -1,108 +1,412 @@
 import React, { useState, useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import {
-  ReportTable,
-  ReportTableHead,
-  ReportTableBody,
-  ReportTableRow,
-  ReportTableHeaderCell,
-  ReportTableCell,
-} from "@/components/ui/report-table";
 
-type RoasSummary = {
-  storeGroupName: string;
-  periodLabel: string;
-  totalSpend: number;
-  totalRevenue: number;
-  totalVehicles: number;
-  campaigns: number;
+// ----------------- types -----------------
+type ChannelRoas = {
+  id: string;
+  channel: "Email" | "Postcard" | "Mixed";
+  spend: number;
+  revenue: number;
+  roas: number;
 };
 
-type RoasCampaignRow = {
-  campaignName: string;
+type CampaignRoas = {
+  id: string;
+  name: string;
   audience: string;
-  channel: "Email" | "Postcard" | "Mixed";
+  channels: ("Email" | "Postcard" | "Mixed")[];
   sent: number;
   spend: number;
   revenue: number;
   vehicles: number;
+  roas: number;
 };
 
-const roasSummary: RoasSummary = {
-  storeGroupName: "All Stores",
-  periodLabel: "Last 90 days",
-  totalSpend: 5200,
-  totalRevenue: 76600,
-  totalVehicles: 420,
-  campaigns: 6,
+type JourneyRoas = {
+  roas: number;
+  spend: number;
+  revenue: number;
+  vehicles: number;
+  channels: ("Email" | "Postcard" | "Text")[];
 };
 
-const roasCampaigns: RoasCampaignRow[] = [
+// ----------------- mock data -----------------
+const channelRoasData: ChannelRoas[] = [
+  { id: "email", channel: "Email", spend: 2040, revenue: 39450, roas: 19.3 },
+  { id: "postcard", channel: "Postcard", spend: 1760, revenue: 26900, roas: 15.3 },
+  { id: "mixed", channel: "Mixed", spend: 1400, revenue: 23800, roas: 17.0 },
+];
+
+const campaignRoasData: CampaignRoas[] = [
   {
-    campaignName: "Spring Has Sprung",
+    id: "spring",
+    name: "Spring Has Sprung",
     audience: "12–24 month inactive",
-    channel: "Email",
+    channels: ["Email"],
     sent: 1500,
     spend: 520,
     revenue: 8350,
     vehicles: 62,
+    roas: 16.1,
   },
   {
-    campaignName: "Tax Time Tune-Up",
+    id: "tax",
+    name: "Tax Time Tune-Up",
     audience: "High LTV, due in 30 days",
-    channel: "Mixed",
+    channels: ["Mixed"],
     sent: 1200,
     spend: 1400,
     revenue: 24600,
     vehicles: 110,
+    roas: 17.6,
   },
   {
-    campaignName: "Synthetic Upgrade Push",
+    id: "syn-upgrade",
+    name: "Synthetic Upgrade Push",
     audience: "Conventional users",
-    channel: "Postcard",
+    channels: ["Postcard"],
     sent: 900,
     spend: 980,
     revenue: 17800,
     vehicles: 76,
+    roas: 18.2,
   },
   {
-    campaignName: "Reactivation 18–24 months",
+    id: "reactivation",
+    name: "Reactivation 18–24 months",
     audience: "Lapsed",
-    channel: "Email",
+    channels: ["Email"],
     sent: 1400,
     spend: 420,
-    revenue: 9300,
+    revenue: 9390,
     vehicles: 55,
+    roas: 22.4,
   },
   {
-    campaignName: "New Mover Welcome",
+    id: "new-mover",
+    name: "New Mover Welcome",
     audience: "New households",
-    channel: "Postcard",
+    channels: ["Postcard"],
     sent: 700,
     spend: 780,
     revenue: 9100,
     vehicles: 48,
+    roas: 11.7,
   },
   {
-    campaignName: "Holiday Thank You",
+    id: "holiday",
+    name: "Holiday Thank You",
     audience: "Top 25% LTV",
-    channel: "Email",
+    channels: ["Email"],
     sent: 600,
     spend: 100,
     revenue: 2450,
     vehicles: 19,
+    roas: 24.5,
   },
 ];
 
+const journeyRoasData: JourneyRoas = {
+  roas: 14.2,
+  spend: 3120,
+  revenue: 44200,
+  vehicles: 420,
+  channels: ["Email", "Text", "Postcard"],
+};
+
+// ----------------- helpers -----------------
+const formatCurrency = (value: number) =>
+  value.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  });
+
+const channelPillClass = (channel: string) => {
+  switch (channel) {
+    case "Email":
+      return "bg-tp-pastel-green text-emerald-700";
+    case "Postcard":
+      return "bg-tp-pastel-blue text-sky-700";
+    case "Mixed":
+      return "bg-tp-pastel-purple text-indigo-700";
+    case "Text":
+      return "bg-tp-pastel-purple text-purple-700";
+    default:
+      return "bg-muted text-muted-foreground";
+  }
+};
+
+// ----------------- tiles -----------------
+
+const RoasByChannelTile: React.FC<{ data: ChannelRoas[] }> = ({ data }) => {
+  const maxRoas = Math.max(...data.map((d) => d.roas), 1);
+
+  return (
+    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <header className="flex items-start justify-between">
+        <div>
+          <h2 className="text-[13px] font-semibold text-foreground">
+            ROAS by channel
+          </h2>
+          <p className="text-[11px] text-muted-foreground">
+            Relative ROAS and spend by primary communication channel.
+          </p>
+        </div>
+      </header>
+
+      <div className="mt-3 space-y-3">
+        {data.map((row) => (
+          <div key={row.id} className="flex items-center gap-3">
+            <div className="shrink-0 w-20">
+              <span
+                className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${channelPillClass(
+                  row.channel
+                )}`}
+              >
+                {row.channel}
+              </span>
+            </div>
+
+            <div className="flex flex-1 flex-col">
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-tp-green/80"
+                    style={{ width: `${(row.roas / maxRoas) * 100}%` }}
+                  />
+                </div>
+                <div className="w-20 text-right text-[11px] text-muted-foreground">
+                  {row.roas.toFixed(1)}x ROAS
+                </div>
+              </div>
+              <div className="mt-0.5 text-[11px] text-muted-foreground">
+                {formatCurrency(row.spend)} spend · {formatCurrency(row.revenue)} revenue
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const RoasJourneyTile: React.FC<{ data: JourneyRoas }> = ({ data }) => {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <header className="mb-3 flex items-start justify-between">
+        <div>
+          <h2 className="text-[13px] font-semibold text-foreground">
+            ROAS for Customer Journey
+          </h2>
+          <p className="text-[11px] text-muted-foreground">
+            Performance of standard Throttle journeys (thank-you, SS, reminders, reactivation).
+          </p>
+        </div>
+      </header>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="rounded-2xl bg-tp-pastel-green px-4 py-3 text-center">
+          <div className="text-sm font-semibold text-emerald-800">
+            {data.roas.toFixed(1)}x
+          </div>
+          <div className="text-[11px] font-medium text-emerald-700">
+            Journey ROAS
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-muted px-4 py-3 text-center">
+          <div className="text-sm font-semibold text-foreground">
+            {formatCurrency(data.revenue)}
+          </div>
+          <div className="text-[11px] font-medium text-muted-foreground">
+            Revenue
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-muted px-4 py-3 text-center">
+          <div className="text-sm font-semibold text-foreground">
+            {formatCurrency(data.spend)}
+          </div>
+          <div className="text-[11px] font-medium text-muted-foreground">
+            Spend
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-muted px-4 py-3 text-center">
+          <div className="text-sm font-semibold text-foreground">
+            {data.vehicles.toLocaleString()}
+          </div>
+          <div className="text-[11px] font-medium text-muted-foreground">
+            Vehicles
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-1">
+        {data.channels.map((ch) => (
+          <span
+            key={ch}
+            className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${channelPillClass(ch)}`}
+          >
+            {ch}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const RoasByCampaignTile: React.FC<{ data: CampaignRoas[] }> = ({ data }) => {
+  const maxRoas = Math.max(...data.map((d) => d.roas), 1);
+
+  return (
+    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <header>
+        <h2 className="text-[13px] font-semibold text-foreground">
+          ROAS by campaign
+        </h2>
+        <p className="text-[11px] text-muted-foreground">
+          Relative ROAS, channel and spend for each one-off campaign.
+        </p>
+      </header>
+
+      <div className="mt-3 space-y-3">
+        {data.map((row) => (
+          <div key={row.id} className="flex items-center gap-3">
+            <div className="min-w-0 w-56 shrink-0">
+              <div className="truncate text-[13px] font-semibold text-foreground">
+                {row.name}
+              </div>
+              <div className="mt-0.5 flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground">
+                <span className="truncate">{row.audience}</span>
+                {row.channels.map((ch) => (
+                  <span
+                    key={ch}
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${channelPillClass(ch)}`}
+                  >
+                    {ch}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-1 flex-col">
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-lime-400/80"
+                    style={{ width: `${(row.roas / maxRoas) * 100}%` }}
+                  />
+                </div>
+                <div className="w-20 text-right text-[11px] text-muted-foreground">
+                  {row.roas.toFixed(1)}x ROAS
+                </div>
+              </div>
+              <div className="mt-0.5 text-[11px] text-muted-foreground">
+                {formatCurrency(row.spend)} spend · {formatCurrency(row.revenue)} revenue
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const RoasCampaignDetailsTable: React.FC<{ data: CampaignRoas[] }> = ({ data }) => {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <header className="mb-3 flex items-center justify-between">
+        <div>
+          <h2 className="text-[13px] font-semibold text-foreground">
+            Campaign details
+          </h2>
+          <p className="text-[11px] text-muted-foreground">
+            Spend, vehicles, revenue and ROAS by campaign.
+          </p>
+        </div>
+      </header>
+
+      <table className="w-full table-fixed text-xs">
+        <colgroup>
+          <col className="w-[220px]" />
+          <col className="w-[160px]" />
+          <col className="w-[80px]" />
+          <col className="w-[80px]" />
+          <col className="w-[100px]" />
+          <col className="w-[80px]" />
+          <col className="w-[70px]" />
+        </colgroup>
+
+        <thead>
+          <tr className="border-b border-border text-[11px] text-muted-foreground">
+            <th className="py-2 pr-3 text-left font-medium">Campaign</th>
+            <th className="py-2 px-2 text-left font-medium">Audience</th>
+            <th className="py-2 px-2 text-right font-medium">Sent</th>
+            <th className="py-2 px-2 text-right font-medium">Spend</th>
+            <th className="py-2 px-2 text-right font-medium">Revenue</th>
+            <th className="py-2 px-2 text-right font-medium">Vehicles</th>
+            <th className="py-2 pl-2 pr-1 text-right font-medium">ROAS</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-border">
+          {data.map((row) => (
+            <tr key={row.id} className="align-top">
+              <td className="py-2 pr-3">
+                <div className="text-[13px] font-semibold text-foreground">
+                  {row.name}
+                </div>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {row.channels.map((ch) => (
+                    <span
+                      key={ch}
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${channelPillClass(ch)}`}
+                    >
+                      {ch}
+                    </span>
+                  ))}
+                </div>
+              </td>
+
+              <td className="py-2 px-2 text-xs text-muted-foreground">
+                {row.audience}
+              </td>
+
+              <td className="py-2 px-2 text-right text-xs text-foreground">
+                {row.sent.toLocaleString()}
+              </td>
+              <td className="py-2 px-2 text-right text-xs text-foreground">
+                {formatCurrency(row.spend)}
+              </td>
+              <td className="py-2 px-2 text-right text-xs text-foreground">
+                {formatCurrency(row.revenue)}
+              </td>
+              <td className="py-2 px-2 text-right text-xs text-foreground">
+                {row.vehicles.toLocaleString()}
+              </td>
+              <td className="py-2 pl-2 pr-1 text-right text-xs text-foreground">
+                {row.roas.toFixed(1)}x
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+};
+
+// ----------------- KPI options -----------------
 const KPI_OPTIONS: KpiOption[] = [
   { id: "totalSpend", label: "Total spend" },
   { id: "totalRevenue", label: "Total revenue" },
   { id: "overallRoas", label: "Overall ROAS" },
   { id: "vehiclesCampaigns", label: "Vehicles from campaigns" },
-  { id: "avgSpend", label: "Avg spend / campaign" },
 ];
 
+// ----------------- main page -----------------
 const RoasPage: React.FC = () => {
   const [insights, setInsights] = useState<string[]>([
     "Mixed-channel campaigns drive the strongest ROAS but have higher spend per send.",
@@ -110,78 +414,64 @@ const RoasPage: React.FC = () => {
     "Some email-only campaigns are extremely efficient on a ROAS basis and are ideal for frequent use.",
   ]);
 
-  const overallRoas = useMemo(
-    () => roasSummary.totalRevenue / roasSummary.totalSpend,
-    []
-  );
-
-  const channelAgg = useMemo(() => {
-    const agg: Record<
-      RoasCampaignRow["channel"],
-      { spend: number; revenue: number }
-    > = {
-      Email: { spend: 0, revenue: 0 },
-      Postcard: { spend: 0, revenue: 0 },
-      Mixed: { spend: 0, revenue: 0 },
-    };
-    roasCampaigns.forEach((c) => {
-      agg[c.channel].spend += c.spend;
-      agg[c.channel].revenue += c.revenue;
-    });
-    return (Object.keys(agg) as RoasCampaignRow["channel"][]).map((ch) => {
-      const spend = agg[ch].spend;
-      const revenue = agg[ch].revenue;
-      return {
-        channel: ch,
-        spend,
-        revenue,
-        roas: spend ? revenue / spend : 0,
-      };
-    });
-  }, []);
-
-  const maxRoasChannel = useMemo(
-    () => Math.max(...channelAgg.map((c) => c.roas), 1),
-    [channelAgg]
-  );
-
-  const maxRoasCampaign = useMemo(
-    () =>
-      Math.max(
-        ...roasCampaigns.map((c) => c.revenue / c.spend),
-        1
-      ),
-    []
-  );
+  const totalSpend = useMemo(() => channelRoasData.reduce((s, c) => s + c.spend, 0), []);
+  const totalRevenue = useMemo(() => channelRoasData.reduce((s, c) => s + c.revenue, 0), []);
+  const overallRoas = useMemo(() => totalRevenue / (totalSpend || 1), [totalSpend, totalRevenue]);
+  const vehiclesFromCampaigns = useMemo(() => campaignRoasData.reduce((s, c) => s + c.vehicles, 0), []);
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("roas", KPI_OPTIONS);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "totalSpend":
-        return <MetricTile key={id} label="Total spend" value={`$${roasSummary.totalSpend.toLocaleString()}`} helpText="Total marketing spend across all campaigns during the selected period. This includes all channel costs such as postage, email platform fees, and SMS charges." />;
+        return (
+          <MetricTile
+            key={id}
+            label="Total spend"
+            value={formatCurrency(totalSpend)}
+            helpText="Total marketing spend across all campaigns during the selected period. This includes all channel costs such as postage, email platform fees, and SMS charges."
+          />
+        );
       case "totalRevenue":
-        return <MetricTile key={id} label="Total revenue" value={`$${roasSummary.totalRevenue.toLocaleString()}`} helpText="Total revenue attributed to marketing campaigns during the selected period. Attribution is based on customer response within the campaign window." />;
+        return (
+          <MetricTile
+            key={id}
+            label="Total revenue"
+            value={formatCurrency(totalRevenue)}
+            helpText="Total revenue attributed to marketing campaigns during the selected period. Attribution is based on customer response within the campaign window."
+          />
+        );
       case "overallRoas":
-        return <MetricTile key={id} label="Overall ROAS" value={`${overallRoas.toFixed(1)}x`} helper={`${roasSummary.campaigns} campaigns`} helpText="Overall return on ad spend calculated as total revenue divided by total spend. A ROAS above 5x is typically considered strong for automotive marketing." />;
+        return (
+          <MetricTile
+            key={id}
+            label="Overall ROAS"
+            value={`${overallRoas.toFixed(1)}x`}
+            helper={`${campaignRoasData.length} campaigns`}
+            helpText="Overall return on ad spend calculated as total revenue divided by total spend. A ROAS above 5x is typically considered strong for automotive marketing."
+          />
+        );
       case "vehiclesCampaigns":
-        return <MetricTile key={id} label="Vehicles from campaigns" value={roasSummary.totalVehicles.toLocaleString()} helpText="Number of unique vehicles that responded to marketing campaigns. Each vehicle represents a customer who took action after receiving a campaign message." />;
-      case "avgSpend":
-        return <MetricTile key={id} label="Avg spend / campaign" value={`$${(roasSummary.totalSpend / roasSummary.campaigns).toFixed(0)}`} helpText="Average marketing spend per campaign during the period. Use this to benchmark campaign budgets and identify outliers." />;
+        return (
+          <MetricTile
+            key={id}
+            label="Vehicles from campaigns"
+            value={vehiclesFromCampaigns.toLocaleString()}
+            helpText="Number of unique vehicles that responded to marketing campaigns. Each vehicle represents a customer who took action after receiving a campaign message."
+          />
+        );
       default:
         return null;
     }
   };
 
   const regenerateInsights = () => {
-    const bestCampaign = roasCampaigns.reduce((best, c) =>
-      !best || c.revenue / c.spend > best.revenue / best.spend ? c : best
+    const bestCampaign = campaignRoasData.reduce((best, c) =>
+      !best || c.roas > best.roas ? c : best
     );
 
     setInsights([
-      `Overall ROAS is ${overallRoas.toFixed(
-        1
-      )}x, with best performance from "${bestCampaign.campaignName}".`,
+      `Overall ROAS is ${overallRoas.toFixed(1)}x, with best performance from "${bestCampaign.name}".`,
       "Mixed-channel campaigns are ideal for key periods (tax time, holidays) where you want maximum reach and impact.",
       "Email-only campaigns deliver high ROAS at low cost; keep them running year-round for maintenance and SS follow-ups.",
     ]);
@@ -197,12 +487,10 @@ const RoasPage: React.FC = () => {
       rightInfo={
         <>
           <span>
-            Store group:{" "}
-            <span className="font-medium">{roasSummary.storeGroupName}</span>
+            Store group: <span className="font-medium">All Stores</span>
           </span>
           <span>
-            Period:{" "}
-            <span className="font-medium">{roasSummary.periodLabel}</span>
+            Period: <span className="font-medium">Last 90 days</span>
           </span>
         </>
       }
@@ -214,8 +502,7 @@ const RoasPage: React.FC = () => {
             ROAS (Return on Ad Spend)
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Evaluate campaigns and channels on spend, vehicles, revenue and
-            ROAS.
+            Evaluate campaigns and channels on spend, vehicles, revenue and ROAS.
           </p>
         </div>
         <KpiCustomizeButton
@@ -230,7 +517,7 @@ const RoasPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT: all ROAS tiles, charts & table */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Metric tiles - draggable */}
+          {/* KPI tiles - draggable */}
           {selectedIds.length > 0 && (
             <DraggableKpiRow
               reportKey="roas"
@@ -243,128 +530,19 @@ const RoasPage: React.FC = () => {
             />
           )}
 
-          {/* ROAS by channel & by campaign */}
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* ROAS by channel */}
-            <div className="rounded-2xl bg-card border border-border shadow-sm p-4 space-y-3">
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-sm font-semibold text-foreground">
-                  ROAS by channel
-                </h2>
-                <span className="text-[11px] text-muted-foreground">
-                  Relative ROAS by channel (dummy)
-                </span>
-              </div>
-              <div className="space-y-2 text-xs text-muted-foreground">
-                {channelAgg.map((c) => (
-                  <div key={c.channel} className="space-y-1">
-                    <div className="flex justify-between text-[11px]">
-                      <span>{c.channel}</span>
-                      <span>
-                        {c.roas.toFixed(1)}x ROAS · $
-                        {c.spend.toLocaleString()} spend
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-full bg-tp-pastel-blue"
-                          style={{
-                            width: `${(c.roas / maxRoasChannel) * 100}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {/* ROAS by channel & Customer Journey tiles */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <RoasByChannelTile data={channelRoasData} />
+            <RoasJourneyTile data={journeyRoasData} />
+          </div>
 
-            {/* ROAS by campaign */}
-            <div className="rounded-2xl bg-card border border-border shadow-sm p-4 space-y-3">
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-sm font-semibold text-foreground">
-                  ROAS by campaign
-                </h2>
-                <span className="text-[11px] text-muted-foreground">
-                  Relative ROAS (dummy)
-                </span>
-              </div>
-              <div className="space-y-2 text-xs text-muted-foreground">
-                {roasCampaigns.map((c) => {
-                  const roas = c.revenue / c.spend;
-                  return (
-                    <div key={c.campaignName} className="space-y-1">
-                      <div className="flex justify-between text-[11px]">
-                        <span>{c.campaignName}</span>
-                        <span>{roas.toFixed(1)}x</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                          <div
-                            className="h-full bg-tp-pastel-green"
-                            style={{
-                              width: `${(roas / maxRoasCampaign) * 100}%`,
-                            }}
-                          />
-                        </div>
-                        <span className="text-[10px] w-28 text-right">
-                          {c.channel} · ${c.spend.toFixed(0)}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
+          {/* ROAS by campaign bar tile */}
+          <RoasByCampaignTile data={campaignRoasData} />
 
           {/* Campaign details table */}
-          <section className="rounded-2xl bg-card border border-border shadow-sm p-4">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <h2 className="text-sm font-semibold text-foreground">
-                Campaign details
-              </h2>
-              <span className="text-[11px] text-muted-foreground">
-                Spend, revenue and ROAS by campaign
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <ReportTable>
-                <ReportTableHead>
-                  <ReportTableRow>
-                    <ReportTableHeaderCell label="Campaign" />
-                    <ReportTableHeaderCell label="Audience" />
-                    <ReportTableHeaderCell label="Channel" />
-                    <ReportTableHeaderCell label="Sent" align="right" />
-                    <ReportTableHeaderCell label="Spend" align="right" />
-                    <ReportTableHeaderCell label="Revenue" align="right" />
-                    <ReportTableHeaderCell label="Vehicles" align="right" />
-                    <ReportTableHeaderCell label="ROAS" align="right" />
-                  </ReportTableRow>
-                </ReportTableHead>
-                <ReportTableBody>
-                  {roasCampaigns.map((c) => {
-                    const roas = c.revenue / c.spend;
-                    return (
-                      <ReportTableRow key={c.campaignName}>
-                        <ReportTableCell className="text-foreground">{c.campaignName}</ReportTableCell>
-                        <ReportTableCell className="text-muted-foreground">{c.audience}</ReportTableCell>
-                        <ReportTableCell className="text-muted-foreground">{c.channel}</ReportTableCell>
-                        <ReportTableCell align="right">{c.sent.toLocaleString()}</ReportTableCell>
-                        <ReportTableCell align="right">${c.spend.toFixed(0)}</ReportTableCell>
-                        <ReportTableCell align="right">${c.revenue.toLocaleString()}</ReportTableCell>
-                        <ReportTableCell align="right">{c.vehicles.toLocaleString()}</ReportTableCell>
-                        <ReportTableCell align="right">{roas.toFixed(1)}x</ReportTableCell>
-                      </ReportTableRow>
-                    );
-                  })}
-                </ReportTableBody>
-              </ReportTable>
-            </div>
-          </section>
+          <RoasCampaignDetailsTable data={campaignRoasData} />
 
-          {/* AI Insights – stacked here on small/medium screens - after main content */}
+          {/* AI Insights – stacked here on small/medium screens */}
           <div className="block lg:hidden">
             <AIInsightsTile
               title="AI Insights"
