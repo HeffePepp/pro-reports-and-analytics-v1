@@ -601,6 +601,48 @@ const CustomerJourneyPage: React.FC = () => {
                           </td>
                         </tr>
                       ))}
+
+                      {/* Touch point totals row - only show for multi-channel touch points */}
+                      {group.rows.length > 1 && (() => {
+                        const totals = {
+                          sent: group.rows.reduce((sum, r) => sum + r.sends, 0),
+                          opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
+                          responses: group.rows.reduce((sum, r) => sum + r.responses, 0),
+                          revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
+                        };
+                        const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
+                        const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
+
+                        return (
+                          <tr className="border-t border-slate-200 font-semibold">
+                            <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700">
+                              Touch Point Totals
+                            </td>
+                            <td className="py-2 px-2 text-right text-xs text-slate-900">
+                              {totals.sent.toLocaleString()}
+                            </td>
+                            <td className="py-2 px-2 text-right text-xs text-slate-900">
+                              {totals.opened.toLocaleString()}
+                            </td>
+                            <td className="py-2 px-2 text-right text-xs text-slate-900">
+                              {totals.responses.toLocaleString()}
+                            </td>
+                            <td className="py-2 px-2 text-right text-xs text-emerald-600">
+                              {avgRespPct.toFixed(1)}%
+                            </td>
+                            <td className="py-2 px-2 text-right text-xs text-slate-900">
+                              {avgRoas.toFixed(1)}x
+                            </td>
+                            <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
+                              {totals.revenue.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                                maximumFractionDigits: 0,
+                              })}
+                            </td>
+                          </tr>
+                        );
+                      })()}
                     </tbody>
                   </table>
                 </div>
