@@ -24,51 +24,18 @@ type CouponRow = {
 type SortKey = "code" | "redemptions" | "avgTicket" | "couponAmount" | "revenue" | "usagePct";
 
 const COUPON_ROWS: CouponRow[] = [
-  {
-    code: "OIL10",
-    description: "$10 off any oil change",
-    kind: "coupon",
-    redemptions: 980,
-    avgTicket: 94,
-    couponAmount: 9800,
-    revenue: 92200,
-  },
-  {
-    code: "SYN20",
-    description: "$20 off synthetic oil",
-    kind: "coupon",
-    redemptions: 640,
-    avgTicket: 138,
-    couponAmount: 12800,
-    revenue: 88320,
-  },
-  {
-    code: "VIP25",
-    description: "$25 off ticket over $150",
-    kind: "coupon",
-    redemptions: 420,
-    avgTicket: 186,
-    couponAmount: 10500,
-    revenue: 78120,
-  },
-  {
-    code: "WEB15",
-    description: "15% off web-only offer",
-    kind: "discount",
-    redemptions: 760,
-    avgTicket: 112,
-    couponAmount: 12768,
-    revenue: 85120,
-  },
-  {
-    code: "WELCOME5",
-    description: "$5 off new customer",
-    kind: "coupon",
-    redemptions: 1020,
-    avgTicket: 76,
-    couponAmount: 5100,
-    revenue: 77520,
-  },
+  { code: "OIL10", description: "$10 off any oil change", kind: "coupon", redemptions: 980, avgTicket: 94, couponAmount: 9800, revenue: 92200 },
+  { code: "SYN20", description: "$20 off synthetic oil", kind: "coupon", redemptions: 640, avgTicket: 138, couponAmount: 12800, revenue: 88320 },
+  { code: "VIP25", description: "$25 off ticket over $150", kind: "coupon", redemptions: 420, avgTicket: 186, couponAmount: 10500, revenue: 78120 },
+  { code: "WEB15", description: "15% off web-only offer", kind: "discount", redemptions: 760, avgTicket: 112, couponAmount: 12768, revenue: 85120 },
+  { code: "WELCOME5", description: "$5 off new customer", kind: "coupon", redemptions: 1020, avgTicket: 76, couponAmount: 5100, revenue: 77520 },
+  { code: "FLEET10", description: "10% fleet discount", kind: "discount", redemptions: 340, avgTicket: 165, couponAmount: 5610, revenue: 56100 },
+  { code: "LOYAL15", description: "$15 loyalty reward", kind: "coupon", redemptions: 520, avgTicket: 118, couponAmount: 7800, revenue: 61360 },
+  { code: "SPRING25", description: "Spring promo $25 off", kind: "coupon", redemptions: 280, avgTicket: 142, couponAmount: 7000, revenue: 39760 },
+  { code: "REFER10", description: "$10 referral bonus", kind: "coupon", redemptions: 190, avgTicket: 98, couponAmount: 1900, revenue: 18620 },
+  { code: "SENIOR15", description: "15% senior discount", kind: "discount", redemptions: 410, avgTicket: 88, couponAmount: 5412, revenue: 36080 },
+  { code: "MILITARY", description: "Military 20% off", kind: "discount", redemptions: 220, avgTicket: 105, couponAmount: 4620, revenue: 23100 },
+  { code: "BDAY20", description: "$20 birthday coupon", kind: "coupon", redemptions: 150, avgTicket: 132, couponAmount: 3000, revenue: 19800 },
 ];
 
 const basePillClasses =
@@ -84,11 +51,11 @@ export const CouponPerformanceTile: React.FC = () => {
     key: "revenue",
     direction: "desc",
   });
+  const [expanded, setExpanded] = useState(false);
 
   const totalRedemptions = useMemo(
     () => COUPON_ROWS.reduce((sum, row) => sum + row.redemptions, 0),
-    []
-  );
+    []);
 
   const rowsWithUsage = useMemo(
     () =>
@@ -143,22 +110,36 @@ export const CouponPerformanceTile: React.FC = () => {
     });
   };
 
+  const visibleRows = expanded ? sortedRows : sortedRows.slice(0, 5);
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       {/* Header: Pills as the title */}
-      <header>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className={`${basePillClasses} ${couponColorClasses}`}>
-            COUPONS
-          </span>
-          <span className={`${basePillClasses} ${discountColorClasses}`}>
-            DISCOUNTS
-          </span>
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`${basePillClasses} ${couponColorClasses}`}>
+              COUPONS
+            </span>
+            <span className={`${basePillClasses} ${discountColorClasses}`}>
+              DISCOUNTS
+            </span>
+          </div>
+
+          <p className="mt-2 text-[11px] text-slate-500">
+            Performance by coupon or discount code. Color indicates offer type.
+          </p>
         </div>
 
-        <p className="mt-2 text-[11px] text-slate-500">
-          Performance by coupon or discount code. Color indicates offer type.
-        </p>
+        {sortedRows.length > 5 && (
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            className="text-[11px] font-medium text-sky-600 hover:text-sky-700 whitespace-nowrap"
+          >
+            {expanded ? "Show less" : `Show all ${sortedRows.length}`}
+          </button>
+        )}
       </header>
 
       {/* Standardized table */}
@@ -212,7 +193,7 @@ export const CouponPerformanceTile: React.FC = () => {
           </ReportTableHead>
 
           <ReportTableBody>
-            {sortedRows.map((row) => (
+            {visibleRows.map((row) => (
               <ReportTableRow key={row.code}>
                 <ReportTableCell>
                   <span className={getPillClassesForKind(row.kind)}>
