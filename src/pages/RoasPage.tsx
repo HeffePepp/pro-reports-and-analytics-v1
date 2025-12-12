@@ -127,6 +127,21 @@ const channelPillClass = (channel: string) => {
 
 // ----------------- tiles -----------------
 
+const channelBarClass = (channel: string) => {
+  switch (channel) {
+    case "Email":
+      return "bg-emerald-400";
+    case "Postcard":
+      return "bg-sky-400";
+    case "Text":
+      return "bg-indigo-400";
+    case "Mixed":
+      return "bg-amber-400";
+    default:
+      return "bg-slate-400";
+  }
+};
+
 const RoasByChannelTile: React.FC<{ data: ChannelRoas[] }> = ({ data }) => {
   const maxRoas = Math.max(...data.map((d) => d.roas), 1);
 
@@ -160,7 +175,7 @@ const RoasByChannelTile: React.FC<{ data: ChannelRoas[] }> = ({ data }) => {
               <div className="flex items-center gap-2">
                 <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                   <div
-                    className="h-full rounded-full bg-tp-green/80"
+                    className={`h-full rounded-full ${channelBarClass(row.channel)}`}
                     style={{ width: `${(row.roas / maxRoas) * 100}%` }}
                   />
                 </div>
