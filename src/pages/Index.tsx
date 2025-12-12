@@ -97,15 +97,6 @@ const REPORTS: Report[] = [
     purpose: "Monthly revenue and invoices by vendor/product group (e.g., Royal Purple, house brand).",
     previewMetric: "Royal Purple 32% of oil revenue",
   },
-  {
-    id: "oil-type-invoices",
-    name: "Oil Type – Invoices",
-    primaryCategory: "vendors",
-    secondaryCategories: ["sales"],
-    type: "table",
-    purpose: "Invoice-level detail for oil and vendor products, including coupons and operations.",
-    previewMetric: "View 248 invoices with vendor oils",
-  },
 
   // --- Customers ---
   {
@@ -254,7 +245,7 @@ const DEEP_LINK_MAP: Record<string, { to: string; label: string }> = {
   "comprehensive-account-audit": { to: "/reports/comprehensive-account-audit", label: "View Report" },
   "call-back-report": { to: "/reports/call-back-report", label: "View Report" },
   "one-off-campaign-tracker": { to: "/reports/one-off-campaign-tracker", label: "View Report" },
-  "oil-type-invoices": { to: "/reports/oil-type-invoices", label: "View Report" },
+  
 };
 
 const buildReportInsights = (report: Report | null, categories: Category[]): string[] => {
