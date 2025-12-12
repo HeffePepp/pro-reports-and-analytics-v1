@@ -3,7 +3,8 @@ import React from "react";
 type JourneyTouchpointRoas = {
   id: string;
   name: string;
-  channel: "Email" | "Postcard" | "Text" | "Mixed";
+  interval: string;
+  channel: string;
   spend: number;
   revenue: number;
   roas: number;
@@ -21,6 +22,9 @@ const formatCurrency = (value: number) =>
   });
 
 const channelPillClass = (channel: string) => {
+  if (channel.includes("Postcard") && channel.includes("Email") && channel.includes("Text")) {
+    return "bg-amber-50 text-amber-700";
+  }
   switch (channel) {
     case "Email":
       return "bg-tp-pastel-green text-emerald-700";
@@ -28,14 +32,15 @@ const channelPillClass = (channel: string) => {
       return "bg-tp-pastel-blue text-sky-700";
     case "Text":
       return "bg-tp-pastel-purple text-indigo-700";
-    case "Mixed":
-      return "bg-amber-50 text-amber-700";
     default:
       return "bg-muted text-muted-foreground";
   }
 };
 
 const channelBarClass = (channel: string) => {
+  if (channel.includes("Postcard") && channel.includes("Email") && channel.includes("Text")) {
+    return "bg-tp-pastel-orange";
+  }
   switch (channel) {
     case "Email":
       return "bg-tp-pastel-green";
@@ -43,11 +48,16 @@ const channelBarClass = (channel: string) => {
       return "bg-tp-pastel-blue";
     case "Text":
       return "bg-tp-pastel-purple";
-    case "Mixed":
-      return "bg-tp-pastel-orange";
     default:
       return "bg-slate-300";
   }
+};
+
+const getChannelLabel = (channel: string) => {
+  if (channel.includes("Postcard") && channel.includes("Email") && channel.includes("Text")) {
+    return "Mixed";
+  }
+  return channel;
 };
 
 export const RoasCustomerJourneyTile: React.FC<Props> = ({ data }) => {
@@ -63,15 +73,18 @@ export const RoasCustomerJourneyTile: React.FC<Props> = ({ data }) => {
       </header>
 
       <div className="mt-3 space-y-3">
-        {data.map((row) => (
+        {data.map((row, index) => (
           <div key={row.id} className="flex items-center gap-3">
             <div className="min-w-0 w-56 shrink-0">
-              <div className="truncate text-[13px] font-semibold text-foreground">{row.name}</div>
+              <div className="truncate text-[13px] font-semibold text-foreground">
+                {index + 1}. {row.name}
+              </div>
               <div className="mt-0.5 flex flex-wrap items-center gap-1">
+                <span className="text-[11px] text-muted-foreground">{row.interval}</span>
                 <span
                   className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${channelPillClass(row.channel)}`}
                 >
-                  {row.channel}
+                  {getChannelLabel(row.channel)}
                 </span>
               </div>
             </div>

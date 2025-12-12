@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { RoasCustomerJourneyTile } from "@/components/reports/RoasCustomerJourneyTile";
+import { JOURNEY_TOUCH_POINTS } from "@/data/customerJourney";
 
 // ----------------- types -----------------
 type ChannelRoas = {
@@ -101,19 +102,23 @@ const campaignRoasData: CampaignRoas[] = [
   },
 ];
 
-// Customer Journey touch point ROAS data
-const journeyTouchpointRoasData = [
-  { id: "tp1", name: "1. Thank You Text", channel: "Text" as const, spend: 180, revenue: 4200, roas: 23.3 },
-  { id: "tp2", name: "2. Thank You Email", channel: "Email" as const, spend: 120, revenue: 3800, roas: 31.7 },
-  { id: "tp3", name: "3. Suggested Services", channel: "Email" as const, spend: 240, revenue: 6100, roas: 25.4 },
-  { id: "tp4", name: "4. 2nd Vehicle Invitation", channel: "Postcard" as const, spend: 420, revenue: 5200, roas: 12.4 },
-  { id: "tp5", name: "5. Suggested Services", channel: "Email" as const, spend: 180, revenue: 4800, roas: 26.7 },
-  { id: "tp6", name: "6. Suggested Services", channel: "Email" as const, spend: 150, revenue: 3900, roas: 26.0 },
-  { id: "tp7", name: "7. 60-Day Follow-Up", channel: "Postcard" as const, spend: 380, revenue: 4100, roas: 10.8 },
-  { id: "tp8", name: "8. 90-Day Reminder", channel: "Email" as const, spend: 100, revenue: 2800, roas: 28.0 },
-  { id: "tp9", name: "9. We Miss You Text", channel: "Text" as const, spend: 160, revenue: 3200, roas: 20.0 },
-  { id: "tp10", name: "10. Win-Back Postcard", channel: "Postcard" as const, spend: 520, revenue: 4600, roas: 8.8 },
-];
+// Derive CJ ROAS data from shared JOURNEY_TOUCH_POINTS with mock spend/revenue
+const journeyTouchpointRoasData = JOURNEY_TOUCH_POINTS.map((tp) => {
+  // Generate mock spend based on channel type and vehicles
+  const baseSpend = tp.channel.includes("Postcard") ? 0.85 : 0.15;
+  const spend = Math.round(tp.vehicles * baseSpend * (1 + Math.random() * 0.3));
+  const revenue = Math.round(spend * tp.roas);
+  
+  return {
+    id: tp.id,
+    name: tp.name,
+    interval: tp.interval,
+    channel: tp.channel,
+    spend,
+    revenue,
+    roas: tp.roas,
+  };
+});
 
 // ----------------- helpers -----------------
 const formatCurrency = (value: number) =>
