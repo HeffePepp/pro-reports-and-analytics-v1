@@ -304,7 +304,6 @@ const DropsTable: React.FC = () => {
         <thead>
           <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
             <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-              Campaign &amp; drop
             </th>
             <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
               Sent
