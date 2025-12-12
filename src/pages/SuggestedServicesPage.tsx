@@ -33,35 +33,35 @@ type SuggestedServiceTypeRow = {
   service: string;
   invoices: number;
   validEmailPct: number;
-  respPct: number;
+  conversions: number;
 };
 
 const SS_SERVICE_TYPES: SuggestedServiceTypeRow[] = [
-  { service: "PCV VALVE", invoices: 2200, validEmailPct: 75, respPct: 15.0 },
-  { service: "PWR STEERING FLUSH", invoices: 2160, validEmailPct: 78, respPct: 16.2 },
-  { service: "REAR BRAKE SERVICE", invoices: 2120, validEmailPct: 81, respPct: 17.4 },
-  { service: "REAR DIFF SERVICE", invoices: 2080, validEmailPct: 84, respPct: 18.6 },
-  { service: "RADIATOR SERVICE", invoices: 2040, validEmailPct: 87, respPct: 19.8 },
-  { service: "SERPENTINE BELT SVC.", invoices: 2000, validEmailPct: 75, respPct: 21.0 },
-  { service: "SHOCK/STRUTS", invoices: 1960, validEmailPct: 78, respPct: 22.2 },
-  { service: "TRANSFER CASE SERV", invoices: 1920, validEmailPct: 81, respPct: 23.4 },
-  { service: "TIRE ROTATION", invoices: 1880, validEmailPct: 84, respPct: 24.6 },
-  { service: "TRANSMISSION SERVICE", invoices: 1840, validEmailPct: 87, respPct: 25.8 },
-  { service: "TUNE-UP", invoices: 1800, validEmailPct: 75, respPct: 15.0 },
-  { service: "WIPER BLADES", invoices: 1760, validEmailPct: 78, respPct: 16.2 },
-  { service: "AIR FILTER", invoices: 1720, validEmailPct: 81, respPct: 17.4 },
-  { service: "BREATHER FILTER", invoices: 1680, validEmailPct: 84, respPct: 18.6 },
-  { service: "BRAKE SERVICE", invoices: 1640, validEmailPct: 87, respPct: 19.8 },
-  { service: "BATTERY SERVICE", invoices: 1600, validEmailPct: 75, respPct: 21.0 },
-  { service: "CABIN AIR FILTER", invoices: 1560, validEmailPct: 78, respPct: 22.2 },
-  { service: "ENGINE FLUSH", invoices: 1520, validEmailPct: 81, respPct: 23.4 },
-  { service: "EXHAUST WORK", invoices: 1480, validEmailPct: 84, respPct: 24.6 },
-  { service: "FRONT BRAKE SERVICE", invoices: 1440, validEmailPct: 87, respPct: 25.8 },
-  { service: "FRONT DIFF SERVICE", invoices: 1400, validEmailPct: 75, respPct: 15.0 },
-  { service: "FUEL FILTER", invoices: 1360, validEmailPct: 78, respPct: 16.2 },
-  { service: "FUEL INJ. SERVICE", invoices: 1320, validEmailPct: 81, respPct: 17.4 },
-  { service: "HOSES", invoices: 1280, validEmailPct: 84, respPct: 18.6 },
-  { service: "LIGHT BULB", invoices: 1240, validEmailPct: 87, respPct: 19.8 },
+  { service: "PCV VALVE", invoices: 2200, validEmailPct: 75, conversions: 13 },
+  { service: "PWR STEERING FLUSH", invoices: 2160, validEmailPct: 78, conversions: 18 },
+  { service: "REAR BRAKE SERVICE", invoices: 2120, validEmailPct: 81, conversions: 22 },
+  { service: "REAR DIFF SERVICE", invoices: 2080, validEmailPct: 84, conversions: 9 },
+  { service: "RADIATOR SERVICE", invoices: 2040, validEmailPct: 87, conversions: 15 },
+  { service: "SERPENTINE BELT SVC.", invoices: 2000, validEmailPct: 75, conversions: 11 },
+  { service: "SHOCK/STRUTS", invoices: 1960, validEmailPct: 78, conversions: 7 },
+  { service: "TRANSFER CASE SERV", invoices: 1920, validEmailPct: 81, conversions: 12 },
+  { service: "TIRE ROTATION", invoices: 1880, validEmailPct: 84, conversions: 25 },
+  { service: "TRANSMISSION SERVICE", invoices: 1840, validEmailPct: 87, conversions: 8 },
+  { service: "TUNE-UP", invoices: 1800, validEmailPct: 75, conversions: 14 },
+  { service: "WIPER BLADES", invoices: 1760, validEmailPct: 78, conversions: 19 },
+  { service: "AIR FILTER", invoices: 1720, validEmailPct: 81, conversions: 21 },
+  { service: "BREATHER FILTER", invoices: 1680, validEmailPct: 84, conversions: 6 },
+  { service: "BRAKE SERVICE", invoices: 1640, validEmailPct: 87, conversions: 16 },
+  { service: "BATTERY SERVICE", invoices: 1600, validEmailPct: 75, conversions: 10 },
+  { service: "CABIN AIR FILTER", invoices: 1560, validEmailPct: 78, conversions: 17 },
+  { service: "ENGINE FLUSH", invoices: 1520, validEmailPct: 81, conversions: 5 },
+  { service: "EXHAUST WORK", invoices: 1480, validEmailPct: 84, conversions: 8 },
+  { service: "FRONT BRAKE SERVICE", invoices: 1440, validEmailPct: 87, conversions: 20 },
+  { service: "FRONT DIFF SERVICE", invoices: 1400, validEmailPct: 75, conversions: 4 },
+  { service: "FUEL FILTER", invoices: 1360, validEmailPct: 78, conversions: 11 },
+  { service: "FUEL INJ. SERVICE", invoices: 1320, validEmailPct: 81, conversions: 9 },
+  { service: "HOSES", invoices: 1280, validEmailPct: 84, conversions: 7 },
+  { service: "LIGHT BULB", invoices: 1240, validEmailPct: 87, conversions: 3 },
 ];
 
 type SuggestedServicesTouchPoint = {
@@ -595,28 +595,40 @@ const SuggestedServicesPage: React.FC = () => {
 
                 <ul className="mt-4 divide-y divide-slate-100">
                   {SS_SERVICE_TYPES.map((item) => (
-                    <li key={item.service} className="py-3">
-                      <div className="min-w-0">
-                        {/* Service name – all caps, same size as before */}
+                    <li
+                      key={item.service}
+                      className="flex items-center justify-between gap-4 py-3"
+                    >
+                      {/* LEFT: service name */}
+                      <div className="min-w-0 flex-1">
                         <div className="truncate text-[13px] font-semibold tracking-wide text-slate-900">
                           {(item.service || "").toUpperCase()}
                         </div>
+                      </div>
 
-                        {/* Horizontal stats, left-justified */}
-                        <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500">
-                          <span>
-                            <span className="font-semibold text-slate-900">
-                              {item.invoices.toLocaleString()}
-                            </span>{" "}
-                            <span>Inv. w/ this SS</span>
-                          </span>
+                      {/* MIDDLE: two stats, stacked, left-justified */}
+                      <div className="flex-1 text-[11px] text-slate-500">
+                        <div>
+                          <span className="font-semibold text-slate-900">
+                            {item.invoices.toLocaleString()}
+                          </span>{" "}
+                          <span>Inv. w/ this SS</span>
+                        </div>
+                        <div className="mt-0.5">
+                          <span className="font-semibold text-slate-900">
+                            {item.validEmailPct.toFixed(1)}%
+                          </span>{" "}
+                          <span>Inv. w/ valid email address</span>
+                        </div>
+                      </div>
 
-                          <span>
-                            <span className="font-semibold text-slate-900">
-                              {item.validEmailPct.toFixed(1)}%
-                            </span>{" "}
-                            <span>Inv. w/ valid email address</span>
-                          </span>
+                      {/* RIGHT: conversions block */}
+                      <div className="shrink-0 text-right">
+                        <div className="text-[20px] font-semibold text-slate-900 leading-none">
+                          {item.conversions.toLocaleString()}
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-slate-500">
+                          Conversions
                         </div>
                       </div>
                     </li>
