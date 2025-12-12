@@ -22,6 +22,19 @@ type DropStat = {
   roas: number;
 };
 
+// New type for Details tab: one row per drop
+type JourneyDropRow = {
+  id: string;
+  campaignName: string;
+  dropNumber: number;
+  dropDate: string;
+  channels: Channel[];
+  sent: number;
+  opened: number;
+  respPct: number;
+  revenue: number;
+};
+
 interface Campaign {
   id: string;
   name: string;
@@ -161,7 +174,7 @@ const mockKpis = {
 };
 
 const OneOffCampaignTrackerPage: React.FC = () => {
-  const [tab, setTab] = useState<"overview" | "drops">("overview");
+  const [tab, setTab] = useState<"overview" | "details">("overview");
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("one-off-campaign-tracker", KPI_OPTIONS);
 
@@ -258,15 +271,15 @@ const OneOffCampaignTrackerPage: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setTab("drops")}
-                  className={`px-3 py-1 rounded-full font-medium ${tab === "drops" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
+                  onClick={() => setTab("details")}
+                  className={`px-3 py-1 rounded-full font-medium ${tab === "details" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
                 >
-                  Drops
+                  Details
                 </button>
               </div>
             </div>
 
-            {tab === "overview" ? <OverviewList /> : <DropsTable />}
+            {tab === "overview" ? <OverviewList /> : <DetailsTable />}
           </section>
 
           {/* AI stacked on small screens - after main content */}
@@ -408,13 +421,50 @@ const channelDisplayName = (channel: Channel) => {
   }
 };
 
-const DropsTable: React.FC = () => {
+// Flatten campaigns into one row per drop for Details tab
+const JOURNEY_DROPS: JourneyDropRow[] = CAMPAIGNS.flatMap((c) => {
+  if (!c.dropStats || c.dropStats.length === 0) {
+    // Single drop fallback
+    return [{
+      id: `${c.id}-1`,
+      campaignName: c.name,
+      dropNumber: 1,
+      dropDate: c.lastDropDate,
+      channels: c.channels,
+      sent: c.sent,
+      opened: c.opens,
+      respPct: c.respPct,
+      revenue: c.revenue,
+    }];
+  }
+  
+  // For multi-drop campaigns, calculate revenue per drop proportionally
+  const revenuePerDrop = c.revenue / c.dropStats.length;
+  
+  return c.dropStats.map((drop, index) => ({
+    id: `${c.id}-${index + 1}`,
+    campaignName: c.name,
+    dropNumber: index + 1,
+    dropDate: drop.date,
+    channels: c.channels, // Use campaign channels for each drop
+    sent: drop.sent,
+    opened: drop.opens,
+    respPct: drop.respPct,
+    revenue: Math.round(revenuePerDrop),
+  }));
+});
+
+const DetailsTable: React.FC = () => {
   return (
     <div className="mt-2 overflow-x-auto">
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
             <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+              Campaign & drop
+            </th>
+            <th className="py-2 px-2 text-left font-medium whitespace-nowrap">
+              Date
             </th>
             <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
               Sent
@@ -423,13 +473,7 @@ const DropsTable: React.FC = () => {
               Opened
             </th>
             <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-              Responses
-            </th>
-            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
               Resp %
-            </th>
-            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-              ROAS
             </th>
             <th className="py-2 pl-2 text-right font-medium whitespace-nowrap">
               Revenue
@@ -438,20 +482,18 @@ const DropsTable: React.FC = () => {
         </thead>
 
         <tbody className="divide-y divide-slate-100">
-          {CAMPAIGNS.map((c) => (
-            <tr key={c.id} className="align-top">
-              {/* LEFT: stacked campaign info + channel pills + per-drop breakdown */}
+          {JOURNEY_DROPS.map((row) => (
+            <tr key={row.id} className="align-top">
+              {/* COL 1: campaign + drop + channels */}
               <td className="py-3 pr-3">
                 <div className="text-sm font-semibold text-slate-900">
-                  {c.name}
+                  {row.campaignName}
                 </div>
                 <div className="mt-0.5 text-[11px] text-slate-500">
-                  {c.drops} {c.drops === 1 ? "drop" : "drops"} · Last drop {c.lastDropDate}
+                  Drop {row.dropNumber}
                 </div>
-
-                {/* Channel pills – horizontal row */}
-                <div className="mt-1.5 flex flex-wrap gap-1">
-                  {c.channels.map((ch) => (
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {row.channels.map((ch) => (
                     <span
                       key={ch}
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${channelPillClass(ch)}`}
@@ -460,45 +502,25 @@ const DropsTable: React.FC = () => {
                     </span>
                   ))}
                 </div>
-
-                {/* Per-drop stat lines – only show if more than one drop */}
-                {c.dropStats && c.dropStats.length > 1 && (
-                  <div className="mt-2 space-y-0.5 rounded-md bg-slate-50 p-2">
-                    {c.dropStats.map((drop) => (
-                      <div
-                        key={drop.label}
-                        className="flex justify-between gap-2 text-[11px] text-slate-600"
-                      >
-                        <span className="font-medium text-slate-700">
-                          {drop.label} · {drop.date}
-                        </span>
-                        <span className="text-right">
-                          {drop.sent.toLocaleString()} sent · {drop.respPct.toFixed(1)}% resp · {drop.roas.toFixed(1)}x ROAS
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </td>
 
-              {/* Metrics – right aligned (aggregate for the whole campaign) */}
+              {/* Date */}
+              <td className="py-3 px-2 text-xs text-slate-900">
+                {row.dropDate}
+              </td>
+
+              {/* Metrics – right aligned */}
               <td className="py-3 px-2 text-right text-xs text-slate-900">
-                {c.sent.toLocaleString()}
+                {row.sent.toLocaleString()}
               </td>
               <td className="py-3 px-2 text-right text-xs text-slate-900">
-                {c.opens.toLocaleString()}
+                {row.opened.toLocaleString()}
               </td>
-              <td className="py-3 px-2 text-right text-xs text-slate-900">
-                {c.responses.toLocaleString()}
-              </td>
-              <td className="py-3 px-2 text-right text-xs font-semibold text-amber-600">
-                {c.respPct.toFixed(1)}%
-              </td>
-              <td className="py-3 px-2 text-right text-xs text-slate-900">
-                {c.roas.toFixed(1)}x
+              <td className="py-3 px-2 text-right text-xs font-semibold text-emerald-600">
+                {row.respPct.toFixed(1)}%
               </td>
               <td className="py-3 pl-2 pr-2 text-right text-xs text-slate-900">
-                {c.revenue.toLocaleString("en-US", {
+                {row.revenue.toLocaleString("en-US", {
                   style: "currency",
                   currency: "USD",
                   maximumFractionDigits: 0,
