@@ -212,7 +212,7 @@ const RoasByCampaignTile: React.FC<{ data: CampaignRoas[] }> = ({ data }) => {
   return (
     <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <header>
-        <h2 className="text-[13px] font-semibold text-foreground">ROAS by one-off campaign</h2>
+        <h2 className="text-[13px] font-semibold text-foreground">ROAS by One-off Campaign</h2>
         <p className="text-[11px] text-muted-foreground">Relative ROAS, channel and spend for each one-off campaign.</p>
       </header>
 
