@@ -118,3 +118,11 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Global tile/section containment - prevents content overflow on all report tiles */
+@layer components {
+  .rounded-2xl[class*="border"][class*="bg-white"],
+  section.rounded-2xl {
+    overflow: hidden;
+  }
+}
