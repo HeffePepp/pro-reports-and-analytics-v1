@@ -7,6 +7,7 @@ import {
   ReportTableHeaderCell,
   ReportTableCell,
 } from "@/components/ui/report-table";
+import { ExpandPillButton } from "@/components/ui/expand-pill-button";
 
 export type CouponInvoiceRow = {
   date: string;
@@ -113,13 +114,11 @@ export const CouponInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
           </p>
         </div>
         {rows.length > 3 && (
-          <button
-            type="button"
+          <ExpandPillButton
+            expanded={expanded}
+            totalCount={rows.length}
             onClick={() => setExpanded(!expanded)}
-            className="text-[11px] font-medium text-sky-600 hover:text-sky-700"
-          >
-            {expanded ? "Show less" : `Show all ${rows.length}`}
-          </button>
+          />
         )}
       </header>
 
