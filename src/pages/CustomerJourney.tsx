@@ -621,191 +621,145 @@ const CustomerJourneyPage: React.FC = () => {
               </div>
             )}
 
-            {/* Details tab: expanded table with per-channel rows */}
+            {/* Details tab: ghost pill per touch point with per-channel rows */}
             {tab === "details" && (
-              <div className="mt-4 overflow-x-auto">
-                <table className="min-w-full table-fixed text-xs">
-                  {/* 8 columns: touch point, channel, sent, opened, responses, resp %, roas, revenue */}
-                  <colgroup>
-                    <col className="w-[28%]" />  {/* touch point */}
-                    <col className="w-[12%]" />  {/* channel */}
-                    <col className="w-[10%]" />  {/* sent */}
-                    <col className="w-[10%]" />  {/* opened */}
-                    <col className="w-[10%]" />  {/* responses */}
-                    <col className="w-[10%]" />  {/* resp % */}
-                    <col className="w-[10%]" />  {/* roas */}
-                    <col className="w-[10%]" />  {/* revenue */}
-                  </colgroup>
+              <div className="mt-4 space-y-4">
+                {(() => {
+                  // Group rows by touch point
+                  type GroupedTP = {
+                    tpId: number;
+                    tpName: string;
+                    offsetLabel: string;
+                    rows: typeof sortedDetailRows;
+                  };
+                  const groupedMap = new Map<number, GroupedTP>();
 
-                  <thead>
-                    <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
-                      <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => handleDetailsSort("id")}
-                          className="inline-flex items-center gap-1 hover:text-slate-700"
-                        >
-                          Touch point
-                          {detailsSortKey === "id" && (
-                            <span className="text-[9px] text-slate-400">
-                              {detailsSortDir === "asc" ? "▲" : "▼"}
-                            </span>
-                          )}
-                        </button>
-                      </th>
-                      <th className="py-2 px-3 text-left font-medium whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => handleDetailsSort("channel")}
-                          className="inline-flex items-center gap-1 hover:text-slate-700"
-                        >
-                          Channel
-                          {detailsSortKey === "channel" && (
-                            <span className="text-[9px] text-slate-400">
-                              {detailsSortDir === "asc" ? "▲" : "▼"}
-                            </span>
-                          )}
-                        </button>
-                      </th>
-                      <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => handleDetailsSort("sends")}
-                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
-                        >
-                          Sent
-                          {detailsSortKey === "sends" && (
-                            <span className="text-[9px] text-slate-400">
-                              {detailsSortDir === "asc" ? "▲" : "▼"}
-                            </span>
-                          )}
-                        </button>
-                      </th>
-                      <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => handleDetailsSort("opened")}
-                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
-                        >
-                          Opened
-                          {detailsSortKey === "opened" && (
-                            <span className="text-[9px] text-slate-400">
-                              {detailsSortDir === "asc" ? "▲" : "▼"}
-                            </span>
-                          )}
-                        </button>
-                      </th>
-                      <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => handleDetailsSort("responses")}
-                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
-                        >
-                          Responses
-                          {detailsSortKey === "responses" && (
-                            <span className="text-[9px] text-slate-400">
-                              {detailsSortDir === "asc" ? "▲" : "▼"}
-                            </span>
-                          )}
-                        </button>
-                      </th>
-                      <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => handleDetailsSort("respPct")}
-                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
-                        >
-                          Resp %
-                          {detailsSortKey === "respPct" && (
-                            <span className="text-[9px] text-slate-400">
-                              {detailsSortDir === "asc" ? "▲" : "▼"}
-                            </span>
-                          )}
-                        </button>
-                      </th>
-                      <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => handleDetailsSort("roas")}
-                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
-                        >
-                          ROAS
-                          {detailsSortKey === "roas" && (
-                            <span className="text-[9px] text-slate-400">
-                              {detailsSortDir === "asc" ? "▲" : "▼"}
-                            </span>
-                          )}
-                        </button>
-                      </th>
-                      <th className="py-2 pl-3 text-right font-medium whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => handleDetailsSort("revenue")}
-                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
-                        >
-                          Revenue
-                          {detailsSortKey === "revenue" && (
-                            <span className="text-[9px] text-slate-400">
-                              {detailsSortDir === "asc" ? "▲" : "▼"}
-                            </span>
-                          )}
-                        </button>
-                      </th>
-                    </tr>
-                  </thead>
+                  sortedDetailRows.forEach((row) => {
+                    if (!groupedMap.has(row.tpId)) {
+                      groupedMap.set(row.tpId, {
+                        tpId: row.tpId,
+                        tpName: row.tpName,
+                        offsetLabel: row.offsetLabel,
+                        rows: [],
+                      });
+                    }
+                    groupedMap.get(row.tpId)!.rows.push(row);
+                  });
 
-                  <tbody className="divide-y divide-slate-100">
-                    {sortedDetailRows.map((row, idx) => (
-                      <tr key={`${row.tpId}-${row.channel}-${idx}`} className="align-top">
-                        {/* Touch point info */}
-                        <td className="py-3 pr-3">
-                          <div className="text-base font-semibold text-slate-900">
-                            {row.tpId}. {row.tpName}
-                          </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            {row.offsetLabel}
-                          </div>
-                        </td>
-                        {/* Channel pill */}
-                        <td className="py-3 px-3">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
-                              row.channel === "postcard"
-                                ? "bg-tp-pastel-blue text-sky-700 border-sky-200"
-                                : row.channel === "email"
-                                ? "bg-tp-pastel-green text-emerald-700 border-emerald-200"
-                                : "bg-tp-pastel-purple text-indigo-700 border-indigo-200"
-                            }`}
-                          >
-                            {CHANNEL_LABELS[row.channel]}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-right text-xs text-slate-900">
-                          {row.sends.toLocaleString()}
-                        </td>
-                        <td className="py-3 px-3 text-right text-xs text-slate-500">
-                          {row.channel === "postcard" ? "—" : row.opened.toLocaleString()}
-                        </td>
-                        <td className="py-3 px-3 text-right text-xs text-slate-900">
-                          {row.responses.toLocaleString()}
-                        </td>
-                        <td className="py-3 px-3 text-right text-xs font-semibold text-emerald-600">
-                          {row.respPct.toFixed(1)}%
-                        </td>
-                        <td className="py-3 px-3 text-right text-xs text-slate-900">
-                          {row.roas.toFixed(1)}x
-                        </td>
-                        <td className="py-3 pl-3 text-right text-xs text-slate-900">
-                          {row.revenue.toLocaleString("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            maximumFractionDigits: 0,
-                          })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  // Sort groups by touch point ID
+                  const groups = Array.from(groupedMap.values()).sort((a, b) => a.tpId - b.tpId);
+
+                  return groups.map((group) => (
+                    <div
+                      key={group.tpId}
+                      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                    >
+                      {/* Touch point header inside the ghost pill */}
+                      <div className="mb-3">
+                        <div className="text-sm font-semibold text-slate-900">
+                          {group.tpId}. {group.tpName}
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-slate-500">
+                          {group.offsetLabel}
+                        </div>
+                      </div>
+
+                      {/* Mini table for this touch point's channels */}
+                      <table className="w-full table-fixed text-xs">
+                        <colgroup>
+                          <col className="w-[180px]" /> {/* Channel */}
+                          <col className="w-[80px]" />  {/* Sent */}
+                          <col className="w-[80px]" />  {/* Opened */}
+                          <col className="w-[80px]" />  {/* Responses */}
+                          <col className="w-[70px]" />  {/* Resp % */}
+                          <col className="w-[70px]" />  {/* ROAS */}
+                          <col className="w-[100px]" /> {/* Revenue */}
+                        </colgroup>
+
+                        <thead>
+                          <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
+                            <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                              Channel
+                            </th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                              Sent
+                            </th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                              Opened
+                            </th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                              Responses
+                            </th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                              Resp %
+                            </th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                              ROAS
+                            </th>
+                            <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
+                              Revenue
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody className="divide-y divide-slate-100">
+                          {group.rows.map((row, idx) => (
+                            <tr key={`${row.tpId}-${row.channel}-${idx}`} className="align-top">
+                              {/* Channel pill */}
+                              <td className="py-2 pr-3">
+                                <span
+                                  className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${
+                                    row.channel === "postcard"
+                                      ? "bg-tp-pastel-blue text-sky-700"
+                                      : row.channel === "email"
+                                      ? "bg-tp-pastel-green text-emerald-700"
+                                      : "bg-tp-pastel-purple text-indigo-700"
+                                  }`}
+                                >
+                                  {CHANNEL_LABELS[row.channel]}
+                                </span>
+                              </td>
+
+                              {/* Sent */}
+                              <td className="py-2 px-2 text-right text-xs text-slate-900">
+                                {row.sends.toLocaleString()}
+                              </td>
+
+                              {/* Opened */}
+                              <td className="py-2 px-2 text-right text-xs text-slate-900">
+                                {row.channel === "postcard" ? "—" : row.opened.toLocaleString()}
+                              </td>
+
+                              {/* Responses */}
+                              <td className="py-2 px-2 text-right text-xs text-slate-900">
+                                {row.responses.toLocaleString()}
+                              </td>
+
+                              {/* Resp % */}
+                              <td className="py-2 px-2 text-right text-xs font-semibold text-emerald-600">
+                                {row.respPct.toFixed(1)}%
+                              </td>
+
+                              {/* ROAS */}
+                              <td className="py-2 px-2 text-right text-xs text-slate-900">
+                                {row.roas.toFixed(1)}x
+                              </td>
+
+                              {/* Revenue */}
+                              <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
+                                {row.revenue.toLocaleString("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                  maximumFractionDigits: 0,
+                                })}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ));
+                })()}
               </div>
             )}
           </section>
