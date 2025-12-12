@@ -108,7 +108,7 @@ const journeyTouchpointRoasData = JOURNEY_TOUCH_POINTS.map((tp) => {
   const baseSpend = tp.channel.includes("Postcard") ? 0.85 : 0.15;
   const spend = Math.round(tp.vehicles * baseSpend * (1 + Math.random() * 0.3));
   const revenue = Math.round(spend * tp.roas);
-  
+
   return {
     id: tp.id,
     name: tp.name,
@@ -167,7 +167,7 @@ const RoasByChannelTile: React.FC<{ data: ChannelRoas[] }> = ({ data }) => {
     <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <header className="flex items-start justify-between">
         <div>
-          <h2 className="text-[13px] font-semibold text-foreground">ROAS by channel</h2>
+          <h2 className="text-[13px] font-semibold text-foreground">ROAS by communication channel</h2>
           <p className="text-[11px] text-muted-foreground">Relative ROAS and spend by primary communication channel.</p>
         </div>
       </header>
