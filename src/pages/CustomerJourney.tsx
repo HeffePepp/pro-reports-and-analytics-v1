@@ -18,6 +18,16 @@ type JourneyTouchPoint = {
   roas: number;
   sends: number;
   revenue: number;
+  // Per-channel breakdowns for multi-channel touch points
+  channelBreakdown?: {
+    channel: "postcard" | "email" | "text";
+    sends: number;
+    opened: number;
+    responses: number;
+    respPct: number;
+    roas: number;
+    revenue: number;
+  }[];
 };
 
 const journeySummary = {
@@ -25,6 +35,14 @@ const journeySummary = {
   avgRoas: 10.1,
   avgRespPct: 16.0,
   totalComms: 20520,
+  // New KPI data
+  validMailingAddresses: 2856,
+  validEmailAddresses: 2934,
+  validCellNumbers: 2412,
+  avgInvoice: 87.50,
+  emailReminders: 8420,
+  textReminders: 3960,
+  pcReminders: 3960,
 };
 
 const TOUCH_POINTS: JourneyTouchPoint[] = [
@@ -117,6 +135,11 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 16.4,
     sends: 1380,
     revenue: 22600,
+    channelBreakdown: [
+      { channel: "postcard", sends: 460, opened: 0, responses: 112, respPct: 24.3, roas: 18.2, revenue: 8380 },
+      { channel: "email", sends: 460, opened: 184, responses: 89, respPct: 19.3, roas: 15.1, revenue: 6950 },
+      { channel: "text", sends: 460, opened: 437, responses: 79, respPct: 17.2, roas: 15.8, revenue: 7270 },
+    ],
   },
   {
     id: 10,
@@ -127,6 +150,11 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 10.7,
     sends: 980,
     revenue: 10500,
+    channelBreakdown: [
+      { channel: "postcard", sends: 327, opened: 0, responses: 52, respPct: 15.9, roas: 11.4, revenue: 3730 },
+      { channel: "email", sends: 327, opened: 124, responses: 44, respPct: 13.5, roas: 10.2, revenue: 3340 },
+      { channel: "text", sends: 326, opened: 306, responses: 46, respPct: 14.1, roas: 10.5, revenue: 3430 },
+    ],
   },
   {
     id: 11,
@@ -137,6 +165,11 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 9.8,
     sends: 860,
     revenue: 8400,
+    channelBreakdown: [
+      { channel: "postcard", sends: 287, opened: 0, responses: 43, respPct: 15.0, roas: 10.2, revenue: 2930 },
+      { channel: "email", sends: 287, opened: 103, responses: 38, respPct: 13.2, roas: 9.5, revenue: 2730 },
+      { channel: "text", sends: 286, opened: 269, responses: 39, respPct: 13.6, roas: 9.6, revenue: 2740 },
+    ],
   },
   {
     id: 12,
@@ -147,6 +180,11 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 9.4,
     sends: 740,
     revenue: 6950,
+    channelBreakdown: [
+      { channel: "postcard", sends: 247, opened: 0, responses: 38, respPct: 15.4, roas: 9.8, revenue: 2420 },
+      { channel: "email", sends: 247, opened: 89, responses: 34, respPct: 13.8, roas: 9.1, revenue: 2250 },
+      { channel: "text", sends: 246, opened: 231, responses: 33, respPct: 13.4, roas: 9.3, revenue: 2280 },
+    ],
   },
   {
     id: 13,
@@ -183,10 +221,13 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
 type CJTab = "visualization" | "details";
 
 const KPI_OPTIONS: KpiOption[] = [
-  { id: "vehicles", label: "Vehicles" },
-  { id: "avgRoas", label: "Avg ROAS" },
-  { id: "avgRespPct", label: "Avg resp %" },
-  { id: "totalComms", label: "Total comms sent" },
+  { id: "validMailing", label: "Valid Mailing Addresses" },
+  { id: "validEmail", label: "Valid Email Addresses" },
+  { id: "validCell", label: "Valid Cell Numbers" },
+  { id: "avgInvoice", label: "Avg Invoice" },
+  { id: "emailReminders", label: "Email Reminders" },
+  { id: "textReminders", label: "Text Reminders" },
+  { id: "pcReminders", label: "PC Reminders" },
 ];
 
 type DetailsSortKey = "id" | "sends" | "responses" | "respPct" | "roas" | "revenue";
@@ -230,40 +271,70 @@ const CustomerJourneyPage: React.FC = () => {
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "vehicles":
+      case "validMailing":
         return (
           <MetricTile
             key={id}
-            label="Vehicles"
-            value={journeySummary.vehicles.toLocaleString()}
-            helpText="Number of unique vehicles that have entered this journey in the selected time frame."
+            label="Valid Mailing Addresses"
+            value={journeySummary.validMailingAddresses.toLocaleString()}
+            helpText="Number of customers with verified mailing addresses for postcard delivery."
           />
         );
-      case "avgRoas":
+      case "validEmail":
         return (
           <MetricTile
             key={id}
-            label="Avg ROAS"
-            value={`${journeySummary.avgRoas.toFixed(1)}x`}
-            helpText="Average return on ad spend for all journey touch points combined."
+            label="Valid Email Addresses"
+            value={journeySummary.validEmailAddresses.toLocaleString()}
+            helpText="Number of customers with verified email addresses for digital communications."
           />
         );
-      case "avgRespPct":
+      case "validCell":
         return (
           <MetricTile
             key={id}
-            label="Avg resp %"
-            value={`${journeySummary.avgRespPct.toFixed(1)}%`}
-            helpText="Average response rate across all customer journey touch points."
+            label="Valid Cell Numbers"
+            value={journeySummary.validCellNumbers.toLocaleString()}
+            helpText="Number of customers with verified cell phone numbers for text messaging."
           />
         );
-      case "totalComms":
+      case "avgInvoice":
         return (
           <MetricTile
             key={id}
-            label="Total comms sent"
-            value={journeySummary.totalComms.toLocaleString()}
-            helpText="Total number of messages sent across all journey touch points."
+            label="Avg Invoice"
+            value={journeySummary.avgInvoice.toLocaleString("en-US", { style: "currency", currency: "USD" })}
+            helpText="Average invoice amount across all journey-related transactions."
+          />
+        );
+      case "emailReminders":
+        return (
+          <MetricTile
+            key={id}
+            label="Email Reminders"
+            value={journeySummary.emailReminders.toLocaleString()}
+            helpText="Total email reminders sent across all journey touch points."
+            className="bg-tp-pastel-green border-emerald-200"
+          />
+        );
+      case "textReminders":
+        return (
+          <MetricTile
+            key={id}
+            label="Text Reminders"
+            value={journeySummary.textReminders.toLocaleString()}
+            helpText="Total text message reminders sent across all journey touch points."
+            className="bg-tp-pastel-purple border-indigo-200"
+          />
+        );
+      case "pcReminders":
+        return (
+          <MetricTile
+            key={id}
+            label="PC Reminders"
+            value={journeySummary.pcReminders.toLocaleString()}
+            helpText="Total postcard reminders sent across all journey touch points."
+            className="bg-tp-pastel-blue border-sky-200"
           />
         );
       default:
@@ -439,18 +510,20 @@ const CustomerJourneyPage: React.FC = () => {
               </div>
             )}
 
-            {/* Details tab: clean table with left-aligned metrics */}
+            {/* Details tab: expanded table with per-channel rows */}
             {tab === "details" && (
               <div className="mt-4 overflow-x-auto">
                 <table className="min-w-full table-fixed text-xs">
-                  {/* 6 columns: touch point + 5 metrics */}
+                  {/* 8 columns: touch point, channel, sent, opened, responses, resp %, roas, revenue */}
                   <colgroup>
-                    <col className="w-[40%]" />  {/* touch point / offset / channel */}
-                    <col className="w-[12%]" />  {/* sent */}
-                    <col className="w-[12%]" />  {/* responses */}
-                    <col className="w-[12%]" />  {/* resp % */}
-                    <col className="w-[12%]" />  {/* roas */}
-                    <col className="w-[12%]" />  {/* revenue */}
+                    <col className="w-[28%]" />  {/* touch point */}
+                    <col className="w-[12%]" />  {/* channel */}
+                    <col className="w-[10%]" />  {/* sent */}
+                    <col className="w-[10%]" />  {/* opened */}
+                    <col className="w-[10%]" />  {/* responses */}
+                    <col className="w-[10%]" />  {/* resp % */}
+                    <col className="w-[10%]" />  {/* roas */}
+                    <col className="w-[10%]" />  {/* revenue */}
                   </colgroup>
 
                   <thead>
@@ -469,6 +542,9 @@ const CustomerJourneyPage: React.FC = () => {
                           )}
                         </button>
                       </th>
+                      <th className="py-2 px-3 text-left font-medium whitespace-nowrap">
+                        Channel
+                      </th>
                       <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
                         <button
                           type="button"
@@ -482,6 +558,9 @@ const CustomerJourneyPage: React.FC = () => {
                             </span>
                           )}
                         </button>
+                      </th>
+                      <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
+                        Opened
                       </th>
                       <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
                         <button
@@ -544,10 +623,76 @@ const CustomerJourneyPage: React.FC = () => {
 
                   <tbody className="divide-y divide-slate-100">
                     {sortedTouchPoints.map((tp) => {
+                      const channels = parseChannels(tp.channel);
+                      const hasBreakdown = tp.channelBreakdown && tp.channelBreakdown.length > 0;
+                      
+                      // If touch point has channel breakdown, render one row per channel
+                      if (hasBreakdown) {
+                        return tp.channelBreakdown!.map((cb, idx) => (
+                          <tr key={`${tp.id}-${cb.channel}`} className="align-top">
+                            {/* Touch point info only on first row */}
+                            {idx === 0 ? (
+                              <td className="py-3 pr-3" rowSpan={tp.channelBreakdown!.length}>
+                                <div className="text-base font-semibold text-slate-900">
+                                  {tp.id}. {tp.name}
+                                </div>
+                                <div className="mt-0.5 text-[11px] text-slate-500">
+                                  {tp.offsetLabel}
+                                </div>
+                              </td>
+                            ) : null}
+                            {/* Channel pill */}
+                            <td className="py-3 px-3">
+                              <span
+                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
+                                  cb.channel === "postcard"
+                                    ? "bg-tp-pastel-blue text-sky-700 border-sky-200"
+                                    : cb.channel === "email"
+                                    ? "bg-tp-pastel-green text-emerald-700 border-emerald-200"
+                                    : "bg-tp-pastel-purple text-indigo-700 border-indigo-200"
+                                }`}
+                              >
+                                {CHANNEL_LABELS[cb.channel]}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3 text-right text-xs text-slate-900">
+                              {cb.sends.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-3 text-right text-xs text-slate-500">
+                              {cb.channel === "postcard" ? "—" : cb.opened.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-3 text-right text-xs text-slate-900">
+                              {cb.responses.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-3 text-right text-xs font-semibold text-emerald-600">
+                              {cb.respPct.toFixed(1)}%
+                            </td>
+                            <td className="py-3 px-3 text-right text-xs text-slate-900">
+                              {cb.roas.toFixed(1)}x
+                            </td>
+                            <td className="py-3 pl-3 text-right text-xs text-slate-900">
+                              {cb.revenue.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                                maximumFractionDigits: 0,
+                              })}
+                            </td>
+                          </tr>
+                        ));
+                      }
+                      
+                      // Single channel touch point - one row
                       const responses = Math.round(tp.sends * (tp.respPct / 100));
+                      const channelKey = channels[0] || "email";
+                      // Estimate opened for email/text (mock: ~40% open rate for email, ~95% for text)
+                      const opened = channelKey === "email" 
+                        ? Math.round(tp.sends * 0.4) 
+                        : channelKey === "text" 
+                          ? Math.round(tp.sends * 0.95) 
+                          : 0;
+                      
                       return (
                         <tr key={tp.id} className="align-top">
-                          {/* LEFT: consolidated description column */}
                           <td className="py-3 pr-3">
                             <div className="text-base font-semibold text-slate-900">
                               {tp.id}. {tp.name}
@@ -555,27 +700,25 @@ const CustomerJourneyPage: React.FC = () => {
                             <div className="mt-0.5 text-[11px] text-slate-500">
                               {tp.offsetLabel}
                             </div>
-                            <div className="mt-1 flex flex-wrap gap-1">
-                              {parseChannels(tp.channel).map((ch) => (
-                                <span
-                                  key={ch}
-                                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
-                                    ch === "postcard"
-                                      ? "bg-tp-pastel-blue text-sky-700 border-sky-200"
-                                      : ch === "email"
-                                      ? "bg-tp-pastel-green text-emerald-700 border-emerald-200"
-                                      : "bg-tp-pastel-purple text-indigo-700 border-indigo-200"
-                                  }`}
-                                >
-                                  {CHANNEL_LABELS[ch]}
-                                </span>
-                              ))}
-                            </div>
                           </td>
-
-                          {/* Metrics – right aligned */}
+                          <td className="py-3 px-3">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
+                                channelKey === "postcard"
+                                  ? "bg-tp-pastel-blue text-sky-700 border-sky-200"
+                                  : channelKey === "email"
+                                  ? "bg-tp-pastel-green text-emerald-700 border-emerald-200"
+                                  : "bg-tp-pastel-purple text-indigo-700 border-indigo-200"
+                              }`}
+                            >
+                              {CHANNEL_LABELS[channelKey]}
+                            </span>
+                          </td>
                           <td className="py-3 px-3 text-right text-xs text-slate-900">
                             {tp.sends.toLocaleString()}
+                          </td>
+                          <td className="py-3 px-3 text-right text-xs text-slate-500">
+                            {channelKey === "postcard" ? "—" : opened.toLocaleString()}
                           </td>
                           <td className="py-3 px-3 text-right text-xs text-slate-900">
                             {responses.toLocaleString()}
