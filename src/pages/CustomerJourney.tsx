@@ -8,7 +8,7 @@ import {
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { parseChannels, CHANNEL_LABELS } from "@/styles/channelColors";
-
+import { JourneyTouchpointMixTile } from "@/components/reports/JourneyTouchpointMixTile";
 type JourneyTouchPoint = {
   id: number;
   name: string;
@@ -316,6 +316,29 @@ const CustomerJourneyPage: React.FC = () => {
     return [...detailRows].sort((a, b) => a.tpId - b.tpId);
   }, [detailRows]);
 
+  // Compute touchpoint mix items for the mix tile
+  const touchpointMixItems = useMemo(() => {
+    // Group by touch point and sum responses
+    const tpMap = new Map<number, { id: number; name: string; totalResponses: number }>();
+    detailRows.forEach((row) => {
+      if (!tpMap.has(row.tpId)) {
+        tpMap.set(row.tpId, { id: row.tpId, name: row.tpName, totalResponses: 0 });
+      }
+      tpMap.get(row.tpId)!.totalResponses += row.responses;
+    });
+
+    const totalResponses = Array.from(tpMap.values()).reduce((sum, tp) => sum + tp.totalResponses, 0);
+
+    return Array.from(tpMap.values())
+      .sort((a, b) => a.id - b.id)
+      .map((tp) => ({
+        id: tp.id,
+        label: `${tp.id}. ${tp.name}`,
+        responses: tp.totalResponses,
+        respPct: totalResponses > 0 ? (tp.totalResponses / totalResponses) * 100 : 0,
+      }));
+  }, [detailRows]);
+
   const renderKpiTile = (id: string) => {
     switch (id) {
       case "validMailing":
@@ -458,6 +481,9 @@ const CustomerJourneyPage: React.FC = () => {
                 .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
           )}
+
+          {/* Touchpoint mix tile */}
+          <JourneyTouchpointMixTile items={touchpointMixItems} />
 
           {/* Touch point ghost pills */}
           <div className="space-y-4">
