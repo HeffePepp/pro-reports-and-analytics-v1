@@ -357,31 +357,37 @@ const OverviewList: React.FC = () => {
               </div>
             </div>
 
-            {/* RIGHT: responses + revenue + proof button */}
-            <div className="shrink-0 text-right text-[11px]">
-              {/* Response Count (Response %) */}
-              <div className="text-[16px] font-semibold text-emerald-600 leading-none">
-                {c.responses.toLocaleString()}
-              </div>
-              <div className="mt-0.5 text-[11px] text-slate-500">
-                Responses ({c.respPct.toFixed(1)}%)
-              </div>
-
-              {/* Revenue */}
-              <div className="mt-3 text-[11px] text-slate-500">Revenue</div>
-              <div className="text-[13px] font-semibold text-slate-900">
-                {c.revenue.toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                  maximumFractionDigits: 0,
-                })}
+            {/* RIGHT: pill-style metrics */}
+            <div className="shrink-0 flex flex-wrap justify-end gap-2 md:gap-3">
+              {/* Responses pill */}
+              <div className="inline-flex flex-col items-center rounded-xl bg-amber-50 border border-amber-100 px-4 py-2 text-center min-w-[100px]">
+                <div className="text-sm font-semibold text-amber-700">
+                  {c.responses.toLocaleString()}
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Responses ({c.respPct.toFixed(1)}%)
+                </div>
               </div>
 
-              {/* View proofs button */}
+              {/* Revenue pill */}
+              <div className="inline-flex flex-col items-center rounded-xl bg-indigo-50 border border-indigo-100 px-4 py-2 text-center min-w-[100px]">
+                <div className="text-sm font-semibold text-indigo-700">
+                  {c.revenue.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    maximumFractionDigits: 0,
+                  })}
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Revenue
+                </div>
+              </div>
+
+              {/* Proofs pill – ghost style */}
               <button
                 type="button"
                 onClick={() => handleViewProofs(c)}
-                className="mt-3 inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                className="inline-flex items-center rounded-xl border border-slate-200 px-4 py-2 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
               >
                 View proofs
               </button>
