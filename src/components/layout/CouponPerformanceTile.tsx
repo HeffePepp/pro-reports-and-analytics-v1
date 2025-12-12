@@ -8,6 +8,7 @@ import {
   ReportTableCell,
   SortState,
 } from "@/components/ui/report-table";
+import { ExpandPillButton } from "@/components/ui/expand-pill-button";
 
 type CouponKind = "coupon" | "discount";
 
@@ -132,13 +133,11 @@ export const CouponPerformanceTile: React.FC = () => {
         </div>
 
         {sortedRows.length > 5 && (
-          <button
-            type="button"
+          <ExpandPillButton
+            expanded={expanded}
+            totalCount={sortedRows.length}
             onClick={() => setExpanded(!expanded)}
-            className="text-[11px] font-medium text-sky-600 hover:text-sky-700 whitespace-nowrap"
-          >
-            {expanded ? "Show less" : `Show all ${sortedRows.length}`}
-          </button>
+          />
         )}
       </header>
 
