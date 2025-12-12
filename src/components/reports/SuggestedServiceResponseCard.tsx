@@ -28,6 +28,8 @@ type ResponseVisit = {
   milesLater?: number;
   servicesPurchased?: string[];
   discountText?: string;
+  couponCode?: string;
+  couponDescription?: string;
 };
 
 export type SuggestedServiceResponse = {
@@ -90,10 +92,10 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
               "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
               hasResponse
                 ? "bg-emerald-50 text-emerald-700"
-                : "bg-slate-100 text-slate-500"
+                : "bg-amber-50 text-amber-700"
             )}
           >
-            {hasResponse ? "Converted" : "No response yet"}
+            {hasResponse ? "Converted" : "Email Opened – No Response Yet"}
           </span>
           <span className="text-[11px] text-slate-500">
             {row.original.touchpointLabel}
@@ -237,6 +239,23 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
                 <div className="text-[11px] text-slate-600">
                   <span className="font-semibold">Discount: </span>
                   {row.response.discountText}
+                </div>
+              )}
+
+              {(row.response.couponCode || row.response.couponDescription) && (
+                <div className="space-y-1 text-[11px] text-slate-600">
+                  {row.response.couponCode && (
+                    <div>
+                      <span className="font-semibold">Coupon code: </span>
+                      <span className="font-medium text-slate-900">{row.response.couponCode}</span>
+                    </div>
+                  )}
+                  {row.response.couponDescription && (
+                    <div>
+                      <span className="font-semibold">Coupon: </span>
+                      {row.response.couponDescription}
+                    </div>
+                  )}
                 </div>
               )}
             </>

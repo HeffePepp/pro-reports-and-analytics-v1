@@ -120,7 +120,7 @@ const SS_RESPONSES: SuggestedServiceResponse[] = [
     customerName: "Sarah Johnson",
     customerEmail: "sarah.j@email.com",
     storeLabel: "0334 · GMF · Richmond, VA",
-    vehicleLabel: "2019 Honda Accord [VA-ABC1234]",
+    vehicleLabel: "2019 Honda Accord – VA-ABC1234",
     original: {
       invoiceNumber: "INV-198001",
       date: "10/01/2025",
@@ -143,6 +143,8 @@ const SS_RESPONSES: SuggestedServiceResponse[] = [
       milesLater: 120,
       servicesPurchased: ["Transmission Service", "Cabin Air Filter"],
       discountText: "$20 off transmission service",
+      couponCode: "TRANS20",
+      couponDescription: "$20 off transmission service",
     },
   },
   {
@@ -150,7 +152,7 @@ const SS_RESPONSES: SuggestedServiceResponse[] = [
     customerName: "Michael Chen",
     customerEmail: "mchen@gmail.com",
     storeLabel: "0221 · Express Lube · Arlington, VA",
-    vehicleLabel: "2017 Toyota Camry [VA-XYZ5678]",
+    vehicleLabel: "2017 Toyota Camry – VA-XYZ5678",
     original: {
       invoiceNumber: "INV-197845",
       date: "09/28/2025",
@@ -173,6 +175,8 @@ const SS_RESPONSES: SuggestedServiceResponse[] = [
       milesLater: 85,
       servicesPurchased: ["Brake Service"],
       discountText: "$15 off brake service",
+      couponCode: "BRAKE15",
+      couponDescription: "$15 off brake service",
     },
   },
   {
@@ -180,7 +184,7 @@ const SS_RESPONSES: SuggestedServiceResponse[] = [
     customerName: "Emily Rodriguez",
     customerEmail: "emily.rod@yahoo.com",
     storeLabel: "0445 · Quick Oil · Fairfax, VA",
-    vehicleLabel: "2020 Mazda CX-5 [VA-DEF9012]",
+    vehicleLabel: "2020 Mazda CX-5 – VA-DEF9012",
     original: {
       invoiceNumber: "INV-197990",
       date: "10/15/2025",
@@ -201,7 +205,7 @@ const SS_RESPONSES: SuggestedServiceResponse[] = [
     customerName: "David Thompson",
     customerEmail: "dthompson@work.com",
     storeLabel: "0334 · GMF · Richmond, VA",
-    vehicleLabel: "2016 Ford F-150 [VA-TRK4567]",
+    vehicleLabel: "2016 Ford F-150 – VA-TRK4567",
     original: {
       invoiceNumber: "INV-197802",
       date: "09/20/2025",
@@ -225,13 +229,15 @@ const SS_RESPONSES: SuggestedServiceResponse[] = [
       milesLater: 450,
       servicesPurchased: ["Transfer Case Service", "Rear Diff Service"],
       discountText: "$25 off transfer case service",
+      couponCode: "TRANSFER25",
+      couponDescription: "$25 off transfer case service",
     },
   },
   {
     id: "r5",
     customerName: "Jennifer Martinez",
     storeLabel: "0221 · Express Lube · Arlington, VA",
-    vehicleLabel: "2021 Hyundai Sonata [VA-HYU8901]",
+    vehicleLabel: "2021 Hyundai Sonata – VA-HYU8901",
     original: {
       invoiceNumber: "INV-198050",
       date: "10/25/2025",
@@ -421,16 +427,13 @@ const SuggestedServicesPage: React.FC = () => {
 
           {/* MAIN TWO-TAB TILE: Touch Points / Active SS Items */}
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <header className="flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">Active Suggested Services Items</h2>
-              </div>
+            <header className="flex items-center justify-end gap-3">
 
-              {/* Three-tab pill */}
+            {/* Three-tab pill */}
               <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1 text-[11px]">
-                {(["touchpoints", "activess", "responses"] as SsTab[]).map((tab) => {
+                {(["touchpoints", "responses", "activess"] as SsTab[]).map((tab) => {
                   const isActive = ssTab === tab;
-                  const label = tab === "touchpoints" ? "Touch Points" : tab === "activess" ? "Active SS Items" : "Responses";
+                  const label = tab === "touchpoints" ? "Touch Points" : tab === "responses" ? "Responses" : "Active SS Items";
                   return (
                     <button
                       key={tab}
@@ -548,35 +551,46 @@ const SuggestedServicesPage: React.FC = () => {
             )}
 
             {/* RESPONSES TAB – card-based before/after layout */}
-            {ssTab === "responses" && (
-              <div className="mt-4 space-y-4">
-                {/* Summary strip */}
-                <div className="flex flex-wrap items-center gap-4 rounded-xl bg-slate-50 px-4 py-3 text-[11px] text-slate-600">
-                  <span>
-                    <span className="font-semibold text-slate-900">{SS_RESPONSES.length}</span> responses
-                  </span>
-                  <span>
-                    <span className="font-semibold text-emerald-600">
-                      {((SS_RESPONSES.filter(r => r.response.invoiceNumber).length / SS_RESPONSES.length) * 100).toFixed(1)}%
-                    </span>{" "}
-                    conversion rate
-                  </span>
-                  <span>
-                    <span className="font-semibold text-slate-900">
-                      {SS_RESPONSES.filter(r => r.response.amount)
-                        .reduce((sum, r) => sum + (r.response.amount || 0), 0)
-                        .toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
-                    </span>{" "}
-                    revenue
-                  </span>
-                </div>
+            {ssTab === "responses" && (() => {
+              // Filter: only Converted OR Email Opened - No Response Yet
+              const filteredResponses = SS_RESPONSES.filter(r => 
+                r.response.invoiceNumber || r.original.openedDate
+              );
+              const convertedCount = filteredResponses.filter(r => r.response.invoiceNumber).length;
+              const totalRevenue = filteredResponses
+                .filter(r => r.response.amount)
+                .reduce((sum, r) => sum + (r.response.amount || 0), 0);
+              const conversionRate = filteredResponses.length > 0 
+                ? (convertedCount / filteredResponses.length) * 100 
+                : 0;
 
-                {/* Response cards */}
-                {SS_RESPONSES.map((row) => (
-                  <SuggestedServiceResponseCard key={row.id} row={row} />
-                ))}
-              </div>
-            )}
+              return (
+                <div className="mt-4 space-y-4">
+                  {/* Summary tiles */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
+                      <div className="text-lg font-semibold text-slate-900">{filteredResponses.length}</div>
+                      <div className="text-[11px] text-slate-500">Responses</div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
+                      <div className="text-lg font-semibold text-slate-900">
+                        {totalRevenue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
+                      </div>
+                      <div className="text-[11px] text-slate-500">SS Revenue</div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
+                      <div className="text-lg font-semibold text-emerald-600">{conversionRate.toFixed(1)}%</div>
+                      <div className="text-[11px] text-slate-500">Conversion Rate</div>
+                    </div>
+                  </div>
+
+                  {/* Response cards */}
+                  {filteredResponses.map((row) => (
+                    <SuggestedServiceResponseCard key={row.id} row={row} />
+                  ))}
+                </div>
+              );
+            })()}
           </section>
 
           {/* AI stacked on small screens */}
