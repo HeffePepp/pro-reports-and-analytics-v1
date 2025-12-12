@@ -583,7 +583,7 @@ const SuggestedServicesPage: React.FC = () => {
 
             {/* ACTIVE SS ITEMS TAB */}
             {ssTab === "activess" && (
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="mt-4">
                 <header>
                   <h2 className="text-[13px] font-semibold text-slate-900">
                     Active Suggested Service Items
@@ -596,29 +596,28 @@ const SuggestedServicesPage: React.FC = () => {
                       key={item.service}
                       className="flex items-center justify-between gap-4 py-3"
                     >
-                      {/* LEFT: service name */}
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-[13px] font-semibold tracking-wide text-slate-900">
+                      {/* LEFT: service name - vertically centered */}
+                      <div className="min-w-0 flex-1 flex items-center">
+                        <div className="truncate text-[20px] font-semibold tracking-wide text-slate-900">
                           {(item.service || "").toUpperCase()}
                         </div>
                       </div>
 
-                      {/* MIDDLE: centered invoice stat with pill */}
-                      <div className="shrink-0 min-w-[140px] flex justify-center">
-                        <div className="rounded-xl bg-sky-50 border border-sky-100 px-4 py-2 text-center">
-                          <div className="text-[18px] font-semibold text-sky-700 leading-none">
+                      {/* RIGHT: both pills side by side */}
+                      <div className="shrink-0 flex items-center gap-3">
+                        {/* Invoice stat pill - amber */}
+                        <div className="rounded-xl bg-amber-50 border border-amber-100 px-4 py-2 text-center min-w-[120px]">
+                          <div className="text-[18px] font-semibold text-amber-700 leading-none">
                             {item.invoices.toLocaleString()}
                           </div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
                             Inv. w/ this SS
                           </div>
                         </div>
-                      </div>
 
-                      {/* RIGHT: conversions with pill, centered */}
-                      <div className="shrink-0 min-w-[140px] flex justify-center">
-                        <div className="rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-2 text-center">
-                          <div className="text-[20px] font-semibold text-emerald-700 leading-none">
+                        {/* Conversions pill - indigo */}
+                        <div className="rounded-xl bg-indigo-50 border border-indigo-100 px-4 py-2 text-center min-w-[120px]">
+                          <div className="text-[20px] font-semibold text-indigo-700 leading-none">
                             {item.conversions.toLocaleString()}
                           </div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
