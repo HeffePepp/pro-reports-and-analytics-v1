@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { CHANNEL_BAR_CLASS, CampaignChannel } from "@/styles/channelColors";
@@ -174,7 +174,6 @@ const mockKpis = {
 };
 
 const OneOffCampaignTrackerPage: React.FC = () => {
-  const [tab, setTab] = useState<"overview" | "details">("overview");
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("one-off-campaign-tracker", KPI_OPTIONS);
 
@@ -264,31 +263,8 @@ const OneOffCampaignTrackerPage: React.FC = () => {
             />
           )}
 
-          {/* Main card with tabs */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold text-slate-900"></h2>
-
-              <div className="inline-flex items-center rounded-full bg-slate-100 p-1 text-[11px]">
-                <button
-                  type="button"
-                  onClick={() => setTab("overview")}
-                  className={`px-3 py-1 rounded-full font-medium ${tab === "overview" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
-                >
-                  Overview
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTab("details")}
-                  className={`px-3 py-1 rounded-full font-medium ${tab === "details" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
-                >
-                  Details
-                </button>
-              </div>
-            </div>
-
-            {tab === "overview" ? <OverviewList /> : <DetailsTable />}
-          </section>
+          {/* Campaign details */}
+          <DetailsTable />
 
           {/* AI stacked on small screens - after main content */}
           <div className="block lg:hidden">
@@ -319,94 +295,6 @@ const OneOffCampaignTrackerPage: React.FC = () => {
     </ShellLayout>
   );
 };
-
-const OverviewList: React.FC = () => {
-  const handleViewProofs = (campaign: Campaign) => {
-    // TODO: open modal / navigate to proofs view
-    console.log("View proofs for:", campaign.name);
-  };
-
-  return (
-    <div className="divide-y divide-slate-100">
-      {CAMPAIGNS.map((c) => (
-        <section key={c.id} className="py-4 first:pt-0 last:pb-0">
-          <div className="flex items-center justify-between gap-4">
-            {/* LEFT: campaign copy + drops + channel pills */}
-            <div className="min-w-0 flex-1">
-              {/* Title */}
-              <div className="text-[13px] font-semibold text-slate-900">
-                {c.name}
-              </div>
-
-              {/* Audience / description */}
-              <div className="mt-0.5 text-[11px] text-slate-500">
-                {c.audience}
-              </div>
-
-              {/* Drops list */}
-              <div className="mt-1 text-[11px] text-slate-500">
-                {c.dropStats?.map((drop, index) => (
-                  <div key={drop.label}>
-                    Drop {index + 1} · {drop.date}
-                  </div>
-                ))}
-              </div>
-
-              {/* Channel pills */}
-              <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
-                {c.channels.map((ch) => (
-                  <span
-                    key={ch}
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-medium ${channelPillClass(ch)}`}
-                  >
-                    {channelDisplayName(ch)}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* RIGHT: pill-style metrics */}
-            <div className="shrink-0 flex flex-wrap items-center justify-end gap-2 md:gap-3">
-              {/* Responses pill */}
-              <div className="inline-flex flex-col items-center rounded-xl bg-amber-50 border border-amber-100 px-4 py-2 text-center min-w-[100px]">
-                <div className="text-sm font-semibold text-amber-700">
-                  {c.responses.toLocaleString()} ({c.respPct.toFixed(1)}%)
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Responses
-                </div>
-              </div>
-
-              {/* Revenue pill */}
-              <div className="inline-flex flex-col items-center rounded-xl bg-indigo-50 border border-indigo-100 px-4 py-2 text-center min-w-[100px]">
-                <div className="text-sm font-semibold text-indigo-700">
-                  {c.revenue.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    maximumFractionDigits: 0,
-                  })}
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Revenue
-                </div>
-              </div>
-
-              {/* Proofs pill – ghost style */}
-              <button
-                type="button"
-                onClick={() => handleViewProofs(c)}
-                className="inline-flex items-center rounded-xl border border-slate-200 px-4 py-2 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-              >
-                View proofs
-              </button>
-            </div>
-          </div>
-        </section>
-      ))}
-    </div>
-  );
-};
-
 
 // Channel pill styling helper
 const channelPillClass = (channel: Channel) => {
