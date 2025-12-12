@@ -32,6 +32,7 @@ type JourneyDropRow = {
   sent: number;
   opened: number;
   respPct: number;
+  roas: number;
   revenue: number;
 };
 
@@ -336,6 +337,7 @@ const JOURNEY_DROPS: JourneyDropRow[] = CAMPAIGNS.flatMap((c) => {
       sent: c.sent,
       opened: c.opens,
       respPct: c.respPct,
+      roas: c.roas,
       revenue: c.revenue,
     }];
   }
@@ -352,6 +354,7 @@ const JOURNEY_DROPS: JourneyDropRow[] = CAMPAIGNS.flatMap((c) => {
     sent: drop.sent,
     opened: drop.opens,
     respPct: drop.respPct,
+    roas: drop.roas,
     revenue: Math.round(revenuePerDrop),
   }));
 });
@@ -419,12 +422,13 @@ const DetailsTable: React.FC = () => {
           <table className="w-full table-fixed text-xs">
             {/* Shared column widths so every pill lines up */}
             <colgroup>
-              <col className="w-[210px]" />
-              <col className="w-[120px]" />
-              <col className="w-[80px]" />
-              <col className="w-[80px]" />
-              <col className="w-[70px]" />
+              <col className="w-[190px]" />
               <col className="w-[100px]" />
+              <col className="w-[70px]" />
+              <col className="w-[70px]" />
+              <col className="w-[60px]" />
+              <col className="w-[60px]" />
+              <col className="w-[90px]" />
             </colgroup>
             <thead>
               <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
@@ -442,6 +446,9 @@ const DetailsTable: React.FC = () => {
                 </th>
                 <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
                   Resp %
+                </th>
+                <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                  ROAS
                 </th>
                 <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
                   Revenue
@@ -489,6 +496,11 @@ const DetailsTable: React.FC = () => {
                     {row.respPct.toFixed(1)}%
                   </td>
 
+                  {/* ROAS */}
+                  <td className="py-2 px-2 text-right text-xs text-slate-900">
+                    {row.roas.toFixed(1)}×
+                  </td>
+
                   {/* Revenue */}
                   <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
                     {row.revenue.toLocaleString("en-US", {
@@ -499,6 +511,45 @@ const DetailsTable: React.FC = () => {
                   </td>
                 </tr>
               ))}
+
+              {/* Campaign totals row */}
+              {(() => {
+                const totals = {
+                  sent: group.rows.reduce((sum, r) => sum + r.sent, 0),
+                  opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
+                  revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
+                };
+                const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
+                const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
+                
+                return (
+                  <tr className="bg-slate-50 font-semibold">
+                    <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700">
+                      Campaign Total
+                    </td>
+                    <td className="py-2 px-2 text-right text-xs text-slate-900">—</td>
+                    <td className="py-2 px-2 text-right text-xs text-slate-900">
+                      {totals.sent.toLocaleString()}
+                    </td>
+                    <td className="py-2 px-2 text-right text-xs text-slate-900">
+                      {totals.opened.toLocaleString()}
+                    </td>
+                    <td className="py-2 px-2 text-right text-xs text-emerald-600">
+                      {avgRespPct.toFixed(1)}%
+                    </td>
+                    <td className="py-2 px-2 text-right text-xs text-slate-900">
+                      {avgRoas.toFixed(1)}×
+                    </td>
+                    <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
+                      {totals.revenue.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 0,
+                      })}
+                    </td>
+                  </tr>
+                );
+              })()}
             </tbody>
           </table>
         </div>
