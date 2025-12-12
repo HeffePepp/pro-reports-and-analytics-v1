@@ -455,139 +455,131 @@ const DetailsTable: React.FC = () => {
           </div>
 
           {/* Mini table for this campaign's drops */}
-          <table className="w-full table-fixed text-xs">
-            {/* Shared column widths so every pill lines up */}
-            <colgroup>
-              <col className="w-[190px]" />
-              <col className="w-[100px]" />
-              <col className="w-[70px]" />
-              <col className="w-[70px]" />
-              <col className="w-[60px]" />
-              <col className="w-[60px]" />
-              <col className="w-[90px]" />
-            </colgroup>
-            <thead>
-              <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
-                <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-                  Drop &amp; channels
-                </th>
-                <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                  Date
-                </th>
-                <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                  Sent
-                </th>
-                <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                  Opened
-                </th>
-                <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                  Resp %
-                </th>
-                <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                  ROAS
-                </th>
-                <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
-                  Revenue
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-slate-100">
-              {group.rows.map((row) => (
-                <tr key={row.id} className="align-top">
-                  {/* Drop & channels – left aligned */}
-                  <td className="py-2 pr-3">
-                    <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-700">
-                      Drop {row.dropNumber}
-                    </div>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {row.channels.map((ch) => (
-                        <span
-                          key={ch}
-                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${channelPillClass(ch)}`}
-                        >
-                          {channelDisplayName(ch)}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-
-                  {/* Date – right aligned */}
-                  <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                    {row.dropDate}
-                  </td>
-
-                  {/* Sent */}
-                  <td className="py-2 px-2 text-right text-xs text-slate-900">
-                    {row.sent.toLocaleString()}
-                  </td>
-
-                  {/* Opened */}
-                  <td className="py-2 px-2 text-right text-xs text-slate-900">
-                    {row.opened.toLocaleString()}
-                  </td>
-
-                  {/* Resp % */}
-                  <td className="py-2 px-2 text-right text-xs font-semibold text-emerald-600">
-                    {row.respPct.toFixed(1)}%
-                  </td>
-
-                  {/* ROAS */}
-                  <td className="py-2 px-2 text-right text-xs text-slate-900">
-                    {row.roas.toFixed(1)}×
-                  </td>
-
-                  {/* Revenue */}
-                  <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
-                    {row.revenue.toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                      maximumFractionDigits: 0,
-                    })}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs min-w-0">
+              <thead>
+                <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
+                  <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                    Drop &amp; channels
+                  </th>
+                  <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                    Date
+                  </th>
+                  <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                    Sent
+                  </th>
+                  <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                    Opened
+                  </th>
+                  <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                    Resp %
+                  </th>
+                  <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                    ROAS
+                  </th>
+                  <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
+                    Revenue
+                  </th>
                 </tr>
-              ))}
+              </thead>
 
-              {/* Campaign totals row - only show for multi-drop campaigns */}
-              {group.rows.length > 1 && (() => {
-                const totals = {
-                  sent: group.rows.reduce((sum, r) => sum + r.sent, 0),
-                  opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
-                  revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
-                };
-                const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
-                const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
-                
-                return (
-                  <tr className="border-t border-slate-200 font-semibold">
-                    <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700">
-                      Campaign Totals
+              <tbody className="divide-y divide-slate-100">
+                {group.rows.map((row) => (
+                  <tr key={row.id} className="align-top">
+                    {/* Drop & channels – left aligned */}
+                    <td className="py-2 pr-3">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-700">
+                        Drop {row.dropNumber}
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {row.channels.map((ch) => (
+                          <span
+                            key={ch}
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${channelPillClass(ch)}`}
+                          >
+                            {channelDisplayName(ch)}
+                          </span>
+                        ))}
+                      </div>
                     </td>
-                    <td className="py-2 px-2 text-right text-xs text-slate-900"></td>
-                    <td className="py-2 px-2 text-right text-xs text-slate-900">
-                      {totals.sent.toLocaleString()}
+
+                    {/* Date – right aligned */}
+                    <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                      {row.dropDate}
                     </td>
-                    <td className="py-2 px-2 text-right text-xs text-slate-900">
-                      {totals.opened.toLocaleString()}
+
+                    {/* Sent */}
+                    <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                      {row.sent.toLocaleString()}
                     </td>
-                    <td className="py-2 px-2 text-right text-xs text-emerald-600">
-                      {avgRespPct.toFixed(1)}%
+
+                    {/* Opened */}
+                    <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                      {row.opened.toLocaleString()}
                     </td>
-                    <td className="py-2 px-2 text-right text-xs text-slate-900">
-                      {avgRoas.toFixed(1)}×
+
+                    {/* Resp % */}
+                    <td className="py-2 px-2 text-right text-xs font-semibold text-emerald-600 whitespace-nowrap">
+                      {row.respPct.toFixed(1)}%
                     </td>
-                    <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
-                      {totals.revenue.toLocaleString("en-US", {
+
+                    {/* ROAS */}
+                    <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                      {row.roas.toFixed(1)}×
+                    </td>
+
+                    {/* Revenue */}
+                    <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
+                      {row.revenue.toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                         maximumFractionDigits: 0,
                       })}
                     </td>
                   </tr>
-                );
-              })()}
-            </tbody>
-          </table>
+                ))}
+
+                {/* Campaign totals row - only show for multi-drop campaigns */}
+                {group.rows.length > 1 && (() => {
+                  const totals = {
+                    sent: group.rows.reduce((sum, r) => sum + r.sent, 0),
+                    opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
+                    revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
+                  };
+                  const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
+                  const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
+                  
+                  return (
+                    <tr className="border-t border-slate-200 font-semibold">
+                      <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700 whitespace-nowrap">
+                        Campaign Totals
+                      </td>
+                      <td className="py-2 px-2 text-right text-xs text-slate-900"></td>
+                      <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                        {totals.sent.toLocaleString()}
+                      </td>
+                      <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                        {totals.opened.toLocaleString()}
+                      </td>
+                      <td className="py-2 px-2 text-right text-xs text-emerald-600 whitespace-nowrap">
+                        {avgRespPct.toFixed(1)}%
+                      </td>
+                      <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                        {avgRoas.toFixed(1)}×
+                      </td>
+                      <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
+                        {totals.revenue.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                          maximumFractionDigits: 0,
+                        })}
+                      </td>
+                    </tr>
+                  );
+                })()}
+              </tbody>
+            </table>
+          </div>
         </div>
       ))}
     </section>

@@ -637,49 +637,41 @@ const SuggestedServicesPage: React.FC = () => {
                       </div>
 
                       {/* Mini table for this touch point */}
-                      <table className="w-full table-fixed text-xs">
-                        <colgroup>
-                          <col className="w-[180px]" />
-                          <col className="w-[80px]" />
-                          <col className="w-[80px]" />
-                          <col className="w-[80px]" />
-                          <col className="w-[70px]" />
-                          <col className="w-[70px]" />
-                          <col className="w-[100px]" />
-                        </colgroup>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs min-w-0">
+                          <thead>
+                            <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
+                              <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">Channel</th>
+                              <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Sent</th>
+                              <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Opened</th>
+                              <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Responses</th>
+                              <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Resp %</th>
+                              <th className="py-2 px-2 text-right font-medium whitespace-nowrap">ROAS</th>
+                              <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">Revenue</th>
+                            </tr>
+                          </thead>
 
-                        <thead>
-                          <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
-                            <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">Channel</th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Sent</th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Opened</th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Responses</th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Resp %</th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">ROAS</th>
-                            <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">Revenue</th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          <tr>
-                            <td className="py-2 pr-3">
-                              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${channelPillClass(tp.channel)}`}>
-                                {tp.channel}
-                              </span>
-                            </td>
-                            <td className="py-2 px-2 text-right text-slate-900">{tp.sent.toLocaleString()}</td>
-                            <td className="py-2 px-2 text-right text-slate-900">{tp.opened.toLocaleString()}</td>
-                            <td className="py-2 px-2 text-right text-slate-900">{tp.responses.toLocaleString()}</td>
-                            <td className="py-2 px-2 text-right">
-                              <span className="font-semibold text-emerald-600">{tp.respPct.toFixed(1)}%</span>
-                            </td>
-                            <td className="py-2 px-2 text-right text-slate-900">{tp.roas.toFixed(1)}x</td>
-                            <td className="py-2 pl-2 pr-1 text-right text-slate-900">
-                              {tp.revenue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                          <tbody>
+                            <tr>
+                              <td className="py-2 pr-3">
+                                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${channelPillClass(tp.channel)}`}>
+                                  {tp.channel}
+                                </span>
+                              </td>
+                              <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.sent.toLocaleString()}</td>
+                              <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.opened.toLocaleString()}</td>
+                              <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.responses.toLocaleString()}</td>
+                              <td className="py-2 px-2 text-right whitespace-nowrap">
+                                <span className="font-semibold text-emerald-600">{tp.respPct.toFixed(1)}%</span>
+                              </td>
+                              <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.roas.toFixed(1)}x</td>
+                              <td className="py-2 pl-2 pr-1 text-right text-slate-900 whitespace-nowrap">
+                                {tp.revenue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   ))}
                 </div>

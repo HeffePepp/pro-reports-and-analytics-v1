@@ -561,140 +561,132 @@ const CustomerJourneyPage: React.FC = () => {
                   </div>
 
                   {/* Mini table for this touch point's channels */}
-                  <table className="w-full table-fixed text-xs">
-                    <colgroup>
-                      <col className="w-[180px]" /> {/* Channel */}
-                      <col className="w-[80px]" />  {/* Sent */}
-                      <col className="w-[80px]" />  {/* Opened */}
-                      <col className="w-[80px]" />  {/* Responses */}
-                      <col className="w-[70px]" />  {/* Resp % */}
-                      <col className="w-[70px]" />  {/* ROAS */}
-                      <col className="w-[100px]" /> {/* Revenue */}
-                    </colgroup>
-
-                    <thead>
-                      <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
-                        <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-                          Channel
-                        </th>
-                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                          Sent
-                        </th>
-                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                          Opened
-                        </th>
-                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                          Responses
-                        </th>
-                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                          Resp %
-                        </th>
-                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                          ROAS
-                        </th>
-                        <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
-                          Revenue
-                        </th>
-                      </tr>
-                    </thead>
-
-                    <tbody className="divide-y divide-slate-100">
-                      {group.rows.map((row, idx) => (
-                        <tr key={`${row.tpId}-${row.channel}-${idx}`} className="align-top">
-                          {/* Channel pill */}
-                          <td className="py-2 pr-3">
-                            <span
-                              className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${
-                                row.channel === "postcard"
-                                  ? "bg-tp-pastel-blue text-sky-700"
-                                  : row.channel === "email"
-                                  ? "bg-tp-pastel-green text-emerald-700"
-                                  : "bg-tp-pastel-purple text-indigo-700"
-                              }`}
-                            >
-                              {CHANNEL_LABELS[row.channel]}
-                            </span>
-                          </td>
-
-                          {/* Sent */}
-                          <td className="py-2 px-2 text-right text-xs text-slate-900">
-                            {row.sends.toLocaleString()}
-                          </td>
-
-                          {/* Opened */}
-                          <td className="py-2 px-2 text-right text-xs text-slate-900">
-                            {row.channel === "postcard" ? "—" : row.opened.toLocaleString()}
-                          </td>
-
-                          {/* Responses */}
-                          <td className="py-2 px-2 text-right text-xs text-slate-900">
-                            {row.responses.toLocaleString()}
-                          </td>
-
-                          {/* Resp % */}
-                          <td className="py-2 px-2 text-right text-xs font-semibold text-emerald-600">
-                            {row.respPct.toFixed(1)}%
-                          </td>
-
-                          {/* ROAS */}
-                          <td className="py-2 px-2 text-right text-xs text-slate-900">
-                            {row.roas.toFixed(1)}x
-                          </td>
-
-                          {/* Revenue */}
-                          <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
-                            {row.revenue.toLocaleString("en-US", {
-                              style: "currency",
-                              currency: "USD",
-                              maximumFractionDigits: 0,
-                            })}
-                          </td>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs min-w-0">
+                      <thead>
+                        <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
+                          <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                            Channel
+                          </th>
+                          <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                            Sent
+                          </th>
+                          <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                            Opened
+                          </th>
+                          <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                            Responses
+                          </th>
+                          <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                            Resp %
+                          </th>
+                          <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                            ROAS
+                          </th>
+                          <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
+                            Revenue
+                          </th>
                         </tr>
-                      ))}
+                      </thead>
 
-                      {/* Touch point totals row - only show for multi-channel touch points */}
-                      {group.rows.length > 1 && (() => {
-                        const totals = {
-                          sent: group.rows.reduce((sum, r) => sum + r.sends, 0),
-                          opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
-                          responses: group.rows.reduce((sum, r) => sum + r.responses, 0),
-                          revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
-                        };
-                        const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
-                        const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
+                      <tbody className="divide-y divide-slate-100">
+                        {group.rows.map((row, idx) => (
+                          <tr key={`${row.tpId}-${row.channel}-${idx}`} className="align-top">
+                            {/* Channel pill */}
+                            <td className="py-2 pr-3">
+                              <span
+                                className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${
+                                  row.channel === "postcard"
+                                    ? "bg-tp-pastel-blue text-sky-700"
+                                    : row.channel === "email"
+                                    ? "bg-tp-pastel-green text-emerald-700"
+                                    : "bg-tp-pastel-purple text-indigo-700"
+                                }`}
+                              >
+                                {CHANNEL_LABELS[row.channel]}
+                              </span>
+                            </td>
 
-                        return (
-                          <tr className="border-t border-slate-200 font-semibold">
-                            <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700">
-                              Touch Point Totals
+                            {/* Sent */}
+                            <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                              {row.sends.toLocaleString()}
                             </td>
-                            <td className="py-2 px-2 text-right text-xs text-slate-900">
-                              {totals.sent.toLocaleString()}
+
+                            {/* Opened */}
+                            <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                              {row.channel === "postcard" ? "—" : row.opened.toLocaleString()}
                             </td>
-                            <td className="py-2 px-2 text-right text-xs text-slate-900">
-                              {totals.opened.toLocaleString()}
+
+                            {/* Responses */}
+                            <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                              {row.responses.toLocaleString()}
                             </td>
-                            <td className="py-2 px-2 text-right text-xs text-slate-900">
-                              {totals.responses.toLocaleString()}
+
+                            {/* Resp % */}
+                            <td className="py-2 px-2 text-right text-xs font-semibold text-emerald-600 whitespace-nowrap">
+                              {row.respPct.toFixed(1)}%
                             </td>
-                            <td className="py-2 px-2 text-right text-xs text-emerald-600">
-                              {avgRespPct.toFixed(1)}%
+
+                            {/* ROAS */}
+                            <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                              {row.roas.toFixed(1)}x
                             </td>
-                            <td className="py-2 px-2 text-right text-xs text-slate-900">
-                              {avgRoas.toFixed(1)}x
-                            </td>
-                            <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
-                              {totals.revenue.toLocaleString("en-US", {
+
+                            {/* Revenue */}
+                            <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
+                              {row.revenue.toLocaleString("en-US", {
                                 style: "currency",
                                 currency: "USD",
                                 maximumFractionDigits: 0,
                               })}
                             </td>
                           </tr>
-                        );
-                      })()}
-                    </tbody>
-                  </table>
+                        ))}
+
+                        {/* Touch point totals row - only show for multi-channel touch points */}
+                        {group.rows.length > 1 && (() => {
+                          const totals = {
+                            sent: group.rows.reduce((sum, r) => sum + r.sends, 0),
+                            opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
+                            responses: group.rows.reduce((sum, r) => sum + r.responses, 0),
+                            revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
+                          };
+                          const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
+                          const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
+
+                          return (
+                            <tr className="border-t border-slate-200 font-semibold">
+                              <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700 whitespace-nowrap">
+                                Touch Point Totals
+                              </td>
+                              <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                                {totals.sent.toLocaleString()}
+                              </td>
+                              <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                                {totals.opened.toLocaleString()}
+                              </td>
+                              <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                                {totals.responses.toLocaleString()}
+                              </td>
+                              <td className="py-2 px-2 text-right text-xs text-emerald-600 whitespace-nowrap">
+                                {avgRespPct.toFixed(1)}%
+                              </td>
+                              <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                                {avgRoas.toFixed(1)}x
+                              </td>
+                              <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
+                                {totals.revenue.toLocaleString("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                  maximumFractionDigits: 0,
+                                })}
+                              </td>
+                            </tr>
+                          );
+                        })()}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               ));
             })()}
