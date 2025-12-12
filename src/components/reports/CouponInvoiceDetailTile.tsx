@@ -130,7 +130,7 @@ export const CouponInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
             {renderHeader("Invoice", "invoice")}
             <ReportTableHeaderCell label="License / Store / Cust / Vehicle" className="normal-case" />
             {renderHeader("Coupon", "couponCode")}
-            <ReportTableHeaderCell label="Offer" />
+            <ReportTableHeaderCell label="Offer" className="normal-case" />
             {renderHeader("Discount", "discount", "right")}
             {renderHeader("Sales", "sales", "right")}
             {renderHeader("Channel", "channel", "right")}

@@ -95,7 +95,7 @@ export const CouponTableTile: React.FC<Props> = ({ rows }) => {
           <ReportTableHead>
           <ReportTableRow>
               {renderHeader("Code", "code")}
-              <ReportTableHeaderCell label="Description" />
+              <ReportTableHeaderCell label="Description" className="normal-case" />
               {renderHeader("Invoices", "invoices", "right")}
               {renderHeader("Redemptions", "redemptions", "right")}
               {renderHeader("Resp %", "respPct", "right")}
