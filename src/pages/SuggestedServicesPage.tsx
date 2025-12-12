@@ -629,7 +629,7 @@ const SuggestedServicesPage: React.FC = () => {
                             {item.conversions.toLocaleString()}
                           </div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
-                            Conversions
+                            SS Inv. w/ email
                           </div>
                         </div>
                       </div>
