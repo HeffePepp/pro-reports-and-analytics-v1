@@ -595,36 +595,28 @@ const SuggestedServicesPage: React.FC = () => {
 
                 <ul className="mt-4 divide-y divide-slate-100">
                   {SS_SERVICE_TYPES.map((item) => (
-                    <li
-                      key={item.service}
-                      className="flex items-center justify-between gap-4 py-3"
-                    >
-                      {/* LEFT: service name only, all caps */}
-                      <div className="min-w-0 flex-1">
+                    <li key={item.service} className="py-3">
+                      <div className="min-w-0">
+                        {/* Service name – all caps, same size as before */}
                         <div className="truncate text-[13px] font-semibold tracking-wide text-slate-900">
                           {(item.service || "").toUpperCase()}
                         </div>
-                      </div>
 
-                      {/* RIGHT: invoices + % with valid email, big numbers */}
-                      <div className="shrink-0 min-w-[190px] text-right text-[11px]">
-                        {/* Inv. w/ this SS */}
-                        <div className="text-[16px] font-semibold text-slate-900">
-                          {item.invoices.toLocaleString()}
-                        </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500">
-                          Inv. w/ this SS
-                        </div>
+                        {/* Horizontal stats, left-justified */}
+                        <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500">
+                          <span>
+                            <span className="font-semibold text-slate-900">
+                              {item.invoices.toLocaleString()}
+                            </span>{" "}
+                            <span>Inv. w/ this SS</span>
+                          </span>
 
-                        {/* spacer between stats */}
-                        <div className="mt-3" />
-
-                        {/* % Inv. w/ valid email address */}
-                        <div className="text-[16px] font-semibold text-slate-900">
-                          {item.validEmailPct.toFixed(1)}%
-                        </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500">
-                          % Inv. w/ valid email address
+                          <span>
+                            <span className="font-semibold text-slate-900">
+                              {item.validEmailPct.toFixed(1)}%
+                            </span>{" "}
+                            <span>Inv. w/ valid email address</span>
+                          </span>
                         </div>
                       </div>
                     </li>
