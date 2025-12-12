@@ -528,7 +528,16 @@ const DetailsTable: React.FC = () => {
           </div>
 
           {/* Mini table for this campaign's drops */}
-          <table className="w-full text-xs">
+          <table className="w-full table-fixed text-xs">
+            {/* Shared column widths so every pill lines up */}
+            <colgroup>
+              <col className="w-[210px]" />
+              <col className="w-[120px]" />
+              <col className="w-[80px]" />
+              <col className="w-[80px]" />
+              <col className="w-[70px]" />
+              <col className="w-[100px]" />
+            </colgroup>
             <thead>
               <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
                 <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
