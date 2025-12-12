@@ -19,6 +19,7 @@ interface Campaign {
   dropsLabel: string;
   lastDropDate: string;
   sent: number;
+  opens: number;
   responses: number;
   respPct: number;
   roas: number;
@@ -33,8 +34,9 @@ const CAMPAIGNS: Campaign[] = [
     name: "Don's Garage: Spring Has Sprung",
     audience: "Current synthetic customers · last 9 months",
     dropsLabel: "1 drop",
-    lastDropDate: "Last drop Mar 5, 2024",
+    lastDropDate: "Mar 5, 2024",
     sent: 2800,
+    opens: 1120,
     responses: 194,
     respPct: 6.9,
     roas: 16.1,
@@ -47,8 +49,9 @@ const CAMPAIGNS: Campaign[] = [
     name: "Summer A/C Tune-Up",
     audience: "Vehicles in warm-weather ZIPs · last 18 months",
     dropsLabel: "2 drops",
-    lastDropDate: "Last drop May 24, 2024",
+    lastDropDate: "May 24, 2024",
     sent: 5000,
+    opens: 1850,
     responses: 220,
     respPct: 6.8,
     roas: 9.9,
@@ -61,8 +64,9 @@ const CAMPAIGNS: Campaign[] = [
     name: "Back to School",
     audience: "Minivan/SUV households · schools within 10 miles",
     dropsLabel: "1 drop",
-    lastDropDate: "Last drop Aug 15, 2024",
+    lastDropDate: "Aug 15, 2024",
     sent: 2600,
+    opens: 0,
     responses: 162,
     respPct: 6.2,
     roas: 7.6,
@@ -75,8 +79,9 @@ const CAMPAIGNS: Campaign[] = [
     name: "Black Friday Synthetic Push",
     audience: "High-mileage synthetic customers · last 24 months",
     dropsLabel: "2 drops",
-    lastDropDate: "Last drop Nov 27, 2024",
+    lastDropDate: "Nov 27, 2024",
     sent: 5500,
+    opens: 1980,
     responses: 337,
     respPct: 9.1,
     roas: 10.7,
@@ -232,7 +237,7 @@ const OverviewList: React.FC = () => {
               <div className="text-base md:text-lg font-semibold text-slate-900">{c.name}</div>
               <div className="mt-0.5 text-[11px] text-slate-500">{c.audience}</div>
               <div className="mt-0.5 text-[11px] text-slate-500">
-                {c.dropsLabel} · {c.lastDropDate}
+                {c.dropsLabel} · Last drop {c.lastDropDate}
               </div>
             </div>
             <div className="text-right text-xs md:text-sm text-slate-700 min-w-[120px]">
@@ -265,63 +270,110 @@ const OverviewList: React.FC = () => {
 };
 
 
+// Channel pill styling helper
+const channelPillClass = (channel: Channel) => {
+  switch (channel) {
+    case "email":
+      return "bg-tp-pastel-green text-emerald-700";
+    case "postcard":
+      return "bg-tp-pastel-blue text-sky-700";
+    case "sms":
+      return "bg-tp-pastel-purple text-indigo-700";
+    default:
+      return "bg-slate-100 text-slate-700";
+  }
+};
+
+const channelDisplayName = (channel: Channel) => {
+  switch (channel) {
+    case "email":
+      return "Email";
+    case "postcard":
+      return "Postcard";
+    case "sms":
+      return "Text";
+    default:
+      return channel;
+  }
+};
+
 const DropsTable: React.FC = () => {
   return (
     <div className="mt-2 overflow-x-auto">
-      <table className="min-w-full table-fixed text-[11px]">
-        {/* Column widths so right side stays tight + grouped */}
-        <colgroup>
-          <col className="w-[46%]" />  {/* Campaign */}
-          <col className="w-[10%]" />  {/* Sent */}
-          <col className="w-[11%]" />  {/* Responses */}
-          <col className="w-[9%]" />   {/* Resp % */}
-          <col className="w-[10%]" />  {/* ROAS */}
-          <col className="w-[14%]" />  {/* Revenue */}
-        </colgroup>
-
-        <thead className="border-b border-slate-100 text-slate-500 uppercase tracking-wide">
-          <tr>
-            <th className="py-2 pr-4 text-left font-medium">Campaign & drop</th>
-            <th className="py-2 pl-4 text-right font-medium">Sent</th>
-            <th className="py-2 pl-4 text-right font-medium">Responses</th>
-            <th className="py-2 pl-4 text-right font-medium">Resp %</th>
-            <th className="py-2 pl-4 text-right font-medium">ROAS</th>
-            <th className="py-2 pl-4 text-right font-medium">Revenue</th>
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
+            <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+              Campaign &amp; drop
+            </th>
+            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+              Sent
+            </th>
+            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+              Opened
+            </th>
+            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+              Responses
+            </th>
+            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+              Resp %
+            </th>
+            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+              ROAS
+            </th>
+            <th className="py-2 pl-2 text-right font-medium whitespace-nowrap">
+              Revenue
+            </th>
           </tr>
         </thead>
 
         <tbody className="divide-y divide-slate-100">
           {CAMPAIGNS.map((c) => (
-            <tr key={c.id}>
-              {/* LEFT: campaign name + details */}
-              <td className="py-3 pr-4 align-top">
-                <div className="text-[16px] font-semibold text-slate-900">{c.name}</div>
-                <div className="mt-0.5 text-[11px] text-slate-500">
-                  {c.dropsLabel} · {c.lastDropDate}
+            <tr key={c.id} className="align-top">
+              {/* LEFT: stacked campaign info + channel pills */}
+              <td className="py-3 pr-3">
+                <div className="text-sm font-semibold text-slate-900">
+                  {c.name}
                 </div>
                 <div className="mt-0.5 text-[11px] text-slate-500">
-                  Channels:{" "}
-                  {c.channels
-                    .map((ch) => (ch === "sms" ? "Text" : ch[0].toUpperCase() + ch.slice(1)))
-                    .join(" · ")}
+                  {c.dropsLabel} · Last drop {c.lastDropDate}
+                </div>
+
+                {/* Channel pills – horizontal row */}
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {c.channels.map((ch) => (
+                    <span
+                      key={ch}
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${channelPillClass(ch)}`}
+                    >
+                      {channelDisplayName(ch)}
+                    </span>
+                  ))}
                 </div>
               </td>
 
-              {/* RIGHT: tight stat block, right-aligned */}
-              <td className="py-3 pl-4 text-right align-middle text-slate-900">
+              {/* Metrics – right aligned */}
+              <td className="py-3 px-2 text-right text-xs text-slate-900">
                 {c.sent.toLocaleString()}
               </td>
-              <td className="py-3 pl-4 text-right align-middle text-slate-900">
+              <td className="py-3 px-2 text-right text-xs text-slate-900">
+                {c.opens.toLocaleString()}
+              </td>
+              <td className="py-3 px-2 text-right text-xs text-slate-900">
                 {c.responses.toLocaleString()}
               </td>
-              <td className="py-3 pl-4 text-right align-middle">
-                <span className="font-semibold text-amber-600">{c.respPct.toFixed(1)}%</span>
+              <td className="py-3 px-2 text-right text-xs font-semibold text-amber-600">
+                {c.respPct.toFixed(1)}%
               </td>
-              <td className="py-3 pl-4 text-right align-middle font-semibold text-slate-900">
+              <td className="py-3 px-2 text-right text-xs text-slate-900">
                 {c.roas.toFixed(1)}x
               </td>
-              <td className="py-3 pl-4 text-right align-middle text-slate-900">
-                ${c.revenue.toLocaleString()}
+              <td className="py-3 pl-2 pr-2 text-right text-xs text-slate-900">
+                {c.revenue.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  maximumFractionDigits: 0,
+                })}
               </td>
             </tr>
           ))}
