@@ -512,19 +512,43 @@ const CustomerJourneyPage: React.FC = () => {
               // Sort groups by touch point ID
               const groups = Array.from(groupedMap.values()).sort((a, b) => a.tpId - b.tpId);
 
-              return groups.map((group) => (
+              // Colors matching the mix tile
+              const SEGMENT_DOT_COLORS = [
+                "bg-tp-green",
+                "bg-tp-blue-light",
+                "bg-tp-purple",
+                "bg-tp-yellow",
+                "bg-tp-red",
+                "bg-emerald-500",
+                "bg-sky-500",
+                "bg-indigo-500",
+                "bg-amber-500",
+                "bg-rose-500",
+                "bg-teal-500",
+                "bg-violet-500",
+                "bg-orange-500",
+                "bg-cyan-500",
+                "bg-lime-500",
+              ];
+
+              return groups.map((group, groupIndex) => (
                 <div
                   key={group.tpId}
                   className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
                 >
                   {/* Header row: touch point name/offset + View proofs button */}
                   <div className="mb-3 flex items-start justify-between gap-4">
-                    <div>
-                      <div className="text-sm font-semibold text-slate-900">
-                        {group.tpId}. {group.tpName}
-                      </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        {group.offsetLabel}
+                    <div className="flex items-start gap-2">
+                      <span
+                        className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${SEGMENT_DOT_COLORS[groupIndex % SEGMENT_DOT_COLORS.length]}`}
+                      />
+                      <div>
+                        <div className="text-sm font-semibold text-slate-900">
+                          {group.tpId}. {group.tpName}
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-slate-500">
+                          {group.offsetLabel}
+                        </div>
                       </div>
                     </div>
                     <button
