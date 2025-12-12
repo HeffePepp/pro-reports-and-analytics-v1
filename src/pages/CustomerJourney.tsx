@@ -50,7 +50,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     id: 1,
     name: "Thank You",
     offsetLabel: "1 day after service",
-    channel: "Text Message",
+    channel: "Text",
     respPct: 22.7,
     roas: 9.5,
     sends: 1850,
