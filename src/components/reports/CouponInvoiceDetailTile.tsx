@@ -11,6 +11,7 @@ import {
 export type CouponInvoiceRow = {
   date: string;
   invoice: string;
+  license: string;
   store: string;
   customer: string;
   vehicle: string;
@@ -127,8 +128,7 @@ export const CouponInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
           <ReportTableRow>
             {renderHeader("Date", "date")}
             {renderHeader("Invoice", "invoice")}
-            <ReportTableHeaderCell label="License / Store / Customer" />
-            {renderHeader("Vehicle", "vehicle")}
+            <ReportTableHeaderCell label="License / Store / Cust / Vehicle" />
             {renderHeader("Coupon", "couponCode")}
             <ReportTableHeaderCell label="Offer" />
             {renderHeader("Discount", "discount", "right")}
@@ -145,11 +145,11 @@ export const CouponInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
               </ReportTableCell>
               <ReportTableCell>
                 <div className="space-y-0.5">
-                  <div className="text-[11px] text-slate-900">{row.store}</div>
-                  <div className="text-[10px] text-slate-500">{row.customer}</div>
+                  <div className="text-[11px] font-semibold text-slate-900">{row.license}</div>
+                  <div className="text-[10px] text-slate-500">{row.store}</div>
+                  <div className="text-[10px] text-slate-500">{row.customer} · {row.vehicle}</div>
                 </div>
               </ReportTableCell>
-              <ReportTableCell>{row.vehicle}</ReportTableCell>
               <ReportTableCell>
                 <span
                   className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${getPillColor(
