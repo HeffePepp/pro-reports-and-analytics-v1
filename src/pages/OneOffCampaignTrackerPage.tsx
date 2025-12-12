@@ -460,10 +460,37 @@ const JOURNEY_DROPS: JourneyDropRow[] = CAMPAIGNS.flatMap((c) => {
   }));
 });
 
+// Group drops by campaign for visual grouping
+const groupDropsByCampaign = (rows: JourneyDropRow[]) => {
+  const map = new Map<string, JourneyDropRow[]>();
+
+  rows.forEach((row) => {
+    if (!map.has(row.campaignName)) {
+      map.set(row.campaignName, []);
+    }
+    map.get(row.campaignName)!.push(row);
+  });
+
+  return Array.from(map.entries()).map(([campaignName, campaignRows]) => ({
+    campaignName,
+    rows: campaignRows,
+  }));
+};
+
 const DetailsTable: React.FC = () => {
+  const groups = groupDropsByCampaign(JOURNEY_DROPS);
+
   return (
     <div className="mt-2 overflow-x-auto">
-      <table className="w-full text-xs">
+      <table className="w-full text-xs table-fixed">
+        <colgroup>
+          <col className="w-[40%]" />
+          <col className="w-[12%]" />
+          <col className="w-[12%]" />
+          <col className="w-[12%]" />
+          <col className="w-[12%]" />
+          <col className="w-[12%]" />
+        </colgroup>
         <thead>
           <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
             <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
@@ -487,52 +514,82 @@ const DetailsTable: React.FC = () => {
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-slate-100">
-          {JOURNEY_DROPS.map((row) => (
-            <tr key={row.id} className="align-top">
-              {/* COL 1: campaign + drop + channels */}
-              <td className="py-3 pr-3">
-                <div className="text-sm font-semibold text-slate-900">
-                  {row.campaignName}
-                </div>
-                <div className="mt-0.5 text-[11px] text-slate-500">
-                  Drop {row.dropNumber}
-                </div>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {row.channels.map((ch) => (
-                    <span
-                      key={ch}
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${channelPillClass(ch)}`}
-                    >
-                      {channelDisplayName(ch)}
-                    </span>
-                  ))}
-                </div>
-              </td>
+        <tbody className="divide-y divide-transparent">
+          {groups.map((group, groupIndex) => (
+            <React.Fragment key={group.campaignName}>
+              {group.rows.map((row, rowIndex) => {
+                const isFirst = rowIndex === 0;
+                const isLast = rowIndex === group.rows.length - 1;
+                const isSingleRow = group.rows.length === 1;
 
-              {/* Date */}
-              <td className="py-3 px-2 text-xs text-slate-900">
-                {row.dropDate}
-              </td>
+                // corners for the "campaign pill"
+                const leftCornerClasses = isSingleRow
+                  ? "rounded-l-2xl"
+                  : isFirst
+                  ? "rounded-tl-2xl"
+                  : isLast
+                  ? "rounded-bl-2xl"
+                  : "";
+                const rightCornerClasses = isSingleRow
+                  ? "rounded-r-2xl"
+                  : isFirst
+                  ? "rounded-tr-2xl"
+                  : isLast
+                  ? "rounded-br-2xl"
+                  : "";
 
-              {/* Metrics – right aligned */}
-              <td className="py-3 px-2 text-right text-xs text-slate-900">
-                {row.sent.toLocaleString()}
-              </td>
-              <td className="py-3 px-2 text-right text-xs text-slate-900">
-                {row.opened.toLocaleString()}
-              </td>
-              <td className="py-3 px-2 text-right text-xs font-semibold text-emerald-600">
-                {row.respPct.toFixed(1)}%
-              </td>
-              <td className="py-3 pl-2 pr-2 text-right text-xs text-slate-900">
-                {row.revenue.toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                  maximumFractionDigits: 0,
-                })}
-              </td>
-            </tr>
+                // add vertical gap between campaigns
+                const campaignSpacing =
+                  groupIndex > 0 && isFirst ? "border-t-4 border-transparent" : "";
+
+                return (
+                  <tr key={row.id} className={`align-top ${campaignSpacing}`}>
+                    {/* COL 1: campaign + drop + channels */}
+                    <td className={`bg-slate-50 py-3 pr-3 pl-3 ${leftCornerClasses}`}>
+                      <div className="text-sm font-semibold text-slate-900">
+                        {row.campaignName}
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-slate-500">
+                        Drop {row.dropNumber}
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {row.channels.map((ch) => (
+                          <span
+                            key={ch}
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${channelPillClass(ch)}`}
+                          >
+                            {channelDisplayName(ch)}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+
+                    {/* Date */}
+                    <td className="bg-slate-50 py-3 px-2 text-xs text-slate-900">
+                      {row.dropDate}
+                    </td>
+
+                    {/* Metrics – right aligned */}
+                    <td className="bg-slate-50 py-3 px-2 text-right text-xs text-slate-900">
+                      {row.sent.toLocaleString()}
+                    </td>
+                    <td className="bg-slate-50 py-3 px-2 text-right text-xs text-slate-900">
+                      {row.opened.toLocaleString()}
+                    </td>
+                    <td className="bg-slate-50 py-3 px-2 text-right text-xs font-semibold text-emerald-600">
+                      {row.respPct.toFixed(1)}%
+                    </td>
+                    <td className={`bg-slate-50 py-3 pl-2 pr-3 text-right text-xs text-slate-900 ${rightCornerClasses}`}>
+                      {row.revenue.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 0,
+                      })}
+                    </td>
+                  </tr>
+                );
+              })}
+            </React.Fragment>
           ))}
         </tbody>
       </table>
