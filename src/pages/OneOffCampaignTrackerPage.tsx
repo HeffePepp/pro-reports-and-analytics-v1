@@ -358,7 +358,7 @@ const OverviewList: React.FC = () => {
             </div>
 
             {/* RIGHT: pill-style metrics */}
-            <div className="shrink-0 flex flex-wrap justify-end gap-2 md:gap-3">
+            <div className="shrink-0 flex flex-wrap items-center justify-end gap-2 md:gap-3">
               {/* Responses pill */}
               <div className="inline-flex flex-col items-center rounded-xl bg-amber-50 border border-amber-100 px-4 py-2 text-center min-w-[100px]">
                 <div className="text-sm font-semibold text-amber-700">
