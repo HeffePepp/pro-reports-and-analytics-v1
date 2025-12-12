@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import { RoasJourneyTouchpointMixTile } from "@/components/reports/RoasJourneyTouchpointMixTile";
+import { RoasCustomerJourneyTile } from "@/components/reports/RoasCustomerJourneyTile";
 
 // ----------------- types -----------------
 type ChannelRoas = {
@@ -101,14 +101,18 @@ const campaignRoasData: CampaignRoas[] = [
   },
 ];
 
-// Journey touchpoint data for ROAS mix visualization
-const journeyTouchpointMixData = [
-  { id: "tp1", label: "1. Thank You Text", responses: 420 },
-  { id: "tp2", label: "2. Thank You Email", responses: 420 },
-  { id: "tp3", label: "3. Suggested Services", responses: 310 },
-  { id: "tp4", label: "4. 2nd Vehicle Invitation", responses: 190 },
-  { id: "tp5", label: "5. Suggested Services", responses: 250 },
-  { id: "tp6", label: "6. Suggested Services", responses: 210 },
+// Customer Journey touch point ROAS data
+const journeyTouchpointRoasData = [
+  { id: "tp1", name: "1. Thank You Text", channel: "Text" as const, spend: 180, revenue: 4200, roas: 23.3 },
+  { id: "tp2", name: "2. Thank You Email", channel: "Email" as const, spend: 120, revenue: 3800, roas: 31.7 },
+  { id: "tp3", name: "3. Suggested Services", channel: "Email" as const, spend: 240, revenue: 6100, roas: 25.4 },
+  { id: "tp4", name: "4. 2nd Vehicle Invitation", channel: "Postcard" as const, spend: 420, revenue: 5200, roas: 12.4 },
+  { id: "tp5", name: "5. Suggested Services", channel: "Email" as const, spend: 180, revenue: 4800, roas: 26.7 },
+  { id: "tp6", name: "6. Suggested Services", channel: "Email" as const, spend: 150, revenue: 3900, roas: 26.0 },
+  { id: "tp7", name: "7. 60-Day Follow-Up", channel: "Postcard" as const, spend: 380, revenue: 4100, roas: 10.8 },
+  { id: "tp8", name: "8. 90-Day Reminder", channel: "Email" as const, spend: 100, revenue: 2800, roas: 28.0 },
+  { id: "tp9", name: "9. We Miss You Text", channel: "Text" as const, spend: 160, revenue: 3200, roas: 20.0 },
+  { id: "tp10", name: "10. Win-Back Postcard", channel: "Postcard" as const, spend: 520, revenue: 4600, roas: 8.8 },
 ];
 
 // ----------------- helpers -----------------
@@ -380,8 +384,8 @@ const RoasPage: React.FC = () => {
           {/* ROAS by campaign bar tile */}
           <RoasByCampaignTile data={campaignRoasData} />
 
-          {/* Journey touchpoint mix */}
-          <RoasJourneyTouchpointMixTile items={journeyTouchpointMixData} />
+          {/* ROAS by Customer Journey */}
+          <RoasCustomerJourneyTile data={journeyTouchpointRoasData} />
 
           {/* AI Insights – stacked here on small/medium screens */}
           <div className="block lg:hidden">
