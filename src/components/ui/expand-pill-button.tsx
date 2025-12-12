@@ -18,7 +18,7 @@ export const ExpandPillButton: React.FC<ExpandPillButtonProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-medium text-sky-600 hover:bg-sky-100 transition-colors ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-100 transition-colors ${className}`}
     >
       {expanded ? (
         <>
