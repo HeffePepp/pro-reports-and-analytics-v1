@@ -23,13 +23,6 @@ type CampaignRoas = {
   roas: number;
 };
 
-type JourneyRoas = {
-  roas: number;
-  spend: number;
-  revenue: number;
-  vehicles: number;
-  channels: ("Email" | "Postcard" | "Text")[];
-};
 
 // ----------------- mock data -----------------
 const channelRoasData: ChannelRoas[] = [
@@ -108,13 +101,6 @@ const campaignRoasData: CampaignRoas[] = [
   },
 ];
 
-const journeyRoasData: JourneyRoas = {
-  roas: 14.2,
-  spend: 3120,
-  revenue: 44200,
-  vehicles: 420,
-  channels: ["Email", "Text", "Postcard"],
-};
 
 // ----------------- helpers -----------------
 const formatCurrency = (value: number) =>
@@ -193,71 +179,6 @@ const RoasByChannelTile: React.FC<{ data: ChannelRoas[] }> = ({ data }) => {
   );
 };
 
-const RoasJourneyTile: React.FC<{ data: JourneyRoas }> = ({ data }) => {
-  return (
-    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-      <header className="mb-3 flex items-start justify-between">
-        <div>
-          <h2 className="text-[13px] font-semibold text-foreground">
-            ROAS for Customer Journey
-          </h2>
-          <p className="text-[11px] text-muted-foreground">
-            Performance of standard Throttle journeys (thank-you, SS, reminders, reactivation).
-          </p>
-        </div>
-      </header>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="rounded-2xl bg-tp-pastel-green px-4 py-3 text-center">
-          <div className="text-sm font-semibold text-emerald-800">
-            {data.roas.toFixed(1)}x
-          </div>
-          <div className="text-[11px] font-medium text-emerald-700">
-            Journey ROAS
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-muted px-4 py-3 text-center">
-          <div className="text-sm font-semibold text-foreground">
-            {formatCurrency(data.revenue)}
-          </div>
-          <div className="text-[11px] font-medium text-muted-foreground">
-            Revenue
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-muted px-4 py-3 text-center">
-          <div className="text-sm font-semibold text-foreground">
-            {formatCurrency(data.spend)}
-          </div>
-          <div className="text-[11px] font-medium text-muted-foreground">
-            Spend
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-muted px-4 py-3 text-center">
-          <div className="text-sm font-semibold text-foreground">
-            {data.vehicles.toLocaleString()}
-          </div>
-          <div className="text-[11px] font-medium text-muted-foreground">
-            Vehicles
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-1">
-        {data.channels.map((ch) => (
-          <span
-            key={ch}
-            className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${channelPillClass(ch)}`}
-          >
-            {ch}
-          </span>
-        ))}
-      </div>
-    </section>
-  );
-};
 
 const RoasByCampaignTile: React.FC<{ data: CampaignRoas[] }> = ({ data }) => {
   const maxRoas = Math.max(...data.map((d) => d.roas), 1);
@@ -533,10 +454,9 @@ const RoasPage: React.FC = () => {
             />
           )}
 
-          {/* ROAS by channel & Customer Journey tiles */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* ROAS by channel – full width */}
+          <div className="mt-0">
             <RoasByChannelTile data={channelRoasData} />
-            <RoasJourneyTile data={journeyRoasData} />
           </div>
 
           {/* ROAS by campaign bar tile */}
