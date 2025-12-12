@@ -4,84 +4,56 @@ import {
   MetricTile,
   AIInsightsTile,
   KpiCustomizeButton,
-  CouponPerformanceTile,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import { DiscountByCouponShareChart } from "@/components/reports/DiscountByCouponShareChart";
+import { CouponMixTile } from "@/components/reports/CouponMixTile";
+import { CouponTableTile, CouponRow } from "@/components/reports/CouponTableTile";
+import { CouponInvoiceDetailTile, CouponInvoiceRow } from "@/components/reports/CouponInvoiceDetailTile";
 
-type CouponSummary = {
-  periodLabel: string;
-  totalCouponAmount: number;
-  totalDiscountAmount: number;
-  avgDiscountPerInvoice: number;
-  totalRevenue: number;
-};
+/* ------------------------------------------------------------------
+   Sample data
+-------------------------------------------------------------------*/
 
-const couponSummary: CouponSummary = {
-  periodLabel: "Last 90 days",
-  totalCouponAmount: 15420,
-  totalDiscountAmount: 28950,
-  avgDiscountPerInvoice: 7.85,
-  totalRevenue: 312400,
-};
-
-type CouponRow = {
-  code: string;
-  description: string;
-  channel: "Email" | "Postcard" | "POS" | "Mixed";
-  redemptions: number;
-  avgTicket: number;
-  discountPct: number;
-};
-
-const couponRows: CouponRow[] = [
-  {
-    code: "OIL10",
-    description: "$10 off any oil change",
-    channel: "Email",
-    redemptions: 980,
-    avgTicket: 94,
-    discountPct: 9.8,
-  },
-  {
-    code: "SYN20",
-    description: "$20 off synthetic oil",
-    channel: "Postcard",
-    redemptions: 640,
-    avgTicket: 138,
-    discountPct: 12.7,
-  },
-  {
-    code: "VIP25",
-    description: "$25 off ticket over $150",
-    channel: "Mixed",
-    redemptions: 420,
-    avgTicket: 186,
-    discountPct: 13.4,
-  },
-  {
-    code: "WEB15",
-    description: "15% off web-only offer",
-    channel: "Email",
-    redemptions: 760,
-    avgTicket: 112,
-    discountPct: 15.0,
-  },
-  {
-    code: "WELCOME5",
-    description: "$5 off new customer",
-    channel: "POS",
-    redemptions: 1020,
-    avgTicket: 76,
-    discountPct: 6.2,
-  },
+const COUPON_ROWS: CouponRow[] = [
+  { code: "OIL10", description: "$10 off any oil change", invoices: 4200, redemptions: 980, respPct: 6.9, couponAmount: 9800, revenue: 92200 },
+  { code: "SYN20", description: "$20 off synthetic oil", invoices: 3100, redemptions: 640, respPct: 6.8, couponAmount: 12800, revenue: 88320 },
+  { code: "WEB15", description: "15% off web-only offer", invoices: 2800, redemptions: 760, respPct: 9.1, couponAmount: 12768, revenue: 85120 },
+  { code: "VIP25", description: "$25 off ticket over $150", invoices: 2000, redemptions: 420, respPct: 6.2, couponAmount: 10500, revenue: 78120 },
+  { code: "WELCOME5", description: "$5 off new customer", invoices: 3300, redemptions: 1020, respPct: 7.5, couponAmount: 5100, revenue: 77520 },
 ];
+
+const COUPON_INVOICES: CouponInvoiceRow[] = [
+  { date: "2024-12-09", invoice: "F220-12048", store: "Fairfield, CA", customer: "Noah Rivera", vehicle: "2017 Toyota Highlander", couponCode: "OIL10", offer: "$10 off any oil change", discount: 10, sales: 90, channel: "Email" },
+  { date: "2024-12-08", invoice: "A178-12006", store: "Vallejo, CA", customer: "Ethan Hall", vehicle: "2015 Nissan Altima", couponCode: "SYN20", offer: "$20 off synthetic oil", discount: 20, sales: 112, channel: "SMS" },
+  { date: "2024-12-08", invoice: "N101-12022", store: "Napa, CA", customer: "Hannah Lewis", vehicle: "2020 Subaru Legacy", couponCode: "WEB15", offer: "15% off web-only offer", discount: 18, sales: 155, channel: "Web" },
+  { date: "2024-12-07", invoice: "V330-12058", store: "Vacaville, CA", customer: "Chloe Adams", vehicle: "2019 Kia Sorento", couponCode: "WELCOME5", offer: "$5 off new customer", discount: 5, sales: 83, channel: "POS" },
+  { date: "2024-12-07", invoice: "F220-12047", store: "Fairfield, CA", customer: "Logan Ramirez", vehicle: "2018 Chevy Equinox", couponCode: "VIP25", offer: "$25 off ticket over $150", discount: 25, sales: 142, channel: "Email" },
+  { date: "2024-12-06", invoice: "N101-12021", store: "Napa, CA", customer: "Megan Scott", vehicle: "2016 Subaru Crosstrek", couponCode: "WEB15", offer: "15% off web-only offer", discount: 14, sales: 108, channel: "Web" },
+  { date: "2024-12-06", invoice: "A178-12005", store: "Vallejo, CA", customer: "Jason Clark", vehicle: "2011 Ford Focus", couponCode: "WELCOME5", offer: "$5 off new customer", discount: 5, sales: 105, channel: "POS" },
+  { date: "2024-12-05", invoice: "V330-12057", store: "Vacaville, CA", customer: "Sophia Turner", vehicle: "2022 Hyundai Tucson", couponCode: "SYN20", offer: "$20 off synthetic oil", discount: 20, sales: 160, channel: "Email" },
+  { date: "2024-12-05", invoice: "F220-12046", store: "Fairfield, CA", customer: "Anthony Perez", vehicle: "2013 Honda Accord", couponCode: "OIL10", offer: "$10 off any oil change", discount: 10, sales: 84, channel: "SMS" },
+  { date: "2024-12-04", invoice: "N101-12020", store: "Napa, CA", customer: "Rachel Green", vehicle: "2019 Toyota RAV4", couponCode: "WEB15", offer: "15% off web-only offer", discount: 16, sales: 99, channel: "Web" },
+  { date: "2024-12-04", invoice: "A178-12004", store: "Vallejo, CA", customer: "Kevin Nguyen", vehicle: "2014 Jeep Wrangler", couponCode: "VIP25", offer: "$25 off ticket over $150", discount: 25, sales: 150, channel: "Email" },
+  { date: "2024-12-03", invoice: "V330-12056", store: "Vacaville, CA", customer: "Olivia Brown", vehicle: "2018 Ford Escape", couponCode: "WELCOME5", offer: "$5 off new customer", discount: 5, sales: 118, channel: "POS" },
+  { date: "2024-12-03", invoice: "F220-12045", store: "Fairfield, CA", customer: "David Martinez", vehicle: "2015 Toyota Corolla", couponCode: "OIL10", offer: "$10 off any oil change", discount: 10, sales: 72, channel: "Email" },
+  { date: "2024-12-02", invoice: "N101-12019", store: "Napa, CA", customer: "Sarah Wilson", vehicle: "2020 Subaru Forester", couponCode: "SYN20", offer: "$20 off synthetic oil", discount: 20, sales: 102, channel: "SMS" },
+  { date: "2024-12-02", invoice: "A178-12003", store: "Vallejo, CA", customer: "Brian Lee", vehicle: "2017 Chevy Silverado", couponCode: "VIP25", offer: "$25 off ticket over $150", discount: 25, sales: 145, channel: "Email" },
+  { date: "2024-12-01", invoice: "V330-12055", store: "Vacaville, CA", customer: "Emily Davis", vehicle: "2019 Honda CR-V", couponCode: "WEB15", offer: "15% off web-only offer", discount: 17, sales: 110, channel: "Web" },
+  { date: "2024-11-30", invoice: "F220-12044", store: "Fairfield, CA", customer: "Carlos Garcia", vehicle: "2012 Honda Civic", couponCode: "WELCOME5", offer: "$5 off new customer", discount: 5, sales: 79, channel: "POS" },
+  { date: "2024-11-29", invoice: "N101-12018", store: "Napa, CA", customer: "Laura Chen", vehicle: "2021 Subaru Outback", couponCode: "SYN20", offer: "$20 off synthetic oil", discount: 20, sales: 132, channel: "Email" },
+  { date: "2024-11-28", invoice: "A178-12002", store: "Vallejo, CA", customer: "Michael Johnson", vehicle: "2016 Ford F-150", couponCode: "OIL10", offer: "$10 off any oil change", discount: 10, sales: 96, channel: "POS" },
+  { date: "2024-11-28", invoice: "A178-12001", store: "Vallejo, CA", customer: "Jane Smith", vehicle: "2018 Toyota Camry", couponCode: "WELCOME5", offer: "$5 off new customer", discount: 5, sales: 128, channel: "Email" },
+];
+
+/* ------------------------------------------------------------------
+   KPI config
+-------------------------------------------------------------------*/
 
 const KPI_OPTIONS: KpiOption[] = [
   { id: "totalCouponAmount", label: "Total coupon amount" },
   { id: "totalDiscountAmount", label: "Total discount amount" },
-  { id: "avgDiscountPerInvoice", label: "Avg coupon/discount" },
-  { id: "totalRevenue", label: "Total revenue" },
+  { id: "avgCouponPerInvoice", label: "Avg coupon/discount per invoice" },
+  { id: "revenueOnDiscounted", label: "Revenue on discounted invoices" },
 ];
 
 const CouponDiscountPage: React.FC = () => {
@@ -93,13 +65,25 @@ const CouponDiscountPage: React.FC = () => {
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("coupon-discount", KPI_OPTIONS);
 
-  // Aggregate discount dollars by coupon code for the share chart
-  const discountByCouponRows = useMemo(() => {
-    return couponRows.map((row) => ({
-      code: row.code,
-      discountAmount: row.redemptions * row.avgTicket * (row.discountPct / 100),
-    }));
+  // Compute KPI values
+  const kpiValues = useMemo(() => {
+    const totalCoupon = COUPON_ROWS.reduce((sum, r) => sum + r.couponAmount, 0);
+    const totalDiscount = totalCoupon;
+    const totalInvoices = COUPON_ROWS.reduce((sum, r) => sum + r.invoices, 0);
+    const totalRevenue = COUPON_ROWS.reduce((sum, r) => sum + r.revenue, 0);
+    const avgCoupon = totalInvoices > 0 ? totalCoupon / totalInvoices : 0;
+    const roas = totalCoupon > 0 ? totalRevenue / totalCoupon : 0;
+
+    return { totalCoupon, totalDiscount, avgCoupon, totalRevenue, roas };
   }, []);
+
+  const currency = (v: number, decimals = 0) =>
+    v.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -108,12 +92,8 @@ const CouponDiscountPage: React.FC = () => {
           <MetricTile
             key={id}
             label="Total coupon amount"
-            value={couponSummary.totalCouponAmount.toLocaleString("en-US", {
-              style: "currency",
-              currency: "USD",
-              maximumFractionDigits: 0,
-            })}
-            helpText="Total face value of all coupons redeemed during the selected period."
+            value={currency(kpiValues.totalCoupon)}
+            helpText="Sum of coupon dollars used across all redemptions."
             variant="coupon"
           />
         );
@@ -122,40 +102,27 @@ const CouponDiscountPage: React.FC = () => {
           <MetricTile
             key={id}
             label="Total discount amount"
-            value={couponSummary.totalDiscountAmount.toLocaleString("en-US", {
-              style: "currency",
-              currency: "USD",
-              maximumFractionDigits: 0,
-            })}
-            helpText="Total value of all discounts applied, including coupons and any other price reductions."
+            value={currency(kpiValues.totalDiscount)}
+            helpText="All discounts from coupon offers."
             variant="discount"
           />
         );
-      case "avgDiscountPerInvoice":
+      case "avgCouponPerInvoice":
         return (
           <MetricTile
             key={id}
-            label="Avg coupon/discount"
-            value={couponSummary.avgDiscountPerInvoice.toLocaleString("en-US", {
-              style: "currency",
-              currency: "USD",
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-            helpText="Average discount amount per invoice, across all repair orders in the selected period."
+            label="Avg coupon/discount per invoice"
+            value={currency(kpiValues.avgCoupon, 2)}
+            helpText="Average reduction per discounted invoice."
           />
         );
-      case "totalRevenue":
+      case "revenueOnDiscounted":
         return (
           <MetricTile
             key={id}
-            label="Total revenue"
-            value={couponSummary.totalRevenue.toLocaleString("en-US", {
-              style: "currency",
-              currency: "USD",
-              maximumFractionDigits: 0,
-            })}
-            helpText="Total repair-order revenue generated in the selected period, after discounts."
+            label="Revenue on discounted invoices"
+            value={currency(kpiValues.totalRevenue)}
+            helpText={`Approx. ROAS ${kpiValues.roas.toFixed(1)}x`}
           />
         );
       default:
@@ -164,15 +131,21 @@ const CouponDiscountPage: React.FC = () => {
   };
 
   const regenerateInsights = () => {
-    const richest = couponRows.reduce((best, c) => (!best || c.discountPct > best.discountPct ? c : best));
+    const richest = COUPON_ROWS.reduce((best, c) =>
+      !best || c.respPct > best.respPct ? c : best
+    );
     setInsights([
-      `"${richest.code}" has the highest average discount (${richest.discountPct.toFixed(
-        1,
-      )}%). Review its ROAS to ensure margin is acceptable.`,
+      `"${richest.code}" has the highest response rate (${richest.respPct.toFixed(1)}%). Review its ROAS to ensure margin is acceptable.`,
       "Consider small tests lowering discount amounts on top-performing coupons to protect margin.",
       "Use this report with ROAS and Oil Type Sales to spot where discounts are eroding premium oil margins.",
     ]);
   };
+
+  // Mix tile data
+  const mixRows = useMemo(
+    () => COUPON_ROWS.map((r) => ({ code: r.code, redemptions: r.redemptions })),
+    []
+  );
 
   return (
     <ShellLayout
@@ -181,20 +154,16 @@ const CouponDiscountPage: React.FC = () => {
         { label: "Reports & Insights", to: "/" },
         { label: "Coupon / Discount Analysis" },
       ]}
-      rightInfo={
-        <>
-          <span>
-            Period: <span className="font-medium">{couponSummary.periodLabel}</span>
-          </span>
-        </>
-      }
+      rightInfo={<span>Period: <span className="font-medium">Last 90 days</span></span>}
     >
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Coupon / Discount Analysis</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
+            Coupon / Discount Analysis
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
-            See which offers drive profitable visits and where discounting may be eroding margin.
+            See which offers drive profitable visits and where discounting erodes margin.
           </p>
         </div>
         <KpiCustomizeButton
@@ -205,22 +174,27 @@ const CouponDiscountPage: React.FC = () => {
         />
       </div>
 
-      {/* Layout: left content + right AI tile */}
+      {/* Main grid */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
+        {/* Left column */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles - only rendered when selected */}
+          {/* KPI tiles */}
           {selectedIds.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map(renderKpiTile)}</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {selectedIds.map(renderKpiTile)}
+            </div>
           )}
 
-          {/* Discount $ by coupon share chart */}
-          <DiscountByCouponShareChart rows={discountByCouponRows} />
+          {/* Coupon mix bar */}
+          <CouponMixTile rows={mixRows} />
 
-          {/* Coupon performance tile with Overview/Details tabs */}
-          <CouponPerformanceTile />
+          {/* Coupon table */}
+          <CouponTableTile rows={COUPON_ROWS} />
 
-          {/* AI Insights – stacked here on small/medium screens - after main content */}
+          {/* Invoice detail */}
+          <CouponInvoiceDetailTile rows={COUPON_INVOICES} />
+
+          {/* AI Insights – mobile */}
           <div className="block lg:hidden">
             <AIInsightsTile
               title="AI Insights"
@@ -231,7 +205,7 @@ const CouponDiscountPage: React.FC = () => {
           </div>
         </div>
 
-        {/* RIGHT: AI Insights – only on large screens */}
+        {/* Right column – AI Insights desktop */}
         <div className="hidden lg:block lg:col-span-1 self-start">
           <AIInsightsTile
             title="AI Insights"
