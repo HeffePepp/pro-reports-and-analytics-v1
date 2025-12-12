@@ -29,19 +29,25 @@ export const DraggableKpiRow: React.FC<DraggableKpiRowProps> = ({
     if (typeof window === "undefined") return;
     const key = `kpiOrder:${reportKey}`;
     const stored = window.localStorage.getItem(key);
+    const tileIds = tiles.map((t) => t.id);
+    
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as string[];
+        // Filter to only include IDs that exist in current tiles
         const filtered = parsed.filter((id) => tilesById[id]);
-        if (filtered.length) {
-          setOrder(filtered);
+        // Add any new tile IDs that aren't in the stored order
+        const newIds = tileIds.filter((id) => !filtered.includes(id));
+        const combined = [...filtered, ...newIds];
+        if (combined.length) {
+          setOrder(combined);
           return;
         }
       } catch {
         // ignore
       }
     }
-    setOrder(tiles.map((t) => t.id));
+    setOrder(tileIds);
   }, [reportKey, tiles, tilesById]);
 
   useEffect(() => {
