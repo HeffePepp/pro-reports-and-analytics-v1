@@ -527,7 +527,7 @@ const DetailsTable: React.FC = () => {
                     <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700">
                       Campaign Totals
                     </td>
-                    <td className="py-2 px-2 text-right text-xs text-slate-900">—</td>
+                    <td className="py-2 px-2 text-right text-xs text-slate-900"></td>
                     <td className="py-2 px-2 text-right text-xs text-slate-900">
                       {totals.sent.toLocaleString()}
                     </td>
