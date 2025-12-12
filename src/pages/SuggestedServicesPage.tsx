@@ -598,7 +598,7 @@ const SuggestedServicesPage: React.FC = () => {
                     >
                       {/* LEFT: service name - vertically centered */}
                       <div className="min-w-0 flex-1 flex items-center">
-                        <div className="truncate text-[20px] font-semibold tracking-wide text-slate-900">
+                        <div className="truncate text-[15px] font-semibold tracking-wide text-slate-900">
                           {(item.service || "").toUpperCase()}
                         </div>
                       </div>
