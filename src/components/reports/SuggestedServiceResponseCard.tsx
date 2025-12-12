@@ -258,13 +258,23 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
                     <div className="text-[11px] text-slate-500">—</div>
                   )}
 
-                {/* Offer description */}
-                {row.response.offerDescription && (
-                  <div className="text-[11px] text-slate-600">
-                    <span className="font-semibold">
-                      {row.response.offerType === "coupon" ? "Coupon: " : "Discount: "}
-                    </span>
-                    {row.response.offerDescription}
+                {/* Coupon/Discount code and description on separate lines */}
+                {row.response.offerType && row.response.offerCode && (
+                  <div className="space-y-1 text-[11px] text-slate-600">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">
+                        {row.response.offerType === "coupon" ? "Coupon:" : "Discount:"}
+                      </span>
+                      <OfferPill type={row.response.offerType} code={row.response.offerCode} />
+                    </div>
+                    {row.response.offerDescription && (
+                      <div>
+                        <span className="font-semibold">
+                          {row.response.offerType === "coupon" ? "Coupon Description: " : "Discount Description: "}
+                        </span>
+                        {row.response.offerDescription}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
