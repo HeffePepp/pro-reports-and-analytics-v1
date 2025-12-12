@@ -37,31 +37,31 @@ type SuggestedServiceTypeRow = {
 };
 
 const SS_SERVICE_TYPES: SuggestedServiceTypeRow[] = [
-  { service: "PCV VALVE", invoices: 2200, validEmailPct: 75, conversions: 13 },
-  { service: "PWR STEERING FLUSH", invoices: 2160, validEmailPct: 78, conversions: 18 },
-  { service: "REAR BRAKE SERVICE", invoices: 2120, validEmailPct: 81, conversions: 22 },
-  { service: "REAR DIFF SERVICE", invoices: 2080, validEmailPct: 84, conversions: 9 },
-  { service: "RADIATOR SERVICE", invoices: 2040, validEmailPct: 87, conversions: 15 },
-  { service: "SERPENTINE BELT SVC.", invoices: 2000, validEmailPct: 75, conversions: 11 },
-  { service: "SHOCK/STRUTS", invoices: 1960, validEmailPct: 78, conversions: 7 },
-  { service: "TRANSFER CASE SERV", invoices: 1920, validEmailPct: 81, conversions: 12 },
-  { service: "TIRE ROTATION", invoices: 1880, validEmailPct: 84, conversions: 25 },
-  { service: "TRANSMISSION SERVICE", invoices: 1840, validEmailPct: 87, conversions: 8 },
-  { service: "TUNE-UP", invoices: 1800, validEmailPct: 75, conversions: 14 },
-  { service: "WIPER BLADES", invoices: 1760, validEmailPct: 78, conversions: 19 },
-  { service: "AIR FILTER", invoices: 1720, validEmailPct: 81, conversions: 21 },
-  { service: "BREATHER FILTER", invoices: 1680, validEmailPct: 84, conversions: 6 },
-  { service: "BRAKE SERVICE", invoices: 1640, validEmailPct: 87, conversions: 16 },
-  { service: "BATTERY SERVICE", invoices: 1600, validEmailPct: 75, conversions: 10 },
-  { service: "CABIN AIR FILTER", invoices: 1560, validEmailPct: 78, conversions: 17 },
-  { service: "ENGINE FLUSH", invoices: 1520, validEmailPct: 81, conversions: 5 },
-  { service: "EXHAUST WORK", invoices: 1480, validEmailPct: 84, conversions: 8 },
-  { service: "FRONT BRAKE SERVICE", invoices: 1440, validEmailPct: 87, conversions: 20 },
-  { service: "FRONT DIFF SERVICE", invoices: 1400, validEmailPct: 75, conversions: 4 },
-  { service: "FUEL FILTER", invoices: 1360, validEmailPct: 78, conversions: 11 },
-  { service: "FUEL INJ. SERVICE", invoices: 1320, validEmailPct: 81, conversions: 9 },
-  { service: "HOSES", invoices: 1280, validEmailPct: 84, conversions: 7 },
-  { service: "LIGHT BULB", invoices: 1240, validEmailPct: 87, conversions: 3 },
+  { service: "PCV Valve", invoices: 2200, validEmailPct: 75, conversions: 13 },
+  { service: "Pwr Steering Flush", invoices: 2160, validEmailPct: 78, conversions: 18 },
+  { service: "Rear Brake Service", invoices: 2120, validEmailPct: 81, conversions: 22 },
+  { service: "Rear Diff Service", invoices: 2080, validEmailPct: 84, conversions: 9 },
+  { service: "Radiator Service", invoices: 2040, validEmailPct: 87, conversions: 15 },
+  { service: "Serpentine Belt Svc.", invoices: 2000, validEmailPct: 75, conversions: 11 },
+  { service: "Shock/Struts", invoices: 1960, validEmailPct: 78, conversions: 7 },
+  { service: "Transfer Case Serv", invoices: 1920, validEmailPct: 81, conversions: 12 },
+  { service: "Tire Rotation", invoices: 1880, validEmailPct: 84, conversions: 25 },
+  { service: "Transmission Service", invoices: 1840, validEmailPct: 87, conversions: 8 },
+  { service: "Tune-Up", invoices: 1800, validEmailPct: 75, conversions: 14 },
+  { service: "Wiper Blades", invoices: 1760, validEmailPct: 78, conversions: 19 },
+  { service: "Air Filter", invoices: 1720, validEmailPct: 81, conversions: 21 },
+  { service: "Breather Filter", invoices: 1680, validEmailPct: 84, conversions: 6 },
+  { service: "Brake Service", invoices: 1640, validEmailPct: 87, conversions: 16 },
+  { service: "Battery Service", invoices: 1600, validEmailPct: 75, conversions: 10 },
+  { service: "Cabin Air Filter", invoices: 1560, validEmailPct: 78, conversions: 17 },
+  { service: "Engine Flush", invoices: 1520, validEmailPct: 81, conversions: 5 },
+  { service: "Exhaust Work", invoices: 1480, validEmailPct: 84, conversions: 8 },
+  { service: "Front Brake Service", invoices: 1440, validEmailPct: 87, conversions: 20 },
+  { service: "Front Diff Service", invoices: 1400, validEmailPct: 75, conversions: 4 },
+  { service: "Fuel Filter", invoices: 1360, validEmailPct: 78, conversions: 11 },
+  { service: "Fuel Inj. Service", invoices: 1320, validEmailPct: 81, conversions: 9 },
+  { service: "Hoses", invoices: 1280, validEmailPct: 84, conversions: 7 },
+  { service: "Light Bulb", invoices: 1240, validEmailPct: 87, conversions: 3 },
 ];
 
 type SuggestedServicesTouchPoint = {
@@ -709,10 +709,10 @@ const SuggestedServicesPage: React.FC = () => {
                       </div>
 
                       {/* RIGHT: both metrics side by side */}
-                      <div className="shrink-0 flex items-center gap-6">
-                        {/* Invoice stat */}
-                        <div className="px-4 py-2 text-center min-w-[120px]">
-                          <div className="text-[18px] font-semibold text-amber-700 leading-none">
+                      <div className="shrink-0 flex items-center gap-4">
+                        {/* Invoice stat pill */}
+                        <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-center min-w-[120px]">
+                          <div className="text-[18px] font-semibold text-slate-700 leading-none">
                             {item.invoices.toLocaleString()}
                           </div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
@@ -720,9 +720,9 @@ const SuggestedServicesPage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Conversions stat */}
-                        <div className="px-4 py-2 text-center min-w-[120px]">
-                          <div className="text-[20px] font-semibold text-indigo-700 leading-none">
+                        {/* Conversions stat pill */}
+                        <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-center min-w-[120px]">
+                          <div className="text-[18px] font-semibold text-slate-700 leading-none">
                             {item.conversions.toLocaleString()}
                           </div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
