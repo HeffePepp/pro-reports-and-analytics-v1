@@ -6,6 +6,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 type MetricVariant = "default" | "coupon" | "discount";
 
@@ -39,7 +40,7 @@ const MetricTile: React.FC<MetricTileProps> = ({
     : "text-xl md:text-2xl font-semibold text-slate-900 tracking-tight";
 
   return (
-    <div className={`rounded-2xl border shadow-sm h-full ${variantClasses[variant]} ${className ?? ""}`}>
+    <div className={cn("rounded-2xl border shadow-sm h-full", variantClasses[variant], className)}>
       <div className="flex flex-col justify-center h-full px-3 py-3 md:px-4 md:py-4 min-h-[96px]">
         {/* Description */}
         <div className="flex items-center gap-1">
