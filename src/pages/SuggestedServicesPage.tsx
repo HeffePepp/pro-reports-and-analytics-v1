@@ -526,25 +526,26 @@ const SuggestedServicesPage: React.FC = () => {
             {ssTab === "touchpoints" && (
               <div className="mt-4 overflow-x-auto">
                 <table className="min-w-full table-fixed text-[11px]">
+                  {/* Column widths so stats stay grouped on the right */}
                   <colgroup>
-                    <col className="w-[40%]" />
-                    <col className="w-[10%]" />
-                    <col className="w-[10%]" />
-                    <col className="w-[10%]" />
-                    <col className="w-[10%]" />
-                    <col className="w-[10%]" />
-                    <col className="w-[10%]" />
+                    <col className="w-[34%]" />
+                    <col className="w-[11%]" />
+                    <col className="w-[11%]" />
+                    <col className="w-[11%]" />
+                    <col className="w-[11%]" />
+                    <col className="w-[11%]" />
+                    <col className="w-[11%]" />
                   </colgroup>
 
-                  <thead className="border-b border-slate-100 text-slate-500 tracking-wide">
+                  <thead className="border-b border-slate-100 text-slate-500">
                     <tr>
-                      <th className="py-2 pr-4 text-left font-medium">Touch point</th>
-                      <th className="py-2 pl-4 text-right font-medium">Sent</th>
-                      <th className="py-2 pl-4 text-right font-medium">Opened</th>
-                      <th className="py-2 pl-4 text-right font-medium">Responses</th>
-                      <th className="py-2 pl-4 text-right font-medium">Resp %</th>
-                      <th className="py-2 pl-4 text-right font-medium">ROAS</th>
-                      <th className="py-2 pl-4 text-right font-medium">Revenue</th>
+                      <th className="py-2 pr-3 text-left font-medium">Touch point</th>
+                      <th className="py-2 pr-3 text-right font-medium">Sent</th>
+                      <th className="py-2 pr-3 text-right font-medium">Opened</th>
+                      <th className="py-2 pr-3 text-right font-medium">Responses</th>
+                      <th className="py-2 pr-3 text-right font-medium">Resp %</th>
+                      <th className="py-2 pr-3 text-right font-medium">ROAS</th>
+                      <th className="py-2 pl-3 text-right font-medium">Revenue</th>
                     </tr>
                   </thead>
 
@@ -553,28 +554,40 @@ const SuggestedServicesPage: React.FC = () => {
                       const revenue = Math.round(tp.responses * tp.roas * 50);
                       return (
                         <tr key={tp.timing}>
-                          <td className="py-3 pr-4 align-top">
-                            <div className="text-[14px] font-semibold text-slate-900">Suggested Services</div>
-                            <div className="mt-0.5 text-[11px] text-slate-500">{tp.timing}</div>
-                            <span className="mt-1 inline-flex items-center rounded-full bg-emerald-50 border border-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-                              Email
-                            </span>
+                          {/* LEFT: name + timing + ghost pill channel */}
+                          <td className="py-3 pr-3 align-top">
+                            <div className="text-[13px] font-semibold text-slate-900">
+                              Suggested Services
+                            </div>
+                            <div className="mt-0.5 text-[11px] text-slate-500">
+                              {tp.timing}
+                            </div>
+                            <div className="mt-1">
+                              <span className="inline-flex items-center rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
+                                {tp.channel}
+                              </span>
+                            </div>
                           </td>
 
-                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          {/* RIGHT: stats block, right-aligned and tight */}
+                          <td className="py-3 pr-3 text-right align-middle text-slate-900">
                             {tp.sent.toLocaleString()}
                           </td>
-                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          <td className="py-3 pr-3 text-right align-middle text-slate-900">
                             {tp.opened.toLocaleString()}
                           </td>
-                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          <td className="py-3 pr-3 text-right align-middle text-slate-900">
                             {tp.responses.toLocaleString()}
                           </td>
-                          <td className="py-3 pl-4 text-right align-middle">
-                            <span className="font-semibold text-emerald-600">{tp.respPct.toFixed(1)}%</span>
+                          <td className="py-3 pr-3 text-right align-middle">
+                            <span className="font-semibold text-emerald-600">
+                              {tp.respPct.toFixed(1)}%
+                            </span>
                           </td>
-                          <td className="py-3 pl-4 text-right align-middle text-slate-900">{tp.roas.toFixed(1)}x</td>
-                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
+                          <td className="py-3 pr-3 text-right align-middle text-slate-900">
+                            {tp.roas.toFixed(1)}x
+                          </td>
+                          <td className="py-3 pl-3 text-right align-middle text-slate-900">
                             {revenue.toLocaleString("en-US", {
                               style: "currency",
                               currency: "USD",
