@@ -545,7 +545,7 @@ const DetailsTable: React.FC = () => {
                 return (
                   <tr key={row.id} className={`align-top ${campaignSpacing}`}>
                     {/* COL 1: campaign + drop + channels */}
-                    <td className={`bg-slate-50 py-3 pr-3 pl-3 ${leftCornerClasses}`}>
+                    <td className={`border border-r-0 border-slate-200 bg-white py-3 pr-3 pl-3 ${leftCornerClasses}`}>
                       <div className="text-sm font-semibold text-slate-900">
                         {row.campaignName}
                       </div>
@@ -565,21 +565,21 @@ const DetailsTable: React.FC = () => {
                     </td>
 
                     {/* Date */}
-                    <td className="bg-slate-50 py-3 px-2 text-xs text-slate-900">
+                    <td className={`border-y border-slate-200 bg-white py-3 px-2 text-xs text-slate-900`}>
                       {row.dropDate}
                     </td>
 
                     {/* Metrics – right aligned */}
-                    <td className="bg-slate-50 py-3 px-2 text-right text-xs text-slate-900">
+                    <td className={`border-y border-slate-200 bg-white py-3 px-2 text-right text-xs text-slate-900`}>
                       {row.sent.toLocaleString()}
                     </td>
-                    <td className="bg-slate-50 py-3 px-2 text-right text-xs text-slate-900">
+                    <td className={`border-y border-slate-200 bg-white py-3 px-2 text-right text-xs text-slate-900`}>
                       {row.opened.toLocaleString()}
                     </td>
-                    <td className="bg-slate-50 py-3 px-2 text-right text-xs font-semibold text-emerald-600">
+                    <td className={`border-y border-slate-200 bg-white py-3 px-2 text-right text-xs font-semibold text-emerald-600`}>
                       {row.respPct.toFixed(1)}%
                     </td>
-                    <td className={`bg-slate-50 py-3 pl-2 pr-3 text-right text-xs text-slate-900 ${rightCornerClasses}`}>
+                    <td className={`border border-l-0 border-slate-200 bg-white py-3 pl-2 pr-3 text-right text-xs text-slate-900 ${rightCornerClasses}`}>
                       {row.revenue.toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
