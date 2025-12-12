@@ -315,6 +315,7 @@ const CustomerJourneyPage: React.FC = () => {
             value={journeySummary.emailReminders.toLocaleString()}
             helpText="Total email reminders sent across all journey touch points."
             className="bg-tp-pastel-green border-emerald-200"
+            valueHighlightClass="bg-emerald-100 text-emerald-700"
           />
         );
       case "textReminders":
@@ -325,6 +326,7 @@ const CustomerJourneyPage: React.FC = () => {
             value={journeySummary.textReminders.toLocaleString()}
             helpText="Total text message reminders sent across all journey touch points."
             className="bg-tp-pastel-purple border-indigo-200"
+            valueHighlightClass="bg-indigo-100 text-indigo-700"
           />
         );
       case "pcReminders":
@@ -335,6 +337,7 @@ const CustomerJourneyPage: React.FC = () => {
             value={journeySummary.pcReminders.toLocaleString()}
             helpText="Total postcard reminders sent across all journey touch points."
             className="bg-tp-pastel-blue border-sky-200"
+            valueHighlightClass="bg-sky-100 text-sky-700"
           />
         );
       default:
