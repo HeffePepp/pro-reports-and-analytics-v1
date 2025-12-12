@@ -28,8 +28,10 @@ type ResponseVisit = {
   milesLater?: number;
   servicesPurchased?: string[];
   discountText?: string;
-  couponCode?: string;
-  couponDescription?: string;
+  // Either coupon OR discount, not both
+  offerType?: "coupon" | "discount";
+  offerCode?: string;
+  offerDescription?: string;
 };
 
 export type SuggestedServiceResponse = {
@@ -59,6 +61,20 @@ const Badge: React.FC<BadgeProps> = ({ label, tone }) => {
       : "bg-sky-50 text-sky-700";
 
   return <span className={clsx(base, color)}>{label}</span>;
+};
+
+// Offer type pill matching Coupons/Discounts page
+const OfferPill: React.FC<{ type: "coupon" | "discount"; code: string }> = ({ type, code }) => {
+  const pillClass =
+    type === "coupon"
+      ? "bg-sky-50 border-sky-100 text-sky-700"
+      : "bg-emerald-50 border-emerald-100 text-emerald-700";
+
+  return (
+    <span className={clsx("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold", pillClass)}>
+      {code}
+    </span>
+  );
 };
 
 type Props = {
@@ -97,6 +113,10 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
           >
             {hasResponse ? "Converted" : "Email Opened – No Response Yet"}
           </span>
+          {/* Offer pill moved here - under conversion pill */}
+          {hasResponse && row.response.offerType && row.response.offerCode && (
+            <OfferPill type={row.response.offerType} code={row.response.offerCode} />
+          )}
           <span className="text-[11px] text-slate-500">
             {row.original.touchpointLabel}
           </span>
@@ -106,12 +126,12 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
       {/* BODY: original vs response */}
       <div className="mt-4 flex flex-col gap-4 border-t border-slate-100 pt-4 md:flex-row md:gap-6">
         {/* Original visit */}
-        <div className="flex-1 space-y-3">
+        <div className="flex-1 flex flex-col">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
             Original visit
           </div>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-slate-600">
+          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-slate-600">
             <div>Invoice #</div>
             <div className="font-medium text-slate-900">
               {row.original.invoiceNumber}
@@ -133,7 +153,7 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
             </div>
           </div>
 
-          <div className="text-[11px] text-slate-600">
+          <div className="mt-3 text-[11px] text-slate-600">
             <span className="font-medium">{row.original.channelLabel}</span>{" "}
             sent {row.original.sentDate}
             {row.original.openedDate ? (
@@ -143,7 +163,8 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
             )}
           </div>
 
-          <div className="space-y-2">
+          {/* Suggested services - with mt-auto equivalent via flex-grow for alignment */}
+          <div className="mt-4 space-y-2">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
               Suggested services
             </div>
@@ -180,14 +201,14 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
         </div>
 
         {/* Response visit */}
-        <div className="flex-1 space-y-3 border-t border-slate-100 pt-4 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+        <div className="flex-1 flex flex-col border-t border-slate-100 pt-4 md:border-l md:border-t-0 md:pl-6 md:pt-0">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
             Response invoice
           </div>
 
           {hasResponse ? (
             <>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-slate-600">
+              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-slate-600">
                 <div>Invoice #</div>
                 <div className="font-medium text-slate-900">
                   {row.response.invoiceNumber}
@@ -221,46 +242,35 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
                 )}
               </div>
 
-              {row.response.servicesPurchased &&
-                row.response.servicesPurchased.length > 0 && (
-                  <div className="space-y-1 text-[11px] text-slate-600">
-                    <div className="font-semibold uppercase tracking-wide text-slate-500">
-                      Services purchased
-                    </div>
-                    <ul className="list-disc pl-4">
+              {/* Services purchased - aligned with Suggested services header on left */}
+              <div className="mt-4 space-y-2">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Services purchased
+                </div>
+                {row.response.servicesPurchased &&
+                  row.response.servicesPurchased.length > 0 ? (
+                    <ul className="list-disc pl-4 text-[11px] text-slate-600">
                       {row.response.servicesPurchased.map((svc) => (
                         <li key={svc}>{svc}</li>
                       ))}
                     </ul>
+                  ) : (
+                    <div className="text-[11px] text-slate-500">—</div>
+                  )}
+
+                {/* Offer description */}
+                {row.response.offerDescription && (
+                  <div className="text-[11px] text-slate-600">
+                    <span className="font-semibold">
+                      {row.response.offerType === "coupon" ? "Coupon: " : "Discount: "}
+                    </span>
+                    {row.response.offerDescription}
                   </div>
                 )}
-
-              {row.response.discountText && (
-                <div className="text-[11px] text-slate-600">
-                  <span className="font-semibold">Discount: </span>
-                  {row.response.discountText}
-                </div>
-              )}
-
-              {(row.response.couponCode || row.response.couponDescription) && (
-                <div className="space-y-1 text-[11px] text-slate-600">
-                  {row.response.couponCode && (
-                    <div>
-                      <span className="font-semibold">Coupon code: </span>
-                      <span className="font-medium text-slate-900">{row.response.couponCode}</span>
-                    </div>
-                  )}
-                  {row.response.couponDescription && (
-                    <div>
-                      <span className="font-semibold">Coupon: </span>
-                      {row.response.couponDescription}
-                    </div>
-                  )}
-                </div>
-              )}
+              </div>
             </>
           ) : (
-            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-4 text-[11px] text-slate-500">
+            <div className="mt-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-4 text-[11px] text-slate-500">
               No response invoice yet. This record will update automatically if
               the customer returns from this Suggested Services touch point.
             </div>
