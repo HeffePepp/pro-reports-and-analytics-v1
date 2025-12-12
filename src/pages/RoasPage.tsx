@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import { RoasJourneyTouchpointMixTile } from "@/components/reports/RoasJourneyTouchpointMixTile";
 
 // ----------------- types -----------------
 type ChannelRoas = {
@@ -98,6 +99,16 @@ const campaignRoasData: CampaignRoas[] = [
     vehicles: 19,
     roas: 24.5,
   },
+];
+
+// Journey touchpoint data for ROAS mix visualization
+const journeyTouchpointMixData = [
+  { id: "tp1", label: "1. Thank You Text", responses: 420 },
+  { id: "tp2", label: "2. Thank You Email", responses: 420 },
+  { id: "tp3", label: "3. Suggested Services", responses: 310 },
+  { id: "tp4", label: "4. 2nd Vehicle Invitation", responses: 190 },
+  { id: "tp5", label: "5. Suggested Services", responses: 250 },
+  { id: "tp6", label: "6. Suggested Services", responses: 210 },
 ];
 
 // ----------------- helpers -----------------
@@ -368,6 +379,9 @@ const RoasPage: React.FC = () => {
 
           {/* ROAS by campaign bar tile */}
           <RoasByCampaignTile data={campaignRoasData} />
+
+          {/* Journey touchpoint mix */}
+          <RoasJourneyTouchpointMixTile items={journeyTouchpointMixData} />
 
           {/* AI Insights – stacked here on small/medium screens */}
           <div className="block lg:hidden">
