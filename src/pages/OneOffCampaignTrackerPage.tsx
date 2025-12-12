@@ -12,11 +12,21 @@ interface ChannelMix {
   sms: number;
 }
 
+type DropStat = {
+  label: string;
+  date: string;
+  sent: number;
+  opens: number;
+  responses: number;
+  respPct: number;
+  roas: number;
+};
+
 interface Campaign {
   id: string;
   name: string;
   audience: string;
-  dropsLabel: string;
+  drops: number;
   lastDropDate: string;
   sent: number;
   opens: number;
@@ -26,6 +36,7 @@ interface Campaign {
   revenue: number;
   channels: Channel[];
   channelMix: ChannelMix;
+  dropStats?: DropStat[];
 }
 
 const CAMPAIGNS: Campaign[] = [
@@ -33,7 +44,7 @@ const CAMPAIGNS: Campaign[] = [
     id: "spring-has-sprung",
     name: "Don's Garage: Spring Has Sprung",
     audience: "Current synthetic customers · last 9 months",
-    dropsLabel: "1 drop",
+    drops: 1,
     lastDropDate: "Mar 5, 2024",
     sent: 2800,
     opens: 1120,
@@ -43,12 +54,15 @@ const CAMPAIGNS: Campaign[] = [
     revenue: 22400,
     channels: ["email"],
     channelMix: { postcard: 0, email: 100, sms: 0 },
+    dropStats: [
+      { label: "Drop 1", date: "Mar 5, 2024", sent: 2800, opens: 1120, responses: 194, respPct: 6.9, roas: 16.1 },
+    ],
   },
   {
     id: "summer-ac-tuneup-1",
     name: "Summer A/C Tune-Up",
     audience: "Vehicles in warm-weather ZIPs · last 18 months",
-    dropsLabel: "2 drops",
+    drops: 2,
     lastDropDate: "May 24, 2024",
     sent: 5000,
     opens: 1850,
@@ -58,12 +72,16 @@ const CAMPAIGNS: Campaign[] = [
     revenue: 40900,
     channels: ["postcard", "email", "sms"],
     channelMix: { postcard: 40, email: 30, sms: 30 },
+    dropStats: [
+      { label: "Drop 1", date: "Apr 10, 2024", sent: 2500, opens: 900, responses: 110, respPct: 7.1, roas: 8.7 },
+      { label: "Drop 2", date: "May 24, 2024", sent: 2500, opens: 950, responses: 110, respPct: 6.4, roas: 11.0 },
+    ],
   },
   {
     id: "back-to-school",
     name: "Back to School",
     audience: "Minivan/SUV households · schools within 10 miles",
-    dropsLabel: "1 drop",
+    drops: 1,
     lastDropDate: "Aug 15, 2024",
     sent: 2600,
     opens: 0,
@@ -73,12 +91,15 @@ const CAMPAIGNS: Campaign[] = [
     revenue: 19500,
     channels: ["postcard"],
     channelMix: { postcard: 100, email: 0, sms: 0 },
+    dropStats: [
+      { label: "Drop 1", date: "Aug 15, 2024", sent: 2600, opens: 0, responses: 162, respPct: 6.2, roas: 7.6 },
+    ],
   },
   {
     id: "black-friday-synthetic",
     name: "Black Friday Synthetic Push",
     audience: "High-mileage synthetic customers · last 24 months",
-    dropsLabel: "2 drops",
+    drops: 2,
     lastDropDate: "Nov 27, 2024",
     sent: 5500,
     opens: 1980,
@@ -88,6 +109,10 @@ const CAMPAIGNS: Campaign[] = [
     revenue: 64800,
     channels: ["postcard", "email"],
     channelMix: { postcard: 60, email: 40, sms: 0 },
+    dropStats: [
+      { label: "Drop 1", date: "Nov 15, 2024", sent: 2750, opens: 990, responses: 165, respPct: 8.4, roas: 9.8 },
+      { label: "Drop 2", date: "Nov 27, 2024", sent: 2750, opens: 990, responses: 172, respPct: 9.8, roas: 11.6 },
+    ],
   },
 ];
 
@@ -284,7 +309,7 @@ const OverviewList: React.FC = () => {
               <div className="text-base md:text-lg font-semibold text-slate-900">{c.name}</div>
               <div className="mt-0.5 text-[11px] text-slate-500">{c.audience}</div>
               <div className="mt-0.5 text-[11px] text-slate-500">
-                {c.dropsLabel} · Last drop {c.lastDropDate}
+                {c.drops} {c.drops === 1 ? "drop" : "drops"} · Last drop {c.lastDropDate}
               </div>
             </div>
             <div className="text-right text-xs md:text-sm text-slate-700 min-w-[120px]">
@@ -376,13 +401,13 @@ const DropsTable: React.FC = () => {
         <tbody className="divide-y divide-slate-100">
           {CAMPAIGNS.map((c) => (
             <tr key={c.id} className="align-top">
-              {/* LEFT: stacked campaign info + channel pills */}
+              {/* LEFT: stacked campaign info + channel pills + per-drop breakdown */}
               <td className="py-3 pr-3">
                 <div className="text-sm font-semibold text-slate-900">
                   {c.name}
                 </div>
                 <div className="mt-0.5 text-[11px] text-slate-500">
-                  {c.dropsLabel} · Last drop {c.lastDropDate}
+                  {c.drops} {c.drops === 1 ? "drop" : "drops"} · Last drop {c.lastDropDate}
                 </div>
 
                 {/* Channel pills – horizontal row */}
@@ -396,9 +421,28 @@ const DropsTable: React.FC = () => {
                     </span>
                   ))}
                 </div>
+
+                {/* Per-drop stat lines – only show if more than one drop */}
+                {c.dropStats && c.dropStats.length > 1 && (
+                  <div className="mt-2 space-y-0.5 rounded-md bg-slate-50 p-2">
+                    {c.dropStats.map((drop) => (
+                      <div
+                        key={drop.label}
+                        className="flex justify-between gap-2 text-[11px] text-slate-600"
+                      >
+                        <span className="font-medium text-slate-700">
+                          {drop.label} · {drop.date}
+                        </span>
+                        <span className="text-right">
+                          {drop.sent.toLocaleString()} sent · {drop.respPct.toFixed(1)}% resp · {drop.roas.toFixed(1)}x ROAS
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </td>
 
-              {/* Metrics – right aligned */}
+              {/* Metrics – right aligned (aggregate for the whole campaign) */}
               <td className="py-3 px-2 text-right text-xs text-slate-900">
                 {c.sent.toLocaleString()}
               </td>
