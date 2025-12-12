@@ -8,6 +8,7 @@ import {
   ReportTableCell,
 } from "@/components/ui/report-table";
 import { ExpandPillButton } from "@/components/ui/expand-pill-button";
+import { formatDate, formatInvoiceNumber } from "@/lib/formatters";
 
 export type CouponInvoiceRow = {
   date: string;
@@ -138,9 +139,9 @@ export const CouponInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
         <ReportTableBody>
           {visibleRows.map((row, idx) => (
             <ReportTableRow key={`${row.invoice}-${idx}`}>
-              <ReportTableCell>{row.date}</ReportTableCell>
+              <ReportTableCell>{formatDate(row.date)}</ReportTableCell>
               <ReportTableCell className="font-semibold text-sky-700">
-                {row.invoice}
+                {formatInvoiceNumber(row.invoice)}
               </ReportTableCell>
               <ReportTableCell>
                 <div className="space-y-0.5">
