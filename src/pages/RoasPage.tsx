@@ -167,7 +167,7 @@ const RoasByChannelTile: React.FC<{ data: ChannelRoas[] }> = ({ data }) => {
     <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <header className="flex items-start justify-between">
         <div>
-          <h2 className="text-[13px] font-semibold text-foreground">ROAS by communication channel</h2>
+          <h2 className="text-[13px] font-semibold text-foreground">ROAS by Communication Channel</h2>
           <p className="text-[11px] text-muted-foreground">Relative ROAS and spend by primary communication channel.</p>
         </div>
       </header>
