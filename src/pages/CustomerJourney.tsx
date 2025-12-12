@@ -230,8 +230,15 @@ const KPI_OPTIONS: KpiOption[] = [
   { id: "pcReminders", label: "PC Reminders" },
 ];
 
-type DetailsSortKey = "id" | "sends" | "responses" | "respPct" | "roas" | "revenue";
+type DetailsSortKey = "id" | "channel" | "sends" | "opened" | "responses" | "respPct" | "roas" | "revenue";
 type SortDir = "asc" | "desc";
+
+// Channel sort order for consistent sorting
+const CHANNEL_SORT_ORDER: Record<string, number> = {
+  postcard: 1,
+  email: 2,
+  text: 3,
+};
 
 const CustomerJourneyPage: React.FC = () => {
   const [tab, setTab] = useState<CJTab>("visualization");
@@ -248,18 +255,112 @@ const CustomerJourneyPage: React.FC = () => {
     }
   };
 
-  const sortedTouchPoints = useMemo(() => {
-    const sorted = [...TOUCH_POINTS];
-    sorted.sort((a, b) => {
-      let aVal: number;
-      let bVal: number;
+  // Build flattened rows for Details table (one row per channel per touch point)
+  type DetailRow = {
+    tpId: number;
+    tpName: string;
+    offsetLabel: string;
+    channel: "postcard" | "email" | "text";
+    sends: number;
+    opened: number;
+    responses: number;
+    respPct: number;
+    roas: number;
+    revenue: number;
+    isFirstInGroup: boolean;
+    groupSize: number;
+  };
 
-      if (detailsSortKey === "responses") {
-        aVal = Math.round(a.sends * (a.respPct / 100));
-        bVal = Math.round(b.sends * (b.respPct / 100));
+  const detailRows = useMemo(() => {
+    const rows: DetailRow[] = [];
+    TOUCH_POINTS.forEach((tp) => {
+      if (tp.channelBreakdown && tp.channelBreakdown.length > 0) {
+        tp.channelBreakdown.forEach((cb, idx) => {
+          rows.push({
+            tpId: tp.id,
+            tpName: tp.name,
+            offsetLabel: tp.offsetLabel,
+            channel: cb.channel,
+            sends: cb.sends,
+            opened: cb.opened,
+            responses: cb.responses,
+            respPct: cb.respPct,
+            roas: cb.roas,
+            revenue: cb.revenue,
+            isFirstInGroup: idx === 0,
+            groupSize: tp.channelBreakdown!.length,
+          });
+        });
       } else {
-        aVal = a[detailsSortKey];
-        bVal = b[detailsSortKey];
+        const channels = parseChannels(tp.channel);
+        const channelKey = channels[0] || "email";
+        const responses = Math.round(tp.sends * (tp.respPct / 100));
+        const opened = channelKey === "email" 
+          ? Math.round(tp.sends * 0.4) 
+          : channelKey === "text" 
+            ? Math.round(tp.sends * 0.95) 
+            : 0;
+        rows.push({
+          tpId: tp.id,
+          tpName: tp.name,
+          offsetLabel: tp.offsetLabel,
+          channel: channelKey as "postcard" | "email" | "text",
+          sends: tp.sends,
+          opened,
+          responses,
+          respPct: tp.respPct,
+          roas: tp.roas,
+          revenue: tp.revenue,
+          isFirstInGroup: true,
+          groupSize: 1,
+        });
+      }
+    });
+    return rows;
+  }, []);
+
+  const sortedDetailRows = useMemo(() => {
+    const sorted = [...detailRows];
+    sorted.sort((a, b) => {
+      let aVal: number | string;
+      let bVal: number | string;
+
+      switch (detailsSortKey) {
+        case "id":
+          aVal = a.tpId;
+          bVal = b.tpId;
+          break;
+        case "channel":
+          aVal = CHANNEL_SORT_ORDER[a.channel] ?? 99;
+          bVal = CHANNEL_SORT_ORDER[b.channel] ?? 99;
+          break;
+        case "sends":
+          aVal = a.sends;
+          bVal = b.sends;
+          break;
+        case "opened":
+          aVal = a.opened;
+          bVal = b.opened;
+          break;
+        case "responses":
+          aVal = a.responses;
+          bVal = b.responses;
+          break;
+        case "respPct":
+          aVal = a.respPct;
+          bVal = b.respPct;
+          break;
+        case "roas":
+          aVal = a.roas;
+          bVal = b.roas;
+          break;
+        case "revenue":
+          aVal = a.revenue;
+          bVal = b.revenue;
+          break;
+        default:
+          aVal = a.tpId;
+          bVal = b.tpId;
       }
 
       if (aVal < bVal) return detailsSortDir === "asc" ? -1 : 1;
@@ -267,7 +368,7 @@ const CustomerJourneyPage: React.FC = () => {
       return 0;
     });
     return sorted;
-  }, [detailsSortKey, detailsSortDir]);
+  }, [detailRows, detailsSortKey, detailsSortDir]);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -546,7 +647,18 @@ const CustomerJourneyPage: React.FC = () => {
                         </button>
                       </th>
                       <th className="py-2 px-3 text-left font-medium whitespace-nowrap">
-                        Channel
+                        <button
+                          type="button"
+                          onClick={() => handleDetailsSort("channel")}
+                          className="inline-flex items-center gap-1 hover:text-slate-700"
+                        >
+                          Channel
+                          {detailsSortKey === "channel" && (
+                            <span className="text-[9px] text-slate-400">
+                              {detailsSortDir === "asc" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </button>
                       </th>
                       <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
                         <button
@@ -563,7 +675,18 @@ const CustomerJourneyPage: React.FC = () => {
                         </button>
                       </th>
                       <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
-                        Opened
+                        <button
+                          type="button"
+                          onClick={() => handleDetailsSort("opened")}
+                          className="inline-flex items-center gap-1 justify-end w-full hover:text-slate-700"
+                        >
+                          Opened
+                          {detailsSortKey === "opened" && (
+                            <span className="text-[9px] text-slate-400">
+                              {detailsSortDir === "asc" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </button>
                       </th>
                       <th className="py-2 px-3 text-right font-medium whitespace-nowrap">
                         <button
@@ -625,123 +748,55 @@ const CustomerJourneyPage: React.FC = () => {
                   </thead>
 
                   <tbody className="divide-y divide-slate-100">
-                    {sortedTouchPoints.map((tp) => {
-                      const channels = parseChannels(tp.channel);
-                      const hasBreakdown = tp.channelBreakdown && tp.channelBreakdown.length > 0;
-                      
-                      // If touch point has channel breakdown, render one row per channel
-                      if (hasBreakdown) {
-                        return tp.channelBreakdown!.map((cb, idx) => (
-                          <tr key={`${tp.id}-${cb.channel}`} className="align-top">
-                            {/* Touch point info only on first row */}
-                            {idx === 0 ? (
-                              <td className="py-3 pr-3" rowSpan={tp.channelBreakdown!.length}>
-                                <div className="text-base font-semibold text-slate-900">
-                                  {tp.id}. {tp.name}
-                                </div>
-                                <div className="mt-0.5 text-[11px] text-slate-500">
-                                  {tp.offsetLabel}
-                                </div>
-                              </td>
-                            ) : null}
-                            {/* Channel pill */}
-                            <td className="py-3 px-3">
-                              <span
-                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
-                                  cb.channel === "postcard"
-                                    ? "bg-tp-pastel-blue text-sky-700 border-sky-200"
-                                    : cb.channel === "email"
-                                    ? "bg-tp-pastel-green text-emerald-700 border-emerald-200"
-                                    : "bg-tp-pastel-purple text-indigo-700 border-indigo-200"
-                                }`}
-                              >
-                                {CHANNEL_LABELS[cb.channel]}
-                              </span>
-                            </td>
-                            <td className="py-3 px-3 text-right text-xs text-slate-900">
-                              {cb.sends.toLocaleString()}
-                            </td>
-                            <td className="py-3 px-3 text-right text-xs text-slate-500">
-                              {cb.channel === "postcard" ? "—" : cb.opened.toLocaleString()}
-                            </td>
-                            <td className="py-3 px-3 text-right text-xs text-slate-900">
-                              {cb.responses.toLocaleString()}
-                            </td>
-                            <td className="py-3 px-3 text-right text-xs font-semibold text-emerald-600">
-                              {cb.respPct.toFixed(1)}%
-                            </td>
-                            <td className="py-3 px-3 text-right text-xs text-slate-900">
-                              {cb.roas.toFixed(1)}x
-                            </td>
-                            <td className="py-3 pl-3 text-right text-xs text-slate-900">
-                              {cb.revenue.toLocaleString("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                                maximumFractionDigits: 0,
-                              })}
-                            </td>
-                          </tr>
-                        ));
-                      }
-                      
-                      // Single channel touch point - one row
-                      const responses = Math.round(tp.sends * (tp.respPct / 100));
-                      const channelKey = channels[0] || "email";
-                      // Estimate opened for email/text (mock: ~40% open rate for email, ~95% for text)
-                      const opened = channelKey === "email" 
-                        ? Math.round(tp.sends * 0.4) 
-                        : channelKey === "text" 
-                          ? Math.round(tp.sends * 0.95) 
-                          : 0;
-                      
-                      return (
-                        <tr key={tp.id} className="align-top">
-                          <td className="py-3 pr-3">
-                            <div className="text-base font-semibold text-slate-900">
-                              {tp.id}. {tp.name}
-                            </div>
-                            <div className="mt-0.5 text-[11px] text-slate-500">
-                              {tp.offsetLabel}
-                            </div>
-                          </td>
-                          <td className="py-3 px-3">
-                            <span
-                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
-                                channelKey === "postcard"
-                                  ? "bg-tp-pastel-blue text-sky-700 border-sky-200"
-                                  : channelKey === "email"
-                                  ? "bg-tp-pastel-green text-emerald-700 border-emerald-200"
-                                  : "bg-tp-pastel-purple text-indigo-700 border-indigo-200"
-                              }`}
-                            >
-                              {CHANNEL_LABELS[channelKey]}
-                            </span>
-                          </td>
-                          <td className="py-3 px-3 text-right text-xs text-slate-900">
-                            {tp.sends.toLocaleString()}
-                          </td>
-                          <td className="py-3 px-3 text-right text-xs text-slate-500">
-                            {channelKey === "postcard" ? "—" : opened.toLocaleString()}
-                          </td>
-                          <td className="py-3 px-3 text-right text-xs text-slate-900">
-                            {responses.toLocaleString()}
-                          </td>
-                          <td className="py-3 px-3 text-right text-xs font-semibold text-emerald-600">
-                            {tp.respPct.toFixed(1)}%
-                          </td>
-                          <td className="py-3 px-3 text-right text-xs text-slate-900">
-                            {tp.roas.toFixed(1)}x
-                          </td>
-                          <td className="py-3 pl-3 text-right text-xs text-slate-900">
-                            {tp.revenue.toLocaleString("en-US", {
-                              style: "currency",
-                              currency: "USD",
-                              maximumFractionDigits: 0,
-                            })}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {sortedDetailRows.map((row, idx) => (
+                      <tr key={`${row.tpId}-${row.channel}-${idx}`} className="align-top">
+                        {/* Touch point info */}
+                        <td className="py-3 pr-3">
+                          <div className="text-base font-semibold text-slate-900">
+                            {row.tpId}. {row.tpName}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            {row.offsetLabel}
+                          </div>
+                        </td>
+                        {/* Channel pill */}
+                        <td className="py-3 px-3">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
+                              row.channel === "postcard"
+                                ? "bg-tp-pastel-blue text-sky-700 border-sky-200"
+                                : row.channel === "email"
+                                ? "bg-tp-pastel-green text-emerald-700 border-emerald-200"
+                                : "bg-tp-pastel-purple text-indigo-700 border-indigo-200"
+                            }`}
+                          >
+                            {CHANNEL_LABELS[row.channel]}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 text-right text-xs text-slate-900">
+                          {row.sends.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-3 text-right text-xs text-slate-500">
+                          {row.channel === "postcard" ? "—" : row.opened.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-3 text-right text-xs text-slate-900">
+                          {row.responses.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-3 text-right text-xs font-semibold text-emerald-600">
+                          {row.respPct.toFixed(1)}%
+                        </td>
+                        <td className="py-3 px-3 text-right text-xs text-slate-900">
+                          {row.roas.toFixed(1)}x
+                        </td>
+                        <td className="py-3 pl-3 text-right text-xs text-slate-900">
+                          {row.revenue.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            maximumFractionDigits: 0,
+                          })}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
