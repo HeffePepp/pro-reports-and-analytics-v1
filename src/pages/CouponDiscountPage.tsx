@@ -4,22 +4,22 @@ import {
   MetricTile,
   AIInsightsTile,
   KpiCustomizeButton,
+  CouponPerformanceTile,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { CouponMixTile } from "@/components/reports/CouponMixTile";
-import { CouponTableTile, CouponRow } from "@/components/reports/CouponTableTile";
 import { CouponInvoiceDetailTile, CouponInvoiceRow } from "@/components/reports/CouponInvoiceDetailTile";
 
 /* ------------------------------------------------------------------
    Sample data
 -------------------------------------------------------------------*/
 
-const COUPON_ROWS: CouponRow[] = [
-  { code: "OIL10", description: "$10 off any oil change", invoices: 4200, redemptions: 980, respPct: 6.9, couponAmount: 9800, revenue: 92200 },
-  { code: "SYN20", description: "$20 off synthetic oil", invoices: 3100, redemptions: 640, respPct: 6.8, couponAmount: 12800, revenue: 88320 },
-  { code: "WEB15", description: "15% off web-only offer", invoices: 2800, redemptions: 760, respPct: 9.1, couponAmount: 12768, revenue: 85120 },
-  { code: "VIP25", description: "$25 off ticket over $150", invoices: 2000, redemptions: 420, respPct: 6.2, couponAmount: 10500, revenue: 78120 },
-  { code: "WELCOME5", description: "$5 off new customer", invoices: 3300, redemptions: 1020, respPct: 7.5, couponAmount: 5100, revenue: 77520 },
+const COUPON_MIX_ROWS = [
+  { code: "OIL10", redemptions: 980 },
+  { code: "SYN20", redemptions: 640 },
+  { code: "WEB15", redemptions: 760 },
+  { code: "VIP25", redemptions: 420 },
+  { code: "WELCOME5", redemptions: 1020 },
 ];
 
 const COUPON_INVOICES: CouponInvoiceRow[] = [
@@ -46,14 +46,14 @@ const COUPON_INVOICES: CouponInvoiceRow[] = [
 ];
 
 /* ------------------------------------------------------------------
-   KPI config
+   KPI config (previous iteration)
 -------------------------------------------------------------------*/
 
 const KPI_OPTIONS: KpiOption[] = [
   { id: "totalCouponAmount", label: "Total coupon amount" },
-  { id: "totalDiscountAmount", label: "Total discount amount" },
+  { id: "totalDiscountAmount", label: "Total discount $" },
   { id: "avgCouponPerInvoice", label: "Avg coupon/discount per invoice" },
-  { id: "revenueOnDiscounted", label: "Revenue on discounted invoices" },
+  { id: "totalRevenue", label: "Total revenue" },
 ];
 
 const CouponDiscountPage: React.FC = () => {
@@ -65,17 +65,11 @@ const CouponDiscountPage: React.FC = () => {
 
   const { selectedIds, setSelectedIds } = useKpiPreferences("coupon-discount", KPI_OPTIONS);
 
-  // Compute KPI values
-  const kpiValues = useMemo(() => {
-    const totalCoupon = COUPON_ROWS.reduce((sum, r) => sum + r.couponAmount, 0);
-    const totalDiscount = totalCoupon;
-    const totalInvoices = COUPON_ROWS.reduce((sum, r) => sum + r.invoices, 0);
-    const totalRevenue = COUPON_ROWS.reduce((sum, r) => sum + r.revenue, 0);
-    const avgCoupon = totalInvoices > 0 ? totalCoupon / totalInvoices : 0;
-    const roas = totalCoupon > 0 ? totalRevenue / totalCoupon : 0;
-
-    return { totalCoupon, totalDiscount, avgCoupon, totalRevenue, roas };
-  }, []);
+  // Compute KPI values from sample data
+  const totalCouponAmount = 50968;
+  const totalDiscountAmount = 50968;
+  const avgCouponPerInvoice = 3.31;
+  const totalRevenue = 421280;
 
   const currency = (v: number, decimals = 0) =>
     v.toLocaleString("en-US", {
@@ -92,7 +86,7 @@ const CouponDiscountPage: React.FC = () => {
           <MetricTile
             key={id}
             label="Total coupon amount"
-            value={currency(kpiValues.totalCoupon)}
+            value={currency(totalCouponAmount)}
             helpText="Sum of coupon dollars used across all redemptions."
             variant="coupon"
           />
@@ -101,8 +95,8 @@ const CouponDiscountPage: React.FC = () => {
         return (
           <MetricTile
             key={id}
-            label="Total discount amount"
-            value={currency(kpiValues.totalDiscount)}
+            label="Total discount $"
+            value={currency(totalDiscountAmount)}
             helpText="All discounts from coupon offers."
             variant="discount"
           />
@@ -112,17 +106,17 @@ const CouponDiscountPage: React.FC = () => {
           <MetricTile
             key={id}
             label="Avg coupon/discount per invoice"
-            value={currency(kpiValues.avgCoupon, 2)}
+            value={currency(avgCouponPerInvoice, 2)}
             helpText="Average reduction per discounted invoice."
           />
         );
-      case "revenueOnDiscounted":
+      case "totalRevenue":
         return (
           <MetricTile
             key={id}
-            label="Revenue on discounted invoices"
-            value={currency(kpiValues.totalRevenue)}
-            helpText={`Approx. ROAS ${kpiValues.roas.toFixed(1)}x`}
+            label="Total revenue"
+            value={currency(totalRevenue)}
+            helpText="Revenue on discounted invoices."
           />
         );
       default:
@@ -131,21 +125,12 @@ const CouponDiscountPage: React.FC = () => {
   };
 
   const regenerateInsights = () => {
-    const richest = COUPON_ROWS.reduce((best, c) =>
-      !best || c.respPct > best.respPct ? c : best
-    );
     setInsights([
-      `"${richest.code}" has the highest response rate (${richest.respPct.toFixed(1)}%). Review its ROAS to ensure margin is acceptable.`,
+      '"WELCOME5" has the highest response rate (7.5%). Review its ROAS to ensure margin is acceptable.',
       "Consider small tests lowering discount amounts on top-performing coupons to protect margin.",
       "Use this report with ROAS and Oil Type Sales to spot where discounts are eroding premium oil margins.",
     ]);
   };
-
-  // Mix tile data
-  const mixRows = useMemo(
-    () => COUPON_ROWS.map((r) => ({ code: r.code, redemptions: r.redemptions })),
-    []
-  );
 
   return (
     <ShellLayout
@@ -186,10 +171,10 @@ const CouponDiscountPage: React.FC = () => {
           )}
 
           {/* Coupon mix bar */}
-          <CouponMixTile rows={mixRows} />
+          <CouponMixTile rows={COUPON_MIX_ROWS} />
 
-          {/* Coupon table */}
-          <CouponTableTile rows={COUPON_ROWS} />
+          {/* Coupon performance table (previous iteration) */}
+          <CouponPerformanceTile />
 
           {/* Invoice detail */}
           <CouponInvoiceDetailTile rows={COUPON_INVOICES} />
