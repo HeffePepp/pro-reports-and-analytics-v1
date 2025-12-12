@@ -45,15 +45,20 @@ const MetricTile: React.FC<MetricTileProps> = ({
   className,
   valueHighlightClass,
 }) => {
-  // Determine value styling
+  // Determine value styling - no pill backgrounds, just colored text when highlighted
   let valueClass = "text-xl md:text-2xl font-semibold text-slate-900 tracking-tight";
   
   if (highlight) {
-    valueClass = "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xl md:text-2xl font-semibold tracking-tight";
+    valueClass = "text-xl md:text-2xl font-semibold text-emerald-700 tracking-tight";
   } else if (valueHighlightClass) {
-    valueClass = cn("inline-flex items-center px-2 py-0.5 rounded-md text-xl md:text-2xl font-semibold tracking-tight", valueHighlightClass);
-  } else if (variant !== "default") {
-    valueClass = cn("text-xl md:text-2xl font-semibold tracking-tight", variantValueClasses[variant]);
+    // Extract just the text color from valueHighlightClass (e.g., "text-emerald-700")
+    const textColorMatch = valueHighlightClass.match(/text-\S+/);
+    const textColor = textColorMatch ? textColorMatch[0] : "text-slate-900";
+    valueClass = `text-xl md:text-2xl font-semibold ${textColor} tracking-tight`;
+  } else if (variant === "coupon") {
+    valueClass = "text-xl md:text-2xl font-semibold text-sky-700 tracking-tight";
+  } else if (variant === "discount") {
+    valueClass = "text-xl md:text-2xl font-semibold text-emerald-700 tracking-tight";
   }
 
   return (
@@ -84,8 +89,8 @@ const MetricTile: React.FC<MetricTileProps> = ({
           )}
         </div>
 
-        {/* Metric value – closer and ~2x larger */}
-        <span className={cn(valueClass, "mt-0.5 leading-tight w-fit")}>{value}</span>
+        {/* Metric value */}
+        <div className={cn(valueClass, "mt-0.5 leading-tight")}>{value}</div>
 
         {/* Optional helper line */}
         {helper && (
