@@ -85,7 +85,7 @@ const MetricTile: React.FC<MetricTileProps> = ({
         </div>
 
         {/* Metric value – closer and ~2x larger */}
-        <div className={`${valueClass} mt-0.5 leading-tight`}>{value}</div>
+        <span className={cn(valueClass, "mt-0.5 leading-tight w-fit")}>{value}</span>
 
         {/* Optional helper line */}
         {helper && (
