@@ -23,7 +23,7 @@ import CostProjectionsPage from "./pages/CostProjectionsPage";
 import ComprehensiveAccountAuditPage from "./pages/ComprehensiveAccountAuditPage";
 import CallBackReportPage from "./pages/CallBackReportPage";
 import OneOffCampaignTrackerPage from "./pages/OneOffCampaignTrackerPage";
-import OilTypeInvoicesPage from "./pages/OilTypeInvoicesPage";
+
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,7 +56,7 @@ const App: React.FC = () => {
           <Route path="/reports/comprehensive-account-audit" element={<ComprehensiveAccountAuditPage />} />
           <Route path="/reports/call-back-report" element={<CallBackReportPage />} />
           <Route path="/reports/one-off-campaign-tracker" element={<OneOffCampaignTrackerPage />} />
-          <Route path="/reports/oil-type-invoices" element={<OilTypeInvoicesPage />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
