@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { SuggestedServiceResponseCard, type SuggestedServiceResponse } from "@/components/reports/SuggestedServiceResponseCard";
 
@@ -484,9 +484,17 @@ const SuggestedServicesPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles - only rendered when selected */}
+          {/* KPI tiles - draggable */}
           {selectedIds.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{selectedIds.map((id) => renderKpiTile(id))}</div>
+            <DraggableKpiRow
+              reportKey="suggested-services"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
+            />
           )}
 
           {/* MAIN TWO-TAB TILE: Touch Points / Active SS Items */}
