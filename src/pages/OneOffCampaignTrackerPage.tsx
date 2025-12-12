@@ -390,7 +390,7 @@ const DetailsTable: React.FC = () => {
   };
 
   return (
-    <section className="mt-4 space-y-4">
+    <section className="space-y-4">
       {grouped.map((group) => (
         <div
           key={group.campaignId}
