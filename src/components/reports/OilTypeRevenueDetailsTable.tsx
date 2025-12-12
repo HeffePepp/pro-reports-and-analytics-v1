@@ -72,25 +72,39 @@ const OIL_TYPE_ROWS: OilTypeRow[] = [
   },
 ];
 
-type SortKey = "invoices" | "invoiceSharePct" | "revenue" | "revenueSharePct" | "avgTicket";
+type SortKey = "oilType" | "invoices" | "invoiceSharePct" | "revenue" | "revenueSharePct" | "avgTicket";
 type SortDir = "asc" | "desc";
 
+// Custom order for oil types to match KPI tile order
+const OIL_TYPE_ORDER: Record<string, number> = {
+  Conventional: 0,
+  "Synthetic Blend": 1,
+  "Full Synthetic": 2,
+  "High Mileage": 3,
+  Unclassified: 4,
+};
+
 const OilTypeRevenueDetailsTable: React.FC = () => {
-  const [sortKey, setSortKey] = useState<SortKey>("revenue");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [sortKey, setSortKey] = useState<SortKey>("oilType");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const handleSort = (key: SortKey) => {
     if (key === sortKey) {
       setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortKey(key);
-      setSortDir("desc");
+      setSortDir(key === "oilType" ? "asc" : "desc");
     }
   };
 
   const sortedRows = useMemo(() => {
     const rows = [...OIL_TYPE_ROWS];
     rows.sort((a, b) => {
+      if (sortKey === "oilType") {
+        const aOrder = OIL_TYPE_ORDER[a.label] ?? 999;
+        const bOrder = OIL_TYPE_ORDER[b.label] ?? 999;
+        return sortDir === "asc" ? aOrder - bOrder : bOrder - aOrder;
+      }
       const aVal = a[sortKey];
       const bVal = b[sortKey];
       if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
