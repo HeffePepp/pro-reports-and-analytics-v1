@@ -589,47 +589,41 @@ const SuggestedServicesPage: React.FC = () => {
                     Active Suggested Service Items
                   </h2>
                   <p className="text-[11px] text-slate-500">
-                    Volume, email reach and response performance by service.
+                    Invoices and email reach by suggested service.
                   </p>
                 </header>
 
                 <ul className="mt-4 divide-y divide-slate-100">
-                  {SS_SERVICE_TYPES.map((item) => {
-                    const responses = Math.round(item.invoices * (item.respPct / 100));
-                    return (
-                      <li
-                        key={item.service}
-                        className="flex items-center justify-between gap-4 py-3"
-                      >
-                        {/* LEFT: service + invoice/email details */}
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-[13px] font-semibold tracking-wide text-slate-900">
-                            {item.service}
-                          </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            {item.invoices.toLocaleString()} invoices with this service
-                          </div>
-                          <div className="text-[11px] text-slate-500">
-                            {item.validEmailPct.toFixed(1)}% of these invoices have a valid email address
-                          </div>
+                  {SS_SERVICE_TYPES.map((item) => (
+                    <li
+                      key={item.service}
+                      className="flex items-center justify-between gap-4 py-3"
+                    >
+                      {/* LEFT: service name only, all caps */}
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[13px] font-semibold tracking-wide text-slate-900">
+                          {(item.service || "").toUpperCase()}
+                        </div>
+                      </div>
+
+                      {/* RIGHT: invoices + % with valid email */}
+                      <div className="shrink-0 min-w-[190px] text-right text-[11px]">
+                        <div className="text-slate-500">
+                          Invoices with this suggested service
+                        </div>
+                        <div className="font-semibold text-slate-900">
+                          {item.invoices.toLocaleString()}
                         </div>
 
-                        {/* RIGHT: tight stats block */}
-                        <div className="shrink-0 min-w-[110px] text-right text-[11px]">
-                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                            Resp %
-                          </div>
-                          <div className="mt-0.5 text-[16px] font-semibold text-emerald-600">
-                            {item.respPct.toFixed(1)}%
-                            <span className="ml-1 text-[11px] font-semibold">RESP</span>
-                          </div>
-                          <div className="mt-1 text-[11px] text-slate-500">
-                            {responses.toLocaleString()} responses
-                          </div>
+                        <div className="mt-2 text-slate-500">
+                          % of invoices with a valid email address
                         </div>
-                      </li>
-                    );
-                  })}
+                        <div className="font-semibold text-slate-900">
+                          {item.validEmailPct.toFixed(1)}%
+                        </div>
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
