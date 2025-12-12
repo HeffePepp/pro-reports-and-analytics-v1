@@ -4,6 +4,7 @@ import {
   MetricTile,
   AIInsightsTile,
   KpiCustomizeButton,
+  DraggableKpiRow,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import {
@@ -259,11 +260,17 @@ const DataCaptureLtvPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* Left content: KPIs + charts + table */}
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI row - only rendered when selected */}
+          {/* KPI row - draggable */}
           {selectedIds.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-              {selectedIds.map((id) => renderKpiTile(id))}
-            </div>
+            <DraggableKpiRow
+              reportKey="data-capture-ltv"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
+            />
           )}
 
           {/* Customers by capture group */}

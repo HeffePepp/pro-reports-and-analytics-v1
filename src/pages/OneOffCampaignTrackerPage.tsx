@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { CHANNEL_BAR_CLASS, CampaignChannel } from "@/styles/channelColors";
 import { ChannelLegend } from "@/components/common/ChannelLegend";
@@ -251,9 +251,17 @@ const OneOffCampaignTrackerPage: React.FC = () => {
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <div className="lg:col-span-3 space-y-4">
-          {/* KPI tiles - only rendered when selected */}
+          {/* KPI tiles - draggable */}
           {selectedIds.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">{selectedIds.map((id) => renderKpiTile(id))}</div>
+            <DraggableKpiRow
+              reportKey="one-off-campaign-tracker"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
+            />
           )}
 
           {/* Main card with tabs */}

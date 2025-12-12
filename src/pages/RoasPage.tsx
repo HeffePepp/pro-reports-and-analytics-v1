@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import {
   ReportTable,
@@ -230,11 +230,17 @@ const RoasPage: React.FC = () => {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT: all ROAS tiles, charts & table */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Metric tiles - only rendered when selected */}
+          {/* Metric tiles - draggable */}
           {selectedIds.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {selectedIds.map(renderKpiTile)}
-            </div>
+            <DraggableKpiRow
+              reportKey="roas"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
+            />
           )}
 
           {/* ROAS by channel & by campaign */}
