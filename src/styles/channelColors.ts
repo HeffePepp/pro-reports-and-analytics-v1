@@ -4,14 +4,14 @@ export type CampaignChannel = "postcard" | "email" | "text";
 export const CHANNEL_LABELS: Record<CampaignChannel, string> = {
   postcard: "Postcard",
   email: "Email",
-  text: "Text Message",
+  text: "Text",
 };
 
 // Bars (the long campaign bars) - using approved Throttle Pro pastel palette
 export const CHANNEL_BAR_CLASS: Record<CampaignChannel, string> = {
   postcard: "bg-tp-pastel-blue",    // Postcard (blue)
   email: "bg-tp-pastel-green",      // Email (green)
-  text: "bg-tp-pastel-purple",      // Text Message (purple)
+  text: "bg-tp-pastel-purple",      // Text (purple)
 };
 
 // Dots (the little legend dots) - same as bars for consistency

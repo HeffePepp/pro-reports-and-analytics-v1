@@ -258,7 +258,7 @@ const CustomerJourneyTouchPointDetailPage: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="h-2 w-2 rounded-full bg-indigo-400" />
-                            <span>Text Message</span>
+                            <span>Text</span>
                           </div>
                         </div>
                       </div>

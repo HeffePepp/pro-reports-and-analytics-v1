@@ -302,7 +302,7 @@ const DropsTable: React.FC = () => {
                 <div className="mt-0.5 text-[11px] text-slate-500">
                   Channels:{" "}
                   {c.channels
-                    .map((ch) => (ch === "sms" ? "Text Message" : ch[0].toUpperCase() + ch.slice(1)))
+                    .map((ch) => (ch === "sms" ? "Text" : ch[0].toUpperCase() + ch.slice(1)))
                     .join(" · ")}
                 </div>
               </td>
