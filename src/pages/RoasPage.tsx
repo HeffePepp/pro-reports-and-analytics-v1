@@ -317,7 +317,7 @@ const RoasByCampaignTile: React.FC<{ data: CampaignRoas[] }> = ({ data }) => {
 
 const RoasCampaignDetailsTable: React.FC<{ data: CampaignRoas[] }> = ({ data }) => {
   return (
-    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm overflow-hidden">
       <header className="mb-3 flex items-center justify-between">
         <div>
           <h2 className="text-[13px] font-semibold text-foreground">
@@ -329,71 +329,73 @@ const RoasCampaignDetailsTable: React.FC<{ data: CampaignRoas[] }> = ({ data }) 
         </div>
       </header>
 
-      <table className="w-full table-fixed text-xs">
-        <colgroup>
-          <col className="w-[220px]" />
-          <col className="w-[160px]" />
-          <col className="w-[80px]" />
-          <col className="w-[80px]" />
-          <col className="w-[100px]" />
-          <col className="w-[80px]" />
-          <col className="w-[70px]" />
-        </colgroup>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[700px] table-fixed text-xs">
+          <colgroup>
+            <col className="w-[28%]" />
+            <col className="w-[20%]" />
+            <col className="w-[10%]" />
+            <col className="w-[10%]" />
+            <col className="w-[12%]" />
+            <col className="w-[10%]" />
+            <col className="w-[10%]" />
+          </colgroup>
 
-        <thead>
-          <tr className="border-b border-border text-[11px] text-muted-foreground">
-            <th className="py-2 pr-3 text-left font-medium">Campaign</th>
-            <th className="py-2 px-2 text-left font-medium">Audience</th>
-            <th className="py-2 px-2 text-right font-medium">Sent</th>
-            <th className="py-2 px-2 text-right font-medium">Spend</th>
-            <th className="py-2 px-2 text-right font-medium">Revenue</th>
-            <th className="py-2 px-2 text-right font-medium">Vehicles</th>
-            <th className="py-2 pl-2 pr-1 text-right font-medium">ROAS</th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-border">
-          {data.map((row) => (
-            <tr key={row.id} className="align-top">
-              <td className="py-2 pr-3">
-                <div className="text-[13px] font-semibold text-foreground">
-                  {row.name}
-                </div>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {row.channels.map((ch) => (
-                    <span
-                      key={ch}
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${channelPillClass(ch)}`}
-                    >
-                      {ch}
-                    </span>
-                  ))}
-                </div>
-              </td>
-
-              <td className="py-2 px-2 text-xs text-muted-foreground">
-                {row.audience}
-              </td>
-
-              <td className="py-2 px-2 text-right text-xs text-foreground">
-                {row.sent.toLocaleString()}
-              </td>
-              <td className="py-2 px-2 text-right text-xs text-foreground">
-                {formatCurrency(row.spend)}
-              </td>
-              <td className="py-2 px-2 text-right text-xs text-foreground">
-                {formatCurrency(row.revenue)}
-              </td>
-              <td className="py-2 px-2 text-right text-xs text-tp-grey-dark">
-                {row.vehicles.toLocaleString()}
-              </td>
-              <td className="py-2 pl-2 pr-1 text-right text-xs text-tp-grey-dark">
-                {row.roas.toFixed(1)}x
-              </td>
+          <thead>
+            <tr className="border-b border-border text-[11px] text-muted-foreground">
+              <th className="py-2 pr-3 text-left font-medium">Campaign</th>
+              <th className="py-2 px-2 text-left font-medium">Audience</th>
+              <th className="py-2 px-2 text-right font-medium">Sent</th>
+              <th className="py-2 px-2 text-right font-medium">Spend</th>
+              <th className="py-2 px-2 text-right font-medium">Revenue</th>
+              <th className="py-2 px-2 text-right font-medium">Vehicles</th>
+              <th className="py-2 pl-2 pr-1 text-right font-medium">ROAS</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody className="divide-y divide-border">
+            {data.map((row) => (
+              <tr key={row.id} className="align-top">
+                <td className="py-2 pr-3">
+                  <div className="text-[13px] font-semibold text-foreground">
+                    {row.name}
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {row.channels.map((ch) => (
+                      <span
+                        key={ch}
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${channelPillClass(ch)}`}
+                      >
+                        {ch}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+
+                <td className="py-2 px-2 text-xs text-muted-foreground">
+                  {row.audience}
+                </td>
+
+                <td className="py-2 px-2 text-right text-xs text-foreground">
+                  {row.sent.toLocaleString()}
+                </td>
+                <td className="py-2 px-2 text-right text-xs text-foreground">
+                  {formatCurrency(row.spend)}
+                </td>
+                <td className="py-2 px-2 text-right text-xs text-foreground">
+                  {formatCurrency(row.revenue)}
+                </td>
+                <td className="py-2 px-2 text-right text-xs text-foreground">
+                  {row.vehicles.toLocaleString()}
+                </td>
+                <td className="py-2 pl-2 pr-1 text-right text-xs text-foreground">
+                  {row.roas.toFixed(1)}x
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 };
