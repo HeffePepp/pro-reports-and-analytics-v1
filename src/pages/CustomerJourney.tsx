@@ -6,7 +6,7 @@ import {
   KpiCustomizeButton,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import { parseChannels, CHANNEL_BAR_CLASS } from "@/styles/channelColors";
+import { parseChannels, CHANNEL_BAR_CLASS, CHANNEL_LABELS } from "@/styles/channelColors";
 import { ChannelLegend } from "@/components/common/ChannelLegend";
 
 type JourneyTouchPoint = {
@@ -441,8 +441,21 @@ const CustomerJourneyPage: React.FC = () => {
                             <div className="mt-0.5 text-[11px] text-slate-500">
                               {tp.offsetLabel}
                             </div>
-                            <div className="mt-0.5 text-[11px] text-slate-500">
-                              {tp.channel}
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {parseChannels(tp.channel).map((ch) => (
+                                <span
+                                  key={ch}
+                                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                    ch === "postcard"
+                                      ? "bg-sky-50 text-sky-700 border border-sky-100"
+                                      : ch === "email"
+                                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                                      : "bg-indigo-50 text-indigo-700 border border-indigo-100"
+                                  }`}
+                                >
+                                  {CHANNEL_LABELS[ch]}
+                                </span>
+                              ))}
                             </div>
                           </td>
 
