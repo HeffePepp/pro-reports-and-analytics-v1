@@ -130,15 +130,15 @@ const channelPillClass = (channel: string) => {
 const channelBarClass = (channel: string) => {
   switch (channel) {
     case "Email":
-      return "bg-emerald-400";
+      return "bg-tp-pastel-green";
     case "Postcard":
-      return "bg-sky-400";
+      return "bg-tp-pastel-blue";
     case "Text":
-      return "bg-indigo-400";
+      return "bg-tp-pastel-purple";
     case "Mixed":
-      return "bg-amber-400";
+      return "bg-tp-pastel-orange";
     default:
-      return "bg-slate-400";
+      return "bg-slate-300";
   }
 };
 
