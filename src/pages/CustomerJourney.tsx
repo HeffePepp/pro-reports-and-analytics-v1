@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   ShellLayout,
   MetricTile,
@@ -7,8 +7,7 @@ import {
   DraggableKpiRow,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import { parseChannels, CHANNEL_BAR_CLASS, CHANNEL_LABELS } from "@/styles/channelColors";
-import { ChannelLegend } from "@/components/common/ChannelLegend";
+import { parseChannels, CHANNEL_LABELS } from "@/styles/channelColors";
 
 type JourneyTouchPoint = {
   id: number;
@@ -219,7 +218,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
   },
 ];
 
-type CJTab = "visualization" | "details";
+// Removed CJTab type - no longer using tabs
 
 const KPI_OPTIONS: KpiOption[] = [
   { id: "validMailing", label: "Valid Mailing Addresses" },
@@ -242,18 +241,10 @@ const CHANNEL_SORT_ORDER: Record<string, number> = {
 };
 
 const CustomerJourneyPage: React.FC = () => {
-  const [tab, setTab] = useState<CJTab>("visualization");
   const { selectedIds, setSelectedIds } = useKpiPreferences("customer-journey", KPI_OPTIONS);
-  const [detailsSortKey, setDetailsSortKey] = useState<DetailsSortKey>("id");
-  const [detailsSortDir, setDetailsSortDir] = useState<SortDir>("asc");
 
-  const handleDetailsSort = (key: DetailsSortKey) => {
-    if (key === detailsSortKey) {
-      setDetailsSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setDetailsSortKey(key);
-      setDetailsSortDir(key === "id" ? "asc" : "desc");
-    }
+  const handleViewProofs = (tpId: number) => {
+    console.log("View proofs for touch point:", tpId);
   };
 
   // Build flattened rows for Details table (one row per channel per touch point)
@@ -320,56 +311,10 @@ const CustomerJourneyPage: React.FC = () => {
     return rows;
   }, []);
 
+  // Sort detail rows by touch point ID for consistent display
   const sortedDetailRows = useMemo(() => {
-    const sorted = [...detailRows];
-    sorted.sort((a, b) => {
-      let aVal: number | string;
-      let bVal: number | string;
-
-      switch (detailsSortKey) {
-        case "id":
-          aVal = a.tpId;
-          bVal = b.tpId;
-          break;
-        case "channel":
-          aVal = CHANNEL_SORT_ORDER[a.channel] ?? 99;
-          bVal = CHANNEL_SORT_ORDER[b.channel] ?? 99;
-          break;
-        case "sends":
-          aVal = a.sends;
-          bVal = b.sends;
-          break;
-        case "opened":
-          aVal = a.opened;
-          bVal = b.opened;
-          break;
-        case "responses":
-          aVal = a.responses;
-          bVal = b.responses;
-          break;
-        case "respPct":
-          aVal = a.respPct;
-          bVal = b.respPct;
-          break;
-        case "roas":
-          aVal = a.roas;
-          bVal = b.roas;
-          break;
-        case "revenue":
-          aVal = a.revenue;
-          bVal = b.revenue;
-          break;
-        default:
-          aVal = a.tpId;
-          bVal = b.tpId;
-      }
-
-      if (aVal < bVal) return detailsSortDir === "asc" ? -1 : 1;
-      if (aVal > bVal) return detailsSortDir === "asc" ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [detailRows, detailsSortKey, detailsSortDir]);
+    return [...detailRows].sort((a, b) => a.tpId - b.tpId);
+  }, [detailRows]);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -514,255 +459,154 @@ const CustomerJourneyPage: React.FC = () => {
             />
           )}
 
-          {/* Customer Journey tile */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <header className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-[11px] text-slate-500">
-                  Touch point + Response Rate + ROAS
-                </p>
-                <p className="text-[11px] text-slate-400">
-                  {journeySummary.vehicles.toLocaleString()} journey vehicles ·{" "}
-                  {journeySummary.totalComms.toLocaleString()} comms sent
-                </p>
-              </div>
+          {/* Touch point ghost pills */}
+          <div className="space-y-4">
+            {(() => {
+              // Group rows by touch point
+              type GroupedTP = {
+                tpId: number;
+                tpName: string;
+                offsetLabel: string;
+                rows: typeof sortedDetailRows;
+              };
+              const groupedMap = new Map<number, GroupedTP>();
 
-              <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1 text-[11px]">
-                {(["visualization", "details"] as CJTab[]).map((t) => {
-                  const isActive = t === tab;
-                  return (
+              sortedDetailRows.forEach((row) => {
+                if (!groupedMap.has(row.tpId)) {
+                  groupedMap.set(row.tpId, {
+                    tpId: row.tpId,
+                    tpName: row.tpName,
+                    offsetLabel: row.offsetLabel,
+                    rows: [],
+                  });
+                }
+                groupedMap.get(row.tpId)!.rows.push(row);
+              });
+
+              // Sort groups by touch point ID
+              const groups = Array.from(groupedMap.values()).sort((a, b) => a.tpId - b.tpId);
+
+              return groups.map((group) => (
+                <div
+                  key={group.tpId}
+                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                >
+                  {/* Header row: touch point name/offset + View proofs button */}
+                  <div className="mb-3 flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-sm font-semibold text-slate-900">
+                        {group.tpId}. {group.tpName}
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-slate-500">
+                        {group.offsetLabel}
+                      </div>
+                    </div>
                     <button
-                      key={t}
                       type="button"
-                      onClick={() => setTab(t)}
-                      className={`rounded-full px-3 py-1 transition ${
-                        isActive
-                          ? "bg-white text-slate-900 shadow-sm"
-                          : "text-slate-600 hover:text-slate-800"
-                      }`}
+                      onClick={() => handleViewProofs(group.tpId)}
+                      className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                     >
-                      {t === "visualization" ? "Visualization" : "Details"}
+                      View proofs
                     </button>
-                  );
-                })}
-              </div>
-            </header>
+                  </div>
 
-            {/* Visualization tab: stacked list of touch points with bars */}
-            {tab === "visualization" && (
-              <div className="mt-4 space-y-4">
-                {TOUCH_POINTS.map((tp) => (
-                  <div key={tp.id} className="space-y-1">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <div>
-                        <div className="text-base font-semibold text-slate-900">
-                          {tp.id}. {tp.name}
-                        </div>
-                        <div className="text-sm text-slate-500">
-                          {tp.offsetLabel}
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          {parseChannels(tp.channel).map((ch) => (
+                  {/* Mini table for this touch point's channels */}
+                  <table className="w-full table-fixed text-xs">
+                    <colgroup>
+                      <col className="w-[180px]" /> {/* Channel */}
+                      <col className="w-[80px]" />  {/* Sent */}
+                      <col className="w-[80px]" />  {/* Opened */}
+                      <col className="w-[80px]" />  {/* Responses */}
+                      <col className="w-[70px]" />  {/* Resp % */}
+                      <col className="w-[70px]" />  {/* ROAS */}
+                      <col className="w-[100px]" /> {/* Revenue */}
+                    </colgroup>
+
+                    <thead>
+                      <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
+                        <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                          Channel
+                        </th>
+                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                          Sent
+                        </th>
+                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                          Opened
+                        </th>
+                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                          Responses
+                        </th>
+                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                          Resp %
+                        </th>
+                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                          ROAS
+                        </th>
+                        <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
+                          Revenue
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-slate-100">
+                      {group.rows.map((row, idx) => (
+                        <tr key={`${row.tpId}-${row.channel}-${idx}`} className="align-top">
+                          {/* Channel pill */}
+                          <td className="py-2 pr-3">
                             <span
-                              key={ch}
-                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border ${
-                                ch === "postcard"
-                                  ? "bg-tp-pastel-blue text-sky-700 border-sky-200"
-                                  : ch === "email"
-                                  ? "bg-tp-pastel-green text-emerald-700 border-emerald-200"
-                                  : "bg-tp-pastel-purple text-indigo-700 border-indigo-200"
+                              className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${
+                                row.channel === "postcard"
+                                  ? "bg-tp-pastel-blue text-sky-700"
+                                  : row.channel === "email"
+                                  ? "bg-tp-pastel-green text-emerald-700"
+                                  : "bg-tp-pastel-purple text-indigo-700"
                               }`}
                             >
-                              {CHANNEL_LABELS[ch]}
+                              {CHANNEL_LABELS[row.channel]}
                             </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="text-right text-sm text-slate-500">
-                        <div className="text-xl font-semibold text-emerald-600">
-                          {tp.respPct.toFixed(1)}% RESP
-                        </div>
-                        <div className="text-sm text-slate-500">
-                          {tp.roas.toFixed(1)}x ROAS
-                        </div>
-                        <div className="text-sm text-slate-400">
-                          {tp.sends.toLocaleString()} sent ·{" "}
-                          {tp.revenue.toLocaleString("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            maximumFractionDigits: 0,
-                          })}{" "}
-                          rev
-                        </div>
-                      </div>
-                    </div>
+                          </td>
 
-                    {/* Channel-colored bar */}
-                    {(() => {
-                      const channels = parseChannels(tp.channel);
-                      const segmentWidth = 100 / channels.length;
-                      return (
-                        <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden flex">
-                          {channels.map((ch) => (
-                            <div
-                              key={ch}
-                              className={CHANNEL_BAR_CLASS[ch]}
-                              style={{ width: `${Math.min(tp.respPct, 100) * segmentWidth / 100}%` }}
-                            />
-                          ))}
-                        </div>
-                      );
-                    })()}
+                          {/* Sent */}
+                          <td className="py-2 px-2 text-right text-xs text-slate-900">
+                            {row.sends.toLocaleString()}
+                          </td>
 
-                    {/* Channel legend for every touch point */}
-                    <ChannelLegend channels={parseChannels(tp.channel)} />
-                  </div>
-                ))}
-              </div>
-            )}
+                          {/* Opened */}
+                          <td className="py-2 px-2 text-right text-xs text-slate-900">
+                            {row.channel === "postcard" ? "—" : row.opened.toLocaleString()}
+                          </td>
 
-            {/* Details tab: ghost pill per touch point with per-channel rows */}
-            {tab === "details" && (
-              <div className="mt-4 space-y-4">
-                {(() => {
-                  // Group rows by touch point
-                  type GroupedTP = {
-                    tpId: number;
-                    tpName: string;
-                    offsetLabel: string;
-                    rows: typeof sortedDetailRows;
-                  };
-                  const groupedMap = new Map<number, GroupedTP>();
+                          {/* Responses */}
+                          <td className="py-2 px-2 text-right text-xs text-slate-900">
+                            {row.responses.toLocaleString()}
+                          </td>
 
-                  sortedDetailRows.forEach((row) => {
-                    if (!groupedMap.has(row.tpId)) {
-                      groupedMap.set(row.tpId, {
-                        tpId: row.tpId,
-                        tpName: row.tpName,
-                        offsetLabel: row.offsetLabel,
-                        rows: [],
-                      });
-                    }
-                    groupedMap.get(row.tpId)!.rows.push(row);
-                  });
+                          {/* Resp % */}
+                          <td className="py-2 px-2 text-right text-xs font-semibold text-emerald-600">
+                            {row.respPct.toFixed(1)}%
+                          </td>
 
-                  // Sort groups by touch point ID
-                  const groups = Array.from(groupedMap.values()).sort((a, b) => a.tpId - b.tpId);
+                          {/* ROAS */}
+                          <td className="py-2 px-2 text-right text-xs text-slate-900">
+                            {row.roas.toFixed(1)}x
+                          </td>
 
-                  return groups.map((group) => (
-                    <div
-                      key={group.tpId}
-                      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                    >
-                      {/* Touch point header inside the ghost pill */}
-                      <div className="mb-3">
-                        <div className="text-sm font-semibold text-slate-900">
-                          {group.tpId}. {group.tpName}
-                        </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500">
-                          {group.offsetLabel}
-                        </div>
-                      </div>
-
-                      {/* Mini table for this touch point's channels */}
-                      <table className="w-full table-fixed text-xs">
-                        <colgroup>
-                          <col className="w-[180px]" /> {/* Channel */}
-                          <col className="w-[80px]" />  {/* Sent */}
-                          <col className="w-[80px]" />  {/* Opened */}
-                          <col className="w-[80px]" />  {/* Responses */}
-                          <col className="w-[70px]" />  {/* Resp % */}
-                          <col className="w-[70px]" />  {/* ROAS */}
-                          <col className="w-[100px]" /> {/* Revenue */}
-                        </colgroup>
-
-                        <thead>
-                          <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
-                            <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-                              Channel
-                            </th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                              Sent
-                            </th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                              Opened
-                            </th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                              Responses
-                            </th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                              Resp %
-                            </th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                              ROAS
-                            </th>
-                            <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
-                              Revenue
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody className="divide-y divide-slate-100">
-                          {group.rows.map((row, idx) => (
-                            <tr key={`${row.tpId}-${row.channel}-${idx}`} className="align-top">
-                              {/* Channel pill */}
-                              <td className="py-2 pr-3">
-                                <span
-                                  className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${
-                                    row.channel === "postcard"
-                                      ? "bg-tp-pastel-blue text-sky-700"
-                                      : row.channel === "email"
-                                      ? "bg-tp-pastel-green text-emerald-700"
-                                      : "bg-tp-pastel-purple text-indigo-700"
-                                  }`}
-                                >
-                                  {CHANNEL_LABELS[row.channel]}
-                                </span>
-                              </td>
-
-                              {/* Sent */}
-                              <td className="py-2 px-2 text-right text-xs text-slate-900">
-                                {row.sends.toLocaleString()}
-                              </td>
-
-                              {/* Opened */}
-                              <td className="py-2 px-2 text-right text-xs text-slate-900">
-                                {row.channel === "postcard" ? "—" : row.opened.toLocaleString()}
-                              </td>
-
-                              {/* Responses */}
-                              <td className="py-2 px-2 text-right text-xs text-slate-900">
-                                {row.responses.toLocaleString()}
-                              </td>
-
-                              {/* Resp % */}
-                              <td className="py-2 px-2 text-right text-xs font-semibold text-emerald-600">
-                                {row.respPct.toFixed(1)}%
-                              </td>
-
-                              {/* ROAS */}
-                              <td className="py-2 px-2 text-right text-xs text-slate-900">
-                                {row.roas.toFixed(1)}x
-                              </td>
-
-                              {/* Revenue */}
-                              <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
-                                {row.revenue.toLocaleString("en-US", {
-                                  style: "currency",
-                                  currency: "USD",
-                                  maximumFractionDigits: 0,
-                                })}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ));
-                })()}
-              </div>
-            )}
-          </section>
+                          {/* Revenue */}
+                          <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900">
+                            {row.revenue.toLocaleString("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                              maximumFractionDigits: 0,
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ));
+            })()}
+          </div>
 
           {/* AI stacked on small screens - after main content */}
           <div className="block lg:hidden">
