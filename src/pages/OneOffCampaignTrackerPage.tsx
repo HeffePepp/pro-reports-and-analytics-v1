@@ -478,121 +478,67 @@ const groupDropsByCampaign = (rows: JourneyDropRow[]) => {
 };
 
 const DetailsTable: React.FC = () => {
-  const groups = groupDropsByCampaign(JOURNEY_DROPS);
-
   return (
-    <div className="mt-2 overflow-x-auto">
-      <table className="w-full text-xs table-fixed">
-        <colgroup>
-          <col className="w-[40%]" />
-          <col className="w-[12%]" />
-          <col className="w-[12%]" />
-          <col className="w-[12%]" />
-          <col className="w-[12%]" />
-          <col className="w-[12%]" />
-        </colgroup>
-        <thead>
-          <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
-            <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-              Campaign & drop
-            </th>
-            <th className="py-2 px-2 text-left font-medium whitespace-nowrap">
-              Date
-            </th>
-            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-              Sent
-            </th>
-            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-              Opened
-            </th>
-            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-              Resp %
-            </th>
-            <th className="py-2 pl-2 text-right font-medium whitespace-nowrap">
-              Revenue
-            </th>
-          </tr>
-        </thead>
+    <div className="space-y-3">
+      {JOURNEY_DROPS.map((row) => (
+        <div
+          key={row.id}
+          className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 md:flex-row md:items-center md:justify-between"
+        >
+          {/* LEFT: campaign, drop, channels */}
+          <div>
+            <div className="text-sm font-semibold text-slate-900">
+              {row.campaignName}
+            </div>
+            <div className="mt-0.5 text-[11px] text-slate-500">
+              Drop {row.dropNumber}
+            </div>
 
-        <tbody className="divide-y divide-transparent">
-          {groups.map((group, groupIndex) => (
-            <React.Fragment key={group.campaignName}>
-              {group.rows.map((row, rowIndex) => {
-                const isFirst = rowIndex === 0;
-                const isLast = rowIndex === group.rows.length - 1;
-                const isSingleRow = group.rows.length === 1;
+            <div className="mt-1 flex flex-wrap gap-1">
+              {row.channels.map((ch) => (
+                <span
+                  key={ch}
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${channelPillClass(ch)}`}
+                >
+                  {channelDisplayName(ch)}
+                </span>
+              ))}
+            </div>
+          </div>
 
-                // corners for the "campaign pill"
-                const leftCornerClasses = isSingleRow
-                  ? "rounded-l-2xl"
-                  : isFirst
-                  ? "rounded-tl-2xl"
-                  : isLast
-                  ? "rounded-bl-2xl"
-                  : "";
-                const rightCornerClasses = isSingleRow
-                  ? "rounded-r-2xl"
-                  : isFirst
-                  ? "rounded-tr-2xl"
-                  : isLast
-                  ? "rounded-br-2xl"
-                  : "";
-
-                // add vertical gap between campaigns
-                const campaignSpacing =
-                  groupIndex > 0 && isFirst ? "border-t-4 border-transparent" : "";
-
-                return (
-                  <tr key={row.id} className={`align-top ${campaignSpacing}`}>
-                    {/* COL 1: campaign + drop + channels */}
-                    <td className={`border border-r-0 border-slate-200 bg-white py-3 pr-3 pl-3 ${leftCornerClasses}`}>
-                      <div className="text-sm font-semibold text-slate-900">
-                        {row.campaignName}
-                      </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        Drop {row.dropNumber}
-                      </div>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {row.channels.map((ch) => (
-                          <span
-                            key={ch}
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${channelPillClass(ch)}`}
-                          >
-                            {channelDisplayName(ch)}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-
-                    {/* Date */}
-                    <td className={`border-y border-slate-200 bg-white py-3 px-2 text-xs text-slate-900`}>
-                      {row.dropDate}
-                    </td>
-
-                    {/* Metrics – right aligned */}
-                    <td className={`border-y border-slate-200 bg-white py-3 px-2 text-right text-xs text-slate-900`}>
-                      {row.sent.toLocaleString()}
-                    </td>
-                    <td className={`border-y border-slate-200 bg-white py-3 px-2 text-right text-xs text-slate-900`}>
-                      {row.opened.toLocaleString()}
-                    </td>
-                    <td className={`border-y border-slate-200 bg-white py-3 px-2 text-right text-xs font-semibold text-emerald-600`}>
-                      {row.respPct.toFixed(1)}%
-                    </td>
-                    <td className={`border border-l-0 border-slate-200 bg-white py-3 pl-2 pr-3 text-right text-xs text-slate-900 ${rightCornerClasses}`}>
-                      {row.revenue.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        maximumFractionDigits: 0,
-                      })}
-                    </td>
-                  </tr>
-                );
-              })}
-            </React.Fragment>
-          ))}
-        </tbody>
-      </table>
+          {/* RIGHT: stats row – Date, Sent, Opened, Resp %, Revenue */}
+          <div className="flex flex-col items-start gap-1 text-[11px] text-slate-600 md:items-end md:text-right">
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              <span>
+                <span className="font-semibold text-slate-700">Date:</span>{" "}
+                {row.dropDate}
+              </span>
+              <span>
+                <span className="font-semibold text-slate-700">Sent:</span>{" "}
+                {row.sent.toLocaleString()}
+              </span>
+              <span>
+                <span className="font-semibold text-slate-700">Opened:</span>{" "}
+                {row.opened.toLocaleString()}
+              </span>
+              <span>
+                <span className="font-semibold text-slate-700">Resp %:</span>{" "}
+                <span className="font-semibold text-emerald-600">
+                  {row.respPct.toFixed(1)}%
+                </span>
+              </span>
+              <span>
+                <span className="font-semibold text-slate-700">Revenue:</span>{" "}
+                {row.revenue.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  maximumFractionDigits: 0,
+                })}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
