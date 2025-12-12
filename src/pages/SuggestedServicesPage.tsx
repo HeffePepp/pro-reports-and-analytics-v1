@@ -704,14 +704,14 @@ const SuggestedServicesPage: React.FC = () => {
                       {/* LEFT: service name - vertically centered */}
                       <div className="min-w-0 flex-1 flex items-center">
                         <div className="truncate text-[15px] font-semibold tracking-wide text-slate-900">
-                          {(item.service || "").toUpperCase()}
+                          {item.service}
                         </div>
                       </div>
 
-                      {/* RIGHT: both pills side by side */}
-                      <div className="shrink-0 flex items-center gap-3">
-                        {/* Invoice stat pill - amber */}
-                        <div className="rounded-xl bg-amber-50 border border-amber-100 px-4 py-2 text-center min-w-[120px]">
+                      {/* RIGHT: both metrics side by side */}
+                      <div className="shrink-0 flex items-center gap-6">
+                        {/* Invoice stat */}
+                        <div className="px-4 py-2 text-center min-w-[120px]">
                           <div className="text-[18px] font-semibold text-amber-700 leading-none">
                             {item.invoices.toLocaleString()}
                           </div>
@@ -720,8 +720,8 @@ const SuggestedServicesPage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Conversions pill - indigo */}
-                        <div className="rounded-xl bg-indigo-50 border border-indigo-100 px-4 py-2 text-center min-w-[120px]">
+                        {/* Conversions stat */}
+                        <div className="px-4 py-2 text-center min-w-[120px]">
                           <div className="text-[20px] font-semibold text-indigo-700 leading-none">
                             {item.conversions.toLocaleString()}
                           </div>
