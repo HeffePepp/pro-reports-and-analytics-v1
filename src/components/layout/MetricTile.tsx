@@ -18,12 +18,21 @@ type MetricTileProps = {
   helpText?: string;
   variant?: MetricVariant;
   className?: string;
+  /** Custom class for value highlight pill (e.g., "bg-sky-100 text-sky-700") */
+  valueHighlightClass?: string;
 };
 
 const variantClasses: Record<MetricVariant, string> = {
   default: "bg-white border-slate-200",
   coupon: "bg-sky-50 border-sky-100",
   discount: "bg-emerald-50 border-emerald-100",
+};
+
+// Value highlight classes that match tile variants
+const variantValueClasses: Record<MetricVariant, string> = {
+  default: "",
+  coupon: "inline-flex items-center px-2 py-0.5 rounded-md bg-sky-100 text-sky-700",
+  discount: "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700",
 };
 
 const MetricTile: React.FC<MetricTileProps> = ({
@@ -34,10 +43,18 @@ const MetricTile: React.FC<MetricTileProps> = ({
   helpText,
   variant = "default",
   className,
+  valueHighlightClass,
 }) => {
-  const valueClass = highlight
-    ? "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xl md:text-2xl font-semibold tracking-tight"
-    : "text-xl md:text-2xl font-semibold text-slate-900 tracking-tight";
+  // Determine value styling
+  let valueClass = "text-xl md:text-2xl font-semibold text-slate-900 tracking-tight";
+  
+  if (highlight) {
+    valueClass = "inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-xl md:text-2xl font-semibold tracking-tight";
+  } else if (valueHighlightClass) {
+    valueClass = cn("inline-flex items-center px-2 py-0.5 rounded-md text-xl md:text-2xl font-semibold tracking-tight", valueHighlightClass);
+  } else if (variant !== "default") {
+    valueClass = cn("text-xl md:text-2xl font-semibold tracking-tight", variantValueClasses[variant]);
+  }
 
   return (
     <div className={cn("rounded-2xl border shadow-sm h-full", variantClasses[variant], className)}>
