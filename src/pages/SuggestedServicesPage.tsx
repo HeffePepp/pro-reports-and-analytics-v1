@@ -74,10 +74,42 @@ type SuggestedServicesTouchPoint = {
 };
 
 const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
-  { timing: "1 week after Service", channel: "Email", sent: 1850, opened: 1295, responses: 420, respPct: 22.7, roas: 9.5 },
-  { timing: "1 month after Service", channel: "Email", sent: 1760, opened: 1232, responses: 310, respPct: 17.6, roas: 12.1 },
-  { timing: "3 months after Service", channel: "Email", sent: 1640, opened: 1148, responses: 240, respPct: 14.6, roas: 11.2 },
-  { timing: "6 months after Service", channel: "Email", sent: 1380, opened: 966, responses: 280, respPct: 20.3, roas: 16.4 },
+  {
+    timing: "1 week after Service",
+    channel: "Email",
+    sent: 1850,
+    opened: 1295,
+    responses: 420,
+    respPct: 22.7,
+    roas: 9.5,
+  },
+  {
+    timing: "1 month after Service",
+    channel: "Email",
+    sent: 1760,
+    opened: 1232,
+    responses: 310,
+    respPct: 17.6,
+    roas: 12.1,
+  },
+  {
+    timing: "3 months after Service",
+    channel: "Email",
+    sent: 1640,
+    opened: 1148,
+    responses: 240,
+    respPct: 14.6,
+    roas: 11.2,
+  },
+  {
+    timing: "6 months after Service",
+    channel: "Email",
+    sent: 1380,
+    opened: 966,
+    responses: 280,
+    respPct: 20.3,
+    roas: 16.4,
+  },
 ];
 
 const getRespColorClass = (rate: number): string => {
@@ -254,7 +286,7 @@ const SuggestedServicesPage: React.FC = () => {
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <header className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">Suggested Services Performance</h2>
+                <h2 className="text-[13px] font-semibold text-slate-900">Active Suggested Services Items</h2>
               </div>
 
               {/* Two-tab pill */}
@@ -328,9 +360,7 @@ const SuggestedServicesPage: React.FC = () => {
                           <td className="py-3 pl-4 text-right align-middle">
                             <span className="font-semibold text-emerald-600">{tp.respPct.toFixed(1)}%</span>
                           </td>
-                          <td className="py-3 pl-4 text-right align-middle text-slate-900">
-                            {tp.roas.toFixed(1)}x
-                          </td>
+                          <td className="py-3 pl-4 text-right align-middle text-slate-900">{tp.roas.toFixed(1)}x</td>
                           <td className="py-3 pl-4 text-right align-middle text-slate-900">
                             {revenue.toLocaleString("en-US", {
                               style: "currency",
