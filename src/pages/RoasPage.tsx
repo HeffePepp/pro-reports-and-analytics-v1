@@ -130,10 +130,10 @@ const channelPillClass = (channel: string) => {
       return "bg-tp-pastel-green text-emerald-700";
     case "Postcard":
       return "bg-tp-pastel-blue text-sky-700";
-    case "Mixed":
-      return "bg-tp-pastel-purple text-indigo-700";
     case "Text":
-      return "bg-tp-pastel-purple text-purple-700";
+      return "bg-tp-pastel-purple text-indigo-700";
+    case "Mixed":
+      return "bg-amber-50 text-amber-700";
     default:
       return "bg-muted text-muted-foreground";
   }
