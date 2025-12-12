@@ -379,8 +379,21 @@ const CustomerJourneyPage: React.FC = () => {
                         <div className="text-sm text-slate-500">
                           {tp.offsetLabel}
                         </div>
-                        <div className="text-sm text-slate-500">
-                          {tp.channel}
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {parseChannels(tp.channel).map((ch) => (
+                            <span
+                              key={ch}
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                ch === "postcard"
+                                  ? "bg-sky-50 text-sky-700 border border-sky-100"
+                                  : ch === "email"
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                                  : "bg-indigo-50 text-indigo-700 border border-indigo-100"
+                              }`}
+                            >
+                              {CHANNEL_LABELS[ch]}
+                            </span>
+                          ))}
                         </div>
                       </div>
                       <div className="text-right text-sm text-slate-500">
