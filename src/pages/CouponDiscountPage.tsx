@@ -86,7 +86,7 @@ const CouponDiscountPage: React.FC = () => {
             key={id}
             label="Total coupon amount"
             value={currency(totalCouponAmount)}
-            helpText="Sum of coupon dollars used across all redemptions."
+            helpText="Sum of coupon dollars used across all redemptions during the period. Higher amounts may indicate strong response but also margin erosion."
             variant="coupon"
           />
         );
@@ -96,7 +96,7 @@ const CouponDiscountPage: React.FC = () => {
             key={id}
             label="Total discount amount"
             value={currency(totalDiscountAmount)}
-            helpText="All discounts from discount offers."
+            helpText="Total discount dollars applied from all discount offers. Monitor this alongside revenue to ensure discounts are driving profitable visits."
             variant="discount"
           />
         );
@@ -106,7 +106,7 @@ const CouponDiscountPage: React.FC = () => {
             key={id}
             label="Avg coupon/discount"
             value={currency(avgCouponDiscount, 2)}
-            helpText="Average reduction per discounted invoice."
+            helpText="Average reduction per discounted invoice across all offers. Use this to benchmark offer richness and identify outliers."
           />
         );
       case "totalRevenue":
@@ -115,7 +115,7 @@ const CouponDiscountPage: React.FC = () => {
             key={id}
             label="Total revenue"
             value={currency(totalRevenue)}
-            helpText="Revenue on discounted invoices."
+            helpText="Total revenue on invoices that used a coupon or discount. Compare net revenue to coupon spend to evaluate profitability."
           />
         );
       default:

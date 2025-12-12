@@ -107,11 +107,11 @@ const BillingCampaignTrackingPage: React.FC = () => {
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "totalBilling": return <MetricTile key={id} label="Total billing" value={`$${billingSummary.totalBilling.toLocaleString()}`} helpText="Total billed amount for all campaigns during the selected period." />;
-      case "outstanding": return <MetricTile key={id} label="Outstanding" value={`$${billingSummary.outstanding.toLocaleString()}`} helpText="Total amount billed but not yet paid." />;
-      case "billedCampaigns": return <MetricTile key={id} label="Billed campaigns" value={billingSummary.billedCampaigns.toString()} helpText="Number of campaigns with billing entries in the selected period." />;
-      case "storesBilled": return <MetricTile key={id} label="Stores billed" value={billingSummary.storesBilled.toString()} helpText="Number of store locations with billing activity." />;
-      case "pendingBilling": return <MetricTile key={id} label="Pending billing" value={`$${totalPending.toFixed(0)}`} helpText="Amount awaiting approval or processing before posting." />;
+      case "totalBilling": return <MetricTile key={id} label="Total billing" value={`$${billingSummary.totalBilling.toLocaleString()}`} helpText="Total billed amount for all campaigns during the selected period. This includes all channel costs across email, mail, and SMS." />;
+      case "outstanding": return <MetricTile key={id} label="Outstanding" value={`$${billingSummary.outstanding.toLocaleString()}`} helpText="Total amount billed but not yet paid by store owners. Monitor this to ensure timely collections and cash flow." />;
+      case "billedCampaigns": return <MetricTile key={id} label="Billed campaigns" value={billingSummary.billedCampaigns.toString()} helpText="Number of campaigns with billing entries in the selected period. Each campaign may include multiple drops and channels." />;
+      case "storesBilled": return <MetricTile key={id} label="Stores billed" value={billingSummary.storesBilled.toString()} helpText="Number of store locations with billing activity in the period. Use this to verify all active stores are being billed correctly." />;
+      case "pendingBilling": return <MetricTile key={id} label="Pending billing" value={`$${totalPending.toFixed(0)}`} helpText="Amount awaiting approval or processing before posting to invoices. Pending items should be reviewed and cleared regularly." />;
       default: return null;
     }
   };

@@ -105,11 +105,11 @@ const ComprehensiveAccountAuditPage: React.FC = () => {
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "checksPassed": return <MetricTile key={id} label="Checks passed" value={auditSummary.passedChecks.toString()} helpText="Number of audit checks that passed without issues." />;
-      case "warnings": return <MetricTile key={id} label="Warnings" value={auditSummary.warningChecks.toString()} helpText="Number of audit checks that need attention but aren't critical." />;
-      case "failures": return <MetricTile key={id} label="Failures" value={auditSummary.failedChecks.toString()} helpText="Number of audit checks that failed and require immediate action." />;
-      case "totalChecks": return <MetricTile key={id} label="Total checks" value={auditSummary.totalChecks.toString()} helpText="Total number of audit checks performed on the account." />;
-      case "priorityArea": return <MetricTile key={id} label="Priority area" value="Data quality" helper="Bad address rate high" helpText="The area requiring the most attention based on audit findings." />;
+      case "checksPassed": return <MetricTile key={id} label="Checks passed" value={auditSummary.passedChecks.toString()} helpText="Number of audit checks that passed without issues. Passed checks indicate areas where the account is performing well." />;
+      case "warnings": return <MetricTile key={id} label="Warnings" value={auditSummary.warningChecks.toString()} helpText="Number of audit checks that need attention but aren't critical. Address warnings to prevent them from becoming failures." />;
+      case "failures": return <MetricTile key={id} label="Failures" value={auditSummary.failedChecks.toString()} helpText="Number of audit checks that failed and require immediate action. Failures often affect deliverability, compliance, or data quality." />;
+      case "totalChecks": return <MetricTile key={id} label="Total checks" value={auditSummary.totalChecks.toString()} helpText="Total number of audit checks performed on the account. This includes data quality, journey health, and compliance validations." />;
+      case "priorityArea": return <MetricTile key={id} label="Priority area" value="Data quality" helper="Bad address rate high" helpText="The area requiring the most attention based on audit findings. Focus improvement efforts here for maximum impact." />;
       default: return null;
     }
   };

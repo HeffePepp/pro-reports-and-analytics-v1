@@ -89,11 +89,11 @@ const ValidEmailCapturePage: React.FC = () => {
 
   const renderKpiTile = (id: string) => {
     switch (id) {
-      case "totalCustomers": return <MetricTile key={id} label="Total customers" value={emailSummary.totalCustomers.toLocaleString()} helpText="Total unique customers in the database." />;
-      case "withEmail": return <MetricTile key={id} label="With email on file" value={emailSummary.withEmail.toLocaleString()} helpText="Number of customers with any email address on file." />;
-      case "validCapture": return <MetricTile key={id} label="Valid email capture" value={`${overallCaptureRate.toFixed(1)}%`} helper={`${emailSummary.validEmail.toLocaleString()} valid`} helpText="Percentage of customers with a verified, deliverable email address." />;
-      case "bounced": return <MetricTile key={id} label="Bounced emails" value={emailSummary.bouncedEmail.toLocaleString()} helpText="Number of email addresses that bounced and are undeliverable." />;
-      case "optedOut": return <MetricTile key={id} label="Opted-out" value={emailSummary.optedOut.toLocaleString()} helpText="Number of customers who opted out of email communications." />;
+      case "totalCustomers": return <MetricTile key={id} label="Total customers" value={emailSummary.totalCustomers.toLocaleString()} helpText="Total unique customers in the database across all locations. This is the base population for email capture rate calculations." />;
+      case "withEmail": return <MetricTile key={id} label="With email on file" value={emailSummary.withEmail.toLocaleString()} helpText="Number of customers with any email address on file, including bounced or invalid addresses. Compare to valid count to see quality gap." />;
+      case "validCapture": return <MetricTile key={id} label="Valid email capture" value={`${overallCaptureRate.toFixed(1)}%`} helper={`${emailSummary.validEmail.toLocaleString()} valid`} helpText="Percentage of customers with a verified, deliverable email address. Higher rates improve email campaign reach and reduce waste." />;
+      case "bounced": return <MetricTile key={id} label="Bounced emails" value={emailSummary.bouncedEmail.toLocaleString()} helpText="Number of email addresses that bounced and are undeliverable. High bounce counts hurt sender reputation and should be cleaned regularly." />;
+      case "optedOut": return <MetricTile key={id} label="Opted-out" value={emailSummary.optedOut.toLocaleString()} helpText="Number of customers who opted out of email communications. This count is excluded from email campaigns per compliance requirements." />;
       default: return null;
     }
   };

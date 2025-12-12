@@ -352,7 +352,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="Invoices"
             value={ssSummary.invoices.toLocaleString()}
-            helpText="Total number of invoices during the selected period."
+            helpText="Total number of invoices during the selected period. This is the base count for calculating suggested service attachment rates."
           />
         );
       case "suggestedServices":
@@ -361,7 +361,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="Suggested Services"
             value={ssSummary.suggestedServices.toLocaleString()}
-            helpText="Total number of suggested service items recorded across all invoices."
+            helpText="Total number of suggested service items recorded across all invoices. Higher counts indicate technicians are actively identifying upsell opportunities."
           />
         );
       case "emailsSent":
@@ -370,7 +370,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="Emails Sent"
             value={ssSummary.emailsSent.toLocaleString()}
-            helpText="Number of suggested-service follow-up emails sent during the selected period."
+            helpText="Number of suggested-service follow-up emails sent during the selected period. These automated messages help convert declined services into future revenue."
           />
         );
       case "emailsOpened":
@@ -379,7 +379,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="Emails Opened"
             value={ssSummary.emailsOpened.toLocaleString()}
-            helpText="Number of suggested-service emails that were opened by customers."
+            helpText="Number of suggested-service emails that were opened by customers. Open rates indicate email deliverability and subject line effectiveness."
           />
         );
       case "responses":
@@ -388,7 +388,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="Responses"
             value={ssSummary.responses.toLocaleString()}
-            helpText="Number of customers who responded to a suggested-service message by clicking, calling, or booking."
+            helpText="Number of customers who responded to a suggested-service message by clicking, calling, or booking. This measures the conversion power of your follow-up sequence."
           />
         );
       case "ssRevenue":
@@ -401,7 +401,7 @@ const SuggestedServicesPage: React.FC = () => {
               currency: "USD",
               maximumFractionDigits: 0,
             })}
-            helpText="Total revenue tied to accepted suggested services during the selected period."
+            helpText="Total revenue tied to accepted suggested services during the selected period. This is incremental revenue that would likely be lost without follow-up."
           />
         );
       case "totalRevenue":
@@ -414,7 +414,7 @@ const SuggestedServicesPage: React.FC = () => {
               currency: "USD",
               maximumFractionDigits: 0,
             })}
-            helpText="Total invoice revenue for all invoices in the selected period."
+            helpText="Total invoice revenue for all invoices in the selected period. Compare SS Revenue to this to see suggested services' contribution to overall sales."
           />
         );
       case "invoicesWithSs":
@@ -423,7 +423,7 @@ const SuggestedServicesPage: React.FC = () => {
             key={id}
             label="% Invoices with a SS"
             value={`${ssSummary.invoicesWithSsPct.toFixed(1)}%`}
-            helpText="Percent of all invoices that include at least one suggested-service line item."
+            helpText="Percent of all invoices that include at least one suggested-service line item. Higher rates indicate technicians are consistently identifying opportunities."
           />
         );
       default:
