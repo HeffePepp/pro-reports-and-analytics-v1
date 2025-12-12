@@ -38,16 +38,18 @@ type SortKey =
 type SortDir = "asc" | "desc";
 type SortState = { key: SortKey; dir: SortDir };
 
-const COUPON_PILL_COLORS: Record<string, string> = {
-  OIL10: "bg-emerald-50 text-emerald-700 border-emerald-100",
-  SYN20: "bg-sky-50 text-sky-700 border-sky-100",
-  WEB15: "bg-indigo-50 text-indigo-700 border-indigo-100",
-  VIP25: "bg-amber-50 text-amber-700 border-amber-100",
-  WELCOME5: "bg-rose-50 text-rose-700 border-rose-100",
+// Coupon = sky (blue), Discount = emerald (green)
+const COUPON_PILL = "bg-sky-50 text-sky-700 border-sky-100";
+const DISCOUNT_PILL = "bg-emerald-50 text-emerald-700 border-emerald-100";
+
+// Deterministic random assignment based on code string
+const getOfferType = (code: string): "coupon" | "discount" => {
+  const hash = code.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return hash % 2 === 0 ? "coupon" : "discount";
 };
 
 const getPillColor = (code: string) =>
-  COUPON_PILL_COLORS[code] || "bg-slate-100 text-slate-700 border-slate-200";
+  getOfferType(code) === "coupon" ? COUPON_PILL : DISCOUNT_PILL;
 
 const currency = (v: number) =>
   v.toLocaleString("en-US", {
