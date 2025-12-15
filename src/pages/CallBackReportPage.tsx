@@ -1,5 +1,5 @@
 import React from "react";
-import { Download, Search, Phone, Mail, ClipboardCopy, ChevronDown, ChevronUp, Check, Car, User, MapPin, Wrench, FileText, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Download, Search, Phone, Mail, ClipboardCopy, ChevronDown, ChevronUp, Check, Car, User, MapPin, Wrench, FileText, MoreVertical, Pencil, Trash2, MessageSquare } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -208,12 +208,13 @@ const CustomerDetailDialog: React.FC<{
   onOpenChange: (v: boolean) => void;
   customer: CustomerRecord | null;
 }> = ({ open, onOpenChange, customer }) => {
-  const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new Set());
+const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new Set());
   const [newNoteText, setNewNoteText] = React.useState("");
   const [editingNoteId, setEditingNoteId] = React.useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = React.useState("");
   const [deleteConfirmId, setDeleteConfirmId] = React.useState<string | null>(null);
   const [localNotes, setLocalNotes] = React.useState<CustomerNote[]>([]);
+  const [notesExpanded, setNotesExpanded] = React.useState(false);
 
   // Sync localNotes when customer changes
   React.useEffect(() => {
@@ -411,6 +412,138 @@ const CustomerDetailDialog: React.FC<{
           </div>
         </div>
 
+        {/* Customer Notes - moved above Activity Timeline */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-4">
+          <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900">
+            <MessageSquare className="h-4 w-4 text-sky-600" />
+            Customer Notes
+          </div>
+          
+          {/* New Customer Notes */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[11px] text-slate-500 uppercase font-medium">New Customer Note</div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!newNoteText.trim()) return;
+                  const newNote: CustomerNote = {
+                    id: `n${Date.now()}`,
+                    text: newNoteText.trim(),
+                    timestamp: new Date().toISOString()
+                  };
+                  setLocalNotes(prev => [newNote, ...prev]);
+                  setNewNoteText("");
+                  console.log("Saved new note:", newNote);
+                }}
+                className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 px-3 py-1 text-xs"
+              >
+                Save
+              </button>
+            </div>
+            <textarea
+              className="w-full min-h-[80px] text-sm text-slate-900 border border-slate-200 rounded-lg p-2 resize-y focus:outline-none focus:ring-1 focus:ring-sky-500"
+              value={newNoteText}
+              onChange={(e) => setNewNoteText(e.target.value)}
+              placeholder="Add a new note about this customer..."
+            />
+          </div>
+
+          {/* All Customer Notes - collapsible */}
+          {localNotes.length > 0 && (
+            <div>
+              <button
+                type="button"
+                onClick={() => setNotesExpanded(!notesExpanded)}
+                className="flex items-center gap-2 text-[11px] text-slate-500 uppercase font-medium hover:text-slate-700 transition-colors"
+              >
+                All Customer Notes ({localNotes.length})
+                {notesExpanded ? (
+                  <ChevronUp className="h-3 w-3" />
+                ) : (
+                  <ChevronDown className="h-3 w-3" />
+                )}
+              </button>
+              {notesExpanded && (
+                <div className="space-y-2 mt-2">
+                  {localNotes.map((note) => (
+                    <div key={note.id} className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                      {editingNoteId === note.id ? (
+                        <div className="space-y-2">
+                          <textarea
+                            className="w-full min-h-[60px] text-sm text-slate-900 border border-slate-200 rounded-lg p-2 resize-y focus:outline-none focus:ring-1 focus:ring-sky-500 bg-white"
+                            value={editingNoteText}
+                            onChange={(e) => setEditingNoteText(e.target.value)}
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setLocalNotes(prev => prev.map(n => n.id === note.id ? { ...n, text: editingNoteText.trim() } : n));
+                                setEditingNoteId(null);
+                              }}
+                              className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 px-3 py-1 text-xs"
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingNoteId(null)}
+                              className="rounded-full bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 px-3 py-1 text-xs"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <div className="text-sm text-slate-900">{note.text}</div>
+                            <div className="text-[10px] text-slate-400 mt-1">
+                              {new Date(note.timestamp).toLocaleString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit"
+                              })}
+                            </div>
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button type="button" className="p-1 hover:bg-slate-200 rounded">
+                                <MoreVertical className="h-4 w-4 text-slate-400" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setEditingNoteId(note.id);
+                                  setEditingNoteText(note.text);
+                                }}
+                              >
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => setDeleteConfirmId(note.id)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Activity Timeline */}
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-2">
@@ -494,119 +627,6 @@ const CustomerDetailDialog: React.FC<{
           </div>
         </div>
 
-        {/* Customer notes - two sections */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-4">
-          {/* New Customer Notes */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-[11px] text-slate-500 uppercase font-medium">New Customer Note</div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (!newNoteText.trim()) return;
-                  const newNote: CustomerNote = {
-                    id: `n${Date.now()}`,
-                    text: newNoteText.trim(),
-                    timestamp: new Date().toISOString()
-                  };
-                  setLocalNotes(prev => [newNote, ...prev]);
-                  setNewNoteText("");
-                  console.log("Saved new note:", newNote);
-                }}
-                className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 px-3 py-1 text-xs"
-              >
-                Save
-              </button>
-            </div>
-            <textarea
-              className="w-full min-h-[80px] text-sm text-slate-900 border border-slate-200 rounded-lg p-2 resize-y focus:outline-none focus:ring-1 focus:ring-sky-500"
-              value={newNoteText}
-              onChange={(e) => setNewNoteText(e.target.value)}
-              placeholder="Add a new note about this customer..."
-            />
-          </div>
-
-          {/* All Customer Notes */}
-          {localNotes.length > 0 && (
-            <div>
-              <div className="text-[11px] text-slate-500 uppercase font-medium mb-2">All Customer Notes</div>
-              <div className="space-y-2">
-                {localNotes.map((note) => (
-                  <div key={note.id} className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-                    {editingNoteId === note.id ? (
-                      <div className="space-y-2">
-                        <textarea
-                          className="w-full min-h-[60px] text-sm text-slate-900 border border-slate-200 rounded-lg p-2 resize-y focus:outline-none focus:ring-1 focus:ring-sky-500 bg-white"
-                          value={editingNoteText}
-                          onChange={(e) => setEditingNoteText(e.target.value)}
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setLocalNotes(prev => prev.map(n => n.id === note.id ? { ...n, text: editingNoteText.trim() } : n));
-                              setEditingNoteId(null);
-                            }}
-                            className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 px-3 py-1 text-xs"
-                          >
-                            Save
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingNoteId(null)}
-                            className="rounded-full bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 px-3 py-1 text-xs"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
-                          <div className="text-sm text-slate-900">{note.text}</div>
-                          <div className="text-[10px] text-slate-400 mt-1">
-                            {new Date(note.timestamp).toLocaleString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                              hour: "numeric",
-                              minute: "2-digit"
-                            })}
-                          </div>
-                        </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button type="button" className="p-1 hover:bg-slate-200 rounded">
-                              <MoreVertical className="h-4 w-4 text-slate-400" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setEditingNoteId(note.id);
-                                setEditingNoteText(note.text);
-                              }}
-                            >
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setDeleteConfirmId(note.id)}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Delete confirmation dialog */}
         <AlertDialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
@@ -650,6 +670,40 @@ const VEHICLE_MODELS = ["ACCORD", "CIVIC", "CAMRY", "F-150", "MALIBU", "3-SERIES
 const LABOR_CODES = ["Chevron High Mileage", "Pennzoil Platinum", "Valvoline MaxLife", "Mobil 1 Extended"];
 const PART_DESCRIPTIONS = ["Oil Filter", "Air Filter", "Cabin Filter", "Wiper Blades", "Drain Plug Gasket"];
 const PART_CODES = ["OF4459", "AF2341", "CF8899", "WB1234", "DPG567"];
+
+const DEMO_NOTES = [
+  "Customer prefers morning appointments.",
+  "Left voicemail, will call back tomorrow.",
+  "Requested synthetic oil upgrade on next visit.",
+  "Mentioned car making squeaking noise - check brakes.",
+  "Wife usually brings in the car.",
+  "Prefers text message reminders over phone calls.",
+  "Asked about fleet pricing for business vehicles.",
+  "Customer travels frequently, flexible scheduling needed.",
+  "Referred by neighbor - gave 10% discount coupon.",
+  "Vehicle has aftermarket exhaust - note for future reference.",
+];
+
+function generateDemoNotes(): CustomerNote[] {
+  const noteCount = 2 + Math.floor(Math.random() * 4); // 2-5 notes
+  const notes: CustomerNote[] = [];
+  const shuffled = [...DEMO_NOTES].sort(() => Math.random() - 0.5);
+  
+  for (let i = 0; i < noteCount; i++) {
+    const daysAgo = Math.floor(Math.random() * 180) + 1;
+    const date = new Date();
+    date.setDate(date.getDate() - daysAgo);
+    date.setHours(8 + Math.floor(Math.random() * 10), Math.floor(Math.random() * 60));
+    
+    notes.push({
+      id: `n${i + 1}`,
+      text: shuffled[i % shuffled.length],
+      timestamp: date.toISOString()
+    });
+  }
+  
+  return notes.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+}
 
 function generateMockCustomers(): CustomerRecord[] {
   const customers: CustomerRecord[] = [];
@@ -748,10 +802,7 @@ function generateMockCustomers(): CustomerRecord[] {
         invoiceSubtotal,
         laborLines,
         partLines,
-        notes: Math.random() > 0.5 ? [
-          { id: "n1", text: "Customer prefers morning appointments.", timestamp: "2024-11-15T10:30:00" },
-          { id: "n2", text: "Left voicemail, will call back tomorrow.", timestamp: "2024-10-22T14:15:00" }
-        ] : [],
+        notes: generateDemoNotes(),
         preferredContact: Math.random() > 0.5 ? "Phone" : "Email",
         emailOptIn: Math.random() > 0.2,
         doNotCall: Math.random() > 0.95,
