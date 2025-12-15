@@ -426,27 +426,29 @@ const CustomerDetailDialog: React.FC<{
                     )}
                   </button>
                   {isExpanded && (
-                    <div className="px-4 pb-4 border-t border-slate-100">
-                      <div className="grid grid-cols-3 gap-4 py-3 text-sm">
+                    <div className="border-t border-slate-100">
+                      {/* Yellow highlighted summary row */}
+                      <div className="bg-yellow-100 px-4 py-2 grid grid-cols-3 gap-4 text-sm">
                         <div>
-                          <span className="text-slate-500">Invoice #:</span>{" "}
+                          <span className="text-slate-600">Invoice #:</span>{" "}
                           <span className="text-sky-600 font-medium">{invoice.invoiceNum}</span>
                         </div>
                         <div>
-                          <span className="text-slate-500">Mileage:</span>{" "}
+                          <span className="text-slate-600">Mileage:</span>{" "}
                           <span className="text-slate-900">{invoice.mileage.toLocaleString()}</span>
                         </div>
                         <div>
-                          <span className="text-slate-500">Invoice Total:</span>{" "}
-                          <span className="text-slate-900 font-medium">${invoice.total.toFixed(2)}</span>
+                          <span className="text-slate-600">Invoice Total:</span>{" "}
+                          <span className="text-emerald-600 font-medium">${invoice.total.toFixed(2)}</span>
                         </div>
                       </div>
-                      <div className="space-y-3">
+                      {/* Labor and Parts details */}
+                      <div className="px-4 pb-4 pt-3 space-y-3">
                         <div>
                           <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Labor</div>
                           {invoice.laborLines.map((l, li) => (
                             <div key={li} className="flex justify-between text-sm py-0.5">
-                              <span className="text-slate-700">{l.description}</span>
+                              <span className="text-amber-600">{l.description}</span>
                               <span className="text-slate-900">${l.price.toFixed(2)}</span>
                             </div>
                           ))}
@@ -455,8 +457,8 @@ const CustomerDetailDialog: React.FC<{
                           <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Parts</div>
                           {invoice.partLines.map((p, pi) => (
                             <div key={pi} className="flex justify-between text-sm py-0.5">
-                              <span className="text-slate-700">{p.description} (x{p.qty})</span>
-                              <span className="text-slate-900">${(p.price * p.qty).toFixed(2)}</span>
+                              <span className="text-amber-600">{p.description} (x{p.qty})</span>
+                              <span className="text-slate-900">${p.price.toFixed(2)}</span>
                             </div>
                           ))}
                         </div>
@@ -468,15 +470,6 @@ const CustomerDetailDialog: React.FC<{
             })}
           </div>
         </div>
-
-        {/* Reminder Factors */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <div className="text-[13px] font-semibold text-slate-900 mb-2">Reminder Factors</div>
-          <div className="text-sm text-slate-900">
-            Throttle Pro's reminder algorithm - based on this customer's unique driving habits.
-          </div>
-        </div>
-
 
         {/* Customer notes */}
         {customer.notes && (
