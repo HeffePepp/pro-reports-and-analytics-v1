@@ -656,11 +656,13 @@ export default function CallbackReportPage() {
   const exportRows = React.useMemo(() => {
     return filtered.map((c) => ({
       "Customer Name": c.name,
+      "Cust Ph": c.phone ?? "",
+      "Cust Email": c.email ?? "",
       "Last Service Date": fmtDate(parseISODateOnly(c.lastServiceDate)),
       "Last Invoice #": c.lastInvoiceNumber ?? "",
+      "# of Previous Visits": String(c.totalVisits ?? 0),
+      "License Plate": c.licensePlate ?? "",
       "Last Location Visited": c.lastLocationVisited,
-      "Cust Ph": c.phone ?? "",
-      "Cust Eml": c.email ?? "",
     }));
   }, [filtered]);
 
