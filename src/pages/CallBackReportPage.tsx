@@ -527,17 +527,18 @@ export default function CallbackReportPage() {
         { label: "Callback Report" },
       ]}
     >
+      {/* Header - outside the grid */}
+      <div className="mb-4">
+        <h1 className="text-2xl font-semibold text-slate-900">Callback Report</h1>
+        <p className="mt-1 text-sm text-slate-600">
+          Pull customers who haven't been in during a selected time window so your team can call or email them back.
+        </p>
+      </div>
+
       {/* Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Callback Report</h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Pull customers who haven't been in during a selected time window so your team can call or email them back.
-            </p>
-          </div>
-
           {/* KPI tiles = preset timeframe buckets */}
           <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
             {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => (
