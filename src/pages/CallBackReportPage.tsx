@@ -558,8 +558,10 @@ export default function CallbackReportPage() {
   const [selectedCustomer, setSelectedCustomer] = React.useState<CustomerRecord | null>(null);
   const [detailOpen, setDetailOpen] = React.useState(false);
   const [showAll, setShowAll] = React.useState(false);
+  const [customDateMode, setCustomDateMode] = React.useState(false);
 
   React.useEffect(() => {
+    if (customDateMode) return; // Don't auto-update dates when in custom mode
     const now = new Date();
     const seg = SEGMENTS[selectedSegment];
     const end = subMonths(now, seg.monthsMin);
@@ -567,7 +569,17 @@ export default function CallbackReportPage() {
     setEndDate(toISODateOnly(end));
     setStartDate(start ? toISODateOnly(start) : "");
     setShowAll(false); // Reset to collapsed when segment changes
-  }, [selectedSegment]);
+  }, [selectedSegment, customDateMode]);
+
+  const handleSegmentClick = (k: SegmentKey) => {
+    setCustomDateMode(false);
+    setSelectedSegment(k);
+  };
+
+  const handleProcessCustomDates = () => {
+    setCustomDateMode(true);
+    setShowAll(false);
+  };
 
   const counts = React.useMemo(() => {
     const base = { active: 0, retained: 0, lapsed: 0, inactive: 0, lost: 0 } as Record<SegmentKey, number>;
@@ -586,7 +598,7 @@ export default function CallbackReportPage() {
     };
 
     return mockCustomers
-      .filter((c) => c.segment === selectedSegment)
+      .filter((c) => customDateMode ? true : c.segment === selectedSegment)
       .filter((c) => {
         if (!onlyReachable) return true;
         return Boolean(c.phone || c.email);
@@ -625,7 +637,7 @@ export default function CallbackReportPage() {
         const vb = get(b);
         return va < vb ? -1 * dir : va > vb ? 1 * dir : 0;
       });
-  }, [selectedSegment, startDate, endDate, search, onlyReachable, sortKey, sortDir]);
+  }, [customDateMode, selectedSegment, startDate, endDate, search, onlyReachable, sortKey, sortDir]);
 
   const onSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -673,12 +685,12 @@ export default function CallbackReportPage() {
             {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => (
               <SegmentTile
                 key={k}
-                active={selectedSegment === k}
+                active={!customDateMode && selectedSegment === k}
                 title={SEGMENTS[k].label}
                 subtitle={SEGMENTS[k].sub}
                 value={counts[k]}
                 className={`border ${SEGMENTS[k].tileClass}`}
-                onClick={() => setSelectedSegment(k)}
+                onClick={() => handleSegmentClick(k)}
               />
             ))}
           </div>
@@ -687,7 +699,7 @@ export default function CallbackReportPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
             <div className="text-[13px] font-semibold text-slate-900">Custom date range</div>
             
-            {/* First row: Start date, End date, Checkbox */}
+            {/* First row: Start date, End date, Process button, Checkbox */}
             <div className="flex flex-wrap items-end gap-4">
               <div>
                 <div className="text-[11px] font-medium text-slate-500 mb-1">Start date</div>
@@ -697,7 +709,6 @@ export default function CallbackReportPage() {
                   onChange={(e) => setStartDate(e.target.value)}
                   className="w-[150px] rounded-xl"
                   placeholder="(optional)"
-                  disabled={selectedSegment === "lost"}
                 />
               </div>
 
@@ -710,6 +721,14 @@ export default function CallbackReportPage() {
                   className="w-[150px] rounded-xl"
                 />
               </div>
+
+              <Button
+                className="rounded-full"
+                variant="default"
+                onClick={handleProcessCustomDates}
+              >
+                Process
+              </Button>
 
               <div className="flex items-center gap-2">
                 <input
@@ -740,7 +759,11 @@ export default function CallbackReportPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <Pill className={selectedSeg.pillClass}>{selectedSeg.label}</Pill>
+                {customDateMode ? (
+                  <Pill className="bg-indigo-50 text-indigo-700">Custom Dates</Pill>
+                ) : (
+                  <Pill className={selectedSeg.pillClass}>{selectedSeg.label}</Pill>
+                )}
                 <Button
                   className="rounded-full"
                   variant="outline"
