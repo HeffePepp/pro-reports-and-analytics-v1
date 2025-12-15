@@ -555,88 +555,85 @@ export default function CallbackReportPage() {
           </div>
 
           {/* Controls row */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-              <div className="flex flex-wrap items-end gap-3">
-                <div>
-                  <div className="text-[11px] font-medium text-slate-500">Range unit</div>
-                  <div className="mt-1 inline-flex rounded-full bg-slate-100 p-1">
-                    <button
-                      className={`rounded-full px-3 py-1 text-[11px] font-medium ${
-                        rangeUnit === "months" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
-                      }`}
-                      onClick={() => setRangeUnit("months")}
-                      type="button"
-                    >
-                      Months
-                    </button>
-                    <button
-                      className={`rounded-full px-3 py-1 text-[11px] font-medium ${
-                        rangeUnit === "days" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
-                      }`}
-                      onClick={() => setRangeUnit("days")}
-                      type="button"
-                    >
-                      Days
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-[11px] font-medium text-slate-500">Start date</div>
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="mt-1 w-[170px] rounded-xl"
-                    placeholder="(optional)"
-                    disabled={selectedSegment === "lost"}
-                  />
-                  {selectedSegment === "lost" && (
-                    <div className="mt-1 text-[11px] text-slate-500">
-                      Lost is open-ended (25+ months).
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <div className="text-[11px] font-medium text-slate-500">End date</div>
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="mt-1 w-[170px] rounded-xl"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 pb-1">
-                  <input
-                    id="reachable"
-                    type="checkbox"
-                    checked={onlyReachable}
-                    onChange={(e) => setOnlyReachable(e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300"
-                  />
-                  <label htmlFor="reachable" className="text-[11px] text-slate-600">
-                    Only show customers with phone or email
-                  </label>
-                </div>
-
-                <div className="min-w-[260px] flex-1">
-                  <div className="text-[11px] font-medium text-slate-500">Search</div>
-                  <div className="relative mt-1">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                    <Input
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className="pl-9 rounded-xl"
-                      placeholder="Name, email, phone, location..."
-                    />
-                  </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+            {/* First row: Range unit, Start date, End date, Checkbox */}
+            <div className="flex flex-wrap items-start gap-4">
+              <div>
+                <div className="text-[11px] font-medium text-slate-500 mb-1">Range unit</div>
+                <div className="inline-flex rounded-full bg-slate-100 p-1">
+                  <button
+                    className={`rounded-full px-3 py-1 text-[11px] font-medium ${
+                      rangeUnit === "months" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
+                    }`}
+                    onClick={() => setRangeUnit("months")}
+                    type="button"
+                  >
+                    Months
+                  </button>
+                  <button
+                    className={`rounded-full px-3 py-1 text-[11px] font-medium ${
+                      rangeUnit === "days" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
+                    }`}
+                    onClick={() => setRangeUnit("days")}
+                    type="button"
+                  >
+                    Days
+                  </button>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <div>
+                <div className="text-[11px] font-medium text-slate-500 mb-1">Start date</div>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-[150px] rounded-xl"
+                  placeholder="(optional)"
+                  disabled={selectedSegment === "lost"}
+                />
+              </div>
+
+              <div>
+                <div className="text-[11px] font-medium text-slate-500 mb-1">End date</div>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-[150px] rounded-xl"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-5">
+                <input
+                  id="reachable"
+                  type="checkbox"
+                  checked={onlyReachable}
+                  onChange={(e) => setOnlyReachable(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-teal-600"
+                />
+                <label htmlFor="reachable" className="text-[11px] text-teal-600">
+                  Only show customers with phone or email
+                </label>
+              </div>
+            </div>
+
+            {/* Second row: Search and Download */}
+            <div className="flex flex-wrap items-end gap-4 justify-between">
+              <div className="flex-1 min-w-[260px] max-w-lg">
+                <div className="text-[11px] font-medium text-slate-500 mb-1">Search</div>
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9 rounded-xl"
+                    placeholder="Name, email, phone, location..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
                 <Pill className={selectedSeg.pillClass}>{selectedSeg.label}</Pill>
                 <Button
                   className="rounded-full"
