@@ -527,18 +527,19 @@ export default function CallbackReportPage() {
         { label: "Callback Report" },
       ]}
     >
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Callback Report</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Pull customers who haven't been in during a selected time window so your team can call or email them back.
-          </p>
-        </div>
+      {/* Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
+        {/* LEFT */}
+        <div className="lg:col-span-3 space-y-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">Callback Report</h1>
+            <p className="mt-1 text-sm text-slate-600">
+              Pull customers who haven't been in during a selected time window so your team can call or email them back.
+            </p>
+          </div>
 
-        {/* KPI tiles + AI Insights */}
-        <div className="grid gap-3 xl:grid-cols-6">
-          {/* Segment tiles */}
-          <div className="xl:col-span-5 grid gap-3 grid-cols-2 md:grid-cols-5">
+          {/* KPI tiles = preset timeframe buckets */}
+          <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
             {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => (
               <SegmentTile
                 key={k}
@@ -551,8 +552,219 @@ export default function CallbackReportPage() {
               />
             ))}
           </div>
-          {/* AI Insights tile */}
-          <div className="xl:col-span-1 self-start">
+
+          {/* Controls row */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div className="flex flex-wrap items-end gap-3">
+                <div>
+                  <div className="text-[11px] font-medium text-slate-500">Range unit</div>
+                  <div className="mt-1 inline-flex rounded-full bg-slate-100 p-1">
+                    <button
+                      className={`rounded-full px-3 py-1 text-[11px] font-medium ${
+                        rangeUnit === "months" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
+                      }`}
+                      onClick={() => setRangeUnit("months")}
+                      type="button"
+                    >
+                      Months
+                    </button>
+                    <button
+                      className={`rounded-full px-3 py-1 text-[11px] font-medium ${
+                        rangeUnit === "days" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
+                      }`}
+                      onClick={() => setRangeUnit("days")}
+                      type="button"
+                    >
+                      Days
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[11px] font-medium text-slate-500">Start date</div>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="mt-1 w-[170px] rounded-xl"
+                    placeholder="(optional)"
+                    disabled={selectedSegment === "lost"}
+                  />
+                  {selectedSegment === "lost" && (
+                    <div className="mt-1 text-[11px] text-slate-500">
+                      Lost is open-ended (25+ months).
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <div className="text-[11px] font-medium text-slate-500">End date</div>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="mt-1 w-[170px] rounded-xl"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pb-1">
+                  <input
+                    id="reachable"
+                    type="checkbox"
+                    checked={onlyReachable}
+                    onChange={(e) => setOnlyReachable(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300"
+                  />
+                  <label htmlFor="reachable" className="text-[11px] text-slate-600">
+                    Only show customers with phone or email
+                  </label>
+                </div>
+
+                <div className="min-w-[260px] flex-1">
+                  <div className="text-[11px] font-medium text-slate-500">Search</div>
+                  <div className="relative mt-1">
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Input
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-9 rounded-xl"
+                      placeholder="Name, email, phone, location..."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Pill className={selectedSeg.pillClass}>{selectedSeg.label}</Pill>
+                <Button
+                  className="rounded-full"
+                  variant="outline"
+                  onClick={() => downloadCSV(`callback-report-${selectedSegment}-${endDate}.csv`, exportRows)}
+                  disabled={!exportRows.length}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Download CSV
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Customers table */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="text-[13px] font-semibold text-slate-900">
+                  Customers to call back
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Click any row for last-visit details, notes, invoice items and coupons.
+                </div>
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Showing <span className="font-semibold text-slate-700">{filtered.length}</span>
+              </div>
+            </div>
+
+            <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200">
+              <table className="w-full text-xs table-fixed">
+                <colgroup>
+                  <col className="w-[30%]" />
+                  <col className="w-[18%]" />
+                  <col className="w-[17%]" />
+                  <col className="w-[17%]" />
+                  <col className="w-[18%]" />
+                </colgroup>
+                <thead>
+                  <tr className="border-b border-slate-200 bg-white text-[11px] text-slate-500">
+                    <th className="px-4 py-3 text-left font-medium">
+                      <button type="button" onClick={() => onSort("name")} className="hover:text-slate-700">
+                        Customer name{sortArrow("name")}
+                      </button>
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      <button type="button" onClick={() => onSort("lastServiceDate")} className="hover:text-slate-700">
+                        Last service{sortArrow("lastServiceDate")}
+                      </button>
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium">
+                      <button type="button" onClick={() => onSort("location")} className="hover:text-slate-700">
+                        Last loc visited{sortArrow("location")}
+                      </button>
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium">
+                      <button type="button" onClick={() => onSort("phone")} className="hover:text-slate-700">
+                        Cust ph{sortArrow("phone")}
+                      </button>
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium">
+                      <button type="button" onClick={() => onSort("email")} className="hover:text-slate-700">
+                        Cust eml{sortArrow("email")}
+                      </button>
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-slate-100">
+                  {filtered.map((c) => {
+                    const seg = SEGMENTS[c.segment];
+                    const last = fmtDate(parseISODateOnly(c.lastServiceDate));
+                    const missingPhone = !c.phone;
+                    const missingEmail = !c.email;
+
+                    return (
+                      <tr
+                        key={c.id}
+                        className="cursor-pointer bg-white hover:bg-slate-50"
+                        onClick={() => {
+                          setSelectedCustomer(c);
+                          setDetailOpen(true);
+                        }}
+                      >
+                        <td className="px-4 py-3">
+                          <div className="text-[13px] font-semibold text-slate-900">
+                            {c.name}
+                          </div>
+                          <div className="mt-1 flex flex-wrap items-center gap-1">
+                            <Pill className={seg.pillClass}>{seg.label.replace(" Customers", "")}</Pill>
+                            {missingPhone && <Pill className="bg-slate-100 text-slate-700">Phone missing</Pill>}
+                            {missingEmail && <Pill className="bg-slate-100 text-slate-700">Email missing</Pill>}
+                            {c.doNotCall && <Pill className="bg-slate-100 text-slate-700">Do not call</Pill>}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-right text-slate-900 whitespace-nowrap">
+                          <div className="font-medium">{last}</div>
+                          <div className="text-[11px] text-slate-500">
+                            {c.lastInvoiceNumber ? `Inv ${c.lastInvoiceNumber}` : "—"}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-right text-slate-900 truncate">
+                          {c.lastLocationVisited}
+                        </td>
+                        <td className="px-4 py-3 text-right text-slate-900 truncate">
+                          {c.phone ?? "—"}
+                        </td>
+                        <td className="px-4 py-3 text-right text-slate-900 truncate">
+                          {c.email ?? "—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+
+                  {!filtered.length && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
+                        No customers match this timeframe and filter selection.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* AI stacked on small screens - after main content */}
+          <div className="block lg:hidden">
             <AIInsightsTile
               bullets={[
                 "Lost customers represent 20% of your database—prioritize callback campaigns.",
@@ -561,223 +773,24 @@ export default function CallbackReportPage() {
               ]}
             />
           </div>
+
+          <CustomerDetailDialog
+            open={detailOpen}
+            onOpenChange={setDetailOpen}
+            customer={selectedCustomer}
+          />
         </div>
 
-        {/* Controls row */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div className="flex flex-wrap items-end gap-3">
-              <div>
-                <div className="text-[11px] font-medium text-slate-500">Range unit</div>
-                <div className="mt-1 inline-flex rounded-full bg-slate-100 p-1">
-                  <button
-                    className={`rounded-full px-3 py-1 text-[11px] font-medium ${
-                      rangeUnit === "months" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
-                    }`}
-                    onClick={() => setRangeUnit("months")}
-                    type="button"
-                  >
-                    Months
-                  </button>
-                  <button
-                    className={`rounded-full px-3 py-1 text-[11px] font-medium ${
-                      rangeUnit === "days" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
-                    }`}
-                    onClick={() => setRangeUnit("days")}
-                    type="button"
-                  >
-                    Days
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <div className="text-[11px] font-medium text-slate-500">Start date</div>
-                <Input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="mt-1 w-[170px] rounded-xl"
-                  placeholder="(optional)"
-                  disabled={selectedSegment === "lost"}
-                />
-                {selectedSegment === "lost" && (
-                  <div className="mt-1 text-[11px] text-slate-500">
-                    Lost is open-ended (25+ months).
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <div className="text-[11px] font-medium text-slate-500">End date</div>
-                <Input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="mt-1 w-[170px] rounded-xl"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pb-1">
-                <input
-                  id="reachable"
-                  type="checkbox"
-                  checked={onlyReachable}
-                  onChange={(e) => setOnlyReachable(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300"
-                />
-                <label htmlFor="reachable" className="text-[11px] text-slate-600">
-                  Only show customers with phone or email
-                </label>
-              </div>
-
-              <div className="min-w-[260px] flex-1">
-                <div className="text-[11px] font-medium text-slate-500">Search</div>
-                <div className="relative mt-1">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <Input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 rounded-xl"
-                    placeholder="Name, email, phone, location..."
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <Pill className={selectedSeg.pillClass}>{selectedSeg.label}</Pill>
-              <Button
-                className="rounded-full"
-                variant="outline"
-                onClick={() => downloadCSV(`callback-report-${selectedSegment}-${endDate}.csv`, exportRows)}
-                disabled={!exportRows.length}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Download CSV
-              </Button>
-            </div>
-          </div>
+        {/* RIGHT: AI insights - top aligned */}
+        <div className="hidden lg:block lg:col-span-1 self-start">
+          <AIInsightsTile
+            bullets={[
+              "Lost customers represent 20% of your database—prioritize callback campaigns.",
+              "Customers with email have 3× higher reactivation rate than phone-only.",
+              "Lapsed segment shows highest callback conversion potential.",
+            ]}
+          />
         </div>
-
-        {/* Customers table */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-[13px] font-semibold text-slate-900">
-                Customers to call back
-              </div>
-              <div className="text-[11px] text-slate-500">
-                Click any row for last-visit details, notes, invoice items and coupons.
-              </div>
-            </div>
-            <div className="text-[11px] text-slate-500">
-              Showing <span className="font-semibold text-slate-700">{filtered.length}</span>
-            </div>
-          </div>
-
-          <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200">
-            <table className="w-full text-xs table-fixed">
-              <colgroup>
-                <col className="w-[30%]" />
-                <col className="w-[18%]" />
-                <col className="w-[17%]" />
-                <col className="w-[17%]" />
-                <col className="w-[18%]" />
-              </colgroup>
-              <thead>
-                <tr className="border-b border-slate-200 bg-white text-[11px] text-slate-500">
-                  <th className="px-4 py-3 text-left font-medium">
-                    <button type="button" onClick={() => onSort("name")} className="hover:text-slate-700">
-                      Customer name{sortArrow("name")}
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium whitespace-nowrap">
-                    <button type="button" onClick={() => onSort("lastServiceDate")} className="hover:text-slate-700">
-                      Last service{sortArrow("lastServiceDate")}
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium">
-                    <button type="button" onClick={() => onSort("location")} className="hover:text-slate-700">
-                      Last loc visited{sortArrow("location")}
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium">
-                    <button type="button" onClick={() => onSort("phone")} className="hover:text-slate-700">
-                      Cust ph{sortArrow("phone")}
-                    </button>
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium">
-                    <button type="button" onClick={() => onSort("email")} className="hover:text-slate-700">
-                      Cust eml{sortArrow("email")}
-                    </button>
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((c) => {
-                  const seg = SEGMENTS[c.segment];
-                  const last = fmtDate(parseISODateOnly(c.lastServiceDate));
-                  const missingPhone = !c.phone;
-                  const missingEmail = !c.email;
-
-                  return (
-                    <tr
-                      key={c.id}
-                      className="cursor-pointer bg-white hover:bg-slate-50"
-                      onClick={() => {
-                        setSelectedCustomer(c);
-                        setDetailOpen(true);
-                      }}
-                    >
-                      <td className="px-4 py-3">
-                        <div className="text-[13px] font-semibold text-slate-900">
-                          {c.name}
-                        </div>
-                        <div className="mt-1 flex flex-wrap items-center gap-1">
-                          <Pill className={seg.pillClass}>{seg.label.replace(" Customers", "")}</Pill>
-                          {missingPhone && <Pill className="bg-slate-100 text-slate-700">Phone missing</Pill>}
-                          {missingEmail && <Pill className="bg-slate-100 text-slate-700">Email missing</Pill>}
-                          {c.doNotCall && <Pill className="bg-slate-100 text-slate-700">Do not call</Pill>}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-right text-slate-900 whitespace-nowrap">
-                        <div className="font-medium">{last}</div>
-                        <div className="text-[11px] text-slate-500">
-                          {c.lastInvoiceNumber ? `Inv ${c.lastInvoiceNumber}` : "—"}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-right text-slate-900 truncate">
-                        {c.lastLocationVisited}
-                      </td>
-                      <td className="px-4 py-3 text-right text-slate-900 truncate">
-                        {c.phone ?? "—"}
-                      </td>
-                      <td className="px-4 py-3 text-right text-slate-900 truncate">
-                        {c.email ?? "—"}
-                      </td>
-                    </tr>
-                  );
-                })}
-
-                {!filtered.length && (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
-                      No customers match this timeframe and filter selection.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <CustomerDetailDialog
-          open={detailOpen}
-          onOpenChange={setDetailOpen}
-          customer={selectedCustomer}
-        />
       </div>
     </ShellLayout>
   );
