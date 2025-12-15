@@ -444,7 +444,7 @@ const CustomerDetailDialog: React.FC<{
                       <div className="space-y-3">
                         <div>
                           <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Labor</div>
-                          {invoice.labor.map((l, li) => (
+                          {invoice.laborLines.map((l, li) => (
                             <div key={li} className="flex justify-between text-sm py-0.5">
                               <span className="text-slate-700">{l.description}</span>
                               <span className="text-slate-900">${l.price.toFixed(2)}</span>
@@ -453,7 +453,7 @@ const CustomerDetailDialog: React.FC<{
                         </div>
                         <div>
                           <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Parts</div>
-                          {invoice.parts.map((p, pi) => (
+                          {invoice.partLines.map((p, pi) => (
                             <div key={pi} className="flex justify-between text-sm py-0.5">
                               <span className="text-slate-700">{p.description} (x{p.qty})</span>
                               <span className="text-slate-900">${(p.price * p.qty).toFixed(2)}</span>
