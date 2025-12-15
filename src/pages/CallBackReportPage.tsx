@@ -1,378 +1,770 @@
-import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
-import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import { DateRangePicker, DateRange } from "@/components/ui/date-range-picker";
-import { Button } from "@/components/ui/button";
+import React from "react";
+import { Download, Search, Phone, Mail, ClipboardCopy } from "lucide-react";
 import {
-  ReportTable,
-  ReportTableHead,
-  ReportTableBody,
-  ReportTableRow,
-  ReportTableHeaderCell,
-  ReportTableCell,
-} from "@/components/ui/report-table";
-import { formatInvoiceNumber } from "@/lib/formatters";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import ShellLayout from "@/components/layout/ShellLayout";
 
-type Segment = "active" | "retained" | "lapsed" | "inactive" | "lost";
+type SegmentKey = "active" | "retained" | "lapsed" | "inactive" | "lost";
 
-type CallbackCustomer = {
+type InvoiceLine = { description: string; qty: number; price: number };
+type CustomerRecord = {
   id: string;
   name: string;
-  phone: string;
-  email: string;
-  lastVisitDate: string;
-  lastInvoiceNumber: string;
-  totalVisits: number;
-  lastVisitServices: string;
-  segment: Segment;
+  segment: SegmentKey;
+  lastServiceDate: string;
+  lastInvoiceNumber?: string;
+  lastLocationVisited: string;
+  phone?: string;
+  email?: string;
+  licensePlate?: string;
+  totalVisits?: number;
+  servicesLastVisit?: string[];
+  invoiceLines?: InvoiceLine[];
+  couponsApplied?: string[];
+  notes?: string;
+  preferredContact?: "Phone" | "Email";
+  doNotCall?: boolean;
+  emailOptIn?: boolean;
 };
 
-const SAMPLE_CUSTOMERS: CallbackCustomer[] = [
+const SEGMENTS: Record<
+  SegmentKey,
   {
-    id: "1",
+    label: string;
+    sub: string;
+    monthsMin: number;
+    monthsMax?: number;
+    pillClass: string;
+    tileClass: string;
+  }
+> = {
+  active: {
+    label: "Active Customers",
+    sub: "0–8 months since last service",
+    monthsMin: 0,
+    monthsMax: 8,
+    pillClass: "bg-emerald-50 text-emerald-700",
+    tileClass: "bg-emerald-50/60 border-emerald-100",
+  },
+  retained: {
+    label: "Retained Customers",
+    sub: "9–12 months since last service",
+    monthsMin: 9,
+    monthsMax: 12,
+    pillClass: "bg-sky-50 text-sky-700",
+    tileClass: "bg-sky-50/60 border-sky-100",
+  },
+  lapsed: {
+    label: "Lapsed Customers",
+    sub: "13–18 months since last service",
+    monthsMin: 13,
+    monthsMax: 18,
+    pillClass: "bg-amber-50 text-amber-700",
+    tileClass: "bg-amber-50/60 border-amber-100",
+  },
+  inactive: {
+    label: "Inactive Customers",
+    sub: "19–24 months since last service",
+    monthsMin: 19,
+    monthsMax: 24,
+    pillClass: "bg-orange-50 text-orange-700",
+    tileClass: "bg-orange-50/60 border-orange-100",
+  },
+  lost: {
+    label: "Lost Customers",
+    sub: "25+ months since last service",
+    monthsMin: 25,
+    monthsMax: undefined,
+    pillClass: "bg-rose-50 text-rose-700",
+    tileClass: "bg-rose-50/60 border-rose-100",
+  },
+};
+
+function fmtDate(d: Date) {
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+}
+
+function toISODateOnly(d: Date) {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function parseISODateOnly(iso: string) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, (m ?? 1) - 1, d ?? 1);
+}
+
+function subMonths(date: Date, months: number) {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() - months);
+  return d;
+}
+
+function subDays(date: Date, days: number) {
+  const d = new Date(date);
+  d.setDate(d.getDate() - days);
+  return d;
+}
+
+function downloadCSV(filename: string, rows: Record<string, string>[]) {
+  if (!rows.length) return;
+  const headers = Object.keys(rows[0]);
+  const escape = (val: string) => `"${(val ?? "").replace(/"/g, '""')}"`;
+  const csv = [
+    headers.join(","),
+    ...rows.map((r) => headers.map((h) => escape(r[h] ?? "")).join(",")),
+  ].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+const Pill: React.FC<{ className: string; children: React.ReactNode }> = ({
+  className,
+  children,
+}) => (
+  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${className}`}>
+    {children}
+  </span>
+);
+
+const SegmentTile: React.FC<{
+  active?: boolean;
+  title: string;
+  subtitle: string;
+  value: number;
+  className?: string;
+  onClick?: () => void;
+}> = ({ active, title, subtitle, value, className, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`text-left rounded-2xl border p-4 shadow-sm transition w-full
+      ${className ?? "bg-white border-slate-200"}
+      ${active ? "ring-2 ring-slate-400" : "hover:border-slate-300"}
+    `}
+  >
+    <div className="text-[11px] font-medium text-slate-600">{title}</div>
+    <div className="mt-1 text-2xl font-semibold text-slate-900 tracking-tight">{value.toLocaleString()}</div>
+    <div className="mt-1 text-[11px] text-slate-500">{subtitle}</div>
+  </button>
+);
+
+const CustomerDetailDialog: React.FC<{
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  customer: CustomerRecord | null;
+}> = ({ open, onOpenChange, customer }) => {
+  if (!customer) return null;
+  const seg = SEGMENTS[customer.segment];
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex flex-wrap items-center gap-2">
+            <span className="text-lg font-semibold text-slate-900">{customer.name}</span>
+            <Pill className={seg.pillClass}>{seg.label}</Pill>
+            {customer.doNotCall && <Pill className="bg-slate-100 text-slate-700">Do not call</Pill>}
+            {customer.preferredContact && (
+              <Pill className="bg-slate-100 text-slate-700">Prefers {customer.preferredContact}</Pill>
+            )}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => customer.phone && navigator.clipboard.writeText(customer.phone)}
+            disabled={!customer.phone}
+          >
+            <Phone className="mr-2 h-4 w-4" />
+            Copy phone
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => customer.email && navigator.clipboard.writeText(customer.email)}
+            disabled={!customer.email}
+          >
+            <Mail className="mr-2 h-4 w-4" />
+            Copy email
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => {
+              const summary = [
+                `Customer: ${customer.name}`,
+                `Phone: ${customer.phone ?? "—"}`,
+                `Email: ${customer.email ?? "—"}`,
+                `Last visit: ${customer.lastServiceDate}${customer.lastInvoiceNumber ? ` (Inv ${customer.lastInvoiceNumber})` : ""}`,
+                `Location: ${customer.lastLocationVisited}`,
+              ].join("\n");
+              navigator.clipboard.writeText(summary);
+            }}
+          >
+            <ClipboardCopy className="mr-2 h-4 w-4" />
+            Copy summary
+          </Button>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">
+            <div className="text-[11px] text-slate-500">Contact</div>
+            <div className="mt-1 text-sm text-slate-900">
+              <div><span className="font-medium">Phone:</span> {customer.phone ?? "—"}</div>
+              <div><span className="font-medium">Email:</span> {customer.email ?? "—"}</div>
+              <div className="mt-1 text-[11px] text-slate-500">
+                Email opt-in: {customer.emailOptIn ? "Yes" : "Unknown"}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">
+            <div className="text-[11px] text-slate-500">Last visit</div>
+            <div className="mt-1 text-sm text-slate-900">
+              <div>
+                <span className="font-medium">Date:</span>{" "}
+                {fmtDate(parseISODateOnly(customer.lastServiceDate))}
+              </div>
+              <div>
+                <span className="font-medium">Invoice:</span>{" "}
+                {customer.lastInvoiceNumber ?? "—"}
+              </div>
+              <div className="mt-1 text-[11px] text-slate-500">
+                Location: {customer.lastLocationVisited}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">
+            <div className="text-[11px] text-slate-500">Vehicle & history</div>
+            <div className="mt-1 text-sm text-slate-900">
+              <div><span className="font-medium">Plate:</span> {customer.licensePlate ?? "—"}</div>
+              <div><span className="font-medium">Total visits:</span> {customer.totalVisits ?? "—"}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">
+            <div className="text-[11px] text-slate-500">Services performed (last visit)</div>
+            <div className="mt-2 flex flex-wrap gap-1">
+              {(customer.servicesLastVisit?.length ? customer.servicesLastVisit : ["—"]).map((s, idx) => (
+                <Pill key={`${s}-${idx}`} className="bg-slate-100 text-slate-700">
+                  {s}
+                </Pill>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">
+            <div className="text-[11px] text-slate-500">Coupons applied</div>
+            <div className="mt-2 flex flex-wrap gap-1">
+              {(customer.couponsApplied?.length ? customer.couponsApplied : ["—"]).map((c, idx) => (
+                <Pill key={`${c}-${idx}`} className="bg-sky-50 text-sky-700">
+                  {c}
+                </Pill>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-3">
+          <div className="text-[11px] text-slate-500">Invoice details</div>
+          <table className="mt-2 w-full text-xs">
+            <thead>
+              <tr className="border-b border-slate-200 text-[11px] text-slate-500">
+                <th className="py-2 text-left font-medium">Item</th>
+                <th className="py-2 text-right font-medium">Qty</th>
+                <th className="py-2 text-right font-medium">Price</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {(customer.invoiceLines?.length
+                ? customer.invoiceLines
+                : [{ description: "—", qty: 0, price: 0 }]
+              ).map((line, idx) => (
+                <tr key={idx}>
+                  <td className="py-2 text-slate-900">{line.description}</td>
+                  <td className="py-2 text-right text-slate-900">{line.qty}</td>
+                  <td className="py-2 text-right text-slate-900">
+                    {line.price ? line.price.toLocaleString("en-US", { style: "currency", currency: "USD" }) : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-3">
+          <div className="text-[11px] text-slate-500">Customer notes</div>
+          <div className="mt-1 text-sm text-slate-900">
+            {customer.notes ?? "—"}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const mockCustomers: CustomerRecord[] = [
+  {
+    id: "c1",
     name: "Bob GoodFellow",
+    segment: "lost",
+    lastServiceDate: "2022-05-24",
+    lastInvoiceNumber: "732145",
+    lastLocationVisited: "Vallejo, CA",
     phone: "(555) 555-5555",
     email: "bgoodfellow@gmail.com",
-    lastVisitDate: "05-24-2025",
-    lastInvoiceNumber: "732145",
+    licensePlate: "MD-327TY6",
     totalVisits: 4,
-    lastVisitServices:
-      "General Repair Parts; General Repair Labor; Job Supplies; Wiper Blades; Tire Replacement; Mount And Balance 4 Tires",
-    segment: "lapsed",
+    servicesLastVisit: ["Oil Change", "Wiper Blades", "Tire Rotation"],
+    invoiceLines: [
+      { description: "Full Synthetic Oil Change", qty: 1, price: 129 },
+      { description: "Wiper Blades", qty: 1, price: 28 },
+      { description: "Tire Rotation", qty: 1, price: 25 },
+    ],
+    couponsApplied: ["WELCOME5"],
+    notes: "Prefers mornings. Mentioned upcoming road trip.",
+    preferredContact: "Phone",
+    emailOptIn: true,
   },
   {
-    id: "2",
+    id: "c2",
     name: "Jane Driver",
+    segment: "inactive",
+    lastServiceDate: "2023-03-10",
+    lastInvoiceNumber: "731882",
+    lastLocationVisited: "Napa, CA",
     phone: "(555) 555-1234",
     email: "jdriver@example.com",
-    lastVisitDate: "03-10-2025",
-    lastInvoiceNumber: "731882",
-    totalVisits: 6,
-    lastVisitServices: "Full Synthetic Oil Change; Cabin Air Filter",
-    segment: "inactive",
+    licensePlate: "7ABC123",
+    totalVisits: 2,
+    servicesLastVisit: ["Oil Change"],
+    couponsApplied: [],
+    notes: "Asked about brake service pricing.",
+    preferredContact: "Email",
+    emailOptIn: true,
   },
   {
-    id: "3",
+    id: "c3",
     name: "Sarah Mitchell",
+    segment: "lapsed",
+    lastServiceDate: "2024-08-15",
+    lastInvoiceNumber: "733021",
+    lastLocationVisited: "Fairfield, CA",
     phone: "(555) 123-4567",
     email: "smitchell@yahoo.com",
-    lastVisitDate: "08-15-2025",
-    lastInvoiceNumber: "733021",
-    totalVisits: 7,
-    lastVisitServices: "Oil Change; Air Filter; Brake Inspection",
+    licensePlate: "9WXY529",
+    totalVisits: 6,
+    servicesLastVisit: ["Oil Change", "Air Filter"],
+    couponsApplied: ["OIL10"],
+    notes: "Has two vehicles; likes email reminders.",
+    emailOptIn: true,
+  },
+  {
+    id: "c4",
+    name: "Michael Torres",
     segment: "active",
+    lastServiceDate: "2025-10-02",
+    lastInvoiceNumber: "734102",
+    lastLocationVisited: "Vallejo, CA",
+    phone: "(555) 987-6543",
+    email: "mtorres@company.com",
+    licensePlate: "8XYZ789",
+    totalVisits: 12,
+    servicesLastVisit: ["Full Synthetic Oil Change", "Cabin Air Filter"],
+    couponsApplied: ["LOYALTY15"],
+    notes: "VIP customer, always books appointments online.",
+    preferredContact: "Email",
+    emailOptIn: true,
+  },
+  {
+    id: "c5",
+    name: "Emily Chen",
+    segment: "retained",
+    lastServiceDate: "2025-02-18",
+    lastInvoiceNumber: "733455",
+    lastLocationVisited: "Napa, CA",
+    phone: undefined,
+    email: "echen@gmail.com",
+    licensePlate: "5DEF456",
+    totalVisits: 3,
+    servicesLastVisit: ["Oil Change"],
+    couponsApplied: [],
+    notes: "Phone number not on file.",
+    emailOptIn: true,
   },
 ];
 
-const KPI_OPTIONS: KpiOption[] = [
-  { id: "active", label: "Active (0–8 mo)" },
-  { id: "retained", label: "Retained (9–12 mo)" },
-  { id: "lapsed", label: "Lapsed (13–18 mo)" },
-  { id: "inactive", label: "Inactive (19–24 mo)" },
-  { id: "lost", label: "Lost (25+ mo)" },
-];
+type SortKey = "name" | "lastServiceDate" | "location" | "phone" | "email";
+type SortDir = "asc" | "desc";
 
-const segmentLabels: Record<Segment, string> = {
-  active: "Active Cust (0–8 mo)",
-  retained: "Retained Cust (9–12 mo)",
-  lapsed: "Lapsed Cust (13–18 mo)",
-  inactive: "Inactive Cust (19–24 mo)",
-  lost: "Lost Cust (25+ mo)",
-};
+export default function CallbackReportPage() {
+  const [selectedSegment, setSelectedSegment] = React.useState<SegmentKey>("active");
+  const [rangeUnit, setRangeUnit] = React.useState<"months" | "days">("months");
+  const [startDate, setStartDate] = React.useState<string>("");
+  const [endDate, setEndDate] = React.useState<string>("");
+  const [search, setSearch] = React.useState("");
+  const [onlyReachable, setOnlyReachable] = React.useState(true);
+  const [sortKey, setSortKey] = React.useState<SortKey>("lastServiceDate");
+  const [sortDir, setSortDir] = React.useState<SortDir>("asc");
+  const [selectedCustomer, setSelectedCustomer] = React.useState<CustomerRecord | null>(null);
+  const [detailOpen, setDetailOpen] = React.useState(false);
 
-const CallBackReportPage: React.FC = () => {
-  const [dateRange, setDateRange] = useState<DateRange>({
-    start: null,
-    end: null,
-  });
-  const [customers, setCustomers] = useState<CallbackCustomer[]>(SAMPLE_CUSTOMERS);
-  const [selectedCustomer, setSelectedCustomer] = useState<CallbackCustomer | null>(null);
+  React.useEffect(() => {
+    const now = new Date();
+    const seg = SEGMENTS[selectedSegment];
+    const min = rangeUnit === "months" ? seg.monthsMin : seg.monthsMin * 30;
+    const max = seg.monthsMax === undefined ? undefined : (rangeUnit === "months" ? seg.monthsMax : seg.monthsMax * 30);
+    const end = rangeUnit === "months" ? subMonths(now, min) : subDays(now, min);
+    const start = max === undefined ? undefined : (rangeUnit === "months" ? subMonths(now, max) : subDays(now, max));
+    setEndDate(toISODateOnly(end));
+    setStartDate(start ? toISODateOnly(start) : "");
+  }, [selectedSegment, rangeUnit]);
 
-  const [insights, setInsights] = useState<string[]>([
-    "126 active customers visited within 8 months – healthy retention base.",
-    "68 lapsed customers (13–18 mo) are prime callback targets for re-engagement.",
-    "31 lost customers (25+ mo) may require special win-back offers.",
-  ]);
-
-  const { selectedIds, setSelectedIds } = useKpiPreferences("call-back-report", KPI_OPTIONS);
-
-  const segmentCounts = useMemo(() => {
-    const base: Record<Segment, number> = {
-      active: 126,
-      retained: 94,
-      lapsed: 68,
-      inactive: 52,
-      lost: 31,
-    };
-    // In production, calculate from customers array
+  const counts = React.useMemo(() => {
+    const base = { active: 0, retained: 0, lapsed: 0, inactive: 0, lost: 0 } as Record<SegmentKey, number>;
+    mockCustomers.forEach((c) => (base[c.segment] += 1));
     return base;
   }, []);
 
-  const segmentHelpText: Record<Segment, string> = {
-    active: "Customers whose last visit was 0–8 months ago and are still considered active. These customers form the core of your retention base and typically don't need callback outreach.",
-    retained: "Customers whose last visit was 9–12 months ago and are still on track. A gentle reminder can help keep them engaged before they drift into at-risk territory.",
-    lapsed: "Customers 13–18 months since their last visit who are at risk of defecting. These are prime callback targets for re-engagement before they're lost.",
-    inactive: "Customers 19–24 months since their last visit who typically require proactive outreach. Personal calls or special offers may be needed to win them back.",
-    lost: "Customers 25+ months since their last visit who are treated as lost unless reactivated. Win-back campaigns with strong incentives are usually required.",
+  const filtered = React.useMemo(() => {
+    const s = startDate ? parseISODateOnly(startDate) : null;
+    const e = endDate ? parseISODateOnly(endDate) : null;
+
+    const inRange = (last: Date) => {
+      if (!e) return true;
+      if (!s) return last.getTime() <= e.getTime();
+      return last.getTime() >= s.getTime() && last.getTime() <= e.getTime();
+    };
+
+    return mockCustomers
+      .filter((c) => c.segment === selectedSegment)
+      .filter((c) => {
+        if (!onlyReachable) return true;
+        return Boolean(c.phone || c.email);
+      })
+      .filter((c) => {
+        const last = parseISODateOnly(c.lastServiceDate);
+        return inRange(last);
+      })
+      .filter((c) => {
+        if (!search.trim()) return true;
+        const q = search.toLowerCase();
+        return (
+          c.name.toLowerCase().includes(q) ||
+          (c.email ?? "").toLowerCase().includes(q) ||
+          (c.phone ?? "").toLowerCase().includes(q) ||
+          c.lastLocationVisited.toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        const dir = sortDir === "asc" ? 1 : -1;
+        const get = (c: CustomerRecord) => {
+          switch (sortKey) {
+            case "name": return c.name.toLowerCase();
+            case "lastServiceDate": return c.lastServiceDate;
+            case "location": return c.lastLocationVisited.toLowerCase();
+            case "phone": return (c.phone ?? "").toLowerCase();
+            case "email": return (c.email ?? "").toLowerCase();
+          }
+        };
+        const va = get(a);
+        const vb = get(b);
+        return va < vb ? -1 * dir : va > vb ? 1 * dir : 0;
+      });
+  }, [selectedSegment, startDate, endDate, search, onlyReachable, sortKey, sortDir]);
+
+  const onSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir(key === "lastServiceDate" ? "asc" : "asc");
+    }
   };
 
-  const renderKpiTile = (id: string) => {
-    const segment = id as Segment;
-    const count = segmentCounts[segment];
-    if (count === undefined) return null;
-    return (
-      <MetricTile
-        key={id}
-        label={segmentLabels[segment]}
-        value={count.toLocaleString()}
-        helpText={segmentHelpText[segment]}
-      />
-    );
+  const sortArrow = (key: SortKey) => {
+    if (sortKey !== key) return null;
+    return <span className="ml-1">{sortDir === "asc" ? "▲" : "▼"}</span>;
   };
 
-  const regenerateInsights = () => {
-    setInsights([
-      `${segmentCounts.active} active customers form your retention foundation.`,
-      `${segmentCounts.lapsed} lapsed customers should be prioritized for callbacks.`,
-      `Consider win-back campaigns for ${segmentCounts.lost} lost customers.`,
-    ]);
-  };
+  const exportRows = React.useMemo(() => {
+    return filtered.map((c) => ({
+      "Customer Name": c.name,
+      "Last Service Date": fmtDate(parseISODateOnly(c.lastServiceDate)),
+      "Last Invoice #": c.lastInvoiceNumber ?? "",
+      "Last Location Visited": c.lastLocationVisited,
+      "Cust Ph": c.phone ?? "",
+      "Cust Eml": c.email ?? "",
+    }));
+  }, [filtered]);
 
-  const handleRunReport = () => {
-    console.log("Running callback report for range:", dateRange);
-  };
+  const selectedSeg = SEGMENTS[selectedSegment];
 
   return (
     <ShellLayout
       breadcrumb={[
-        { label: "Home", to: "/" },
-        { label: "Reports & Insights", to: "/" },
+        { label: "Reports", to: "/" },
         { label: "Callback Report" },
       ]}
-      rightInfo={
-        <div className="flex items-center gap-2">
-          <DateRangePicker value={dateRange} onChange={setDateRange} />
-          <Button
-            onClick={handleRunReport}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
-          >
-            Run report
-          </Button>
-        </div>
-      }
     >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+      <div className="space-y-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            Callback Report
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Find customers who have not been in for service during the selected
-            time frame so your team can call and invite them back.
+          <h1 className="text-2xl font-semibold text-slate-900">Callback Report</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Pull customers who haven't been in during a selected time window so your team can call or email them back.
           </p>
         </div>
-        <KpiCustomizeButton
-          reportId="call-back-report"
-          options={KPI_OPTIONS}
-          selectedIds={selectedIds}
-          onChangeSelected={setSelectedIds}
+
+        {/* KPI tiles = preset timeframe buckets */}
+        <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
+          {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => (
+            <SegmentTile
+              key={k}
+              active={selectedSegment === k}
+              title={SEGMENTS[k].label}
+              subtitle={SEGMENTS[k].sub}
+              value={counts[k]}
+              className={`border ${SEGMENTS[k].tileClass}`}
+              onClick={() => setSelectedSegment(k)}
+            />
+          ))}
+        </div>
+
+        {/* Controls row */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex flex-wrap items-end gap-3">
+              <div>
+                <div className="text-[11px] font-medium text-slate-500">Range unit</div>
+                <div className="mt-1 inline-flex rounded-full bg-slate-100 p-1">
+                  <button
+                    className={`rounded-full px-3 py-1 text-[11px] font-medium ${
+                      rangeUnit === "months" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
+                    }`}
+                    onClick={() => setRangeUnit("months")}
+                    type="button"
+                  >
+                    Months
+                  </button>
+                  <button
+                    className={`rounded-full px-3 py-1 text-[11px] font-medium ${
+                      rangeUnit === "days" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
+                    }`}
+                    onClick={() => setRangeUnit("days")}
+                    type="button"
+                  >
+                    Days
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-[11px] font-medium text-slate-500">Start date</div>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="mt-1 w-[170px] rounded-xl"
+                  placeholder="(optional)"
+                  disabled={selectedSegment === "lost"}
+                />
+                {selectedSegment === "lost" && (
+                  <div className="mt-1 text-[11px] text-slate-500">
+                    Lost is open-ended (25+ months).
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <div className="text-[11px] font-medium text-slate-500">End date</div>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="mt-1 w-[170px] rounded-xl"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pb-1">
+                <input
+                  id="reachable"
+                  type="checkbox"
+                  checked={onlyReachable}
+                  onChange={(e) => setOnlyReachable(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+                <label htmlFor="reachable" className="text-[11px] text-slate-600">
+                  Only show customers with phone or email
+                </label>
+              </div>
+
+              <div className="min-w-[260px] flex-1">
+                <div className="text-[11px] font-medium text-slate-500">Search</div>
+                <div className="relative mt-1">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9 rounded-xl"
+                    placeholder="Name, email, phone, location..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Pill className={selectedSeg.pillClass}>{selectedSeg.label}</Pill>
+              <Button
+                className="rounded-full"
+                variant="outline"
+                onClick={() => downloadCSV(`callback-report-${selectedSegment}-${endDate}.csv`, exportRows)}
+                disabled={!exportRows.length}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download CSV
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Customers table */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-[13px] font-semibold text-slate-900">
+                Customers to call back
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Click any row for last-visit details, notes, invoice items and coupons.
+              </div>
+            </div>
+            <div className="text-[11px] text-slate-500">
+              Showing <span className="font-semibold text-slate-700">{filtered.length}</span>
+            </div>
+          </div>
+
+          <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200">
+            <table className="w-full text-xs table-fixed">
+              <colgroup>
+                <col className="w-[30%]" />
+                <col className="w-[18%]" />
+                <col className="w-[17%]" />
+                <col className="w-[17%]" />
+                <col className="w-[18%]" />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-slate-200 bg-white text-[11px] text-slate-500">
+                  <th className="px-4 py-3 text-left font-medium">
+                    <button type="button" onClick={() => onSort("name")} className="hover:text-slate-700">
+                      Customer name{sortArrow("name")}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                    <button type="button" onClick={() => onSort("lastServiceDate")} className="hover:text-slate-700">
+                      Last service{sortArrow("lastServiceDate")}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium">
+                    <button type="button" onClick={() => onSort("location")} className="hover:text-slate-700">
+                      Last loc visited{sortArrow("location")}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium">
+                    <button type="button" onClick={() => onSort("phone")} className="hover:text-slate-700">
+                      Cust ph{sortArrow("phone")}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium">
+                    <button type="button" onClick={() => onSort("email")} className="hover:text-slate-700">
+                      Cust eml{sortArrow("email")}
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-slate-100">
+                {filtered.map((c) => {
+                  const seg = SEGMENTS[c.segment];
+                  const last = fmtDate(parseISODateOnly(c.lastServiceDate));
+                  const missingPhone = !c.phone;
+                  const missingEmail = !c.email;
+
+                  return (
+                    <tr
+                      key={c.id}
+                      className="cursor-pointer bg-white hover:bg-slate-50"
+                      onClick={() => {
+                        setSelectedCustomer(c);
+                        setDetailOpen(true);
+                      }}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="text-[13px] font-semibold text-slate-900">
+                          {c.name}
+                        </div>
+                        <div className="mt-1 flex flex-wrap items-center gap-1">
+                          <Pill className={seg.pillClass}>{seg.label.replace(" Customers", "")}</Pill>
+                          {missingPhone && <Pill className="bg-slate-100 text-slate-700">Phone missing</Pill>}
+                          {missingEmail && <Pill className="bg-slate-100 text-slate-700">Email missing</Pill>}
+                          {c.doNotCall && <Pill className="bg-slate-100 text-slate-700">Do not call</Pill>}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right text-slate-900 whitespace-nowrap">
+                        <div className="font-medium">{last}</div>
+                        <div className="text-[11px] text-slate-500">
+                          {c.lastInvoiceNumber ? `Inv ${c.lastInvoiceNumber}` : "—"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right text-slate-900 truncate">
+                        {c.lastLocationVisited}
+                      </td>
+                      <td className="px-4 py-3 text-right text-slate-900 truncate">
+                        {c.phone ?? "—"}
+                      </td>
+                      <td className="px-4 py-3 text-right text-slate-900 truncate">
+                        {c.email ?? "—"}
+                      </td>
+                    </tr>
+                  );
+                })}
+
+                {!filtered.length && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
+                      No customers match this timeframe and filter selection.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <CustomerDetailDialog
+          open={detailOpen}
+          onOpenChange={setDetailOpen}
+          customer={selectedCustomer}
         />
       </div>
-
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4">
-          {/* KPIs - draggable */}
-          {selectedIds.length > 0 && (
-            <DraggableKpiRow
-              reportKey="call-back-report"
-              tiles={selectedIds
-                .map((id) => {
-                  const tile = renderKpiTile(id);
-                  return tile ? { id, element: tile } : null;
-                })
-                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-            />
-          )}
-
-          {/* Main callback list */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm">
-            <header className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-              <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">
-                  Customers to call back
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  Click any row for more details before you call.
-                </p>
-              </div>
-            </header>
-
-            <div className="overflow-x-auto">
-              <ReportTable>
-                <ReportTableHead>
-                  <ReportTableRow>
-                    <ReportTableHeaderCell label="Customer name" />
-                    <ReportTableHeaderCell label="Phone" />
-                    <ReportTableHeaderCell label="Email" />
-                    <ReportTableHeaderCell label="Last visit (date / invoice #)" />
-                  </ReportTableRow>
-                </ReportTableHead>
-                <ReportTableBody>
-                  {customers.map((cust) => (
-                    <ReportTableRow
-                      key={cust.id}
-                      className="cursor-pointer hover:bg-slate-50"
-                      onClick={() => setSelectedCustomer(cust)}
-                    >
-                      <ReportTableCell className="text-slate-900">{cust.name}</ReportTableCell>
-                      <ReportTableCell className="text-slate-700">{cust.phone}</ReportTableCell>
-                      <ReportTableCell className="text-emerald-700 underline">{cust.email}</ReportTableCell>
-                      <ReportTableCell className="text-slate-700">
-                        <span className="font-medium">{cust.lastVisitDate}</span>{" "}
-                        <span className="text-slate-400">·</span>{" "}
-                        <span>Inv #{formatInvoiceNumber(cust.lastInvoiceNumber)}</span>
-                      </ReportTableCell>
-                    </ReportTableRow>
-                  ))}
-
-                  {customers.length === 0 && (
-                    <ReportTableRow>
-                      <ReportTableCell colSpan={4} className="text-center text-slate-500 py-6">
-                        No customers found for this time frame.
-                      </ReportTableCell>
-                    </ReportTableRow>
-                  )}
-                </ReportTableBody>
-              </ReportTable>
-            </div>
-          </section>
-
-          {/* AI Insights – stacked here on small/medium screens - after main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on customer segmentation data"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
-        </div>
-
-        {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
-          <AIInsightsTile
-            title="AI Insights"
-            subtitle="Based on customer segmentation data"
-            bullets={insights}
-            onRefresh={regenerateInsights}
-          />
-        </div>
-      </div>
-
-      {/* Detail modal */}
-      {selectedCustomer && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
-            <header className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-              <h3 className="text-sm font-semibold text-slate-900">
-                Customer details
-              </h3>
-              <button
-                type="button"
-                onClick={() => setSelectedCustomer(null)}
-                className="rounded-full px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-              >
-                Close
-              </button>
-            </header>
-
-            <div className="space-y-4 px-4 py-4 text-xs text-slate-800">
-              {/* Basic info */}
-              <div>
-                <div className="text-[11px] uppercase tracking-wide text-slate-500">
-                  Customer name
-                </div>
-                <div className="text-sm font-semibold text-slate-900">
-                  {selectedCustomer.name}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <div className="text-[11px] uppercase tracking-wide text-slate-500">
-                    Phone
-                  </div>
-                  <div className="text-sm text-slate-900">
-                    {selectedCustomer.phone}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[11px] uppercase tracking-wide text-slate-500">
-                    Email
-                  </div>
-                  <div className="text-sm text-emerald-700 underline">
-                    {selectedCustomer.email}
-                  </div>
-                </div>
-              </div>
-
-              {/* Last visit stats */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <div className="text-[11px] uppercase tracking-wide text-slate-500">
-                    Last visit date
-                  </div>
-                  <div className="text-sm text-slate-900">
-                    {selectedCustomer.lastVisitDate}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[11px] uppercase tracking-wide text-slate-500">
-                    Last invoice #
-                  </div>
-                  <div className="text-sm text-slate-900">
-                    {selectedCustomer.lastInvoiceNumber}
-                  </div>
-                </div>
-              </div>
-
-              {/* Total visits */}
-              <div>
-                <div className="text-[11px] uppercase tracking-wide text-slate-500">
-                  Total visits
-                </div>
-                <div className="text-sm text-slate-900">
-                  {selectedCustomer.totalVisits.toLocaleString()}
-                </div>
-              </div>
-
-              {/* Services performed at last visit */}
-              <div>
-                <div className="text-[11px] uppercase tracking-wide text-slate-500">
-                  Services performed at last visit
-                </div>
-                <div className="mt-1 text-xs leading-snug text-slate-800">
-                  {selectedCustomer.lastVisitServices}
-                </div>
-              </div>
-            </div>
-
-            <footer className="flex justify-end gap-2 border-t border-slate-200 px-4 py-3">
-              <button
-                type="button"
-                onClick={() => setSelectedCustomer(null)}
-                className="rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-              >
-                Close
-              </button>
-            </footer>
-          </div>
-        </div>
-      )}
     </ShellLayout>
   );
-};
-
-export default CallBackReportPage;
+}
