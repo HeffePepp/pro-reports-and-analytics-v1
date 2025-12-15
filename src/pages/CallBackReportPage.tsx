@@ -772,7 +772,7 @@ export default function CallbackReportPage() {
               </div>
 
               <Button
-                className="rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200 hover:bg-cyan-100"
+                className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100"
                 variant="ghost"
                 onClick={handleProcessCustomDates}
               >
@@ -814,7 +814,7 @@ export default function CallbackReportPage() {
                   <Pill className={selectedSeg.pillClass}>{selectedSeg.label}</Pill>
                 )}
                 <Button
-                  className="rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200 hover:bg-cyan-100"
+                  className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100"
                   variant="ghost"
                   onClick={() => downloadCSV(`callback-report-${selectedSegment}-${endDate}.csv`, exportRows)}
                   disabled={!exportRows.length}
@@ -839,7 +839,7 @@ export default function CallbackReportPage() {
                 <button
                   type="button"
                   onClick={() => setShowAll(!showAll)}
-                  className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-[11px] font-medium text-cyan-700 hover:bg-cyan-100 transition-colors"
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-100 transition-colors"
                 >
                   {showAll ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                   {showAll ? "Show less" : `Show all ${filtered.length}`}
