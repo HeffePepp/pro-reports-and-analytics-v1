@@ -410,13 +410,22 @@ const CustomerDetailDialog: React.FC<{
                     onClick={() => toggleInvoice(idx)}
                     className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
                   >
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-sky-600" />
-                      <span className="text-sm font-semibold text-slate-900">
-                        Invoice {invoice.invoiceNum} – {fmtDate(parseISODateOnly(invoice.date))}
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-sky-600" />
+                        <span className="text-slate-900">{fmtDate(parseISODateOnly(invoice.date))}</span>
+                      </div>
+                      <span>
+                        <span className="text-slate-500">Invoice #:</span>{" "}
+                        <span className="text-sky-600">{invoice.invoiceNum}</span>
                       </span>
-                      <span className="text-sm text-slate-500">
-                        ${invoice.total.toFixed(2)}
+                      <span>
+                        <span className="text-slate-500">Mileage:</span>{" "}
+                        <span className="text-teal-600">{invoice.mileage.toLocaleString()}</span>
+                      </span>
+                      <span>
+                        <span className="text-slate-500">Invoice Total:</span>{" "}
+                        <span className="text-slate-900">${invoice.total.toFixed(2)}</span>
                       </span>
                     </div>
                     {isExpanded ? (
@@ -425,21 +434,6 @@ const CustomerDetailDialog: React.FC<{
                       <ChevronDown className="h-4 w-4 text-slate-400" />
                     )}
                   </button>
-                  {/* Yellow highlighted summary row - always visible */}
-                  <div className="bg-yellow-100 px-4 py-2 grid grid-cols-3 gap-4 text-sm border-t border-yellow-200">
-                    <div>
-                      <span className="text-slate-600">Invoice #:</span>{" "}
-                      <span className="text-sky-600 font-medium">{invoice.invoiceNum}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-600">Mileage:</span>{" "}
-                      <span className="text-slate-900">{invoice.mileage.toLocaleString()}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-600">Invoice Total:</span>{" "}
-                      <span className="text-emerald-600 font-medium">${invoice.total.toFixed(2)}</span>
-                    </div>
-                  </div>
                   {/* Labor and Parts details - only when expanded */}
                   {isExpanded && (
                     <div className="px-4 pb-4 pt-3 space-y-3 border-t border-slate-100">
