@@ -1,5 +1,5 @@
 import React from "react";
-import { Download, Search, Phone, Mail, ClipboardCopy } from "lucide-react";
+import { Download, Search, Phone, Mail, ClipboardCopy, ChevronDown, ChevronUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -313,96 +313,75 @@ const CustomerDetailDialog: React.FC<{
   );
 };
 
-const mockCustomers: CustomerRecord[] = [
-  {
-    id: "c1",
-    name: "Bob GoodFellow",
-    segment: "lost",
-    lastServiceDate: "2022-05-24",
-    lastInvoiceNumber: "732145",
-    lastLocationVisited: "Vallejo, CA",
-    phone: "(555) 555-5555",
-    email: "bgoodfellow@gmail.com",
-    licensePlate: "MD-327TY6",
-    totalVisits: 4,
-    servicesLastVisit: ["Oil Change", "Wiper Blades", "Tire Rotation"],
-    invoiceLines: [
-      { description: "Full Synthetic Oil Change", qty: 1, price: 129 },
-      { description: "Wiper Blades", qty: 1, price: 28 },
-      { description: "Tire Rotation", qty: 1, price: 25 },
-    ],
-    couponsApplied: ["WELCOME5"],
-    notes: "Prefers mornings. Mentioned upcoming road trip.",
-    preferredContact: "Phone",
-    emailOptIn: true,
-  },
-  {
-    id: "c2",
-    name: "Jane Driver",
-    segment: "inactive",
-    lastServiceDate: "2023-03-10",
-    lastInvoiceNumber: "731882",
-    lastLocationVisited: "Napa, CA",
-    phone: "(555) 555-1234",
-    email: "jdriver@example.com",
-    licensePlate: "7ABC123",
-    totalVisits: 2,
-    servicesLastVisit: ["Oil Change"],
-    couponsApplied: [],
-    notes: "Asked about brake service pricing.",
-    preferredContact: "Email",
-    emailOptIn: true,
-  },
-  {
-    id: "c3",
-    name: "Sarah Mitchell",
-    segment: "lapsed",
-    lastServiceDate: "2024-08-15",
-    lastInvoiceNumber: "733021",
-    lastLocationVisited: "Fairfield, CA",
-    phone: "(555) 123-4567",
-    email: "smitchell@yahoo.com",
-    licensePlate: "9WXY529",
-    totalVisits: 6,
-    servicesLastVisit: ["Oil Change", "Air Filter"],
-    couponsApplied: ["OIL10"],
-    notes: "Has two vehicles; likes email reminders.",
-    emailOptIn: true,
-  },
-  {
-    id: "c4",
-    name: "Michael Torres",
-    segment: "active",
-    lastServiceDate: "2025-10-02",
-    lastInvoiceNumber: "734102",
-    lastLocationVisited: "Vallejo, CA",
-    phone: "(555) 987-6543",
-    email: "mtorres@company.com",
-    licensePlate: "8XYZ789",
-    totalVisits: 12,
-    servicesLastVisit: ["Full Synthetic Oil Change", "Cabin Air Filter"],
-    couponsApplied: ["LOYALTY15"],
-    notes: "VIP customer, always books appointments online.",
-    preferredContact: "Email",
-    emailOptIn: true,
-  },
-  {
-    id: "c5",
-    name: "Emily Chen",
-    segment: "retained",
-    lastServiceDate: "2025-02-18",
-    lastInvoiceNumber: "733455",
-    lastLocationVisited: "Napa, CA",
-    phone: undefined,
-    email: "echen@gmail.com",
-    licensePlate: "5DEF456",
-    totalVisits: 3,
-    servicesLastVisit: ["Oil Change"],
-    couponsApplied: [],
-    notes: "Phone number not on file.",
-    emailOptIn: true,
-  },
-];
+// Helper to generate mock customers
+const FIRST_NAMES = ["Bob", "Jane", "Sarah", "Michael", "Emily", "David", "Lisa", "James", "Maria", "John", "Ashley", "Robert", "Jennifer", "William", "Linda", "Christopher", "Barbara", "Daniel", "Elizabeth", "Matthew", "Susan", "Anthony", "Jessica", "Mark", "Karen"];
+const LAST_NAMES = ["GoodFellow", "Driver", "Mitchell", "Torres", "Chen", "Williams", "Johnson", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson"];
+const LOCATIONS = ["Vallejo, CA", "Napa, CA", "Fairfield, CA", "Benicia, CA", "American Canyon, CA", "Vacaville, CA"];
+const SERVICES = ["Oil Change", "Wiper Blades", "Tire Rotation", "Air Filter", "Cabin Air Filter", "Brake Inspection", "Fluid Top-off", "Battery Check"];
+const COUPONS = ["WELCOME5", "OIL10", "LOYALTY15", "SAVE20", "SPRING25"];
+
+function generateMockCustomers(): CustomerRecord[] {
+  const customers: CustomerRecord[] = [];
+  const segmentCounts: Record<SegmentKey, number> = {
+    active: Math.floor(Math.random() * 8) + 12, // 12-19
+    retained: Math.floor(Math.random() * 6) + 8, // 8-13
+    lapsed: Math.floor(Math.random() * 5) + 6,  // 6-10
+    inactive: Math.floor(Math.random() * 4) + 4, // 4-7
+    lost: Math.floor(Math.random() * 5) + 5,    // 5-9
+  };
+
+  let id = 1;
+  const now = new Date();
+
+  (Object.keys(segmentCounts) as SegmentKey[]).forEach((segment) => {
+    const count = segmentCounts[segment];
+    const seg = SEGMENTS[segment];
+
+    for (let i = 0; i < count; i++) {
+      const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+      const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+      const name = `${firstName} ${lastName}`;
+      
+      // Calculate a date within the segment's range
+      const minMonths = seg.monthsMin;
+      const maxMonths = seg.monthsMax ?? 36;
+      const monthsAgo = minMonths + Math.floor(Math.random() * (maxMonths - minMonths + 1));
+      const lastDate = new Date(now);
+      lastDate.setMonth(lastDate.getMonth() - monthsAgo);
+      lastDate.setDate(Math.floor(Math.random() * 28) + 1);
+
+      const hasPhone = Math.random() > 0.15;
+      const hasEmail = Math.random() > 0.1;
+      const numServices = Math.floor(Math.random() * 3) + 1;
+      const services = SERVICES.slice(0, numServices);
+      const hasCoupon = Math.random() > 0.6;
+
+      customers.push({
+        id: `c${id++}`,
+        name,
+        segment,
+        lastServiceDate: toISODateOnly(lastDate),
+        lastInvoiceNumber: String(730000 + Math.floor(Math.random() * 5000)).padStart(6, "0"),
+        lastLocationVisited: LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)],
+        phone: hasPhone ? `(555) ${String(Math.floor(Math.random() * 900) + 100)}-${String(Math.floor(Math.random() * 9000) + 1000)}` : undefined,
+        email: hasEmail ? `${firstName.toLowerCase()}${lastName.toLowerCase().charAt(0)}@${["gmail.com", "yahoo.com", "example.com", "company.com"][Math.floor(Math.random() * 4)]}` : undefined,
+        licensePlate: `${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}-${Math.floor(Math.random() * 900) + 100}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${Math.floor(Math.random() * 10)}`,
+        totalVisits: Math.floor(Math.random() * 15) + 1,
+        servicesLastVisit: services,
+        invoiceLines: services.map((s) => ({ description: s, qty: 1, price: Math.floor(Math.random() * 100) + 25 })),
+        couponsApplied: hasCoupon ? [COUPONS[Math.floor(Math.random() * COUPONS.length)]] : [],
+        notes: Math.random() > 0.5 ? "Customer prefers morning appointments." : undefined,
+        preferredContact: Math.random() > 0.5 ? "Phone" : "Email",
+        emailOptIn: Math.random() > 0.2,
+        doNotCall: Math.random() > 0.95,
+      });
+    }
+  });
+
+  return customers;
+}
+
+const mockCustomers = generateMockCustomers();
 
 type SortKey = "name" | "lastServiceDate" | "location" | "phone" | "email";
 type SortDir = "asc" | "desc";
@@ -417,6 +396,7 @@ export default function CallbackReportPage() {
   const [sortDir, setSortDir] = React.useState<SortDir>("asc");
   const [selectedCustomer, setSelectedCustomer] = React.useState<CustomerRecord | null>(null);
   const [detailOpen, setDetailOpen] = React.useState(false);
+  const [showAll, setShowAll] = React.useState(false);
 
   React.useEffect(() => {
     const now = new Date();
@@ -425,6 +405,7 @@ export default function CallbackReportPage() {
     const start = seg.monthsMax === undefined ? undefined : subMonths(now, seg.monthsMax);
     setEndDate(toISODateOnly(end));
     setStartDate(start ? toISODateOnly(start) : "");
+    setShowAll(false); // Reset to collapsed when segment changes
   }, [selectedSegment]);
 
   const counts = React.useMemo(() => {
@@ -621,9 +602,16 @@ export default function CallbackReportPage() {
                   Click any row for last-visit details, notes, invoice items and coupons.
                 </div>
               </div>
-              <div className="text-[11px] text-slate-500">
-                Showing <span className="font-semibold text-slate-700">{filtered.length}</span>
-              </div>
+              {filtered.length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAll(!showAll)}
+                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  {showAll ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  {showAll ? "Show less" : `Show all ${filtered.length}`}
+                </button>
+              )}
             </div>
 
             <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200">
@@ -666,7 +654,7 @@ export default function CallbackReportPage() {
                 </thead>
 
                 <tbody className="divide-y divide-slate-100">
-                  {filtered.map((c) => {
+                  {(showAll ? filtered : filtered.slice(0, 5)).map((c) => {
                     const seg = SEGMENTS[c.segment];
                     const last = fmtDate(parseISODateOnly(c.lastServiceDate));
                     const missingPhone = !c.phone;
