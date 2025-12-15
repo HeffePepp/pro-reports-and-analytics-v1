@@ -1,11 +1,6 @@
 import React from "react";
 import { Download, Search, Phone, Mail, ClipboardCopy } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ShellLayout from "@/components/layout/ShellLayout";
@@ -119,10 +114,7 @@ function downloadCSV(filename: string, rows: Record<string, string>[]) {
   if (!rows.length) return;
   const headers = Object.keys(rows[0]);
   const escape = (val: string) => `"${(val ?? "").replace(/"/g, '""')}"`;
-  const csv = [
-    headers.join(","),
-    ...rows.map((r) => headers.map((h) => escape(r[h] ?? "")).join(",")),
-  ].join("\n");
+  const csv = [headers.join(","), ...rows.map((r) => headers.map((h) => escape(r[h] ?? "")).join(","))].join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -132,10 +124,7 @@ function downloadCSV(filename: string, rows: Record<string, string>[]) {
   URL.revokeObjectURL(url);
 }
 
-const Pill: React.FC<{ className: string; children: React.ReactNode }> = ({
-  className,
-  children,
-}) => (
+const Pill: React.FC<{ className: string; children: React.ReactNode }> = ({ className, children }) => (
   <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${className}`}>
     {children}
   </span>
@@ -227,8 +216,12 @@ const CustomerDetailDialog: React.FC<{
           <div className="rounded-2xl border border-slate-200 bg-white p-3">
             <div className="text-[11px] text-slate-500">Contact</div>
             <div className="mt-1 text-sm text-slate-900">
-              <div><span className="font-medium">Phone:</span> {customer.phone ?? "—"}</div>
-              <div><span className="font-medium">Email:</span> {customer.email ?? "—"}</div>
+              <div>
+                <span className="font-medium">Phone:</span> {customer.phone ?? "—"}
+              </div>
+              <div>
+                <span className="font-medium">Email:</span> {customer.email ?? "—"}
+              </div>
               <div className="mt-1 text-[11px] text-slate-500">
                 Email opt-in: {customer.emailOptIn ? "Yes" : "Unknown"}
               </div>
@@ -239,24 +232,24 @@ const CustomerDetailDialog: React.FC<{
             <div className="text-[11px] text-slate-500">Last visit</div>
             <div className="mt-1 text-sm text-slate-900">
               <div>
-                <span className="font-medium">Date:</span>{" "}
-                {fmtDate(parseISODateOnly(customer.lastServiceDate))}
+                <span className="font-medium">Date:</span> {fmtDate(parseISODateOnly(customer.lastServiceDate))}
               </div>
               <div>
-                <span className="font-medium">Invoice:</span>{" "}
-                {customer.lastInvoiceNumber ?? "—"}
+                <span className="font-medium">Invoice:</span> {customer.lastInvoiceNumber ?? "—"}
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">
-                Location: {customer.lastLocationVisited}
-              </div>
+              <div className="mt-1 text-[11px] text-slate-500">Location: {customer.lastLocationVisited}</div>
             </div>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-3">
             <div className="text-[11px] text-slate-500">Vehicle & history</div>
             <div className="mt-1 text-sm text-slate-900">
-              <div><span className="font-medium">Plate:</span> {customer.licensePlate ?? "—"}</div>
-              <div><span className="font-medium">Total visits:</span> {customer.totalVisits ?? "—"}</div>
+              <div>
+                <span className="font-medium">Plate:</span> {customer.licensePlate ?? "—"}
+              </div>
+              <div>
+                <span className="font-medium">Total visits:</span> {customer.totalVisits ?? "—"}
+              </div>
             </div>
           </div>
         </div>
@@ -296,27 +289,24 @@ const CustomerDetailDialog: React.FC<{
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {(customer.invoiceLines?.length
-                ? customer.invoiceLines
-                : [{ description: "—", qty: 0, price: 0 }]
-              ).map((line, idx) => (
-                <tr key={idx}>
-                  <td className="py-2 text-slate-900">{line.description}</td>
-                  <td className="py-2 text-right text-slate-900">{line.qty}</td>
-                  <td className="py-2 text-right text-slate-900">
-                    {line.price ? line.price.toLocaleString("en-US", { style: "currency", currency: "USD" }) : "—"}
-                  </td>
-                </tr>
-              ))}
+              {(customer.invoiceLines?.length ? customer.invoiceLines : [{ description: "—", qty: 0, price: 0 }]).map(
+                (line, idx) => (
+                  <tr key={idx}>
+                    <td className="py-2 text-slate-900">{line.description}</td>
+                    <td className="py-2 text-right text-slate-900">{line.qty}</td>
+                    <td className="py-2 text-right text-slate-900">
+                      {line.price ? line.price.toLocaleString("en-US", { style: "currency", currency: "USD" }) : "—"}
+                    </td>
+                  </tr>
+                ),
+              )}
             </tbody>
           </table>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-3">
           <div className="text-[11px] text-slate-500">Customer notes</div>
-          <div className="mt-1 text-sm text-slate-900">
-            {customer.notes ?? "—"}
-          </div>
+          <div className="mt-1 text-sm text-slate-900">{customer.notes ?? "—"}</div>
         </div>
       </DialogContent>
     </Dialog>
@@ -433,9 +423,9 @@ export default function CallbackReportPage() {
     const now = new Date();
     const seg = SEGMENTS[selectedSegment];
     const min = rangeUnit === "months" ? seg.monthsMin : seg.monthsMin * 30;
-    const max = seg.monthsMax === undefined ? undefined : (rangeUnit === "months" ? seg.monthsMax : seg.monthsMax * 30);
+    const max = seg.monthsMax === undefined ? undefined : rangeUnit === "months" ? seg.monthsMax : seg.monthsMax * 30;
     const end = rangeUnit === "months" ? subMonths(now, min) : subDays(now, min);
-    const start = max === undefined ? undefined : (rangeUnit === "months" ? subMonths(now, max) : subDays(now, max));
+    const start = max === undefined ? undefined : rangeUnit === "months" ? subMonths(now, max) : subDays(now, max);
     setEndDate(toISODateOnly(end));
     setStartDate(start ? toISODateOnly(start) : "");
   }, [selectedSegment, rangeUnit]);
@@ -480,11 +470,16 @@ export default function CallbackReportPage() {
         const dir = sortDir === "asc" ? 1 : -1;
         const get = (c: CustomerRecord) => {
           switch (sortKey) {
-            case "name": return c.name.toLowerCase();
-            case "lastServiceDate": return c.lastServiceDate;
-            case "location": return c.lastLocationVisited.toLowerCase();
-            case "phone": return (c.phone ?? "").toLowerCase();
-            case "email": return (c.email ?? "").toLowerCase();
+            case "name":
+              return c.name.toLowerCase();
+            case "lastServiceDate":
+              return c.lastServiceDate;
+            case "location":
+              return c.lastLocationVisited.toLowerCase();
+            case "phone":
+              return (c.phone ?? "").toLowerCase();
+            case "email":
+              return (c.email ?? "").toLowerCase();
           }
         };
         const va = get(a);
@@ -521,17 +516,12 @@ export default function CallbackReportPage() {
   const selectedSeg = SEGMENTS[selectedSegment];
 
   return (
-    <ShellLayout
-      breadcrumb={[
-        { label: "Reports", to: "/" },
-        { label: "Callback Report" },
-      ]}
-    >
+    <ShellLayout breadcrumb={[{ label: "Reports", to: "/" }, { label: "Callback Report" }]}>
       {/* Header - outside the grid */}
       <div className="mb-4">
         <h1 className="text-2xl font-semibold text-slate-900">Callback Report</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Pull customers who haven't been in during a selected time window so your team can call or email them back.
+          Click a colored database segment below to pull customer information or choose a custom date range.
         </p>
       </div>
 
@@ -652,9 +642,7 @@ export default function CallbackReportPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="text-[13px] font-semibold text-slate-900">
-                  Customers to call back
-                </div>
+                <div className="text-[13px] font-semibold text-slate-900">Customers to call back</div>
                 <div className="text-[11px] text-slate-500">
                   Click any row for last-visit details, notes, invoice items and coupons.
                 </div>
@@ -720,9 +708,7 @@ export default function CallbackReportPage() {
                         }}
                       >
                         <td className="px-4 py-3">
-                          <div className="text-[13px] font-semibold text-slate-900">
-                            {c.name}
-                          </div>
+                          <div className="text-[13px] font-semibold text-slate-900">{c.name}</div>
                           <div className="mt-1 flex flex-wrap items-center gap-1">
                             <Pill className={seg.pillClass}>{seg.label.replace(" Customers", "")}</Pill>
                             {missingPhone && <Pill className="bg-slate-100 text-slate-700">Phone missing</Pill>}
@@ -736,15 +722,9 @@ export default function CallbackReportPage() {
                             {c.lastInvoiceNumber ? `Inv ${c.lastInvoiceNumber}` : "—"}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-right text-slate-900 truncate">
-                          {c.lastLocationVisited}
-                        </td>
-                        <td className="px-4 py-3 text-right text-slate-900 truncate">
-                          {c.phone ?? "—"}
-                        </td>
-                        <td className="px-4 py-3 text-right text-slate-900 truncate">
-                          {c.email ?? "—"}
-                        </td>
+                        <td className="px-4 py-3 text-right text-slate-900 truncate">{c.lastLocationVisited}</td>
+                        <td className="px-4 py-3 text-right text-slate-900 truncate">{c.phone ?? "—"}</td>
+                        <td className="px-4 py-3 text-right text-slate-900 truncate">{c.email ?? "—"}</td>
                       </tr>
                     );
                   })}
@@ -772,11 +752,7 @@ export default function CallbackReportPage() {
             />
           </div>
 
-          <CustomerDetailDialog
-            open={detailOpen}
-            onOpenChange={setDetailOpen}
-            customer={selectedCustomer}
-          />
+          <CustomerDetailDialog open={detailOpen} onOpenChange={setDetailOpen} customer={selectedCustomer} />
         </div>
 
         {/* RIGHT: AI insights - top aligned */}
