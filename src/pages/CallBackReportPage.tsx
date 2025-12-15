@@ -436,22 +436,33 @@ const CustomerDetailDialog: React.FC<{
                   </button>
                   {/* Labor and Parts details - only when expanded */}
                   {isExpanded && (
-                    <div className="px-4 pb-4 pt-3 space-y-3 border-t border-slate-100">
+                    <div className="px-4 pb-4 pt-3 space-y-4 border-t border-slate-100">
                       <div>
-                        <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Labor</div>
+                        <div className="text-[11px] font-semibold text-slate-500 uppercase mb-2">Labor</div>
+                        <div className="grid grid-cols-3 text-[11px] text-slate-500 font-medium border-b border-slate-200 pb-1 mb-1">
+                          <span>Description</span>
+                          <span className="text-center">Quantity</span>
+                          <span className="text-right">Price</span>
+                        </div>
                         {invoice.laborLines.map((l, li) => (
                           <div key={li} className="grid grid-cols-3 text-sm py-0.5">
-                            <span className="text-amber-600 col-span-2">{l.description}</span>
+                            <span className="text-amber-600">{l.description}</span>
+                            <span className="text-sky-600 text-center">{l.qty.toFixed(2)}</span>
                             <span className="text-slate-900 text-right">${l.price.toFixed(2)}</span>
                           </div>
                         ))}
                       </div>
                       <div>
-                        <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Parts</div>
+                        <div className="text-[11px] font-semibold text-slate-500 uppercase mb-2">Parts</div>
+                        <div className="grid grid-cols-3 text-[11px] text-slate-500 font-medium border-b border-slate-200 pb-1 mb-1">
+                          <span>Description</span>
+                          <span className="text-center">Quantity</span>
+                          <span className="text-right">Price</span>
+                        </div>
                         {invoice.partLines.map((p, pi) => (
                           <div key={pi} className="grid grid-cols-3 text-sm py-0.5">
                             <span className="text-amber-600">{p.description}</span>
-                            <span className="text-slate-500 text-center">(x{p.qty})</span>
+                            <span className="text-sky-600 text-center">{p.qty.toFixed(2)}</span>
                             <span className="text-slate-900 text-right">${p.price.toFixed(2)}</span>
                           </div>
                         ))}
