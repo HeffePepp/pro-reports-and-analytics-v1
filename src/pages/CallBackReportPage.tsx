@@ -319,42 +319,42 @@ const CustomerDetailDialog: React.FC<{
           />
         </div>
 
-        {/* Two-column layout: Customer/Vehicle Info + Service/Reminder/Timeline */}
+        {/* Two-column layout matching reference image */}
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Left column */}
-          <div className="space-y-4">
-            {/* Customer Information */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
-                <User className="h-4 w-4 text-sky-600" />
-                Customer Information
+          {/* Left column - Customer Information */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
+              <User className="h-4 w-4 text-sky-600" />
+              Customer Information
+            </div>
+            <div className="space-y-1 text-sm">
+              <div><span className="font-medium text-slate-500">Customer ID:</span> <span className="text-sky-600">{customer.licensePlate ?? "—"}</span></div>
+              <div className="text-slate-900">{customer.name}</div>
+              {customer.address && (
+                <>
+                  <div className="text-slate-900">{customer.address.street}</div>
+                  <div className="text-slate-900">{customer.address.city}, {customer.address.state} {customer.address.zip}</div>
+                </>
+              )}
+              <div className="pt-1">
+                <span className="text-slate-900">{customer.phone ?? "—"}</span>
               </div>
-              <div className="space-y-1 text-sm">
-                <div><span className="font-medium text-slate-500">Customer ID:</span> <span className="text-sky-600">{customer.licensePlate ?? "—"}</span></div>
-                <div className="text-slate-900">{customer.name}</div>
-                {customer.address && (
-                  <>
-                    <div className="text-slate-900">{customer.address.street}</div>
-                    <div className="text-slate-900">{customer.address.city}, {customer.address.state} {customer.address.zip}</div>
-                  </>
-                )}
-                <div className="pt-1">
-                  <span className="text-slate-900">{customer.phone ?? "—"}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-sky-600">{customer.email ?? "—"}</span>
-                  {customer.emailVerified && <Check className="h-4 w-4 text-emerald-500" />}
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-1 mt-3">
-                <Pill className={seg.pillClass}>{seg.label}</Pill>
-                {customer.doNotCall && <Pill className="bg-slate-100 text-slate-700">Do not call</Pill>}
-                {customer.preferredContact && (
-                  <Pill className="bg-slate-100 text-slate-700">Prefers {customer.preferredContact}</Pill>
-                )}
+              <div className="flex items-center gap-1">
+                <span className="text-sky-600">{customer.email ?? "—"}</span>
+                {customer.emailVerified && <Check className="h-4 w-4 text-emerald-500" />}
               </div>
             </div>
+            <div className="flex flex-wrap items-center gap-1 mt-3">
+              <Pill className={seg.pillClass}>{seg.label}</Pill>
+              {customer.doNotCall && <Pill className="bg-slate-100 text-slate-700">Do not call</Pill>}
+              {customer.preferredContact && (
+                <Pill className="bg-slate-100 text-slate-700">Prefers {customer.preferredContact}</Pill>
+              )}
+            </div>
+          </div>
 
+          {/* Right column - Vehicle Info + Last Service Summary */}
+          <div className="space-y-4">
             {/* Vehicle Information */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
               <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
@@ -368,17 +368,14 @@ const CustomerDetailDialog: React.FC<{
                 <div className="text-slate-900">{vehicleDesc || "—"}</div>
               </div>
             </div>
-          </div>
 
-          {/* Right column */}
-          <div className="space-y-4">
-            {/* Last Service Summary + Activity Timeline Combined */}
+            {/* Last Service Summary */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
               <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
                 <Wrench className="h-4 w-4 text-sky-600" />
                 Last Service Summary
               </div>
-              <div className="space-y-1 text-sm mb-4">
+              <div className="space-y-1 text-sm">
                 <div>
                   <span className="font-medium text-slate-500">Last LOF:</span>{" "}
                   <span className="text-amber-600">{fmtDate(parseISODateOnly(customer.lastServiceDate))}</span>
@@ -391,127 +388,95 @@ const CustomerDetailDialog: React.FC<{
                   <span className="text-slate-900">${invoiceHistory[0]?.total.toFixed(2) ?? "0.00"}</span>
                 </div>
               </div>
-              <div className="border-t border-slate-200 pt-3">
-                <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-2">
-                  <MapPin className="h-4 w-4 text-sky-600" />
-                  Activity Timeline
-                </div>
-                <div className="text-[11px] text-slate-500 mb-2">Click on an invoice to see more details.</div>
-                <div className="space-y-2 text-sm">
-                  {invoiceHistory.map((item, idx) => (
-                    <div key={idx} className="border-l-2 border-amber-400 pl-3">
-                      <div className="font-semibold text-slate-900">{fmtDate(parseISODateOnly(item.date))}</div>
-                      <div className="text-slate-600">
-                        Invoice <span className="text-amber-600">{item.invoiceNum}</span>: ${item.total.toFixed(2)}
-                      </div>
-                      <div className="text-slate-500">Mileage: {item.mileage.toLocaleString()}</div>
-                      <div className="text-slate-500">Location: {item.location}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Reminder Factors */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <div className="text-[13px] font-semibold text-slate-900 mb-2">Reminder Factors</div>
-              <div className="text-sm text-slate-900">
-                Throttle Pro's reminder algorithm - based on this customer's unique driving habits.
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Invoice Details - Expandable tiles for each past service */}
-        <div className="space-y-3">
-          {invoiceHistory.map((invoice, idx) => {
-            const isExpanded = expandedInvoices.has(idx);
-            return (
-              <div key={idx} className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => toggleInvoice(idx)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-sky-600" />
-                    <span className="text-[13px] font-semibold text-slate-900">
-                      Invoice {invoice.invoiceNum} – {fmtDate(parseISODateOnly(invoice.date))}
-                    </span>
-                    <span className="text-sm text-slate-500">
-                      ${invoice.total.toFixed(2)}
-                    </span>
-                  </div>
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-slate-500" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-slate-500" />
+        {/* Activity Timeline */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-2">
+            <MapPin className="h-4 w-4 text-sky-600" />
+            Activity Timeline
+          </div>
+          <div className="text-[11px] text-slate-500 mb-3">Click on an invoice to see more details.</div>
+          
+          <div className="space-y-2">
+            {invoiceHistory.map((invoice, idx) => {
+              const isExpanded = expandedInvoices.has(idx);
+              return (
+                <div key={idx} className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleInvoice(idx)}
+                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-sky-600" />
+                      <span className="text-sm font-semibold text-slate-900">
+                        Invoice {invoice.invoiceNum} – {fmtDate(parseISODateOnly(invoice.date))}
+                      </span>
+                      <span className="text-sm text-slate-500">
+                        ${invoice.total.toFixed(2)}
+                      </span>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4 text-slate-400" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-slate-400" />
+                    )}
+                  </button>
+                  {isExpanded && (
+                    <div className="px-4 pb-4 border-t border-slate-100">
+                      <div className="grid grid-cols-3 gap-4 py-3 text-sm">
+                        <div>
+                          <span className="text-slate-500">Invoice #:</span>{" "}
+                          <span className="text-sky-600 font-medium">{invoice.invoiceNum}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">Mileage:</span>{" "}
+                          <span className="text-slate-900">{invoice.mileage.toLocaleString()}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">Invoice Total:</span>{" "}
+                          <span className="text-slate-900 font-medium">${invoice.total.toFixed(2)}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Labor</div>
+                          {invoice.labor.map((l, li) => (
+                            <div key={li} className="flex justify-between text-sm py-0.5">
+                              <span className="text-slate-700">{l.description}</span>
+                              <span className="text-slate-900">${l.price.toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div>
+                          <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Parts</div>
+                          {invoice.parts.map((p, pi) => (
+                            <div key={pi} className="flex justify-between text-sm py-0.5">
+                              <span className="text-slate-700">{p.description} (x{p.qty})</span>
+                              <span className="text-slate-900">${(p.price * p.qty).toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   )}
-                </button>
-                
-                {isExpanded && (
-                  <div className="px-4 pb-4 border-t border-slate-100">
-                    <div className="grid gap-4 md:grid-cols-3 text-sm my-4">
-                      <div><span className="font-medium text-slate-500">Invoice #:</span> <span className="text-amber-600">{invoice.invoiceNum}</span></div>
-                      <div><span className="font-medium text-slate-500">Vehicle Mileage:</span> <span className="text-slate-900">{invoice.mileage.toLocaleString()}</span></div>
-                      <div><span className="font-medium text-slate-500">Invoice Total:</span> <span className="text-slate-900">${invoice.total.toFixed(2)}</span></div>
-                    </div>
-
-                    {/* Labor Details */}
-                    <div className="mb-4">
-                      <div className="text-[12px] font-semibold text-slate-700 mb-2">Labor Details</div>
-                      <table className="w-full text-xs">
-                        <thead>
-                          <tr className="border-b border-slate-200 text-[11px] text-slate-500">
-                            <th className="py-2 text-left font-medium">Labor Description</th>
-                            <th className="py-2 text-left font-medium">Labor Code</th>
-                            <th className="py-2 text-right font-medium">Quantity</th>
-                            <th className="py-2 text-right font-medium">Unit Price</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {invoice.laborLines.map((line, lidx) => (
-                            <tr key={lidx}>
-                              <td className="py-2 text-amber-600">{line.description}</td>
-                              <td className="py-2 text-slate-900">{line.code}</td>
-                              <td className="py-2 text-right text-slate-900">{line.qty.toFixed(2)}</td>
-                              <td className="py-2 text-right text-slate-900">${line.price.toFixed(2)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Parts Details */}
-                    <div>
-                      <div className="text-[12px] font-semibold text-slate-700 mb-2">Parts Details</div>
-                      <table className="w-full text-xs">
-                        <thead>
-                          <tr className="border-b border-slate-200 text-[11px] text-slate-500">
-                            <th className="py-2 text-left font-medium">Part Description</th>
-                            <th className="py-2 text-left font-medium">Part Code</th>
-                            <th className="py-2 text-right font-medium">Quantity</th>
-                            <th className="py-2 text-right font-medium">Unit Price</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {invoice.partLines.map((line, pidx) => (
-                            <tr key={pidx}>
-                              <td className="py-2 text-amber-600">{line.description}</td>
-                              <td className="py-2 text-slate-900">{line.code}</td>
-                              <td className="py-2 text-right text-slate-900">{line.qty}</td>
-                              <td className="py-2 text-right text-slate-900">${line.price.toFixed(2)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Reminder Factors */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="text-[13px] font-semibold text-slate-900 mb-2">Reminder Factors</div>
+          <div className="text-sm text-slate-900">
+            Throttle Pro's reminder algorithm - based on this customer's unique driving habits.
+          </div>
+        </div>
+
 
         {/* Customer notes */}
         {customer.notes && (
