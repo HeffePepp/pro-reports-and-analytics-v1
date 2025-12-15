@@ -409,7 +409,6 @@ type SortDir = "asc" | "desc";
 
 export default function CallbackReportPage() {
   const [selectedSegment, setSelectedSegment] = React.useState<SegmentKey>("active");
-  const [rangeUnit, setRangeUnit] = React.useState<"months" | "days">("months");
   const [startDate, setStartDate] = React.useState<string>("");
   const [endDate, setEndDate] = React.useState<string>("");
   const [search, setSearch] = React.useState("");
@@ -422,13 +421,11 @@ export default function CallbackReportPage() {
   React.useEffect(() => {
     const now = new Date();
     const seg = SEGMENTS[selectedSegment];
-    const min = rangeUnit === "months" ? seg.monthsMin : seg.monthsMin * 30;
-    const max = seg.monthsMax === undefined ? undefined : rangeUnit === "months" ? seg.monthsMax : seg.monthsMax * 30;
-    const end = rangeUnit === "months" ? subMonths(now, min) : subDays(now, min);
-    const start = max === undefined ? undefined : rangeUnit === "months" ? subMonths(now, max) : subDays(now, max);
+    const end = subMonths(now, seg.monthsMin);
+    const start = seg.monthsMax === undefined ? undefined : subMonths(now, seg.monthsMax);
     setEndDate(toISODateOnly(end));
     setStartDate(start ? toISODateOnly(start) : "");
-  }, [selectedSegment, rangeUnit]);
+  }, [selectedSegment]);
 
   const counts = React.useMemo(() => {
     const base = { active: 0, retained: 0, lapsed: 0, inactive: 0, lost: 0 } as Record<SegmentKey, number>;
@@ -546,32 +543,10 @@ export default function CallbackReportPage() {
 
           {/* Controls row */}
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
-            {/* First row: Range unit, Start date, End date, Checkbox */}
-            <div className="flex flex-wrap items-start gap-4">
-              <div>
-                <div className="text-[11px] font-medium text-slate-500 mb-1">Range unit</div>
-                <div className="inline-flex rounded-full bg-slate-100 p-1">
-                  <button
-                    className={`rounded-full px-3 py-1 text-[11px] font-medium ${
-                      rangeUnit === "months" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
-                    }`}
-                    onClick={() => setRangeUnit("months")}
-                    type="button"
-                  >
-                    Months
-                  </button>
-                  <button
-                    className={`rounded-full px-3 py-1 text-[11px] font-medium ${
-                      rangeUnit === "days" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
-                    }`}
-                    onClick={() => setRangeUnit("days")}
-                    type="button"
-                  >
-                    Days
-                  </button>
-                </div>
-              </div>
-
+            <div className="text-[13px] font-semibold text-slate-900">Custom date range</div>
+            
+            {/* First row: Start date, End date, Checkbox */}
+            <div className="flex flex-wrap items-end gap-4">
               <div>
                 <div className="text-[11px] font-medium text-slate-500 mb-1">Start date</div>
                 <Input
@@ -594,7 +569,7 @@ export default function CallbackReportPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-2 pt-5">
+              <div className="flex items-center gap-2">
                 <input
                   id="reachable"
                   type="checkbox"
@@ -611,7 +586,6 @@ export default function CallbackReportPage() {
             {/* Second row: Search and Download */}
             <div className="flex flex-wrap items-end gap-4 justify-between">
               <div className="flex-1 min-w-[260px] max-w-lg">
-                <div className="text-[11px] font-medium text-slate-500 mb-1">Search</div>
                 <div className="relative">
                   <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                   <Input
