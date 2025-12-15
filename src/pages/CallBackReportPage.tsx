@@ -168,10 +168,11 @@ const SegmentTile: React.FC<{
 
 const CopyButton: React.FC<{
   label: string;
+  disabledLabel?: string;
   icon: React.ReactNode;
   onCopy: () => void;
   disabled?: boolean;
-}> = ({ label, icon, onCopy, disabled }) => {
+}> = ({ label, disabledLabel, icon, onCopy, disabled }) => {
   const [copied, setCopied] = React.useState(false);
 
   const handleClick = () => {
@@ -183,12 +184,18 @@ const CopyButton: React.FC<{
   return (
     <Button
       variant="outline"
-      className={`rounded-full transition-all ${copied ? "bg-emerald-50 border-emerald-200 text-emerald-700" : ""}`}
+      className={`rounded-full transition-all ${
+        disabled 
+          ? "opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200" 
+          : copied 
+            ? "bg-emerald-50 border-emerald-200 text-emerald-700" 
+            : ""
+      }`}
       onClick={handleClick}
       disabled={disabled}
     >
       {copied ? <Check className="mr-2 h-4 w-4" /> : icon}
-      {copied ? "Copied" : label}
+      {disabled ? (disabledLabel ?? label) : copied ? "Copied" : label}
     </Button>
   );
 };
@@ -198,6 +205,8 @@ const CustomerDetailDialog: React.FC<{
   onOpenChange: (v: boolean) => void;
   customer: CustomerRecord | null;
 }> = ({ open, onOpenChange, customer }) => {
+  const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new Set());
+
   if (!customer) return null;
   const seg = SEGMENTS[customer.segment];
 
@@ -207,13 +216,69 @@ const CustomerDetailDialog: React.FC<{
 
   const vehicleDesc = [customer.vehicleYear, customer.vehicleMake, customer.vehicleModel].filter(Boolean).join(" ");
 
+  const toggleInvoice = (idx: number) => {
+    setExpandedInvoices(prev => {
+      const next = new Set(prev);
+      if (next.has(idx)) {
+        next.delete(idx);
+      } else {
+        next.add(idx);
+      }
+      return next;
+    });
+  };
+
+  // Generate invoice history with at least 3 invoices
+  const invoiceHistory = React.useMemo(() => {
+    const baseInvoice = parseInt(customer.lastInvoiceNumber ?? "318000");
+    const baseMileage = customer.vehicleMileage ?? 45000;
+    const invoices = [];
+    
+    for (let i = 0; i < Math.max(3, customer.totalVisits ?? 3); i++) {
+      const date = new Date(parseISODateOnly(customer.lastServiceDate));
+      date.setMonth(date.getMonth() - (i * 3)); // Each visit ~3 months apart
+      const mileage = Math.max(5000, baseMileage - (i * 3500)); // ~3500 miles between visits
+      
+      const laborLines: LaborLine[] = [
+        { description: OIL_TYPES[i % OIL_TYPES.length], code: LABOR_CODES[i % LABOR_CODES.length], qty: 1.00, price: 49.99 + (i * 5) }
+      ];
+      
+      const numParts = 1 + (i % 3);
+      const partLines: PartLine[] = [];
+      for (let p = 0; p < numParts; p++) {
+        partLines.push({
+          description: PART_DESCRIPTIONS[p % PART_DESCRIPTIONS.length],
+          code: PART_CODES[p % PART_CODES.length],
+          qty: 1 + (p % 3),
+          price: 8 + (p * 4)
+        });
+      }
+
+      const laborTotal = laborLines.reduce((sum, l) => sum + (l.qty * l.price), 0);
+      const partsTotal = partLines.reduce((sum, p) => sum + (p.qty * p.price), 0);
+      const total = laborTotal + partsTotal;
+
+      invoices.push({
+        invoiceNum: String(baseInvoice - i),
+        date: toISODateOnly(date),
+        mileage,
+        location: customer.lastLocationVisited,
+        total,
+        laborLines,
+        partLines,
+        oilType: OIL_TYPES[i % OIL_TYPES.length]
+      });
+    }
+    return invoices;
+  }, [customer]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex flex-wrap items-center gap-2">
             <span className="text-lg font-semibold text-slate-900">
-              Invoice {customer.lastInvoiceNumber} – {customer.storeCode ?? "LOC"} :: {customer.lastLocationVisited}
+              {customer.name} – {customer.phone ?? "No Phone"} – {customer.licensePlate ?? "—"}
             </span>
           </DialogTitle>
         </DialogHeader>
@@ -222,12 +287,14 @@ const CustomerDetailDialog: React.FC<{
         <div className="flex flex-wrap gap-2">
           <CopyButton
             label="Copy phone"
+            disabledLabel="No Phone"
             icon={<Phone className="mr-2 h-4 w-4" />}
             onCopy={() => customer.phone && navigator.clipboard.writeText(customer.phone)}
             disabled={!customer.phone}
           />
           <CopyButton
             label="Copy email"
+            disabledLabel="No Email"
             icon={<Mail className="mr-2 h-4 w-4" />}
             onCopy={() => customer.email && navigator.clipboard.writeText(customer.email)}
             disabled={!customer.email}
@@ -238,11 +305,11 @@ const CustomerDetailDialog: React.FC<{
             onCopy={() => {
               const summary = [
                 `Customer: ${customer.name}`,
-                `Customer ID: ${customer.customerId}`,
+                `License Plate: ${customer.licensePlate ?? "—"}`,
                 `Phone: ${customer.phone ?? "—"}`,
                 `Email: ${customer.email ?? "—"}`,
                 `Address: ${fullAddress ?? "—"}`,
-                `Vehicle: ${vehicleDesc || "—"} (${customer.licensePlate ?? "—"})`,
+                `Vehicle: ${vehicleDesc || "—"}`,
                 `Last visit: ${customer.lastServiceDate}${customer.lastInvoiceNumber ? ` (Inv ${customer.lastInvoiceNumber})` : ""}`,
                 `Location: ${customer.lastLocationVisited}`,
               ].join("\n");
@@ -262,7 +329,7 @@ const CustomerDetailDialog: React.FC<{
                 Customer Information
               </div>
               <div className="space-y-1 text-sm">
-                <div><span className="font-medium text-slate-500">Customer ID:</span> <span className="text-sky-600">{customer.customerId}</span></div>
+                <div><span className="font-medium text-slate-500">Customer ID:</span> <span className="text-sky-600">{customer.licensePlate ?? "—"}</span></div>
                 <div className="text-slate-900">{customer.name}</div>
                 {customer.address && (
                   <>
@@ -294,7 +361,7 @@ const CustomerDetailDialog: React.FC<{
                 Vehicle Information
               </div>
               <div className="space-y-1 text-sm">
-                <div><span className="font-medium text-slate-500">Vehicle ID:</span> <span className="text-sky-600">{customer.vehicleId ?? customer.customerId}</span></div>
+                <div><span className="font-medium text-slate-500">Vehicle ID:</span> <span className="text-sky-600">{customer.licensePlate ?? "—"}</span></div>
                 <div><span className="font-medium text-slate-500">VIN:</span> <span className="text-slate-900">{customer.vin ?? "(none)"}</span></div>
                 <div><span className="font-medium text-slate-500">License Plate:</span> <span className="text-sky-600">{customer.licensePlate ?? "—"}</span></div>
                 <div className="text-slate-900">{vehicleDesc || "—"}</div>
@@ -304,19 +371,42 @@ const CustomerDetailDialog: React.FC<{
 
           {/* Right column */}
           <div className="space-y-4">
-            {/* Service Summary */}
+            {/* Last Service Summary + Activity Timeline Combined */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
               <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
                 <Wrench className="h-4 w-4 text-sky-600" />
-                Service Summary
+                Last Service Summary
               </div>
-              <div className="space-y-1 text-sm">
+              <div className="space-y-1 text-sm mb-4">
                 <div>
                   <span className="font-medium text-slate-500">Last LOF:</span>{" "}
                   <span className="text-amber-600">{fmtDate(parseISODateOnly(customer.lastServiceDate))}</span>
                 </div>
                 <div className="text-slate-900">
                   {customer.lastOilType ?? "Oil Change"} @ {customer.vehicleMileage?.toLocaleString() ?? "—"} miles
+                </div>
+                <div>
+                  <span className="font-medium text-slate-500">Invoice Total:</span>{" "}
+                  <span className="text-slate-900">${invoiceHistory[0]?.total.toFixed(2) ?? "0.00"}</span>
+                </div>
+              </div>
+              <div className="border-t border-slate-200 pt-3">
+                <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-2">
+                  <MapPin className="h-4 w-4 text-sky-600" />
+                  Activity Timeline
+                </div>
+                <div className="text-[11px] text-slate-500 mb-2">Click on an invoice to see more details.</div>
+                <div className="space-y-2 text-sm">
+                  {invoiceHistory.map((item, idx) => (
+                    <div key={idx} className="border-l-2 border-amber-400 pl-3">
+                      <div className="font-semibold text-slate-900">{fmtDate(parseISODateOnly(item.date))}</div>
+                      <div className="text-slate-600">
+                        Invoice <span className="text-amber-600">{item.invoiceNum}</span>: ${item.total.toFixed(2)}
+                      </div>
+                      <div className="text-slate-500">Mileage: {item.mileage.toLocaleString()}</div>
+                      <div className="text-slate-500">Location: {item.location}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -325,96 +415,101 @@ const CustomerDetailDialog: React.FC<{
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
               <div className="text-[13px] font-semibold text-slate-900 mb-2">Reminder Factors</div>
               <div className="text-sm text-slate-900">
-                Customer requests every <span className="font-semibold">{customer.reminderInterval ?? 90}</span> days
-              </div>
-            </div>
-
-            {/* Activity Timeline */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
-                <MapPin className="h-4 w-4 text-sky-600" />
-                Activity Timeline
-              </div>
-              <div className="text-[11px] text-slate-500 mb-2">Click on an invoice to see more details.</div>
-              <div className="space-y-2 text-sm">
-                {(customer.activityTimeline?.length ? customer.activityTimeline : [
-                  { date: customer.lastServiceDate, invoiceNum: customer.lastInvoiceNumber ?? "—", amount: customer.invoiceSubtotal ?? 79.99, mileage: customer.vehicleMileage ?? 0, location: customer.lastLocationVisited }
-                ]).map((item, idx) => (
-                  <div key={idx} className="border-l-2 border-amber-400 pl-3">
-                    <div className="font-semibold text-slate-900">{fmtDate(parseISODateOnly(item.date))}</div>
-                    <div className="text-slate-600">
-                      Invoice <span className="text-amber-600">{item.invoiceNum}</span>: ${item.amount.toFixed(2)}
-                    </div>
-                    <div className="text-slate-500">Mileage: {item.mileage.toLocaleString()}</div>
-                    <div className="text-slate-500">Location: {item.location}</div>
-                  </div>
-                ))}
+                Throttle Pro's reminder algorithm - based on this customer's unique driving habits.
               </div>
             </div>
           </div>
         </div>
 
-        {/* Invoice Details */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
-            <FileText className="h-4 w-4 text-sky-600" />
-            Invoice Details
-          </div>
-          <div className="grid gap-4 md:grid-cols-3 text-sm mb-4">
-            <div><span className="font-medium text-slate-500">Invoice Date:</span> <span className="text-amber-600">{fmtDate(parseISODateOnly(customer.lastServiceDate))}</span></div>
-            <div><span className="font-medium text-slate-500">Vehicle Mileage:</span> <span className="text-slate-900">{customer.vehicleMileage?.toLocaleString() ?? "—"}</span></div>
-            <div><span className="font-medium text-slate-500">Invoice Sub-Total:</span> <span className="text-slate-900">${(customer.invoiceSubtotal ?? 0).toFixed(2)}</span></div>
-          </div>
+        {/* Invoice Details - Expandable tiles for each past service */}
+        <div className="space-y-3">
+          {invoiceHistory.map((invoice, idx) => {
+            const isExpanded = expandedInvoices.has(idx);
+            return (
+              <div key={idx} className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleInvoice(idx)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-sky-600" />
+                    <span className="text-[13px] font-semibold text-slate-900">
+                      Invoice {invoice.invoiceNum} – {fmtDate(parseISODateOnly(invoice.date))}
+                    </span>
+                    <span className="text-sm text-slate-500">
+                      ${invoice.total.toFixed(2)}
+                    </span>
+                  </div>
+                  {isExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-slate-500" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-slate-500" />
+                  )}
+                </button>
+                
+                {isExpanded && (
+                  <div className="px-4 pb-4 border-t border-slate-100">
+                    <div className="grid gap-4 md:grid-cols-3 text-sm my-4">
+                      <div><span className="font-medium text-slate-500">Invoice #:</span> <span className="text-amber-600">{invoice.invoiceNum}</span></div>
+                      <div><span className="font-medium text-slate-500">Vehicle Mileage:</span> <span className="text-slate-900">{invoice.mileage.toLocaleString()}</span></div>
+                      <div><span className="font-medium text-slate-500">Invoice Total:</span> <span className="text-slate-900">${invoice.total.toFixed(2)}</span></div>
+                    </div>
 
-          {/* Labor Details */}
-          <div className="mb-4">
-            <div className="text-[12px] font-semibold text-slate-700 mb-2">Labor Details</div>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 text-[11px] text-slate-500">
-                  <th className="py-2 text-left font-medium">Labor Description</th>
-                  <th className="py-2 text-left font-medium">Labor Code</th>
-                  <th className="py-2 text-right font-medium">Quantity</th>
-                  <th className="py-2 text-right font-medium">Unit Price</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {(customer.laborLines?.length ? customer.laborLines : [{ description: "—", code: "—", qty: 0, price: 0 }]).map((line, idx) => (
-                  <tr key={idx}>
-                    <td className="py-2 text-amber-600">{line.description}</td>
-                    <td className="py-2 text-slate-900">{line.code}</td>
-                    <td className="py-2 text-right text-slate-900">{line.qty > 0 ? line.qty.toFixed(2) : "—"}</td>
-                    <td className="py-2 text-right text-slate-900">{line.price > 0 ? `$${line.price.toFixed(2)}` : "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    {/* Labor Details */}
+                    <div className="mb-4">
+                      <div className="text-[12px] font-semibold text-slate-700 mb-2">Labor Details</div>
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-200 text-[11px] text-slate-500">
+                            <th className="py-2 text-left font-medium">Labor Description</th>
+                            <th className="py-2 text-left font-medium">Labor Code</th>
+                            <th className="py-2 text-right font-medium">Quantity</th>
+                            <th className="py-2 text-right font-medium">Unit Price</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {invoice.laborLines.map((line, lidx) => (
+                            <tr key={lidx}>
+                              <td className="py-2 text-amber-600">{line.description}</td>
+                              <td className="py-2 text-slate-900">{line.code}</td>
+                              <td className="py-2 text-right text-slate-900">{line.qty.toFixed(2)}</td>
+                              <td className="py-2 text-right text-slate-900">${line.price.toFixed(2)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
 
-          {/* Parts Details */}
-          <div>
-            <div className="text-[12px] font-semibold text-slate-700 mb-2">Parts Details</div>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 text-[11px] text-slate-500">
-                  <th className="py-2 text-left font-medium">Part Description</th>
-                  <th className="py-2 text-left font-medium">Part Code</th>
-                  <th className="py-2 text-right font-medium">Quantity</th>
-                  <th className="py-2 text-right font-medium">Unit Price</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {(customer.partLines?.length ? customer.partLines : [{ description: "—", code: "—", qty: 0, price: 0 }]).map((line, idx) => (
-                  <tr key={idx}>
-                    <td className="py-2 text-amber-600">{line.description}</td>
-                    <td className="py-2 text-slate-900">{line.code}</td>
-                    <td className="py-2 text-right text-slate-900">{line.qty > 0 ? line.qty : "—"}</td>
-                    <td className="py-2 text-right text-slate-900">{line.price > 0 ? `$${line.price.toFixed(2)}` : "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    {/* Parts Details */}
+                    <div>
+                      <div className="text-[12px] font-semibold text-slate-700 mb-2">Parts Details</div>
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-200 text-[11px] text-slate-500">
+                            <th className="py-2 text-left font-medium">Part Description</th>
+                            <th className="py-2 text-left font-medium">Part Code</th>
+                            <th className="py-2 text-right font-medium">Quantity</th>
+                            <th className="py-2 text-right font-medium">Unit Price</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {invoice.partLines.map((line, pidx) => (
+                            <tr key={pidx}>
+                              <td className="py-2 text-amber-600">{line.description}</td>
+                              <td className="py-2 text-slate-900">{line.code}</td>
+                              <td className="py-2 text-right text-slate-900">{line.qty}</td>
+                              <td className="py-2 text-right text-slate-900">${line.price.toFixed(2)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Customer notes */}
@@ -480,7 +575,15 @@ function generateMockCustomers(): CustomerRecord[] {
       const vehicleYear = 2000 + Math.floor(Math.random() * 24);
       const vehicleMake = VEHICLE_MAKES[Math.floor(Math.random() * VEHICLE_MAKES.length)];
       const vehicleModel = VEHICLE_MODELS[Math.floor(Math.random() * VEHICLE_MODELS.length)];
-      const vehicleMileage = 50000 + Math.floor(Math.random() * 250000);
+      const vehicleMileage = 15000 + Math.floor(Math.random() * 135000); // Cap at 150K
+      
+      // Generate realistic CA license plate format: 7ABC123 or 8XYZ456
+      const plateNum = Math.floor(Math.random() * 10);
+      const plateLetters = String.fromCharCode(65 + Math.floor(Math.random() * 26)) +
+                          String.fromCharCode(65 + Math.floor(Math.random() * 26)) +
+                          String.fromCharCode(65 + Math.floor(Math.random() * 26));
+      const plateDigits = String(Math.floor(Math.random() * 1000)).padStart(3, "0");
+      const licensePlate = `${plateNum}${plateLetters}${plateDigits}`;
       const invoiceSubtotal = 50 + Math.floor(Math.random() * 150);
       const oilType = OIL_TYPES[Math.floor(Math.random() * OIL_TYPES.length)];
 
@@ -518,8 +621,8 @@ function generateMockCustomers(): CustomerRecord[] {
         phone: hasPhone ? `(${String(Math.floor(Math.random() * 900) + 100)}) ${String(Math.floor(Math.random() * 900) + 100)}-${String(Math.floor(Math.random() * 9000) + 1000)}` : undefined,
         email: hasEmail ? `${firstName.toLowerCase()}${lastName.toLowerCase().charAt(0)}${Math.floor(Math.random() * 100)}@${["gmail.com", "yahoo.com", "hotmail.com"][Math.floor(Math.random() * 3)]}` : undefined,
         emailVerified: hasEmail && Math.random() > 0.3,
-        licensePlate: customerId,
-        vehicleId: customerId,
+        licensePlate,
+        vehicleId: licensePlate,
         vin: Math.random() > 0.5 ? undefined : `1HGBH41JXMN${String(Math.floor(Math.random() * 100000)).padStart(6, "0")}`,
         vehicleYear,
         vehicleMake,
