@@ -207,37 +207,17 @@ const CustomerDetailDialog: React.FC<{
 }> = ({ open, onOpenChange, customer }) => {
   const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new Set());
 
-  if (!customer) return null;
-  const seg = SEGMENTS[customer.segment];
-
-  const fullAddress = customer.address
-    ? `${customer.address.street}, ${customer.address.city}, ${customer.address.state} ${customer.address.zip}`
-    : null;
-
-  const vehicleDesc = [customer.vehicleYear, customer.vehicleMake, customer.vehicleModel].filter(Boolean).join(" ");
-
-  const toggleInvoice = (idx: number) => {
-    setExpandedInvoices(prev => {
-      const next = new Set(prev);
-      if (next.has(idx)) {
-        next.delete(idx);
-      } else {
-        next.add(idx);
-      }
-      return next;
-    });
-  };
-
-  // Generate invoice history with at least 3 invoices
+  // Generate invoice history with at least 3 invoices - must be before any early return
   const invoiceHistory = React.useMemo(() => {
+    if (!customer) return [];
     const baseInvoice = parseInt(customer.lastInvoiceNumber ?? "318000");
     const baseMileage = customer.vehicleMileage ?? 45000;
     const invoices = [];
     
     for (let i = 0; i < Math.max(3, customer.totalVisits ?? 3); i++) {
       const date = new Date(parseISODateOnly(customer.lastServiceDate));
-      date.setMonth(date.getMonth() - (i * 3)); // Each visit ~3 months apart
-      const mileage = Math.max(5000, baseMileage - (i * 3500)); // ~3500 miles between visits
+      date.setMonth(date.getMonth() - (i * 3));
+      const mileage = Math.max(5000, baseMileage - (i * 3500));
       
       const laborLines: LaborLine[] = [
         { description: OIL_TYPES[i % OIL_TYPES.length], code: LABOR_CODES[i % LABOR_CODES.length], qty: 1.00, price: 49.99 + (i * 5) }
@@ -271,6 +251,27 @@ const CustomerDetailDialog: React.FC<{
     }
     return invoices;
   }, [customer]);
+
+  if (!customer) return null;
+  const seg = SEGMENTS[customer.segment];
+
+  const fullAddress = customer.address
+    ? `${customer.address.street}, ${customer.address.city}, ${customer.address.state} ${customer.address.zip}`
+    : null;
+
+  const vehicleDesc = [customer.vehicleYear, customer.vehicleMake, customer.vehicleModel].filter(Boolean).join(" ");
+
+  const toggleInvoice = (idx: number) => {
+    setExpandedInvoices(prev => {
+      const next = new Set(prev);
+      if (next.has(idx)) {
+        next.delete(idx);
+      } else {
+        next.add(idx);
+      }
+      return next;
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
