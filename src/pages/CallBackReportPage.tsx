@@ -425,43 +425,42 @@ const CustomerDetailDialog: React.FC<{
                       <ChevronDown className="h-4 w-4 text-slate-400" />
                     )}
                   </button>
+                  {/* Yellow highlighted summary row - always visible */}
+                  <div className="bg-yellow-100 px-4 py-2 grid grid-cols-3 gap-4 text-sm border-t border-yellow-200">
+                    <div>
+                      <span className="text-slate-600">Invoice #:</span>{" "}
+                      <span className="text-sky-600 font-medium">{invoice.invoiceNum}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-600">Mileage:</span>{" "}
+                      <span className="text-slate-900">{invoice.mileage.toLocaleString()}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-600">Invoice Total:</span>{" "}
+                      <span className="text-emerald-600 font-medium">${invoice.total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  {/* Labor and Parts details - only when expanded */}
                   {isExpanded && (
-                    <div className="border-t border-slate-100">
-                      {/* Yellow highlighted summary row */}
-                      <div className="bg-yellow-100 px-4 py-2 grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="text-slate-600">Invoice #:</span>{" "}
-                          <span className="text-sky-600 font-medium">{invoice.invoiceNum}</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-600">Mileage:</span>{" "}
-                          <span className="text-slate-900">{invoice.mileage.toLocaleString()}</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-600">Invoice Total:</span>{" "}
-                          <span className="text-emerald-600 font-medium">${invoice.total.toFixed(2)}</span>
-                        </div>
+                    <div className="px-4 pb-4 pt-3 space-y-3 border-t border-slate-100">
+                      <div>
+                        <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Labor</div>
+                        {invoice.laborLines.map((l, li) => (
+                          <div key={li} className="grid grid-cols-3 text-sm py-0.5">
+                            <span className="text-amber-600 col-span-2">{l.description}</span>
+                            <span className="text-slate-900 text-right">${l.price.toFixed(2)}</span>
+                          </div>
+                        ))}
                       </div>
-                      {/* Labor and Parts details */}
-                      <div className="px-4 pb-4 pt-3 space-y-3">
-                        <div>
-                          <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Labor</div>
-                          {invoice.laborLines.map((l, li) => (
-                            <div key={li} className="flex justify-between text-sm py-0.5">
-                              <span className="text-amber-600">{l.description}</span>
-                              <span className="text-slate-900">${l.price.toFixed(2)}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <div>
-                          <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Parts</div>
-                          {invoice.partLines.map((p, pi) => (
-                            <div key={pi} className="flex justify-between text-sm py-0.5">
-                              <span className="text-amber-600">{p.description} (x{p.qty})</span>
-                              <span className="text-slate-900">${p.price.toFixed(2)}</span>
-                            </div>
-                          ))}
-                        </div>
+                      <div>
+                        <div className="text-[11px] font-semibold text-slate-500 uppercase mb-1">Parts</div>
+                        {invoice.partLines.map((p, pi) => (
+                          <div key={pi} className="grid grid-cols-3 text-sm py-0.5">
+                            <span className="text-amber-600">{p.description}</span>
+                            <span className="text-slate-500 text-center">(x{p.qty})</span>
+                            <span className="text-slate-900 text-right">${p.price.toFixed(2)}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
