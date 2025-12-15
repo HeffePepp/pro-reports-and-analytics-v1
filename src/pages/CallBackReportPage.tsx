@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ShellLayout from "@/components/layout/ShellLayout";
+import AIInsightsTile from "@/components/layout/AIInsightsTile";
 
 type SegmentKey = "active" | "retained" | "lapsed" | "inactive" | "lost";
 
@@ -534,19 +535,32 @@ export default function CallbackReportPage() {
           </p>
         </div>
 
-        {/* KPI tiles = preset timeframe buckets */}
-        <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
-          {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => (
-            <SegmentTile
-              key={k}
-              active={selectedSegment === k}
-              title={SEGMENTS[k].label}
-              subtitle={SEGMENTS[k].sub}
-              value={counts[k]}
-              className={`border ${SEGMENTS[k].tileClass}`}
-              onClick={() => setSelectedSegment(k)}
+        {/* KPI tiles + AI Insights */}
+        <div className="grid gap-3 xl:grid-cols-6">
+          {/* Segment tiles */}
+          <div className="xl:col-span-5 grid gap-3 grid-cols-2 md:grid-cols-5">
+            {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => (
+              <SegmentTile
+                key={k}
+                active={selectedSegment === k}
+                title={SEGMENTS[k].label}
+                subtitle={SEGMENTS[k].sub}
+                value={counts[k]}
+                className={`border ${SEGMENTS[k].tileClass}`}
+                onClick={() => setSelectedSegment(k)}
+              />
+            ))}
+          </div>
+          {/* AI Insights tile */}
+          <div className="xl:col-span-1 self-start">
+            <AIInsightsTile
+              bullets={[
+                "Lost customers represent 20% of your database—prioritize callback campaigns.",
+                "Customers with email have 3× higher reactivation rate than phone-only.",
+                "Lapsed segment shows highest callback conversion potential.",
+              ]}
             />
-          ))}
+          </div>
         </div>
 
         {/* Controls row */}
