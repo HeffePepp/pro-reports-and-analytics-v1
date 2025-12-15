@@ -1,6 +1,8 @@
 import React from "react";
-import { Download, Search, Phone, Mail, ClipboardCopy, ChevronDown, ChevronUp, Check, Car, User, MapPin, Wrench, FileText } from "lucide-react";
+import { Download, Search, Phone, Mail, ClipboardCopy, ChevronDown, ChevronUp, Check, Car, User, MapPin, Wrench, FileText, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ShellLayout from "@/components/layout/ShellLayout";
@@ -10,6 +12,7 @@ type SegmentKey = "active" | "retained" | "lapsed" | "inactive" | "lost";
 
 type LaborLine = { description: string; code: string; qty: number; price: number };
 type PartLine = { description: string; code: string; qty: number; price: number };
+type CustomerNote = { id: string; text: string; timestamp: string };
 type CustomerRecord = {
   id: string;
   customerId: string;
@@ -37,7 +40,7 @@ type CustomerRecord = {
   laborLines?: LaborLine[];
   partLines?: PartLine[];
   activityTimeline?: { date: string; invoiceNum: string; amount: number; mileage: number; location: string }[];
-  notes?: string;
+  notes?: CustomerNote[];
   preferredContact?: "Phone" | "Email";
   doNotCall?: boolean;
   emailOptIn?: boolean;
@@ -206,6 +209,22 @@ const CustomerDetailDialog: React.FC<{
   customer: CustomerRecord | null;
 }> = ({ open, onOpenChange, customer }) => {
   const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new Set());
+  const [newNoteText, setNewNoteText] = React.useState("");
+  const [editingNoteId, setEditingNoteId] = React.useState<string | null>(null);
+  const [editingNoteText, setEditingNoteText] = React.useState("");
+  const [deleteConfirmId, setDeleteConfirmId] = React.useState<string | null>(null);
+  const [localNotes, setLocalNotes] = React.useState<CustomerNote[]>([]);
+
+  // Sync localNotes when customer changes
+  React.useEffect(() => {
+    if (customer?.notes) {
+      setLocalNotes(customer.notes);
+    } else {
+      setLocalNotes([]);
+    }
+    setNewNoteText("");
+    setEditingNoteId(null);
+  }, [customer]);
 
   // Generate invoice history with at least 3 invoices - must be before any early return
   const invoiceHistory = React.useMemo(() => {
@@ -475,27 +494,145 @@ const CustomerDetailDialog: React.FC<{
           </div>
         </div>
 
-        {/* Customer notes - editable */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-[11px] text-slate-500">Customer notes</div>
-            <button
-              type="button"
-              onClick={() => {
-                // In a real app, this would save to backend
-                console.log("Saving notes:", customer.notes);
-              }}
-              className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 px-3 py-1 text-xs"
-            >
-              Save
-            </button>
+        {/* Customer notes - two sections */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-4">
+          {/* New Customer Notes */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[11px] text-slate-500 uppercase font-medium">New Customer Note</div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!newNoteText.trim()) return;
+                  const newNote: CustomerNote = {
+                    id: `n${Date.now()}`,
+                    text: newNoteText.trim(),
+                    timestamp: new Date().toISOString()
+                  };
+                  setLocalNotes(prev => [newNote, ...prev]);
+                  setNewNoteText("");
+                  console.log("Saved new note:", newNote);
+                }}
+                className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 px-3 py-1 text-xs"
+              >
+                Save
+              </button>
+            </div>
+            <textarea
+              className="w-full min-h-[80px] text-sm text-slate-900 border border-slate-200 rounded-lg p-2 resize-y focus:outline-none focus:ring-1 focus:ring-sky-500"
+              value={newNoteText}
+              onChange={(e) => setNewNoteText(e.target.value)}
+              placeholder="Add a new note about this customer..."
+            />
           </div>
-          <textarea
-            className="w-full min-h-[80px] text-sm text-slate-900 border border-slate-200 rounded-lg p-2 resize-y focus:outline-none focus:ring-1 focus:ring-sky-500"
-            defaultValue={customer.notes ?? ""}
-            placeholder="Add notes about this customer..."
-          />
+
+          {/* All Customer Notes */}
+          {localNotes.length > 0 && (
+            <div>
+              <div className="text-[11px] text-slate-500 uppercase font-medium mb-2">All Customer Notes</div>
+              <div className="space-y-2">
+                {localNotes.map((note) => (
+                  <div key={note.id} className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                    {editingNoteId === note.id ? (
+                      <div className="space-y-2">
+                        <textarea
+                          className="w-full min-h-[60px] text-sm text-slate-900 border border-slate-200 rounded-lg p-2 resize-y focus:outline-none focus:ring-1 focus:ring-sky-500 bg-white"
+                          value={editingNoteText}
+                          onChange={(e) => setEditingNoteText(e.target.value)}
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setLocalNotes(prev => prev.map(n => n.id === note.id ? { ...n, text: editingNoteText.trim() } : n));
+                              setEditingNoteId(null);
+                            }}
+                            className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 px-3 py-1 text-xs"
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingNoteId(null)}
+                            className="rounded-full bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 px-3 py-1 text-xs"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="text-sm text-slate-900">{note.text}</div>
+                          <div className="text-[10px] text-slate-400 mt-1">
+                            {new Date(note.timestamp).toLocaleString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "numeric",
+                              minute: "2-digit"
+                            })}
+                          </div>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button type="button" className="p-1 hover:bg-slate-200 rounded">
+                              <MoreVertical className="h-4 w-4 text-slate-400" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setEditingNoteId(note.id);
+                                setEditingNoteText(note.text);
+                              }}
+                            >
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setDeleteConfirmId(note.id)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Delete confirmation dialog */}
+        <AlertDialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure you want to delete this note?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. The note will be permanently removed.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  if (deleteConfirmId) {
+                    setLocalNotes(prev => prev.filter(n => n.id !== deleteConfirmId));
+                  }
+                  setDeleteConfirmId(null);
+                }}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );
@@ -611,7 +748,10 @@ function generateMockCustomers(): CustomerRecord[] {
         invoiceSubtotal,
         laborLines,
         partLines,
-        notes: Math.random() > 0.5 ? "Customer prefers morning appointments." : undefined,
+        notes: Math.random() > 0.5 ? [
+          { id: "n1", text: "Customer prefers morning appointments.", timestamp: "2024-11-15T10:30:00" },
+          { id: "n2", text: "Left voicemail, will call back tomorrow.", timestamp: "2024-10-22T14:15:00" }
+        ] : [],
         preferredContact: Math.random() > 0.5 ? "Phone" : "Email",
         emailOptIn: Math.random() > 0.2,
         doNotCall: Math.random() > 0.95,
