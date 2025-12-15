@@ -475,13 +475,27 @@ const CustomerDetailDialog: React.FC<{
           </div>
         </div>
 
-        {/* Customer notes */}
-        {customer.notes && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
-            <div className="text-[11px] text-slate-500 mb-1">Customer notes</div>
-            <div className="text-sm text-slate-900">{customer.notes}</div>
+        {/* Customer notes - editable */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[11px] text-slate-500">Customer notes</div>
+            <button
+              type="button"
+              onClick={() => {
+                // In a real app, this would save to backend
+                console.log("Saving notes:", customer.notes);
+              }}
+              className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 px-3 py-1 text-xs"
+            >
+              Save
+            </button>
           </div>
-        )}
+          <textarea
+            className="w-full min-h-[80px] text-sm text-slate-900 border border-slate-200 rounded-lg p-2 resize-y focus:outline-none focus:ring-1 focus:ring-sky-500"
+            defaultValue={customer.notes ?? ""}
+            placeholder="Add notes about this customer..."
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -918,11 +932,10 @@ export default function CallbackReportPage() {
             <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200">
               <table className="w-full text-xs table-fixed">
                 <colgroup>
-                  <col className="w-[30%]" />
-                  <col className="w-[18%]" />
-                  <col className="w-[17%]" />
-                  <col className="w-[17%]" />
-                  <col className="w-[18%]" />
+                  <col className="w-[35%]" />
+                  <col className="w-[22%]" />
+                  <col className="w-[22%]" />
+                  <col className="w-[21%]" />
                 </colgroup>
                 <thead>
                   <tr className="border-b border-slate-200 bg-white text-[11px] text-slate-500">
@@ -944,11 +957,6 @@ export default function CallbackReportPage() {
                     <th className="px-4 py-3 text-right font-medium">
                       <button type="button" onClick={() => onSort("phone")} className="hover:text-slate-700">
                         Cust ph{sortArrow("phone")}
-                      </button>
-                    </th>
-                    <th className="px-4 py-3 text-right font-medium">
-                      <button type="button" onClick={() => onSort("email")} className="hover:text-slate-700">
-                        Cust eml{sortArrow("email")}
                       </button>
                     </th>
                   </tr>
@@ -987,14 +995,13 @@ export default function CallbackReportPage() {
                         </td>
                         <td className="px-4 py-3 text-right text-slate-900 truncate">{c.lastLocationVisited}</td>
                         <td className="px-4 py-3 text-right text-slate-900 truncate">{c.phone ?? "—"}</td>
-                        <td className="px-4 py-3 text-right text-slate-900 truncate">{c.email ?? "—"}</td>
                       </tr>
                     );
                   })}
 
                   {!filtered.length && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
+                      <td colSpan={4} className="px-4 py-10 text-center text-sm text-slate-500">
                         No customers match this timeframe and filter selection.
                       </td>
                     </tr>
