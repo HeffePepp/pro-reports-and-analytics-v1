@@ -1,5 +1,5 @@
 import React from "react";
-import { Download, Search, Phone, Mail, ClipboardCopy, ChevronDown, ChevronUp } from "lucide-react";
+import { Download, Search, Phone, Mail, ClipboardCopy, ChevronDown, ChevronUp, Check, Car, User, MapPin, Wrench, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,21 +8,35 @@ import AIInsightsTile from "@/components/layout/AIInsightsTile";
 
 type SegmentKey = "active" | "retained" | "lapsed" | "inactive" | "lost";
 
-type InvoiceLine = { description: string; qty: number; price: number };
+type LaborLine = { description: string; code: string; qty: number; price: number };
+type PartLine = { description: string; code: string; qty: number; price: number };
 type CustomerRecord = {
   id: string;
+  customerId: string;
   name: string;
   segment: SegmentKey;
+  address?: { street: string; city: string; state: string; zip: string };
   lastServiceDate: string;
   lastInvoiceNumber?: string;
   lastLocationVisited: string;
+  storeCode?: string;
   phone?: string;
   email?: string;
+  emailVerified?: boolean;
   licensePlate?: string;
+  vehicleId?: string;
+  vin?: string;
+  vehicleYear?: number;
+  vehicleMake?: string;
+  vehicleModel?: string;
+  vehicleMileage?: number;
   totalVisits?: number;
-  servicesLastVisit?: string[];
-  invoiceLines?: InvoiceLine[];
-  couponsApplied?: string[];
+  reminderInterval?: number;
+  lastOilType?: string;
+  invoiceSubtotal?: number;
+  laborLines?: LaborLine[];
+  partLines?: PartLine[];
+  activityTimeline?: { date: string; invoiceNum: string; amount: number; mileage: number; location: string }[];
   notes?: string;
   preferredContact?: "Phone" | "Email";
   doNotCall?: boolean;
@@ -152,6 +166,33 @@ const SegmentTile: React.FC<{
   </button>
 );
 
+const CopyButton: React.FC<{
+  label: string;
+  icon: React.ReactNode;
+  onCopy: () => void;
+  disabled?: boolean;
+}> = ({ label, icon, onCopy, disabled }) => {
+  const [copied, setCopied] = React.useState(false);
+
+  const handleClick = () => {
+    onCopy();
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Button
+      variant="outline"
+      className={`rounded-full transition-all ${copied ? "bg-emerald-50 border-emerald-200 text-emerald-700" : ""}`}
+      onClick={handleClick}
+      disabled={disabled}
+    >
+      {copied ? <Check className="mr-2 h-4 w-4" /> : icon}
+      {copied ? "Copied" : label}
+    </Button>
+  );
+};
+
 const CustomerDetailDialog: React.FC<{
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -160,154 +201,229 @@ const CustomerDetailDialog: React.FC<{
   if (!customer) return null;
   const seg = SEGMENTS[customer.segment];
 
+  const fullAddress = customer.address
+    ? `${customer.address.street}, ${customer.address.city}, ${customer.address.state} ${customer.address.zip}`
+    : null;
+
+  const vehicleDesc = [customer.vehicleYear, customer.vehicleMake, customer.vehicleModel].filter(Boolean).join(" ");
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex flex-wrap items-center gap-2">
-            <span className="text-lg font-semibold text-slate-900">{customer.name}</span>
-            <Pill className={seg.pillClass}>{seg.label}</Pill>
-            {customer.doNotCall && <Pill className="bg-slate-100 text-slate-700">Do not call</Pill>}
-            {customer.preferredContact && (
-              <Pill className="bg-slate-100 text-slate-700">Prefers {customer.preferredContact}</Pill>
-            )}
+            <span className="text-lg font-semibold text-slate-900">
+              Invoice {customer.lastInvoiceNumber} – {customer.storeCode ?? "LOC"} :: {customer.lastLocationVisited}
+            </span>
           </DialogTitle>
         </DialogHeader>
 
+        {/* Copy buttons */}
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            className="rounded-full"
-            onClick={() => customer.phone && navigator.clipboard.writeText(customer.phone)}
+          <CopyButton
+            label="Copy phone"
+            icon={<Phone className="mr-2 h-4 w-4" />}
+            onCopy={() => customer.phone && navigator.clipboard.writeText(customer.phone)}
             disabled={!customer.phone}
-          >
-            <Phone className="mr-2 h-4 w-4" />
-            Copy phone
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-full"
-            onClick={() => customer.email && navigator.clipboard.writeText(customer.email)}
+          />
+          <CopyButton
+            label="Copy email"
+            icon={<Mail className="mr-2 h-4 w-4" />}
+            onCopy={() => customer.email && navigator.clipboard.writeText(customer.email)}
             disabled={!customer.email}
-          >
-            <Mail className="mr-2 h-4 w-4" />
-            Copy email
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-full"
-            onClick={() => {
+          />
+          <CopyButton
+            label="Copy summary"
+            icon={<ClipboardCopy className="mr-2 h-4 w-4" />}
+            onCopy={() => {
               const summary = [
                 `Customer: ${customer.name}`,
+                `Customer ID: ${customer.customerId}`,
                 `Phone: ${customer.phone ?? "—"}`,
                 `Email: ${customer.email ?? "—"}`,
+                `Address: ${fullAddress ?? "—"}`,
+                `Vehicle: ${vehicleDesc || "—"} (${customer.licensePlate ?? "—"})`,
                 `Last visit: ${customer.lastServiceDate}${customer.lastInvoiceNumber ? ` (Inv ${customer.lastInvoiceNumber})` : ""}`,
                 `Location: ${customer.lastLocationVisited}`,
               ].join("\n");
               navigator.clipboard.writeText(summary);
             }}
-          >
-            <ClipboardCopy className="mr-2 h-4 w-4" />
-            Copy summary
-          </Button>
+          />
         </div>
 
-        <div className="grid gap-3 md:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-3">
-            <div className="text-[11px] text-slate-500">Contact</div>
-            <div className="mt-1 text-sm text-slate-900">
-              <div>
-                <span className="font-medium">Phone:</span> {customer.phone ?? "—"}
+        {/* Two-column layout: Customer/Vehicle Info + Service/Reminder/Timeline */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Left column */}
+          <div className="space-y-4">
+            {/* Customer Information */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
+                <User className="h-4 w-4 text-sky-600" />
+                Customer Information
               </div>
-              <div>
-                <span className="font-medium">Email:</span> {customer.email ?? "—"}
+              <div className="space-y-1 text-sm">
+                <div><span className="font-medium text-slate-500">Customer ID:</span> <span className="text-sky-600">{customer.customerId}</span></div>
+                <div className="text-slate-900">{customer.name}</div>
+                {customer.address && (
+                  <>
+                    <div className="text-slate-900">{customer.address.street}</div>
+                    <div className="text-slate-900">{customer.address.city}, {customer.address.state} {customer.address.zip}</div>
+                  </>
+                )}
+                <div className="pt-1">
+                  <span className="text-slate-900">{customer.phone ?? "—"}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-sky-600">{customer.email ?? "—"}</span>
+                  {customer.emailVerified && <Check className="h-4 w-4 text-emerald-500" />}
+                </div>
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">
-                Email opt-in: {customer.emailOptIn ? "Yes" : "Unknown"}
+              <div className="flex flex-wrap items-center gap-1 mt-3">
+                <Pill className={seg.pillClass}>{seg.label}</Pill>
+                {customer.doNotCall && <Pill className="bg-slate-100 text-slate-700">Do not call</Pill>}
+                {customer.preferredContact && (
+                  <Pill className="bg-slate-100 text-slate-700">Prefers {customer.preferredContact}</Pill>
+                )}
+              </div>
+            </div>
+
+            {/* Vehicle Information */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
+                <Car className="h-4 w-4 text-sky-600" />
+                Vehicle Information
+              </div>
+              <div className="space-y-1 text-sm">
+                <div><span className="font-medium text-slate-500">Vehicle ID:</span> <span className="text-sky-600">{customer.vehicleId ?? customer.customerId}</span></div>
+                <div><span className="font-medium text-slate-500">VIN:</span> <span className="text-slate-900">{customer.vin ?? "(none)"}</span></div>
+                <div><span className="font-medium text-slate-500">License Plate:</span> <span className="text-sky-600">{customer.licensePlate ?? "—"}</span></div>
+                <div className="text-slate-900">{vehicleDesc || "—"}</div>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-3">
-            <div className="text-[11px] text-slate-500">Last visit</div>
-            <div className="mt-1 text-sm text-slate-900">
-              <div>
-                <span className="font-medium">Date:</span> {fmtDate(parseISODateOnly(customer.lastServiceDate))}
+          {/* Right column */}
+          <div className="space-y-4">
+            {/* Service Summary */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
+                <Wrench className="h-4 w-4 text-sky-600" />
+                Service Summary
               </div>
-              <div>
-                <span className="font-medium">Invoice:</span> {customer.lastInvoiceNumber ?? "—"}
+              <div className="space-y-1 text-sm">
+                <div>
+                  <span className="font-medium text-slate-500">Last LOF:</span>{" "}
+                  <span className="text-amber-600">{fmtDate(parseISODateOnly(customer.lastServiceDate))}</span>
+                </div>
+                <div className="text-slate-900">
+                  {customer.lastOilType ?? "Oil Change"} @ {customer.vehicleMileage?.toLocaleString() ?? "—"} miles
+                </div>
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">Location: {customer.lastLocationVisited}</div>
             </div>
-          </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-3">
-            <div className="text-[11px] text-slate-500">Vehicle & history</div>
-            <div className="mt-1 text-sm text-slate-900">
-              <div>
-                <span className="font-medium">Plate:</span> {customer.licensePlate ?? "—"}
+            {/* Reminder Factors */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="text-[13px] font-semibold text-slate-900 mb-2">Reminder Factors</div>
+              <div className="text-sm text-slate-900">
+                Customer requests every <span className="font-semibold">{customer.reminderInterval ?? 90}</span> days
               </div>
-              <div>
-                <span className="font-medium">Total visits:</span> {customer.totalVisits ?? "—"}
+            </div>
+
+            {/* Activity Timeline */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
+                <MapPin className="h-4 w-4 text-sky-600" />
+                Activity Timeline
+              </div>
+              <div className="text-[11px] text-slate-500 mb-2">Click on an invoice to see more details.</div>
+              <div className="space-y-2 text-sm">
+                {(customer.activityTimeline?.length ? customer.activityTimeline : [
+                  { date: customer.lastServiceDate, invoiceNum: customer.lastInvoiceNumber ?? "—", amount: customer.invoiceSubtotal ?? 79.99, mileage: customer.vehicleMileage ?? 0, location: customer.lastLocationVisited }
+                ]).map((item, idx) => (
+                  <div key={idx} className="border-l-2 border-amber-400 pl-3">
+                    <div className="font-semibold text-slate-900">{fmtDate(parseISODateOnly(item.date))}</div>
+                    <div className="text-slate-600">
+                      Invoice <span className="text-amber-600">{item.invoiceNum}</span>: ${item.amount.toFixed(2)}
+                    </div>
+                    <div className="text-slate-500">Mileage: {item.mileage.toLocaleString()}</div>
+                    <div className="text-slate-500">Location: {item.location}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-3">
-            <div className="text-[11px] text-slate-500">Services performed (last visit)</div>
-            <div className="mt-2 flex flex-wrap gap-1">
-              {(customer.servicesLastVisit?.length ? customer.servicesLastVisit : ["—"]).map((s, idx) => (
-                <Pill key={`${s}-${idx}`} className="bg-slate-100 text-slate-700">
-                  {s}
-                </Pill>
-              ))}
-            </div>
+        {/* Invoice Details */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-3">
+            <FileText className="h-4 w-4 text-sky-600" />
+            Invoice Details
+          </div>
+          <div className="grid gap-4 md:grid-cols-3 text-sm mb-4">
+            <div><span className="font-medium text-slate-500">Invoice Date:</span> <span className="text-amber-600">{fmtDate(parseISODateOnly(customer.lastServiceDate))}</span></div>
+            <div><span className="font-medium text-slate-500">Vehicle Mileage:</span> <span className="text-slate-900">{customer.vehicleMileage?.toLocaleString() ?? "—"}</span></div>
+            <div><span className="font-medium text-slate-500">Invoice Sub-Total:</span> <span className="text-slate-900">${(customer.invoiceSubtotal ?? 0).toFixed(2)}</span></div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-3">
-            <div className="text-[11px] text-slate-500">Coupons applied</div>
-            <div className="mt-2 flex flex-wrap gap-1">
-              {(customer.couponsApplied?.length ? customer.couponsApplied : ["—"]).map((c, idx) => (
-                <Pill key={`${c}-${idx}`} className="bg-sky-50 text-sky-700">
-                  {c}
-                </Pill>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-3">
-          <div className="text-[11px] text-slate-500">Invoice details</div>
-          <table className="mt-2 w-full text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 text-[11px] text-slate-500">
-                <th className="py-2 text-left font-medium">Item</th>
-                <th className="py-2 text-right font-medium">Qty</th>
-                <th className="py-2 text-right font-medium">Price</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {(customer.invoiceLines?.length ? customer.invoiceLines : [{ description: "—", qty: 0, price: 0 }]).map(
-                (line, idx) => (
+          {/* Labor Details */}
+          <div className="mb-4">
+            <div className="text-[12px] font-semibold text-slate-700 mb-2">Labor Details</div>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 text-[11px] text-slate-500">
+                  <th className="py-2 text-left font-medium">Labor Description</th>
+                  <th className="py-2 text-left font-medium">Labor Code</th>
+                  <th className="py-2 text-right font-medium">Quantity</th>
+                  <th className="py-2 text-right font-medium">Unit Price</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {(customer.laborLines?.length ? customer.laborLines : [{ description: "—", code: "—", qty: 0, price: 0 }]).map((line, idx) => (
                   <tr key={idx}>
-                    <td className="py-2 text-slate-900">{line.description}</td>
-                    <td className="py-2 text-right text-slate-900">{line.qty}</td>
-                    <td className="py-2 text-right text-slate-900">
-                      {line.price ? line.price.toLocaleString("en-US", { style: "currency", currency: "USD" }) : "—"}
-                    </td>
+                    <td className="py-2 text-amber-600">{line.description}</td>
+                    <td className="py-2 text-slate-900">{line.code}</td>
+                    <td className="py-2 text-right text-slate-900">{line.qty > 0 ? line.qty.toFixed(2) : "—"}</td>
+                    <td className="py-2 text-right text-slate-900">{line.price > 0 ? `$${line.price.toFixed(2)}` : "—"}</td>
                   </tr>
-                ),
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Parts Details */}
+          <div>
+            <div className="text-[12px] font-semibold text-slate-700 mb-2">Parts Details</div>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 text-[11px] text-slate-500">
+                  <th className="py-2 text-left font-medium">Part Description</th>
+                  <th className="py-2 text-left font-medium">Part Code</th>
+                  <th className="py-2 text-right font-medium">Quantity</th>
+                  <th className="py-2 text-right font-medium">Unit Price</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {(customer.partLines?.length ? customer.partLines : [{ description: "—", code: "—", qty: 0, price: 0 }]).map((line, idx) => (
+                  <tr key={idx}>
+                    <td className="py-2 text-amber-600">{line.description}</td>
+                    <td className="py-2 text-slate-900">{line.code}</td>
+                    <td className="py-2 text-right text-slate-900">{line.qty > 0 ? line.qty : "—"}</td>
+                    <td className="py-2 text-right text-slate-900">{line.price > 0 ? `$${line.price.toFixed(2)}` : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-3">
-          <div className="text-[11px] text-slate-500">Customer notes</div>
-          <div className="mt-1 text-sm text-slate-900">{customer.notes ?? "—"}</div>
-        </div>
+        {/* Customer notes */}
+        {customer.notes && (
+          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="text-[11px] text-slate-500 mb-1">Customer notes</div>
+            <div className="text-sm text-slate-900">{customer.notes}</div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -317,8 +433,14 @@ const CustomerDetailDialog: React.FC<{
 const FIRST_NAMES = ["Bob", "Jane", "Sarah", "Michael", "Emily", "David", "Lisa", "James", "Maria", "John", "Ashley", "Robert", "Jennifer", "William", "Linda", "Christopher", "Barbara", "Daniel", "Elizabeth", "Matthew", "Susan", "Anthony", "Jessica", "Mark", "Karen"];
 const LAST_NAMES = ["GoodFellow", "Driver", "Mitchell", "Torres", "Chen", "Williams", "Johnson", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson"];
 const LOCATIONS = ["Vallejo, CA", "Napa, CA", "Fairfield, CA", "Benicia, CA", "American Canyon, CA", "Vacaville, CA"];
-const SERVICES = ["Oil Change", "Wiper Blades", "Tire Rotation", "Air Filter", "Cabin Air Filter", "Brake Inspection", "Fluid Top-off", "Battery Check"];
-const COUPONS = ["WELCOME5", "OIL10", "LOYALTY15", "SAVE20", "SPRING25"];
+const STORE_CODES = ["7040", "7041", "7042", "7043", "7044", "7045"];
+const STREETS = ["106 Maher Ct", "234 Main St", "567 Oak Ave", "890 Pine Rd", "123 Elm Blvd", "456 Cedar Ln"];
+const OIL_TYPES = ["Chevron High Mileage", "Pennzoil Synthetic", "Valvoline Conventional", "Mobil 1 Full Synthetic", "Castrol GTX"];
+const VEHICLE_MAKES = ["ACURA", "HONDA", "TOYOTA", "FORD", "CHEVROLET", "BMW", "NISSAN", "SUBARU"];
+const VEHICLE_MODELS = ["ACCORD", "CIVIC", "CAMRY", "F-150", "MALIBU", "3-SERIES", "ALTIMA", "OUTBACK"];
+const LABOR_CODES = ["Chevron High Mileage", "Pennzoil Platinum", "Valvoline MaxLife", "Mobil 1 Extended"];
+const PART_DESCRIPTIONS = ["Oil Filter", "Air Filter", "Cabin Filter", "Wiper Blades", "Drain Plug Gasket"];
+const PART_CODES = ["OF4459", "AF2341", "CF8899", "WB1234", "DPG567"];
 
 function generateMockCustomers(): CustomerRecord[] {
   const customers: CustomerRecord[] = [];
@@ -341,6 +463,7 @@ function generateMockCustomers(): CustomerRecord[] {
       const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
       const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
       const name = `${firstName} ${lastName}`;
+      const customerId = `CA-${firstName.toUpperCase()}${lastName.toUpperCase()}`;
       
       // Calculate a date within the segment's range
       const minMonths = seg.monthsMin;
@@ -352,24 +475,62 @@ function generateMockCustomers(): CustomerRecord[] {
 
       const hasPhone = Math.random() > 0.15;
       const hasEmail = Math.random() > 0.1;
-      const numServices = Math.floor(Math.random() * 3) + 1;
-      const services = SERVICES.slice(0, numServices);
-      const hasCoupon = Math.random() > 0.6;
+      const location = LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)];
+      const storeCode = STORE_CODES[Math.floor(Math.random() * STORE_CODES.length)];
+      const vehicleYear = 2000 + Math.floor(Math.random() * 24);
+      const vehicleMake = VEHICLE_MAKES[Math.floor(Math.random() * VEHICLE_MAKES.length)];
+      const vehicleModel = VEHICLE_MODELS[Math.floor(Math.random() * VEHICLE_MODELS.length)];
+      const vehicleMileage = 50000 + Math.floor(Math.random() * 250000);
+      const invoiceSubtotal = 50 + Math.floor(Math.random() * 150);
+      const oilType = OIL_TYPES[Math.floor(Math.random() * OIL_TYPES.length)];
+
+      // Generate labor and parts
+      const laborLines: LaborLine[] = [
+        { description: oilType, code: LABOR_CODES[Math.floor(Math.random() * LABOR_CODES.length)], qty: 1.00, price: 49.99 + Math.floor(Math.random() * 30) }
+      ];
+      
+      const numParts = 1 + Math.floor(Math.random() * 3);
+      const partLines: PartLine[] = [];
+      for (let p = 0; p < numParts; p++) {
+        partLines.push({
+          description: PART_DESCRIPTIONS[p % PART_DESCRIPTIONS.length],
+          code: PART_CODES[p % PART_CODES.length],
+          qty: 1 + Math.floor(Math.random() * 5),
+          price: 4 + Math.floor(Math.random() * 15)
+        });
+      }
 
       customers.push({
         id: `c${id++}`,
+        customerId,
         name,
         segment,
+        address: {
+          street: STREETS[Math.floor(Math.random() * STREETS.length)],
+          city: location.split(", ")[0],
+          state: "CA",
+          zip: String(94500 + Math.floor(Math.random() * 100))
+        },
         lastServiceDate: toISODateOnly(lastDate),
-        lastInvoiceNumber: String(730000 + Math.floor(Math.random() * 5000)).padStart(6, "0"),
-        lastLocationVisited: LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)],
-        phone: hasPhone ? `(555) ${String(Math.floor(Math.random() * 900) + 100)}-${String(Math.floor(Math.random() * 9000) + 1000)}` : undefined,
-        email: hasEmail ? `${firstName.toLowerCase()}${lastName.toLowerCase().charAt(0)}@${["gmail.com", "yahoo.com", "example.com", "company.com"][Math.floor(Math.random() * 4)]}` : undefined,
-        licensePlate: `${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}-${Math.floor(Math.random() * 900) + 100}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${Math.floor(Math.random() * 10)}`,
+        lastInvoiceNumber: String(318000 + Math.floor(Math.random() * 1000)),
+        lastLocationVisited: location,
+        storeCode,
+        phone: hasPhone ? `(${String(Math.floor(Math.random() * 900) + 100)}) ${String(Math.floor(Math.random() * 900) + 100)}-${String(Math.floor(Math.random() * 9000) + 1000)}` : undefined,
+        email: hasEmail ? `${firstName.toLowerCase()}${lastName.toLowerCase().charAt(0)}${Math.floor(Math.random() * 100)}@${["gmail.com", "yahoo.com", "hotmail.com"][Math.floor(Math.random() * 3)]}` : undefined,
+        emailVerified: hasEmail && Math.random() > 0.3,
+        licensePlate: customerId,
+        vehicleId: customerId,
+        vin: Math.random() > 0.5 ? undefined : `1HGBH41JXMN${String(Math.floor(Math.random() * 100000)).padStart(6, "0")}`,
+        vehicleYear,
+        vehicleMake,
+        vehicleModel: `${vehicleModel} ${["LX", "EX", "SE", "Limited"][Math.floor(Math.random() * 4)]}`,
+        vehicleMileage,
         totalVisits: Math.floor(Math.random() * 15) + 1,
-        servicesLastVisit: services,
-        invoiceLines: services.map((s) => ({ description: s, qty: 1, price: Math.floor(Math.random() * 100) + 25 })),
-        couponsApplied: hasCoupon ? [COUPONS[Math.floor(Math.random() * COUPONS.length)]] : [],
+        reminderInterval: [60, 90, 120][Math.floor(Math.random() * 3)],
+        lastOilType: oilType,
+        invoiceSubtotal,
+        laborLines,
+        partLines,
         notes: Math.random() > 0.5 ? "Customer prefers morning appointments." : undefined,
         preferredContact: Math.random() > 0.5 ? "Phone" : "Email",
         emailOptIn: Math.random() > 0.2,
