@@ -695,6 +695,55 @@ export default function CallbackReportPage() {
             ))}
           </div>
 
+          {/* Segment mix visualization */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="text-[13px] font-semibold text-slate-900">Mix by segment</div>
+            <div className="text-[11px] text-slate-500">% of customers by recency</div>
+            
+            {/* Stacked bar */}
+            <div className="mt-3 flex h-3 w-full overflow-hidden rounded-full">
+              {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => {
+                const total = Object.values(counts).reduce((sum, v) => sum + v, 0);
+                const pct = total > 0 ? (counts[k] / total) * 100 : 0;
+                const barColors: Record<SegmentKey, string> = {
+                  active: "bg-emerald-400",
+                  retained: "bg-sky-400",
+                  lapsed: "bg-amber-400",
+                  inactive: "bg-orange-400",
+                  lost: "bg-rose-400",
+                };
+                return (
+                  <div
+                    key={k}
+                    className={`${barColors[k]} transition-all`}
+                    style={{ width: `${pct}%` }}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Legend */}
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
+              {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => {
+                const total = Object.values(counts).reduce((sum, v) => sum + v, 0);
+                const pct = total > 0 ? (counts[k] / total) * 100 : 0;
+                const dotColors: Record<SegmentKey, string> = {
+                  active: "bg-emerald-400",
+                  retained: "bg-sky-400",
+                  lapsed: "bg-amber-400",
+                  inactive: "bg-orange-400",
+                  lost: "bg-rose-400",
+                };
+                return (
+                  <div key={k} className="flex items-center gap-1.5 text-[11px] text-slate-600">
+                    <span className={`h-2 w-2 rounded-full ${dotColors[k]}`} />
+                    {SEGMENTS[k].label.replace(" Customers", "")} · {pct.toFixed(0)}%
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Controls row */}
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
             <div className="text-[13px] font-semibold text-slate-900">Custom date range</div>
