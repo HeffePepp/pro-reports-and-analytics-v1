@@ -72,7 +72,7 @@ const OilTypeUsageKpis: React.FC<Props> = ({ selectedIds }) => {
         >
           <div className="space-y-1">
             {/* Oil type */}
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+            <div className="text-[11px] font-semibold tracking-wide text-slate-600">
               {tile.label}
             </div>
 
