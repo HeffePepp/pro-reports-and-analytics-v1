@@ -29,7 +29,7 @@ const TOTAL_CUSTOMERS = 12480;
 const LOYALTY_SEGMENTS: LoyaltySegment[] = [
   {
     id: "active",
-    label: "Active Cust (0–8 mo)",
+    label: "Active Cust",
     rangeLabel: "0–8 months since last service visit",
     kpiTitle: "Active Customers",
     kpiRange: "0–8 Months",
@@ -43,7 +43,7 @@ const LOYALTY_SEGMENTS: LoyaltySegment[] = [
   },
   {
     id: "retained",
-    label: "Retained Cust (9–12 mo)",
+    label: "Retained Cust",
     rangeLabel: "9–12 months since last service visit",
     kpiTitle: "Retained Customers",
     kpiRange: "9–12 Months",
@@ -57,7 +57,7 @@ const LOYALTY_SEGMENTS: LoyaltySegment[] = [
   },
   {
     id: "lapsed",
-    label: "Lapsed Cust (13–18 mo)",
+    label: "Lapsed Cust",
     rangeLabel: "13–18 months since last service visit",
     kpiTitle: "Lapsed Customers",
     kpiRange: "13–18 Months",
@@ -71,7 +71,7 @@ const LOYALTY_SEGMENTS: LoyaltySegment[] = [
   },
   {
     id: "inactive",
-    label: "Inactive Cust (19–24 mo)",
+    label: "Inactive Cust",
     rangeLabel: "19–24 months since last service visit",
     kpiTitle: "Inactive Customers",
     kpiRange: "19–24 Months",
@@ -85,7 +85,7 @@ const LOYALTY_SEGMENTS: LoyaltySegment[] = [
   },
   {
     id: "lost",
-    label: "Lost Cust (25+ mo)",
+    label: "Lost Cust",
     rangeLabel: "25+ months since last service visit",
     kpiTitle: "Lost Customers",
     kpiRange: "25+ Months",
