@@ -706,11 +706,11 @@ export default function CallbackReportPage() {
                 const total = Object.values(counts).reduce((sum, v) => sum + v, 0);
                 const pct = total > 0 ? (counts[k] / total) * 100 : 0;
                 const barColors: Record<SegmentKey, string> = {
-                  active: "bg-emerald-400",
-                  retained: "bg-sky-400",
-                  lapsed: "bg-amber-400",
-                  inactive: "bg-orange-400",
-                  lost: "bg-rose-400",
+                  active: "bg-emerald-200",
+                  retained: "bg-sky-200",
+                  lapsed: "bg-amber-200",
+                  inactive: "bg-orange-200",
+                  lost: "bg-rose-200",
                 };
                 return (
                   <div
@@ -728,11 +728,11 @@ export default function CallbackReportPage() {
                 const total = Object.values(counts).reduce((sum, v) => sum + v, 0);
                 const pct = total > 0 ? (counts[k] / total) * 100 : 0;
                 const dotColors: Record<SegmentKey, string> = {
-                  active: "bg-emerald-400",
-                  retained: "bg-sky-400",
-                  lapsed: "bg-amber-400",
-                  inactive: "bg-orange-400",
-                  lost: "bg-rose-400",
+                  active: "bg-emerald-200",
+                  retained: "bg-sky-200",
+                  lapsed: "bg-amber-200",
+                  inactive: "bg-orange-200",
+                  lost: "bg-rose-200",
                 };
                 return (
                   <div key={k} className="flex items-center gap-1.5 text-[11px] text-slate-600">
