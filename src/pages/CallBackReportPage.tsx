@@ -141,6 +141,16 @@ function downloadCSV(filename: string, rows: Record<string, string>[]) {
   URL.revokeObjectURL(url);
 }
 
+function getOilTypePillClass(oilType: string): string {
+  const lower = oilType.toLowerCase();
+  if (lower.includes("synthetic") || lower.includes("syn")) return "bg-emerald-50 text-emerald-700";
+  if (lower.includes("high mileage")) return "bg-amber-50 text-amber-700";
+  if (lower.includes("conventional")) return "bg-sky-50 text-sky-700";
+  if (lower.includes("pennzoil")) return "bg-indigo-50 text-indigo-700";
+  if (lower.includes("mobil")) return "bg-rose-50 text-rose-700";
+  return "bg-slate-100 text-slate-700";
+}
+
 const Pill: React.FC<{ className: string; children: React.ReactNode }> = ({ className, children }) => (
   <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${className}`}>
     {children}
@@ -299,7 +309,7 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
         <DialogHeader>
           <DialogTitle className="flex flex-wrap items-center gap-2">
             <span className="text-lg font-semibold text-slate-900">
-              {customer.name} – {customer.phone ?? "No Phone"} – {customer.licensePlate ?? "—"}
+              {customer.name} – {customer.phone ?? "No Phone"}
             </span>
           </DialogTitle>
         </DialogHeader>
@@ -400,8 +410,9 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
                   <span className="font-medium text-slate-500">Last LOF:</span>{" "}
                   <span className="text-amber-600">{fmtDate(parseISODateOnly(customer.lastServiceDate))}</span>
                 </div>
-                <div className="text-slate-900">
-                  {customer.lastOilType ?? "Oil Change"} @ {customer.vehicleMileage?.toLocaleString() ?? "—"} miles
+                <div className="flex items-center gap-2">
+                  <Pill className={getOilTypePillClass(customer.lastOilType ?? "Conventional")}>{customer.lastOilType ?? "Oil Change"}</Pill>
+                  <span className="text-slate-500">@ {customer.vehicleMileage?.toLocaleString() ?? "—"} miles</span>
                 </div>
                 <div>
                   <span className="font-medium text-slate-500">Invoice Total:</span>{" "}
@@ -447,6 +458,26 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
               onChange={(e) => setNewNoteText(e.target.value)}
               placeholder="Add a new note about this customer..."
             />
+            {/* Quick note buttons */}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {["Successful call", "No answer", "Left VM", "Not interested"].map((label) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => {
+                    const quickNote: CustomerNote = {
+                      id: `n${Date.now()}`,
+                      text: label,
+                      timestamp: new Date().toISOString()
+                    };
+                    setLocalNotes(prev => [quickNote, ...prev]);
+                  }}
+                  className="rounded-full bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 px-3 py-1 text-[11px]"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* All Customer Notes - collapsible */}
@@ -562,13 +593,13 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
                     onClick={() => toggleInvoice(idx)}
                     className="w-full flex items-center px-4 py-3 hover:bg-slate-50 transition-colors"
                   >
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm min-w-[100px]">
                       <FileText className="h-4 w-4 text-sky-600" />
                       <span className="text-slate-900">{fmtDate(parseISODateOnly(invoice.date))}</span>
                     </div>
-                    <div className="flex-1 flex items-center justify-evenly text-sm">
+                    <div className="flex-1 grid grid-cols-4 gap-2 text-sm">
                       <span>
-                        <span className="text-slate-500">Invoice #:</span>{" "}
+                        <span className="text-slate-500">Inv #:</span>{" "}
                         <span className="text-sky-600">{invoice.invoiceNum}</span>
                       </span>
                       <span>
@@ -576,8 +607,11 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
                         <span className="text-teal-600">{invoice.mileage.toLocaleString()}</span>
                       </span>
                       <span>
-                        <span className="text-slate-500">Invoice Total:</span>{" "}
+                        <span className="text-slate-500">Total:</span>{" "}
                         <span className="text-slate-900">${invoice.total.toFixed(2)}</span>
+                      </span>
+                      <span className="flex justify-end">
+                        <Pill className={getOilTypePillClass(invoice.oilType)}>{invoice.oilType.split(" ").slice(-2).join(" ")}</Pill>
                       </span>
                     </div>
                     {isExpanded ? (
@@ -597,8 +631,10 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
                           <span className="text-right">Price</span>
                         </div>
                         {invoice.laborLines.map((l, li) => (
-                          <div key={li} className="grid grid-cols-3 text-sm py-0.5">
-                            <span className="text-amber-600">{l.description}</span>
+                          <div key={li} className="grid grid-cols-3 text-sm py-0.5 items-center">
+                            <span className="flex items-center gap-2">
+                              <Pill className={getOilTypePillClass(l.description)}>{l.description}</Pill>
+                            </span>
                             <span className="text-sky-600 text-center">{l.qty.toFixed(2)}</span>
                             <span className="text-slate-900 text-right">${l.price.toFixed(2)}</span>
                           </div>
