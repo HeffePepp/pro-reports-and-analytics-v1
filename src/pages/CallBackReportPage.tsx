@@ -408,13 +408,13 @@ const CustomerDetailDialog: React.FC<{
                   <button
                     type="button"
                     onClick={() => toggleInvoice(idx)}
-                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                    className="w-full flex items-center px-4 py-3 hover:bg-slate-50 transition-colors"
                   >
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-sky-600" />
-                        <span className="text-slate-900">{fmtDate(parseISODateOnly(invoice.date))}</span>
-                      </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <FileText className="h-4 w-4 text-sky-600" />
+                      <span className="text-slate-900">{fmtDate(parseISODateOnly(invoice.date))}</span>
+                    </div>
+                    <div className="flex-1 flex items-center justify-evenly text-sm">
                       <span>
                         <span className="text-slate-500">Invoice #:</span>{" "}
                         <span className="text-sky-600">{invoice.invoiceNum}</span>
@@ -429,9 +429,9 @@ const CustomerDetailDialog: React.FC<{
                       </span>
                     </div>
                     {isExpanded ? (
-                      <ChevronUp className="h-4 w-4 text-slate-400" />
+                      <ChevronUp className="h-4 w-4 text-slate-400 ml-2" />
                     ) : (
-                      <ChevronDown className="h-4 w-4 text-slate-400" />
+                      <ChevronDown className="h-4 w-4 text-slate-400 ml-2" />
                     )}
                   </button>
                   {/* Labor and Parts details - only when expanded */}
