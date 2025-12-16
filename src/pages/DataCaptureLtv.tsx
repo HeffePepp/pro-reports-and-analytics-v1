@@ -291,14 +291,14 @@ const DataCaptureLtvPage: React.FC = () => {
             <header className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-[13px] font-semibold text-slate-900">
-                  Customers by Communication Category
+                  Customers by Communication Channel
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  Share of total customers by data capture.
+                  Share of total customers by Communication Channel.
                 </div>
               </div>
               <div className="text-[11px] text-slate-500">
-                % of customers by data capture
+                % of customers by Communication Channel
               </div>
             </header>
 
@@ -341,10 +341,10 @@ const DataCaptureLtvPage: React.FC = () => {
             <header className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-[13px] font-semibold text-slate-900">
-                  Avg Invoice by capture group
+                  Avg Invoice by Communication Channel
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  Avg Invoice by mail/email capture group.
+                  Avg Invoice by Communication Channel.
                 </div>
               </div>
               <div className="text-[11px] text-slate-500">Avg Invoice</div>
@@ -385,7 +385,7 @@ const DataCaptureLtvPage: React.FC = () => {
             <header className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-[13px] font-semibold text-slate-900">
-                  Capture + Avg Invoice trend
+                  Communication Channel + Avg Invoice trend
                 </div>
                 <div className="text-[11px] text-slate-500">
                   Current vs previous period, plus Avg Invoice lift vs blank.
