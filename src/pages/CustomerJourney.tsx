@@ -73,18 +73,53 @@ const getResponseMaturity = (
   let level: ResponseMaturityLevel;
   let label: string;
 
-  if (ratio < 0.33) {
+  // New thresholds: red < 50%, orange 50-80%, green >= 80%
+  if (ratio < 0.5) {
     level = "early";
-    label = "Early";
-  } else if (ratio < 0.75) {
+    label = `${Math.round(ratio * 100)}%`;
+  } else if (ratio < 0.8) {
     level = "maturing";
-    label = "Maturing";
+    label = `${Math.round(ratio * 100)}%`;
   } else {
     level = "mature";
-    label = "Mature";
+    label = `${Math.round(ratio * 100)}%`;
   }
 
   return { level, label, ratio, windowDays, daysSince: clampedDays };
+};
+
+// Get color classes for maturity level (used by both pill and response rate)
+const getMaturityColorClasses = (level: ResponseMaturityLevel) => {
+  switch (level) {
+    case "early":
+      return {
+        bg: "bg-rose-50",
+        border: "border-rose-100",
+        text: "text-rose-700",
+        dot: "bg-rose-400",
+      };
+    case "maturing":
+      return {
+        bg: "bg-amber-50",
+        border: "border-amber-100",
+        text: "text-amber-700",
+        dot: "bg-amber-400",
+      };
+    case "mature":
+      return {
+        bg: "bg-emerald-50",
+        border: "border-emerald-100",
+        text: "text-emerald-700",
+        dot: "bg-emerald-400",
+      };
+    default:
+      return {
+        bg: "bg-slate-50",
+        border: "border-slate-100",
+        text: "text-slate-700",
+        dot: "bg-slate-400",
+      };
+  }
 };
 
 // Response Maturity Pill component
@@ -97,23 +132,7 @@ const ResponseMaturityPill: React.FC<{ info: ResponseMaturityInfo; channel: Chan
   const base =
     "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium";
 
-  let colorClasses = "";
-  let dotClasses = "";
-
-  switch (info.level) {
-    case "early":
-      colorClasses = "bg-amber-50 border-amber-100 text-amber-700";
-      dotClasses = "bg-amber-400";
-      break;
-    case "maturing":
-      colorClasses = "bg-sky-50 border-sky-100 text-sky-700";
-      dotClasses = "bg-sky-400";
-      break;
-    case "mature":
-      colorClasses = "bg-emerald-50 border-emerald-100 text-emerald-700";
-      dotClasses = "bg-emerald-400";
-      break;
-  }
+  const colors = getMaturityColorClasses(info.level);
 
   const channelLabel =
     channel === "postcard" ? "postcard" : channel === "email" ? "email" : "text";
@@ -121,16 +140,14 @@ const ResponseMaturityPill: React.FC<{ info: ResponseMaturityInfo; channel: Chan
 
   const tooltipText =
     info.windowDays && info.daysSince != null
-      ? `Throttle uses a ${info.windowDays}-day response window for ${channelLabel} touch points. This touch point is ${info.label.toLowerCase()} (${info.daysSince} days since last send, about ${
-          ratioPct ?? "?"
-        }% of the window). Response % may continue to change until the window is complete.`
+      ? `Throttle uses a ${info.windowDays}-day response window for ${channelLabel} touch points. This touch point is at ${ratioPct}% maturity (${info.daysSince} days since last send). Response % may continue to change until the window is complete.`
       : "Response maturity shows how far we are into Throttle's standard response window.";
 
   return (
     <div className="group relative inline-flex">
-      <div className={`${base} ${colorClasses}`}>
-        <span className={`h-1.5 w-1.5 rounded-full ${dotClasses}`} />
-        <span>{info.label}</span>
+      <div className={`${base} ${colors.bg} ${colors.border} ${colors.text}`}>
+        <span className={`h-1.5 w-1.5 rounded-full ${colors.dot}`} />
+        <span>Maturity {info.label}</span>
       </div>
 
       {/* Tooltip */}
@@ -770,15 +787,23 @@ const CustomerJourneyPage: React.FC = () => {
 
                             {/* Resp % with maturity pill */}
                             <td className="py-2 px-2 text-right align-middle whitespace-nowrap">
-                              <div className="text-xs font-semibold text-emerald-600">
-                                {row.respPct.toFixed(1)}%
-                              </div>
-                              <div className="mt-0.5 flex justify-end">
-                                <ResponseMaturityPill
-                                  channel={row.channel}
-                                  info={getResponseMaturity(row.channel, row.daysSinceLastSend)}
-                                />
-                              </div>
+                              {(() => {
+                                const maturityInfo = getResponseMaturity(row.channel, row.daysSinceLastSend);
+                                const colors = getMaturityColorClasses(maturityInfo.level);
+                                return (
+                                  <>
+                                    <div className={`text-xs font-semibold ${colors.text}`}>
+                                      {row.respPct.toFixed(1)}%
+                                    </div>
+                                    <div className="mt-0.5 flex justify-end">
+                                      <ResponseMaturityPill
+                                        channel={row.channel}
+                                        info={maturityInfo}
+                                      />
+                                    </div>
+                                  </>
+                                );
+                              })()}
                             </td>
 
                             {/* ROAS */}
@@ -822,7 +847,7 @@ const CustomerJourneyPage: React.FC = () => {
                               <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
                                 {totals.responses.toLocaleString()}
                               </td>
-                              <td className="py-2 px-2 text-right text-xs text-emerald-600 whitespace-nowrap">
+                              <td className="py-2 px-2 text-right text-xs text-slate-600 whitespace-nowrap">
                                 {avgRespPct.toFixed(1)}%
                               </td>
                               <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
