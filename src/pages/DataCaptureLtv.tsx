@@ -63,11 +63,35 @@ const CAPTURE_SUMMARY: CaptureSummary = {
   ticketLift: 56,
 };
 
+/* Capture group color system */
+const CAPTURE_GROUP_COLORS: Record<string, { bar: string; pill: string; dot: string }> = {
+  "mail-only": {
+    bar: "bg-sky-200",
+    pill: "bg-sky-50 border-sky-100 text-sky-700",
+    dot: "bg-sky-300",
+  },
+  "email-only": {
+    bar: "bg-emerald-200",
+    pill: "bg-emerald-50 border-emerald-100 text-emerald-700",
+    dot: "bg-emerald-300",
+  },
+  "mail-email": {
+    bar: "bg-pink-200",
+    pill: "bg-pink-50 border-pink-100 text-pink-700",
+    dot: "bg-pink-300",
+  },
+  blank: {
+    bar: "bg-slate-200",
+    pill: "bg-slate-50 border-slate-200 text-slate-700",
+    dot: "bg-slate-400",
+  },
+};
+
 const CAPTURE_SEGMENTS: CaptureGroupSegment[] = [
-  { id: "mail-only", label: "Mail only", percentage: 23, colorClass: "bg-tp-pastel-blue" },
-  { id: "email-only", label: "Email only", percentage: 17, colorClass: "bg-tp-pastel-green" },
-  { id: "mail-email", label: "Mail & email", percentage: 49, colorClass: "bg-tp-pastel-purple" },
-  { id: "blank", label: "Blank", percentage: 11, colorClass: "bg-tp-pastel-red" },
+  { id: "mail-only", label: "Mail only", percentage: 23, colorClass: "bg-sky-200" },
+  { id: "email-only", label: "Email only", percentage: 17, colorClass: "bg-emerald-200" },
+  { id: "mail-email", label: "Mail & email", percentage: 49, colorClass: "bg-pink-200" },
+  { id: "blank", label: "Blank", percentage: 11, colorClass: "bg-slate-200" },
 ];
 
 const TICKET_GROUPS: TicketGroupRow[] = [
@@ -274,70 +298,98 @@ const DataCaptureLtvPage: React.FC = () => {
           )}
 
           {/* Customers by capture group */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Customers by capture group
-              </h2>
-              <span className="text-[11px] text-slate-500">
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <header className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[13px] font-semibold text-slate-900">
+                  Customers by capture group
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Share of total customers by data capture.
+                </div>
+              </div>
+              <div className="text-[11px] text-slate-500">
                 % of customers by data capture
-              </span>
-            </div>
+              </div>
+            </header>
 
-            <div className="space-y-3">
-              <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden flex">
-                {CAPTURE_SEGMENTS.map((seg) => (
+            {/* Stacked bar */}
+            <div className="mt-3 flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+              {CAPTURE_SEGMENTS.map((seg) => {
+                const color = CAPTURE_GROUP_COLORS[seg.id] ?? CAPTURE_GROUP_COLORS.blank;
+                return (
                   <div
                     key={seg.id}
-                    className={seg.colorClass + " h-full"}
+                    className={`h-full ${color.bar}`}
                     style={{ width: `${seg.percentage}%` }}
                   />
-                ))}
-              </div>
+                );
+              })}
+            </div>
 
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
-                {CAPTURE_SEGMENTS.map((seg) => (
-                  <div key={seg.id} className="flex items-center gap-1">
-                    <span
-                      className={
-                        "h-2 w-2 rounded-full inline-block " + seg.colorClass
-                      }
-                    />
-                    <span>
-                      {seg.label} · {seg.percentage}%
+            {/* Ghost pill legend */}
+            <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-slate-600">
+              {CAPTURE_SEGMENTS.map((seg) => {
+                const color = CAPTURE_GROUP_COLORS[seg.id] ?? CAPTURE_GROUP_COLORS.blank;
+                return (
+                  <span
+                    key={seg.id}
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 ${color.pill}`}
+                  >
+                    <span className={`mr-1 h-2 w-2 rounded-full ${color.dot}`} />
+                    <span className="font-medium">{seg.label}</span>
+                    <span className="ml-1 text-slate-500">
+                      – {seg.percentage.toFixed(1)}%
                     </span>
-                  </div>
-                ))}
-              </div>
+                  </span>
+                );
+              })}
             </div>
           </section>
 
           {/* Ticket average by capture group */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Ticket average by capture group
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Relative ticket value (dummy)
-              </span>
-            </div>
-
-            <div className="space-y-3 text-xs text-slate-700">
-              {TICKET_GROUPS.map((g) => (
-                <div key={g.id}>
-                  <div className="flex justify-between text-[11px]">
-                    <span>{g.label}</span>
-                    <span>${g.ticket.toFixed(0)}</span>
-                  </div>
-                  <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div
-                      className="h-full bg-tp-pastel-green"
-                      style={{ width: `${(g.ticket / maxTicket) * 100}%` }}
-                    />
-                  </div>
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <header className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[13px] font-semibold text-slate-900">
+                  Ticket average by capture group
                 </div>
-              ))}
+                <div className="text-[11px] text-slate-500">
+                  Relative ticket value by mail/email capture.
+                </div>
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Relative ticket value
+              </div>
+            </header>
+
+            <div className="mt-3 space-y-3">
+              {TICKET_GROUPS.map((g) => {
+                const color = CAPTURE_GROUP_COLORS[g.id] ?? CAPTURE_GROUP_COLORS.blank;
+                return (
+                  <div key={g.id} className="flex items-center gap-3">
+                    {/* label */}
+                    <div className="w-28 text-[11px] text-slate-700">
+                      {g.label}
+                    </div>
+
+                    {/* bar */}
+                    <div className="flex-1">
+                      <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div
+                          className={`h-full ${color.bar}`}
+                          style={{ width: `${(g.ticket / maxTicket) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* value */}
+                    <div className="w-16 text-right text-[11px] text-slate-900">
+                      ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
 
