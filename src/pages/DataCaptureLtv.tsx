@@ -143,7 +143,7 @@ const CaptureByLocationTile: React.FC<CaptureByLocationTileProps> = ({
 
   return (
     <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-      <header className="mb-3">
+      <header>
         <div className="text-[13px] font-semibold text-slate-900">{title}</div>
         <div className="text-[11px] text-slate-500">
           {channelLabel} capture mix, blanks and MoM trends by store. Data enrichment shows % of {lower} addresses corrected or updated by Throttle.
@@ -151,59 +151,64 @@ const CaptureByLocationTile: React.FC<CaptureByLocationTileProps> = ({
       </header>
 
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full text-[11px]">
-          <colgroup>
-            <col />
-            <col className="w-full" />
-            <col style={{ width: 90 }} />
-            <col style={{ width: 100 }} />
-            <col style={{ width: 110 }} />
-          </colgroup>
+        {/* Two-column table: Store + right-aligned metrics block */}
+        <table className="min-w-full text-[11px]">
           <thead className="border-b border-slate-100 text-slate-500">
             <tr>
-              <th className="py-2 text-left font-medium whitespace-nowrap">Store</th>
-              <th></th>
-              <th className="py-2 text-right font-medium whitespace-nowrap">{channelLabel} capture</th>
-              <th className="py-2 text-right font-medium whitespace-nowrap">No {lower} (blank)</th>
-              <th className="py-2 text-right font-medium whitespace-nowrap">Data enrichment</th>
+              <th className="py-2 pr-3 text-left font-medium">Store</th>
+              <th className="py-2 pl-3 pr-1 text-right font-medium">
+                <div className="flex justify-end gap-6">
+                  <div className="w-16 text-right">{channelLabel} capture</div>
+                  <div className="w-24 text-right">No {lower} (blank)</div>
+                  <div className="w-24 text-right">Data enrichment</div>
+                </div>
+              </th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-slate-100">
             {rows.map((row) => (
               <tr key={row.id}>
-                <td className="py-2 text-slate-800 whitespace-nowrap">{row.name}</td>
-                <td></td>
+                {/* Store */}
+                <td className="py-2 pr-3 text-slate-800 whitespace-nowrap">{row.name}</td>
 
-                <td className="py-2 text-right whitespace-nowrap">
-                  <div className="font-medium text-slate-900">{row.capturePct.toFixed(0)}%</div>
-                  <div className={
-                    row.captureMomPct > 0
-                      ? "text-emerald-600 font-semibold"
-                      : row.captureMomPct < 0
-                      ? "text-red-500 font-semibold"
-                      : "text-slate-500"
-                  }>
-                    MoM {formatSignedPercent(row.captureMomPct)}
+                {/* Metrics block: three tight right-aligned columns */}
+                <td className="py-2 pl-3 pr-1 text-right">
+                  <div className="flex justify-end gap-6 text-right">
+                    {/* Capture % + MoM */}
+                    <div className="w-16 whitespace-nowrap">
+                      <div className="font-medium text-slate-900">{row.capturePct.toFixed(0)}%</div>
+                      <div className={
+                        row.captureMomPct > 0
+                          ? "text-emerald-600 font-semibold"
+                          : row.captureMomPct < 0
+                          ? "text-red-500 font-semibold"
+                          : "text-slate-500"
+                      }>
+                        MoM {formatSignedPercent(row.captureMomPct)}
+                      </div>
+                    </div>
+
+                    {/* Blank % + MoM (up = red, down = green) */}
+                    <div className="w-24 whitespace-nowrap">
+                      <div className="font-medium text-slate-900">{row.blankPct.toFixed(0)}%</div>
+                      <div className={
+                        row.blankMomPct > 0
+                          ? "text-red-500 font-semibold"
+                          : row.blankMomPct < 0
+                          ? "text-emerald-600 font-semibold"
+                          : "text-slate-500"
+                      }>
+                        MoM {formatSignedPercent(row.blankMomPct)}
+                      </div>
+                    </div>
+
+                    {/* Data enrichment */}
+                    <div className="w-24 whitespace-nowrap">
+                      <div className="font-medium text-slate-900">{row.enrichedPct.toFixed(1)}%</div>
+                      <div className="text-slate-500">Corrected by Throttle</div>
+                    </div>
                   </div>
-                </td>
-
-                <td className="py-2 text-right whitespace-nowrap">
-                  <div className="font-medium text-slate-900">{row.blankPct.toFixed(0)}%</div>
-                  <div className={
-                    row.blankMomPct > 0
-                      ? "text-red-500 font-semibold"
-                      : row.blankMomPct < 0
-                      ? "text-emerald-600 font-semibold"
-                      : "text-slate-500"
-                  }>
-                    MoM {formatSignedPercent(row.blankMomPct)}
-                  </div>
-                </td>
-
-                <td className="py-2 text-right whitespace-nowrap">
-                  <div className="font-medium text-slate-900">{row.enrichedPct.toFixed(1)}%</div>
-                  <div className="text-slate-500">Corrected by Throttle</div>
                 </td>
               </tr>
             ))}
@@ -433,10 +438,10 @@ const DataCaptureLtvPage: React.FC = () => {
             </header>
 
             {/* Column headers for the three right-side metrics */}
-            <div className="mt-3 flex justify-end text-[11px] text-slate-500">
-              <div className="w-[90px] text-right">Avg Invoice</div>
-              <div className="w-[100px] text-right">Avg lift vs blank</div>
-              <div className="w-[110px] text-right">MoM Trend</div>
+            <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
+              <div className="w-16 text-right">Avg Invoice</div>
+              <div className="w-24 text-right">Avg lift vs blank</div>
+              <div className="w-24 text-right">MoM Trend</div>
             </div>
 
             <div className="mt-1 space-y-3">
@@ -458,24 +463,24 @@ const DataCaptureLtvPage: React.FC = () => {
                     </div>
 
                     {/* RIGHT: 3 numeric columns */}
-                    <div className="flex text-right">
+                    <div className="flex justify-end gap-6 pr-1 text-right">
                       {/* Avg Invoice */}
-                      <div className="w-[90px] text-slate-900">
+                      <div className="w-16 text-slate-900">
                         ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
                       </div>
 
                       {/* Avg lift vs blank */}
-                      <div className={g.id === "mail-email" ? "w-[100px] font-semibold text-emerald-600" : "w-[100px] text-slate-900"}>
+                      <div className={g.id === "mail-email" ? "w-24 font-semibold text-emerald-600" : "w-24 text-slate-900"}>
                         {g.id === "blank" ? "$0" : formatSignedCurrency(g.liftVsBlank)}
                       </div>
 
                       {/* Data capture MoM */}
                       <div className={
                         g.captureMomPct > 0
-                          ? "w-[110px] font-semibold text-emerald-600"
+                          ? "w-24 font-semibold text-emerald-600"
                           : g.captureMomPct < 0
-                          ? "w-[110px] font-semibold text-red-500"
-                          : "w-[110px] text-slate-900"
+                          ? "w-24 font-semibold text-red-500"
+                          : "w-24 text-slate-900"
                       }>
                         {formatSignedPercent(g.captureMomPct)}
                       </div>
