@@ -291,7 +291,7 @@ const DataCaptureLtvPage: React.FC = () => {
             <header className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-[13px] font-semibold text-slate-900">
-                  Customers by capture group
+                  Customers by Communication Category
                 </div>
                 <div className="text-[11px] text-slate-500">
                   Share of total customers by data capture.
