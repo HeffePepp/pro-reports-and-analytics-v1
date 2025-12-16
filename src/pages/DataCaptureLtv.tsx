@@ -36,16 +36,14 @@ type TicketGroupRow = {
   captureMomPct: number;
 };
 
-type StoreRow = {
-  store: string;
-  mailOnlyPct: number;
-  mailOnlyMomPct: number;
-  emailOnlyPct: number;
-  emailOnlyMomPct: number;
-  mailAndEmailPct: number;
-  mailAndEmailMomPct: number;
+type CaptureByLocationRow = {
+  id: string;
+  name: string;
+  capturePct: number;
+  captureMomPct: number;
   blankPct: number;
   blankMomPct: number;
+  enrichedPct: number;
 };
 
 
@@ -114,14 +112,105 @@ const formatSignedPercent = (value: number) => {
   return `${sign}${value.toFixed(1)}%`;
 };
 
-const STORES: StoreRow[] = [
-  { store: "Vallejo, CA", mailOnlyPct: 17, mailOnlyMomPct: 1.2, emailOnlyPct: 12, emailOnlyMomPct: 0.8, mailAndEmailPct: 58, mailAndEmailMomPct: 2.1, blankPct: 13, blankMomPct: -1.5 },
-  { store: "Napa, CA", mailOnlyPct: 21, mailOnlyMomPct: -0.5, emailOnlyPct: 19, emailOnlyMomPct: 1.4, mailAndEmailPct: 46, mailAndEmailMomPct: 3.2, blankPct: 14, blankMomPct: 0.3 },
-  { store: "Fairfield, CA", mailOnlyPct: 13, mailOnlyMomPct: 0.0, emailOnlyPct: 11, emailOnlyMomPct: -0.2, mailAndEmailPct: 63, mailAndEmailMomPct: 4.8, blankPct: 13, blankMomPct: -2.1 },
+const MAIL_CAPTURE_ROWS: CaptureByLocationRow[] = [
+  { id: "vallejo", name: "Vallejo, CA", capturePct: 75, captureMomPct: 2.1, blankPct: 25, blankMomPct: -1.5, enrichedPct: 12.3 },
+  { id: "napa", name: "Napa, CA", capturePct: 67, captureMomPct: -0.5, blankPct: 33, blankMomPct: 0.3, enrichedPct: 8.7 },
+  { id: "fairfield", name: "Fairfield, CA", capturePct: 76, captureMomPct: 4.8, blankPct: 24, blankMomPct: -2.1, enrichedPct: 15.2 },
+];
+
+const EMAIL_CAPTURE_ROWS: CaptureByLocationRow[] = [
+  { id: "vallejo", name: "Vallejo, CA", capturePct: 70, captureMomPct: 0.8, blankPct: 30, blankMomPct: -0.8, enrichedPct: 4.1 },
+  { id: "napa", name: "Napa, CA", capturePct: 65, captureMomPct: 1.4, blankPct: 35, blankMomPct: -1.4, enrichedPct: 6.2 },
+  { id: "fairfield", name: "Fairfield, CA", capturePct: 74, captureMomPct: -0.2, blankPct: 26, blankMomPct: 0.2, enrichedPct: 3.8 },
 ];
 
 // Multi-location detection (hardcoded for demo; wire to filter state)
-const isMultiLocation = STORES.length > 1;
+const isMultiLocation = MAIL_CAPTURE_ROWS.length > 1;
+
+/* Reusable Capture by Location Tile */
+type CaptureByLocationTileProps = {
+  title: string;
+  channelLabel: string;
+  rows: CaptureByLocationRow[];
+};
+
+const CaptureByLocationTile: React.FC<CaptureByLocationTileProps> = ({
+  title,
+  channelLabel,
+  rows,
+}) => {
+  const lower = channelLabel.toLowerCase();
+
+  return (
+    <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+      <header className="mb-3">
+        <div className="text-[13px] font-semibold text-slate-900">{title}</div>
+        <div className="text-[11px] text-slate-500">
+          {channelLabel} capture mix, blanks and MoM trends by store. Data enrichment shows % of {lower} addresses corrected or updated by Throttle.
+        </div>
+      </header>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-fixed text-[11px]">
+          <colgroup>
+            <col className="w-[30%]" />
+            <col className="w-[23%]" />
+            <col className="w-[23%]" />
+            <col className="w-[24%]" />
+          </colgroup>
+
+          <thead className="border-b border-slate-100 text-slate-500">
+            <tr>
+              <th className="py-2 pr-3 text-left font-medium">Store</th>
+              <th className="py-2 pr-3 text-right font-medium">{channelLabel} capture</th>
+              <th className="py-2 pr-3 text-right font-medium">No {lower} (blank)</th>
+              <th className="py-2 pl-3 text-right font-medium">Data enrichment</th>
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-slate-100">
+            {rows.map((row) => (
+              <tr key={row.id}>
+                <td className="py-2 pr-3 text-slate-800">{row.name}</td>
+
+                <td className="py-2 pr-3 text-right">
+                  <div className="font-medium text-slate-900">{row.capturePct.toFixed(0)}%</div>
+                  <div className={
+                    row.captureMomPct > 0
+                      ? "text-emerald-600 font-semibold"
+                      : row.captureMomPct < 0
+                      ? "text-red-500 font-semibold"
+                      : "text-slate-500"
+                  }>
+                    MoM {formatSignedPercent(row.captureMomPct)}
+                  </div>
+                </td>
+
+                <td className="py-2 pr-3 text-right">
+                  <div className="font-medium text-slate-900">{row.blankPct.toFixed(0)}%</div>
+                  <div className={
+                    row.blankMomPct > 0
+                      ? "text-red-500 font-semibold"
+                      : row.blankMomPct < 0
+                      ? "text-emerald-600 font-semibold"
+                      : "text-slate-500"
+                  }>
+                    MoM {formatSignedPercent(row.blankMomPct)}
+                  </div>
+                </td>
+
+                <td className="py-2 pl-3 text-right">
+                  <div className="font-medium text-slate-900">{row.enrichedPct.toFixed(1)}%</div>
+                  <div className="text-slate-500">Corrected by Throttle</div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+};
 
 /* ------------------------------------------------------------------ */
 /* KPI customization                                                   */
@@ -395,85 +484,19 @@ const DataCaptureLtvPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Data Capture by location */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <header className="mb-3">
-              <div className="text-[13px] font-semibold text-slate-900">
-                Data Capture by location
-              </div>
-              <div className="text-[11px] text-slate-500">
-                Data capture mix and MoM trends by store to guide coaching and goals.
-              </div>
-            </header>
+          {/* Mail capture by location */}
+          <CaptureByLocationTile
+            title="Mail capture by location"
+            channelLabel="Mail"
+            rows={MAIL_CAPTURE_ROWS}
+          />
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full table-fixed text-[11px]">
-                <colgroup>
-                  <col className="w-[18%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[10%]" />
-                </colgroup>
-                <thead className="border-b border-slate-100 text-slate-500">
-                  <tr>
-                    <th className="py-2 pr-3 text-left font-medium">Store</th>
-                    <th className="py-2 pr-2 text-right font-medium">Mail only %</th>
-                    <th className="py-2 pr-3 text-right font-medium">MoM Trend</th>
-                    <th className="py-2 pr-2 text-right font-medium">Email only %</th>
-                    <th className="py-2 pr-3 text-right font-medium">MoM Trend</th>
-                    <th className="py-2 pr-2 text-right font-medium">Mail &amp; email %</th>
-                    <th className="py-2 pr-3 text-right font-medium">MoM Trend</th>
-                    <th className="py-2 pr-2 text-right font-medium">Blank %</th>
-                    <th className="py-2 pl-1 text-right font-medium">MoM Trend</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {STORES.map((s) => (
-                    <tr key={s.store}>
-                      <td className="py-2 pr-3 text-slate-800">{s.store}</td>
-                      <td className="py-2 pr-2 text-right text-slate-900">{s.mailOnlyPct}%</td>
-                      <td className={
-                        s.mailOnlyMomPct > 0
-                          ? "py-2 pr-3 text-right font-semibold text-emerald-600"
-                          : s.mailOnlyMomPct < 0
-                          ? "py-2 pr-3 text-right font-semibold text-red-500"
-                          : "py-2 pr-3 text-right text-slate-900"
-                      }>{formatSignedPercent(s.mailOnlyMomPct)}</td>
-                      <td className="py-2 pr-2 text-right text-slate-900">{s.emailOnlyPct}%</td>
-                      <td className={
-                        s.emailOnlyMomPct > 0
-                          ? "py-2 pr-3 text-right font-semibold text-emerald-600"
-                          : s.emailOnlyMomPct < 0
-                          ? "py-2 pr-3 text-right font-semibold text-red-500"
-                          : "py-2 pr-3 text-right text-slate-900"
-                      }>{formatSignedPercent(s.emailOnlyMomPct)}</td>
-                      <td className="py-2 pr-2 text-right text-slate-900">{s.mailAndEmailPct}%</td>
-                      <td className={
-                        s.mailAndEmailMomPct > 0
-                          ? "py-2 pr-3 text-right font-semibold text-emerald-600"
-                          : s.mailAndEmailMomPct < 0
-                          ? "py-2 pr-3 text-right font-semibold text-red-500"
-                          : "py-2 pr-3 text-right text-slate-900"
-                      }>{formatSignedPercent(s.mailAndEmailMomPct)}</td>
-                      <td className="py-2 pr-2 text-right text-slate-900">{s.blankPct}%</td>
-                      <td className={
-                        s.blankMomPct > 0
-                          ? "py-2 pl-1 text-right font-semibold text-red-500"
-                          : s.blankMomPct < 0
-                          ? "py-2 pl-1 text-right font-semibold text-emerald-600"
-                          : "py-2 pl-1 text-right text-slate-900"
-                      }>{formatSignedPercent(s.blankMomPct)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          {/* Email capture by location */}
+          <CaptureByLocationTile
+            title="Email capture by location"
+            channelLabel="Email"
+            rows={EMAIL_CAPTURE_ROWS}
+          />
 
           {/* AI insights (mobile) - after main content */}
           <div className="block lg:hidden">
