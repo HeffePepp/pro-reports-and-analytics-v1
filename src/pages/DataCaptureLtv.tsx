@@ -334,13 +334,8 @@ const DataCaptureLtvPage: React.FC = () => {
           {/* Avg Invoice by capture group */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <header className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-[13px] font-semibold text-slate-900">
-                  Avg Invoice by Communication Channel
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Avg Invoice by Communication Channel.
-                </div>
+              <div className="text-[13px] font-semibold text-slate-900">
+                Avg Invoice by Communication Channel
               </div>
               <div className="text-[11px] text-slate-500">Avg Invoice</div>
             </header>
