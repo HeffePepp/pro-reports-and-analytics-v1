@@ -331,7 +331,7 @@ const DataCaptureLtvPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Avg Invoice by capture group */}
+          {/* Avg Invoice by Communication Channel */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <header className="flex items-center justify-between gap-3">
               <div className="text-[13px] font-semibold text-slate-900">
@@ -340,128 +340,83 @@ const DataCaptureLtvPage: React.FC = () => {
               <div className="text-[11px] text-slate-500">Avg Invoice</div>
             </header>
 
-            <div className="mt-3 space-y-3">
-              {TICKET_GROUPS.map((g) => {
-                const color = CAPTURE_GROUP_COLORS[g.id] ?? CAPTURE_GROUP_COLORS.blank;
-                return (
-                  <div key={g.id} className="flex items-center gap-3">
-                    {/* label */}
-                    <div className="w-28 text-[11px] text-slate-700">
-                      {g.label}
-                    </div>
+            <div className="mt-3 flex items-stretch gap-4">
+              {/* LEFT: channel rows with bars */}
+              <div className="flex-1 space-y-3">
+                {TICKET_GROUPS.map((g) => {
+                  const color = CAPTURE_GROUP_COLORS[g.id] ?? CAPTURE_GROUP_COLORS.blank;
+                  return (
+                    <div key={g.id} className="flex items-center gap-3">
+                      {/* label */}
+                      <div className="w-28 text-[11px] text-slate-700">
+                        {g.label}
+                      </div>
 
-                    {/* bar */}
-                    <div className="flex-1">
-                      <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                        <div
-                          className={`h-full ${color.bar}`}
-                          style={{ width: `${(g.ticket / maxTicket) * 100}%` }}
-                        />
+                      {/* bar */}
+                      <div className="flex-1">
+                        <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className={`h-full ${color.bar}`}
+                            style={{ width: `${(g.ticket / maxTicket) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* value */}
+                      <div className="w-16 text-right text-[11px] text-slate-900">
+                        ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
                       </div>
                     </div>
-
-                    {/* value */}
-                    <div className="w-16 text-right text-[11px] text-slate-900">
-                      ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Capture + Avg Invoice trend */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <header className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-[13px] font-semibold text-slate-900">
-                  Communication Channel + Avg Invoice trend
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Current vs previous period, plus Avg Invoice lift vs blank.
-                </div>
+                  );
+                })}
               </div>
-            </header>
 
-            <div className="mt-3 divide-y divide-slate-100 text-[11px]">
-              {CAPTURE_TREND.map((row) => {
-                const shareDelta = row.currentSharePct - row.previousSharePct;
-                const avgInvoiceDelta = row.currentAvgInvoice - row.previousAvgInvoice;
-
+              {/* RIGHT: trend metric boxes */}
+              {(() => {
+                const mailEmailRow = CAPTURE_TREND.find((r) => r.id === "mail-email");
                 const blankRow = CAPTURE_TREND.find((r) => r.id === "blank");
-                const liftVsBlank =
-                  row.id === "blank" || !blankRow
-                    ? 0
-                    : row.currentAvgInvoice - blankRow.currentAvgInvoice;
+                const liftVsBlank = mailEmailRow && blankRow
+                  ? mailEmailRow.currentAvgInvoice - blankRow.currentAvgInvoice
+                  : 0;
+                const captureMoM = mailEmailRow
+                  ? mailEmailRow.currentSharePct - mailEmailRow.previousSharePct
+                  : 0;
 
                 return (
-                  <div
-                    key={row.id}
-                    className="flex items-center justify-between gap-4 py-3"
-                  >
-                    {/* LEFT: capture group label */}
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[12px] font-semibold text-slate-900">
-                        {row.label}
-                      </div>
-                    </div>
-
-                    {/* MIDDLE LEFT: Avg Invoice trend */}
-                    <div className="w-40 text-right">
-                      <div className="text-[13px] font-semibold text-slate-900">
-                        {row.currentAvgInvoice.toLocaleString("en-US", {
+                  <div className="flex w-28 flex-col items-stretch gap-3">
+                    {/* Avg lift vs blank (Mail & email) */}
+                    <div className="flex flex-1 flex-col justify-center rounded-md bg-yellow-300 px-2 py-3 text-center text-[11px] text-slate-900">
+                      <div className="text-[14px] font-semibold leading-none">
+                        {liftVsBlank.toLocaleString("en-US", {
                           style: "currency",
                           currency: "USD",
                           maximumFractionDigits: 0,
+                          signDisplay: "always",
                         })}
                       </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        Prev{" "}
-                        {row.previousAvgInvoice.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          maximumFractionDigits: 0,
-                        })}{" "}
-                        · {formatDelta(avgInvoiceDelta, "")}
+                      <div className="mt-1 leading-tight">
+                        Avg lift vs blank
+                      </div>
+                      <div className="text-[10px] text-slate-800/80">
+                        Mail &amp; email
                       </div>
                     </div>
 
-                    {/* MIDDLE RIGHT: Share trend */}
-                    <div className="w-40 text-right">
-                      <div className="text-[13px] font-semibold text-slate-900">
-                        {row.currentSharePct.toFixed(1)}%
+                    {/* Data capture MoM for Mail & email */}
+                    <div className="flex flex-1 flex-col justify-center rounded-md bg-red-500 px-2 py-3 text-center text-[11px] text-white">
+                      <div className="text-[14px] font-semibold leading-none">
+                        {captureMoM > 0 ? "+" : ""}{captureMoM.toFixed(1)}%
                       </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        Prev {row.previousSharePct.toFixed(1)}% ·{" "}
-                        {formatDelta(shareDelta, " pts")}
+                      <div className="mt-1 leading-tight">
+                        Data capture MoM
                       </div>
-                    </div>
-
-                    {/* RIGHT: Lift vs blank */}
-                    <div className="w-40 text-right">
-                      <div
-                        className={
-                          row.id === "mail-email"
-                            ? "text-[13px] font-semibold text-emerald-600"
-                            : "text-[13px] font-semibold text-slate-900"
-                        }
-                      >
-                        {row.id === "blank"
-                          ? "$0"
-                          : liftVsBlank.toLocaleString("en-US", {
-                              style: "currency",
-                              currency: "USD",
-                              maximumFractionDigits: 0,
-                              signDisplay: "always",
-                            })}
-                      </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        Avg Invoice lift vs blank
+                      <div className="text-[10px] text-white/80">
+                        Mail &amp; email
                       </div>
                     </div>
                   </div>
                 );
-              })}
+              })()}
             </div>
           </section>
 
