@@ -319,7 +319,7 @@ const DataCaptureLtvPage: React.FC = () => {
             <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
               <div className="w-16 text-right">Avg Invoice</div>
               <div className="w-24 text-right">Avg lift vs blank</div>
-              <div className="w-24 text-right">MoM Trend</div>
+              <div className="w-24 text-right">MoM Capture Trend</div>
             </div>
 
             <div className="mt-1 space-y-3">
