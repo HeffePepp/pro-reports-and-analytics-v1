@@ -7,14 +7,6 @@ import {
   DraggableKpiRow,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import {
-  ReportTable,
-  ReportTableHead,
-  ReportTableBody,
-  ReportTableRow,
-  ReportTableHeaderCell,
-  ReportTableCell,
-} from "@/components/ui/report-table";
 
 /* ------------------------------------------------------------------ */
 /* Types & dummy data                                                  */
@@ -53,14 +45,6 @@ type StoreRow = {
   blankPct: number;
 };
 
-type CaptureTrendRow = {
-  id: string;
-  label: string;
-  currentSharePct: number;
-  previousSharePct: number;
-  currentAvgInvoice: number;
-  previousAvgInvoice: number;
-};
 
 const CAPTURE_SUMMARY: CaptureSummary = {
   totalCustomers: 5030,
@@ -109,18 +93,7 @@ const TICKET_GROUPS: TicketGroupRow[] = [
   { id: "blank", label: "Blank", ticket: 42, liftVsBlank: 0, captureMomPct: -3.1 },
 ];
 
-const CAPTURE_TREND: CaptureTrendRow[] = [
-  { id: "mail-only", label: "Mail only", currentSharePct: 23.0, previousSharePct: 24.5, currentAvgInvoice: 88, previousAvgInvoice: 85 },
-  { id: "email-only", label: "Email only", currentSharePct: 17.0, previousSharePct: 15.2, currentAvgInvoice: 90, previousAvgInvoice: 87 },
-  { id: "mail-email", label: "Mail & email", currentSharePct: 49.0, previousSharePct: 46.1, currentAvgInvoice: 98, previousAvgInvoice: 94 },
-  { id: "blank", label: "Blank", currentSharePct: 11.0, previousSharePct: 14.2, currentAvgInvoice: 42, previousAvgInvoice: 44 },
-];
 
-const formatDelta = (value: number, suffix: string) => {
-  if (!value) return `0${suffix}`;
-  const sign = value > 0 ? "+" : "";
-  return `${sign}${value.toFixed(1)}${suffix}`;
-};
 
 const formatSignedCurrency = (value: number) => {
   if (!value) return "$0";
@@ -411,139 +384,40 @@ const DataCaptureLtvPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Capture + Avg Invoice trend */}
+          {/* Data Capture by location */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <header className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-[13px] font-semibold text-slate-900">
-                  Communication Channel + Avg Invoice trend
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Current vs previous period, plus Avg Invoice lift vs blank.
-                </div>
+            <header className="mb-3">
+              <div className="text-[13px] font-semibold text-slate-900">
+                Data Capture by location
               </div>
-            </header>
-
-            <div className="mt-3 divide-y divide-slate-100 text-[11px]">
-              {CAPTURE_TREND.map((row) => {
-                const shareDelta = row.currentSharePct - row.previousSharePct;
-                const avgInvoiceDelta = row.currentAvgInvoice - row.previousAvgInvoice;
-
-                const blankRow = CAPTURE_TREND.find((r) => r.id === "blank");
-                const liftVsBlank =
-                  row.id === "blank" || !blankRow
-                    ? 0
-                    : row.currentAvgInvoice - blankRow.currentAvgInvoice;
-
-                return (
-                  <div
-                    key={row.id}
-                    className="flex items-center justify-between gap-4 py-3"
-                  >
-                    {/* LEFT: capture group label */}
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[12px] font-semibold text-slate-900">
-                        {row.label}
-                      </div>
-                    </div>
-
-                    {/* MIDDLE LEFT: Avg Invoice trend */}
-                    <div className="w-40 text-right">
-                      <div className="text-[13px] font-semibold text-slate-900">
-                        {row.currentAvgInvoice.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          maximumFractionDigits: 0,
-                        })}
-                      </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        Prev{" "}
-                        {row.previousAvgInvoice.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          maximumFractionDigits: 0,
-                        })}{" "}
-                        · {formatDelta(avgInvoiceDelta, "")}
-                      </div>
-                    </div>
-
-                    {/* MIDDLE RIGHT: Share trend */}
-                    <div className="w-40 text-right">
-                      <div className="text-[13px] font-semibold text-slate-900">
-                        {row.currentSharePct.toFixed(1)}%
-                      </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        Prev {row.previousSharePct.toFixed(1)}% ·{" "}
-                        {formatDelta(shareDelta, " pts")}
-                      </div>
-                    </div>
-
-                    {/* RIGHT: Lift vs blank */}
-                    <div className="w-40 text-right">
-                      <div
-                        className={
-                          row.id === "mail-email"
-                            ? "text-[13px] font-semibold text-emerald-600"
-                            : "text-[13px] font-semibold text-slate-900"
-                        }
-                      >
-                        {row.id === "blank"
-                          ? "$0"
-                          : liftVsBlank.toLocaleString("en-US", {
-                              style: "currency",
-                              currency: "USD",
-                              maximumFractionDigits: 0,
-                              signDisplay: "always",
-                            })}
-                      </div>
-                      <div className="mt-0.5 text-[11px] text-slate-500">
-                        Avg Invoice lift vs blank
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Stores overview table */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <header className="flex items-center justify-between gap-3 mb-3">
-              <div>
-                <div className="text-[13px] font-semibold text-slate-900">
-                  Stores overview
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Data capture mix by store to guide coaching and goals.
-                </div>
+              <div className="text-[11px] text-slate-500">
+                Data capture mix by store to guide coaching and goals.
               </div>
             </header>
 
             <div className="overflow-x-auto">
-              <ReportTable>
-                <ReportTableHead>
-                  <ReportTableRow>
-                    <ReportTableHeaderCell label="Store" />
-                    <ReportTableHeaderCell label="Customers" align="right" />
-                    <ReportTableHeaderCell label="Mail only %" align="right" />
-                    <ReportTableHeaderCell label="Email only %" align="right" />
-                    <ReportTableHeaderCell label="Mail & email %" align="right" />
-                    <ReportTableHeaderCell label="Blank %" align="right" />
-                  </ReportTableRow>
-                </ReportTableHead>
-                <ReportTableBody>
+              <table className="min-w-full table-fixed text-[11px]">
+                <thead className="border-b border-slate-100 text-slate-500">
+                  <tr>
+                    <th className="py-2 pr-3 text-left font-medium">Store</th>
+                    <th className="py-2 pr-3 text-right font-medium">Mail only %</th>
+                    <th className="py-2 pr-3 text-right font-medium">Email only %</th>
+                    <th className="py-2 pr-3 text-right font-medium">Mail &amp; email %</th>
+                    <th className="py-2 pl-3 text-right font-medium">Blank %</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
                   {STORES.map((s) => (
-                    <ReportTableRow key={s.store}>
-                      <ReportTableCell>{s.store}</ReportTableCell>
-                      <ReportTableCell align="right">{s.customers.toLocaleString()}</ReportTableCell>
-                      <ReportTableCell align="right">{s.mailOnlyPct}%</ReportTableCell>
-                      <ReportTableCell align="right">{s.emailOnlyPct}%</ReportTableCell>
-                      <ReportTableCell align="right">{s.mailAndEmailPct}%</ReportTableCell>
-                      <ReportTableCell align="right">{s.blankPct}%</ReportTableCell>
-                    </ReportTableRow>
+                    <tr key={s.store}>
+                      <td className="py-2 pr-3 text-slate-800">{s.store}</td>
+                      <td className="py-2 pr-3 text-right text-slate-900">{s.mailOnlyPct}%</td>
+                      <td className="py-2 pr-3 text-right text-slate-900">{s.emailOnlyPct}%</td>
+                      <td className="py-2 pr-3 text-right text-slate-900">{s.mailAndEmailPct}%</td>
+                      <td className="py-2 pl-3 text-right text-slate-900">{s.blankPct}%</td>
+                    </tr>
                   ))}
-                </ReportTableBody>
-              </ReportTable>
+                </tbody>
+              </table>
             </div>
           </section>
 
