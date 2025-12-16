@@ -40,6 +40,8 @@ type TicketGroupRow = {
   id: string;
   label: string;
   ticket: number;
+  liftVsBlank: number;
+  captureMomPct: number;
 };
 
 type StoreRow = {
@@ -101,10 +103,10 @@ const CAPTURE_SEGMENTS: CaptureGroupSegment[] = [
 ];
 
 const TICKET_GROUPS: TicketGroupRow[] = [
-  { id: "mail-only", label: "Mail only", ticket: 88 },
-  { id: "email-only", label: "Email only", ticket: 90 },
-  { id: "mail-email", label: "Mail & email", ticket: 98 },
-  { id: "blank", label: "Blank", ticket: 42 },
+  { id: "mail-only", label: "Mail only", ticket: 88, liftVsBlank: 46, captureMomPct: 1.2 },
+  { id: "email-only", label: "Email only", ticket: 90, liftVsBlank: 48, captureMomPct: 2.8 },
+  { id: "mail-email", label: "Mail & email", ticket: 98, liftVsBlank: 56, captureMomPct: 4.2 },
+  { id: "blank", label: "Blank", ticket: 42, liftVsBlank: 0, captureMomPct: -3.1 },
 ];
 
 const CAPTURE_TREND: CaptureTrendRow[] = [
@@ -118,6 +120,22 @@ const formatDelta = (value: number, suffix: string) => {
   if (!value) return `0${suffix}`;
   const sign = value > 0 ? "+" : "";
   return `${sign}${value.toFixed(1)}${suffix}`;
+};
+
+const formatSignedCurrency = (value: number) => {
+  if (!value) return "$0";
+  const sign = value > 0 ? "+" : "";
+  return sign + value.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).replace("$", "$");
+};
+
+const formatSignedPercent = (value: number) => {
+  if (!value) return "0.0%";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(1)}%`;
 };
 
 const STORES: StoreRow[] = [
@@ -333,22 +351,26 @@ const DataCaptureLtvPage: React.FC = () => {
 
           {/* Avg Invoice by capture group */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <header className="flex items-center justify-between gap-3">
+            <header>
               <div className="text-[13px] font-semibold text-slate-900">
                 Avg Invoice by Communication Channel
               </div>
-              <div className="text-[11px] text-slate-500">Avg Invoice</div>
             </header>
 
-            <div className="mt-3 space-y-3">
+            {/* Column headers for the three right-side metrics */}
+            <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
+              <div className="w-16 text-right">Avg Invoice</div>
+              <div className="w-24 text-right">Avg lift vs blank</div>
+              <div className="w-24 text-right">Data capture MoM</div>
+            </div>
+
+            <div className="mt-1 space-y-3">
               {TICKET_GROUPS.map((g) => {
                 const color = CAPTURE_GROUP_COLORS[g.id] ?? CAPTURE_GROUP_COLORS.blank;
                 return (
-                  <div key={g.id} className="flex items-center gap-3">
+                  <div key={g.id} className="flex items-center gap-3 text-[11px]">
                     {/* label */}
-                    <div className="w-28 text-[11px] text-slate-700">
-                      {g.label}
-                    </div>
+                    <div className="w-28 text-slate-700">{g.label}</div>
 
                     {/* bar */}
                     <div className="flex-1">
@@ -360,9 +382,28 @@ const DataCaptureLtvPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* value */}
-                    <div className="w-16 text-right text-[11px] text-slate-900">
-                      ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                    {/* RIGHT: 3 numeric columns */}
+                    <div className="flex gap-6 pr-1 text-right">
+                      {/* Avg Invoice */}
+                      <div className="w-16 text-slate-900">
+                        ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                      </div>
+
+                      {/* Avg lift vs blank */}
+                      <div className={g.id === "mail-email" ? "w-24 font-semibold text-emerald-600" : "w-24 text-slate-900"}>
+                        {g.id === "blank" ? "$0" : formatSignedCurrency(g.liftVsBlank)}
+                      </div>
+
+                      {/* Data capture MoM */}
+                      <div className={
+                        g.captureMomPct > 0
+                          ? "w-24 font-semibold text-emerald-600"
+                          : g.captureMomPct < 0
+                          ? "w-24 font-semibold text-red-500"
+                          : "w-24 text-slate-900"
+                      }>
+                        {formatSignedPercent(g.captureMomPct)}
+                      </div>
                     </div>
                   </div>
                 );
