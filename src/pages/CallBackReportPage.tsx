@@ -464,14 +464,7 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
                 <button
                   key={label}
                   type="button"
-                  onClick={() => {
-                    const quickNote: CustomerNote = {
-                      id: `n${Date.now()}`,
-                      text: label,
-                      timestamp: new Date().toISOString()
-                    };
-                    setLocalNotes(prev => [quickNote, ...prev]);
-                  }}
+                  onClick={() => setNewNoteText(`${label}: `)}
                   className="rounded-full bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 px-3 py-1 text-[11px]"
                 >
                   {label}
