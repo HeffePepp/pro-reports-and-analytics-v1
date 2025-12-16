@@ -848,7 +848,7 @@ type SortKey = "name" | "lastServiceDate" | "location" | "phone" | "email";
 type SortDir = "asc" | "desc";
 
 export default function CallbackReportPage() {
-  const [selectedSegment, setSelectedSegment] = React.useState<SegmentKey>("active");
+  const [selectedSegment, setSelectedSegment] = React.useState<SegmentKey>("lost");
   const [startDate, setStartDate] = React.useState<string>("");
   const [endDate, setEndDate] = React.useState<string>("");
   const [search, setSearch] = React.useState("");
