@@ -969,7 +969,7 @@ export default function CallbackReportPage() {
   const selectedSeg = SEGMENTS[selectedSegment];
 
   return (
-    <ShellLayout breadcrumb={[{ label: "Reports", to: "/" }, { label: "Callback Report" }]}>
+    <ShellLayout breadcrumb={[{ label: "Home", to: "/" }, { label: "Callback Report" }]}>
       {/* Header - outside the grid */}
       <div className="mb-4">
         <h1 className="text-2xl font-semibold text-slate-900">Callback Report</h1>
