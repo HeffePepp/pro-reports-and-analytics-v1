@@ -151,7 +151,7 @@ const CaptureByLocationTile: React.FC<CaptureByLocationTileProps> = ({
       </header>
 
       <div className="mt-3 overflow-x-auto">
-        <table className="min-w-full text-[11px]">
+        <table className="w-auto text-[11px]">
           <thead className="border-b border-slate-100 text-slate-500">
             <tr>
               <th className="py-2 pr-3 text-left font-medium">Store</th>
