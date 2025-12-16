@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ShellLayout,
   MetricTile,
@@ -9,6 +9,7 @@ import {
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { parseChannels, CHANNEL_LABELS } from "@/styles/channelColors";
 import { JourneyTouchpointMixTile } from "@/components/reports/JourneyTouchpointMixTile";
+import { ShareReportModal, ShareReportButton } from "@/components/layout/ShareReportModal";
 type JourneyTouchPoint = {
   id: number;
   name: string;
@@ -242,6 +243,7 @@ const CHANNEL_SORT_ORDER: Record<string, number> = {
 
 const CustomerJourneyPage: React.FC = () => {
   const { selectedIds, setSelectedIds } = useKpiPreferences("customer-journey", KPI_OPTIONS);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const handleViewProofs = (tpId: number) => {
     console.log("View proofs for touch point:", tpId);
@@ -457,13 +459,27 @@ const CustomerJourneyPage: React.FC = () => {
             store: thank-you, suggested services, reminders and reactivation.
           </p>
         </div>
-        <KpiCustomizeButton
-          reportId="customer-journey"
-          options={KPI_OPTIONS}
-          selectedIds={selectedIds}
-          onChangeSelected={setSelectedIds}
-        />
+        <div className="flex items-center gap-2">
+          <ShareReportButton onClick={() => setShareOpen(true)} />
+          <KpiCustomizeButton
+            reportId="customer-journey"
+            options={KPI_OPTIONS}
+            selectedIds={selectedIds}
+            onChangeSelected={setSelectedIds}
+          />
+        </div>
       </div>
+
+      {/* Share Modal */}
+      <ShareReportModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        context={{
+          reportName: "Customer Journey",
+          dateRangeLabel: "Last 12 months",
+          storeCount: 5,
+        }}
+      />
 
       {/* Layout */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
