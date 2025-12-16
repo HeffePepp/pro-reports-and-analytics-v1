@@ -36,17 +36,6 @@ type TicketGroupRow = {
   captureMomPct: number;
 };
 
-type CaptureByLocationRow = {
-  id: string;
-  name: string;
-  capturePct: number;
-  captureMomPct: number;
-  blankPct: number;
-  blankMomPct: number;
-  enrichedPct: number;
-};
-
-
 const CAPTURE_SUMMARY: CaptureSummary = {
   totalCustomers: 5030,
   multiChannelPct: 49,
@@ -94,8 +83,6 @@ const TICKET_GROUPS: TicketGroupRow[] = [
   { id: "blank", label: "Blank", ticket: 42, liftVsBlank: 0, captureMomPct: -3.1 },
 ];
 
-
-
 const formatSignedCurrency = (value: number) => {
   if (!value) return "$0";
   const sign = value > 0 ? "+" : "";
@@ -110,113 +97,6 @@ const formatSignedPercent = (value: number) => {
   if (!value) return "0.0%";
   const sign = value > 0 ? "+" : "";
   return `${sign}${value.toFixed(1)}%`;
-};
-
-const MAIL_CAPTURE_ROWS: CaptureByLocationRow[] = [
-  { id: "vallejo", name: "Vallejo, CA", capturePct: 75, captureMomPct: 2.1, blankPct: 25, blankMomPct: -1.5, enrichedPct: 12.3 },
-  { id: "napa", name: "Napa, CA", capturePct: 67, captureMomPct: -0.5, blankPct: 33, blankMomPct: 0.3, enrichedPct: 8.7 },
-  { id: "fairfield", name: "Fairfield, CA", capturePct: 76, captureMomPct: 4.8, blankPct: 24, blankMomPct: -2.1, enrichedPct: 15.2 },
-];
-
-const EMAIL_CAPTURE_ROWS: CaptureByLocationRow[] = [
-  { id: "vallejo", name: "Vallejo, CA", capturePct: 70, captureMomPct: 0.8, blankPct: 30, blankMomPct: -0.8, enrichedPct: 4.1 },
-  { id: "napa", name: "Napa, CA", capturePct: 65, captureMomPct: 1.4, blankPct: 35, blankMomPct: -1.4, enrichedPct: 6.2 },
-  { id: "fairfield", name: "Fairfield, CA", capturePct: 74, captureMomPct: -0.2, blankPct: 26, blankMomPct: 0.2, enrichedPct: 3.8 },
-];
-
-// Multi-location detection (hardcoded for demo; wire to filter state)
-const isMultiLocation = MAIL_CAPTURE_ROWS.length > 1;
-
-/* Reusable Capture by Location Tile */
-type CaptureByLocationTileProps = {
-  title: string;
-  channelLabel: string;
-  rows: CaptureByLocationRow[];
-};
-
-const CaptureByLocationTile: React.FC<CaptureByLocationTileProps> = ({
-  title,
-  channelLabel,
-  rows,
-}) => {
-  const lower = channelLabel.toLowerCase();
-
-  return (
-    <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-      <header>
-        <div className="text-[13px] font-semibold text-slate-900">{title}</div>
-        <div className="text-[11px] text-slate-500">
-          {channelLabel} capture mix, blanks and MoM trends by store. Data enrichment shows % of {lower} addresses corrected or updated by Throttle.
-        </div>
-      </header>
-
-      <div className="mt-3 overflow-x-auto">
-        {/* Two-column table: Store + right-aligned metrics block */}
-        <table className="min-w-full text-[11px]">
-          <thead className="border-b border-slate-100 text-slate-500">
-            <tr>
-              <th className="py-2 pr-3 text-left font-medium">Store</th>
-              <th className="py-2 pl-3 pr-1 text-right font-medium">
-                <div className="flex justify-end gap-6">
-                  <div className="w-16 text-right">{channelLabel} capture</div>
-                  <div className="w-24 text-right">No {lower} (blank)</div>
-                  <div className="w-24 text-right">Data enrichment</div>
-                </div>
-              </th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-slate-100">
-            {rows.map((row) => (
-              <tr key={row.id}>
-                {/* Store */}
-                <td className="py-2 pr-3 text-slate-800 whitespace-nowrap">{row.name}</td>
-
-                {/* Metrics block: three tight right-aligned columns */}
-                <td className="py-2 pl-3 pr-1 text-right">
-                  <div className="flex justify-end gap-6 text-right">
-                    {/* Capture % + MoM */}
-                    <div className="w-16 whitespace-nowrap">
-                      <div className="font-medium text-slate-900">{row.capturePct.toFixed(0)}%</div>
-                      <div className={
-                        row.captureMomPct > 0
-                          ? "text-emerald-600 font-semibold"
-                          : row.captureMomPct < 0
-                          ? "text-red-500 font-semibold"
-                          : "text-slate-500"
-                      }>
-                        MoM {formatSignedPercent(row.captureMomPct)}
-                      </div>
-                    </div>
-
-                    {/* Blank % + MoM (up = red, down = green) */}
-                    <div className="w-24 whitespace-nowrap">
-                      <div className="font-medium text-slate-900">{row.blankPct.toFixed(0)}%</div>
-                      <div className={
-                        row.blankMomPct > 0
-                          ? "text-red-500 font-semibold"
-                          : row.blankMomPct < 0
-                          ? "text-emerald-600 font-semibold"
-                          : "text-slate-500"
-                      }>
-                        MoM {formatSignedPercent(row.blankMomPct)}
-                      </div>
-                    </div>
-
-                    {/* Data enrichment */}
-                    <div className="w-24 whitespace-nowrap">
-                      <div className="font-medium text-slate-900">{row.enrichedPct.toFixed(1)}%</div>
-                      <div className="text-slate-500">Corrected by Throttle</div>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
 };
 
 /* ------------------------------------------------------------------ */
@@ -364,7 +244,7 @@ const DataCaptureLtvPage: React.FC = () => {
 
       {/* Main layout */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* Left content: KPIs + charts + table */}
+        {/* Left content: KPIs + charts */}
         <div className="lg:col-span-3 space-y-4">
           {/* KPI row - draggable */}
           {selectedIds.length > 0 && (
@@ -430,11 +310,9 @@ const DataCaptureLtvPage: React.FC = () => {
               <div className="text-[13px] font-semibold text-slate-900">
                 Avg Invoice by Communication Channel
               </div>
-              {isMultiLocation && (
-                <div className="text-[11px] text-slate-500">
-                  All locations combined
-                </div>
-              )}
+              <div className="text-[11px] text-slate-500">
+                All locations combined
+              </div>
             </header>
 
             {/* Column headers for the three right-side metrics */}
@@ -490,20 +368,6 @@ const DataCaptureLtvPage: React.FC = () => {
               })}
             </div>
           </section>
-
-          {/* Mail capture by location */}
-          <CaptureByLocationTile
-            title="Mail capture by location"
-            channelLabel="Mail"
-            rows={MAIL_CAPTURE_ROWS}
-          />
-
-          {/* Email capture by location */}
-          <CaptureByLocationTile
-            title="Email capture by location"
-            channelLabel="Email"
-            rows={EMAIL_CAPTURE_ROWS}
-          />
 
           {/* AI insights (mobile) - after main content */}
           <div className="block lg:hidden">
