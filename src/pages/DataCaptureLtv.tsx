@@ -49,9 +49,15 @@ type StoreRow = {
   emailOnlyPct: number;
   mailAndEmailPct: number;
   blankPct: number;
-  multiChannelPct: number;
-  ticketMulti: number;
-  ticketBlank: number;
+};
+
+type CaptureTrendRow = {
+  id: string;
+  label: string;
+  currentSharePct: number;
+  previousSharePct: number;
+  currentAvgInvoice: number;
+  previousAvgInvoice: number;
 };
 
 const CAPTURE_SUMMARY: CaptureSummary = {
@@ -101,40 +107,23 @@ const TICKET_GROUPS: TicketGroupRow[] = [
   { id: "blank", label: "Blank", ticket: 42 },
 ];
 
+const CAPTURE_TREND: CaptureTrendRow[] = [
+  { id: "mail-only", label: "Mail only", currentSharePct: 23.0, previousSharePct: 24.5, currentAvgInvoice: 88, previousAvgInvoice: 85 },
+  { id: "email-only", label: "Email only", currentSharePct: 17.0, previousSharePct: 15.2, currentAvgInvoice: 90, previousAvgInvoice: 87 },
+  { id: "mail-email", label: "Mail & email", currentSharePct: 49.0, previousSharePct: 46.1, currentAvgInvoice: 98, previousAvgInvoice: 94 },
+  { id: "blank", label: "Blank", currentSharePct: 11.0, previousSharePct: 14.2, currentAvgInvoice: 42, previousAvgInvoice: 44 },
+];
+
+const formatDelta = (value: number, suffix: string) => {
+  if (!value) return `0${suffix}`;
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(1)}${suffix}`;
+};
+
 const STORES: StoreRow[] = [
-  {
-    store: "Vallejo, CA",
-    customers: 1850,
-    mailOnlyPct: 17,
-    emailOnlyPct: 12,
-    mailAndEmailPct: 58,
-    blankPct: 13,
-    multiChannelPct: 58,
-    ticketMulti: 99,
-    ticketBlank: 41,
-  },
-  {
-    store: "Napa, CA",
-    customers: 1420,
-    mailOnlyPct: 21,
-    emailOnlyPct: 19,
-    mailAndEmailPct: 46,
-    blankPct: 14,
-    multiChannelPct: 46,
-    ticketMulti: 94,
-    ticketBlank: 43,
-  },
-  {
-    store: "Fairfield, CA",
-    customers: 1310,
-    mailOnlyPct: 13,
-    emailOnlyPct: 11,
-    mailAndEmailPct: 63,
-    blankPct: 13,
-    multiChannelPct: 63,
-    ticketMulti: 101,
-    ticketBlank: 40,
-  },
+  { store: "Vallejo, CA", customers: 1850, mailOnlyPct: 17, emailOnlyPct: 12, mailAndEmailPct: 58, blankPct: 13 },
+  { store: "Napa, CA", customers: 1420, mailOnlyPct: 21, emailOnlyPct: 19, mailAndEmailPct: 46, blankPct: 14 },
+  { store: "Fairfield, CA", customers: 1310, mailOnlyPct: 13, emailOnlyPct: 11, mailAndEmailPct: 63, blankPct: 13 },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -347,20 +336,18 @@ const DataCaptureLtvPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Ticket average by capture group */}
+          {/* Avg Invoice by capture group */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <header className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-[13px] font-semibold text-slate-900">
-                  Ticket average by capture group
+                  Avg Invoice by capture group
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  Relative ticket value by mail/email capture.
+                  Avg Invoice by mail/email capture group.
                 </div>
               </div>
-              <div className="text-[11px] text-slate-500">
-                Relative ticket value
-              </div>
+              <div className="text-[11px] text-slate-500">Avg Invoice</div>
             </header>
 
             <div className="mt-3 space-y-3">
@@ -393,16 +380,113 @@ const DataCaptureLtvPage: React.FC = () => {
             </div>
           </section>
 
+          {/* Capture + Avg Invoice trend */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <header className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[13px] font-semibold text-slate-900">
+                  Capture + Avg Invoice trend
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Current vs previous period, plus Avg Invoice lift vs blank.
+                </div>
+              </div>
+            </header>
+
+            <div className="mt-3 divide-y divide-slate-100 text-[11px]">
+              {CAPTURE_TREND.map((row) => {
+                const shareDelta = row.currentSharePct - row.previousSharePct;
+                const avgInvoiceDelta = row.currentAvgInvoice - row.previousAvgInvoice;
+
+                const blankRow = CAPTURE_TREND.find((r) => r.id === "blank");
+                const liftVsBlank =
+                  row.id === "blank" || !blankRow
+                    ? 0
+                    : row.currentAvgInvoice - blankRow.currentAvgInvoice;
+
+                return (
+                  <div
+                    key={row.id}
+                    className="flex items-center justify-between gap-4 py-3"
+                  >
+                    {/* LEFT: capture group label */}
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[12px] font-semibold text-slate-900">
+                        {row.label}
+                      </div>
+                    </div>
+
+                    {/* MIDDLE LEFT: Avg Invoice trend */}
+                    <div className="w-40 text-right">
+                      <div className="text-[13px] font-semibold text-slate-900">
+                        {row.currentAvgInvoice.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                          maximumFractionDigits: 0,
+                        })}
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-slate-500">
+                        Prev{" "}
+                        {row.previousAvgInvoice.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                          maximumFractionDigits: 0,
+                        })}{" "}
+                        · {formatDelta(avgInvoiceDelta, "")}
+                      </div>
+                    </div>
+
+                    {/* MIDDLE RIGHT: Share trend */}
+                    <div className="w-40 text-right">
+                      <div className="text-[13px] font-semibold text-slate-900">
+                        {row.currentSharePct.toFixed(1)}%
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-slate-500">
+                        Prev {row.previousSharePct.toFixed(1)}% ·{" "}
+                        {formatDelta(shareDelta, " pts")}
+                      </div>
+                    </div>
+
+                    {/* RIGHT: Lift vs blank */}
+                    <div className="w-40 text-right">
+                      <div
+                        className={
+                          row.id === "mail-email"
+                            ? "text-[13px] font-semibold text-emerald-600"
+                            : "text-[13px] font-semibold text-slate-900"
+                        }
+                      >
+                        {row.id === "blank"
+                          ? "$0"
+                          : liftVsBlank.toLocaleString("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                              maximumFractionDigits: 0,
+                              signDisplay: "always",
+                            })}
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-slate-500">
+                        Avg Invoice lift vs blank
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
           {/* Stores overview table */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Stores overview
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Data capture and ticket averages by store
-              </span>
-            </div>
+            <header className="flex items-center justify-between gap-3 mb-3">
+              <div>
+                <div className="text-[13px] font-semibold text-slate-900">
+                  Stores overview
+                </div>
+                <div className="text-[11px] text-slate-500">
+                  Data capture mix by store to guide coaching and goals.
+                </div>
+              </div>
+            </header>
 
             <div className="overflow-x-auto">
               <ReportTable>
@@ -414,9 +498,6 @@ const DataCaptureLtvPage: React.FC = () => {
                     <ReportTableHeaderCell label="Email only %" align="right" />
                     <ReportTableHeaderCell label="Mail & email %" align="right" />
                     <ReportTableHeaderCell label="Blank %" align="right" />
-                    <ReportTableHeaderCell label="Multi-channel %" align="right" />
-                    <ReportTableHeaderCell label="Ticket – multi" align="right" />
-                    <ReportTableHeaderCell label="Ticket – blank" align="right" />
                   </ReportTableRow>
                 </ReportTableHead>
                 <ReportTableBody>
@@ -428,9 +509,6 @@ const DataCaptureLtvPage: React.FC = () => {
                       <ReportTableCell align="right">{s.emailOnlyPct}%</ReportTableCell>
                       <ReportTableCell align="right">{s.mailAndEmailPct}%</ReportTableCell>
                       <ReportTableCell align="right">{s.blankPct}%</ReportTableCell>
-                      <ReportTableCell align="right">{s.multiChannelPct}%</ReportTableCell>
-                      <ReportTableCell align="right">${s.ticketMulti.toFixed(0)}</ReportTableCell>
-                      <ReportTableCell align="right">${s.ticketBlank.toFixed(0)}</ReportTableCell>
                     </ReportTableRow>
                   ))}
                 </ReportTableBody>
