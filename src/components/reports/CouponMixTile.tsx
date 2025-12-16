@@ -27,9 +27,14 @@ export const CouponMixTile: React.FC<Props> = ({ rows }) => {
     [rows]
   );
 
+  // Sort rows by contribution (highest to lowest)
+  const sortedRows = useMemo(() => {
+    return [...rows].sort((a, b) => b.redemptions - a.redemptions);
+  }, [rows]);
+
   const legendItems = useMemo(
     () =>
-      rows.map((row) => {
+      sortedRows.map((row) => {
         const share =
           totalRedemptions > 0
             ? ((row.redemptions / totalRedemptions) * 100).toFixed(1)
@@ -39,7 +44,7 @@ export const CouponMixTile: React.FC<Props> = ({ rows }) => {
           colorClass: getColor(row.code).dot,
         };
       }),
-    [rows, totalRedemptions]
+    [sortedRows, totalRedemptions]
   );
 
   if (!rows.length || totalRedemptions <= 0) return null;
@@ -59,7 +64,7 @@ export const CouponMixTile: React.FC<Props> = ({ rows }) => {
 
       {/* Segmented bar */}
       <div className="mt-4 flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
-        {rows.map((row) => {
+        {sortedRows.map((row) => {
           const share =
             totalRedemptions > 0
               ? (row.redemptions / totalRedemptions) * 100

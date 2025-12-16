@@ -22,6 +22,7 @@ export type CouponInvoiceRow = {
   discount: number;
   sales: number;
   channel: string;
+  isThrottle?: boolean;
 };
 
 type Props = {
@@ -112,6 +113,7 @@ export const CouponInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
           </h2>
           <p className="text-[11px] text-slate-500">
             Invoice-level view of discounted visits.
+            <span className="ml-1 text-amber-500">★</span> marks Throttle coupons or discounts.
           </p>
         </div>
         {rows.length > 3 && (
@@ -156,6 +158,9 @@ export const CouponInvoiceDetailTile: React.FC<Props> = ({ rows }) => {
                     row.couponCode
                   )}`}
                 >
+                  {row.isThrottle && (
+                    <span className="mr-1 text-[10px] leading-none text-amber-500">★</span>
+                  )}
                   {row.couponCode}
                 </span>
               </ReportTableCell>
