@@ -150,20 +150,13 @@ const CaptureByLocationTile: React.FC<CaptureByLocationTileProps> = ({
         </div>
       </header>
 
-      <div className="overflow-x-auto">
+      <div className="mt-3 overflow-x-auto">
         <table className="min-w-full text-[11px]">
-          <colgroup>
-            <col style={{ width: "20%" }} />
-            <col style={{ width: "26%" }} />
-            <col style={{ width: "26%" }} />
-            <col style={{ width: "28%" }} />
-          </colgroup>
-
           <thead className="border-b border-slate-100 text-slate-500">
             <tr>
-              <th className="py-2 text-left font-medium">Store</th>
-              <th className="py-2 text-right font-medium">{channelLabel} capture</th>
-              <th className="py-2 text-right font-medium">No {lower} (blank)</th>
+              <th className="py-2 pr-3 text-left font-medium">Store</th>
+              <th className="py-2 pr-3 text-right font-medium">{channelLabel} capture</th>
+              <th className="py-2 pr-3 text-right font-medium">No {lower} (blank)</th>
               <th className="py-2 text-right font-medium">Data enrichment</th>
             </tr>
           </thead>
@@ -171,9 +164,9 @@ const CaptureByLocationTile: React.FC<CaptureByLocationTileProps> = ({
           <tbody className="divide-y divide-slate-100">
             {rows.map((row) => (
               <tr key={row.id}>
-                <td className="py-2 text-left text-slate-800">{row.name}</td>
+                <td className="py-2 pr-3 text-slate-800 whitespace-nowrap">{row.name}</td>
 
-                <td className="py-2 text-right">
+                <td className="py-2 pr-3 text-right whitespace-nowrap">
                   <div className="font-medium text-slate-900">{row.capturePct.toFixed(0)}%</div>
                   <div className={
                     row.captureMomPct > 0
@@ -186,7 +179,7 @@ const CaptureByLocationTile: React.FC<CaptureByLocationTileProps> = ({
                   </div>
                 </td>
 
-                <td className="py-2 text-right">
+                <td className="py-2 pr-3 text-right whitespace-nowrap">
                   <div className="font-medium text-slate-900">{row.blankPct.toFixed(0)}%</div>
                   <div className={
                     row.blankMomPct > 0
@@ -199,7 +192,7 @@ const CaptureByLocationTile: React.FC<CaptureByLocationTileProps> = ({
                   </div>
                 </td>
 
-                <td className="py-2 text-right">
+                <td className="py-2 text-right whitespace-nowrap">
                   <div className="font-medium text-slate-900">{row.enrichedPct.toFixed(1)}%</div>
                   <div className="text-slate-500">Corrected by Throttle</div>
                 </td>
