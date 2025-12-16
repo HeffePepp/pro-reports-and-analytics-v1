@@ -83,6 +83,21 @@ const TICKET_GROUPS: TicketGroupRow[] = [
   { id: "blank", label: "Blank", ticket: 42, liftVsBlank: 0, captureMomPct: -3.1 },
 ];
 
+type ChannelLtvRow = {
+  id: string;
+  label: string;
+  lifetimeValue: number;
+  lifetimeVisits: number;
+  ltvLiftVsBlank: number;
+};
+
+const LIFETIME_BY_CHANNEL: ChannelLtvRow[] = [
+  { id: "mail-only", label: "Mail only", lifetimeValue: 412, lifetimeVisits: 4.7, ltvLiftVsBlank: 254 },
+  { id: "email-only", label: "Email only", lifetimeValue: 438, lifetimeVisits: 4.9, ltvLiftVsBlank: 280 },
+  { id: "mail-email", label: "Mail & email", lifetimeValue: 586, lifetimeVisits: 6.0, ltvLiftVsBlank: 428 },
+  { id: "blank", label: "Blank", lifetimeValue: 158, lifetimeVisits: 3.8, ltvLiftVsBlank: 0 },
+];
+
 const formatSignedCurrency = (value: number) => {
   if (!value) return "$0";
   const sign = value > 0 ? "+" : "";
@@ -366,6 +381,79 @@ const DataCaptureLtvPage: React.FC = () => {
                   </div>
                 );
               })}
+            </div>
+          </section>
+
+          {/* Lifetime value by Communication Channel */}
+          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+            <header>
+              <div className="text-[13px] font-semibold text-slate-900">
+                Lifetime value by Communication Channel
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Avg lifetime value per customer by mail / email capture group, plus lift vs blank.
+              </div>
+            </header>
+
+            {/* Column headers */}
+            <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
+              <div className="w-20 text-right">LTV / customer</div>
+              <div className="w-14 text-right">Lifetime visits</div>
+              <div className="w-24 text-right">LTV lift vs blank</div>
+            </div>
+
+            <div className="mt-1 space-y-3">
+              {(() => {
+                const maxLtv = Math.max(...LIFETIME_BY_CHANNEL.map((r) => r.lifetimeValue || 0));
+                return LIFETIME_BY_CHANNEL.map((row) => {
+                  const color = CAPTURE_GROUP_COLORS[row.id] ?? CAPTURE_GROUP_COLORS.blank;
+                  const widthPct = maxLtv > 0 ? (row.lifetimeValue / maxLtv) * 100 : 0;
+                  return (
+                    <div key={row.id} className="flex items-center gap-3 text-[11px]">
+                      {/* Label */}
+                      <div className="w-28 text-slate-700">{row.label}</div>
+
+                      {/* Bar */}
+                      <div className="flex-1">
+                        <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className={`h-full ${color.bar}`}
+                            style={{ width: `${widthPct}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Right: numeric columns */}
+                      <div className="flex gap-6 pr-1 text-right">
+                        {/* LTV / customer */}
+                        <div className="w-20 text-slate-900">
+                          {row.lifetimeValue.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            maximumFractionDigits: 0,
+                          })}
+                        </div>
+
+                        {/* Lifetime visits */}
+                        <div className="w-14 text-slate-900">
+                          {row.lifetimeVisits.toFixed(1)}
+                        </div>
+
+                        {/* LTV lift vs blank */}
+                        <div
+                          className={
+                            row.id === "mail-email"
+                              ? "w-24 font-semibold text-emerald-600"
+                              : "w-24 text-slate-900"
+                          }
+                        >
+                          {row.id === "blank" ? "$0" : formatSignedCurrency(row.ltvLiftVsBlank)}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </section>
 
