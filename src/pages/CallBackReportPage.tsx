@@ -460,7 +460,7 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
             />
             {/* Quick note buttons */}
             <div className="flex flex-wrap gap-2 mt-2">
-              {["Successful call", "No answer", "Left VM", "Not interested"].map((label) => (
+              {["Scheduled appointment", "No answer", "Left VM", "Not interested"].map((label) => (
                 <button
                   key={label}
                   type="button"
