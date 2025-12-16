@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, CustomerBaseTile, DraggableKpiRow } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
+import { CaptureByLocationTile, CaptureByLocationRow } from "@/components/layout/CaptureByLocationTile";
 
 type CustomerDataSummary = {
   customers: number;
@@ -8,13 +9,6 @@ type CustomerDataSummary = {
   avgVehiclesPerCustomer: number;
   reachableEmailPct: number;
   reachableMailPct: number;
-};
-
-type CustomerStoreRow = {
-  storeName: string;
-  customers: number;
-  vehicles: number;
-  reachableEmailPct: number;
 };
 
 const customerDataSummary: CustomerDataSummary = {
@@ -25,31 +19,16 @@ const customerDataSummary: CustomerDataSummary = {
   reachableMailPct: 86,
 };
 
-const customerStoreRows: CustomerStoreRow[] = [
-  {
-    storeName: "Vallejo, CA",
-    customers: 5200,
-    vehicles: 7000,
-    reachableEmailPct: 79,
-  },
-  {
-    storeName: "Napa, CA",
-    customers: 4200,
-    vehicles: 5600,
-    reachableEmailPct: 81,
-  },
-  {
-    storeName: "Fairfield, CA",
-    customers: 3100,
-    vehicles: 4080,
-    reachableEmailPct: 74,
-  },
-  {
-    storeName: "Vacaville, CA",
-    customers: 4000,
-    vehicles: 5420,
-    reachableEmailPct: 80,
-  },
+const MAIL_CAPTURE_ROWS: CaptureByLocationRow[] = [
+  { id: "vallejo", name: "Vallejo, CA", capturePct: 75, captureMomPct: 2.1, blankPct: 25, blankMomPct: -1.5, enrichedPct: 12.3 },
+  { id: "napa", name: "Napa, CA", capturePct: 67, captureMomPct: -0.5, blankPct: 33, blankMomPct: 0.3, enrichedPct: 8.7 },
+  { id: "fairfield", name: "Fairfield, CA", capturePct: 76, captureMomPct: 4.8, blankPct: 24, blankMomPct: -2.1, enrichedPct: 15.2 },
+];
+
+const EMAIL_CAPTURE_ROWS: CaptureByLocationRow[] = [
+  { id: "vallejo", name: "Vallejo, CA", capturePct: 70, captureMomPct: 0.8, blankPct: 30, blankMomPct: -0.8, enrichedPct: 4.1 },
+  { id: "napa", name: "Napa, CA", capturePct: 65, captureMomPct: 1.4, blankPct: 35, blankMomPct: -1.4, enrichedPct: 6.2 },
+  { id: "fairfield", name: "Fairfield, CA", capturePct: 74, captureMomPct: -0.2, blankPct: 26, blankMomPct: 0.2, enrichedPct: 3.8 },
 ];
 
 const KPI_OPTIONS: KpiOption[] = [
@@ -87,14 +66,14 @@ const CustomerDataPage: React.FC = () => {
   };
 
   const regenerateInsights = () => {
-    const worstEmailStore = customerStoreRows.reduce((worst, r) =>
-      !worst || r.reachableEmailPct < worst.reachableEmailPct ? r : worst
+    const worstEmailStore = EMAIL_CAPTURE_ROWS.reduce((worst, r) =>
+      !worst || r.capturePct < worst.capturePct ? r : worst
     );
     setInsights([
       `Average vehicles per customer is ${customerDataSummary.avgVehiclesPerCustomer.toFixed(
         2
       )}, which is strong for quick lube.`,
-      `"${worstEmailStore.storeName}" has the weakest email capture (${worstEmailStore.reachableEmailPct.toFixed(
+      `"${worstEmailStore.name}" has the weakest email capture (${worstEmailStore.capturePct.toFixed(
         1
       )}%), making it a focus for data capture improvements.`,
       "Use this report with Valid Email Capture and Valid Address Report to prioritize data cleanup projects.",
@@ -155,7 +134,19 @@ const CustomerDataPage: React.FC = () => {
             />
           )}
 
-          <CustomerBaseTile />
+          {/* Mail capture by location */}
+          <CaptureByLocationTile
+            title="Mail capture by location"
+            channelLabel="Mail"
+            rows={MAIL_CAPTURE_ROWS}
+          />
+
+          {/* Email capture by location */}
+          <CaptureByLocationTile
+            title="Email capture by location"
+            channelLabel="Email"
+            rows={EMAIL_CAPTURE_ROWS}
+          />
 
           {/* AI Insights – stacked here on small/medium screens - after main content */}
           <div className="block lg:hidden">
