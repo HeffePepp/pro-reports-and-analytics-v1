@@ -10,6 +10,8 @@ import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { parseChannels, CHANNEL_LABELS } from "@/styles/channelColors";
 import { JourneyTouchpointMixTile } from "@/components/reports/JourneyTouchpointMixTile";
 import { ShareReportModal, ShareReportButton } from "@/components/layout/ShareReportModal";
+type ChannelType = "postcard" | "email" | "text";
+
 type JourneyTouchPoint = {
   id: number;
   name: string;
@@ -19,16 +21,124 @@ type JourneyTouchPoint = {
   roas: number;
   sends: number;
   revenue: number;
+  daysSinceLastSend?: number; // For response maturity calculation
   // Per-channel breakdowns for multi-channel touch points
   channelBreakdown?: {
-    channel: "postcard" | "email" | "text";
+    channel: ChannelType;
     sends: number;
     opened: number;
     responses: number;
     respPct: number;
     roas: number;
     revenue: number;
+    daysSinceLastSend?: number;
   }[];
+};
+
+// Response maturity types and helpers
+type ResponseMaturityLevel = "early" | "maturing" | "mature" | "unknown";
+
+type ResponseMaturityInfo = {
+  level: ResponseMaturityLevel;
+  label: string;
+  ratio: number | null;
+  windowDays: number | null;
+  daysSince: number | null;
+};
+
+const RESPONSE_WINDOWS: Record<ChannelType, number> = {
+  postcard: 60,
+  email: 10,
+  text: 10,
+};
+
+const getResponseMaturity = (
+  channel: ChannelType,
+  daysSinceLastSend: number | null | undefined
+): ResponseMaturityInfo => {
+  const windowDays = RESPONSE_WINDOWS[channel];
+  if (!windowDays || daysSinceLastSend == null) {
+    return {
+      level: "unknown",
+      label: "Unknown",
+      ratio: null,
+      windowDays: null,
+      daysSince: null,
+    };
+  }
+
+  const clampedDays = Math.max(0, daysSinceLastSend);
+  const ratio = Math.min(1, clampedDays / windowDays);
+
+  let level: ResponseMaturityLevel;
+  let label: string;
+
+  if (ratio < 0.33) {
+    level = "early";
+    label = "Early";
+  } else if (ratio < 0.75) {
+    level = "maturing";
+    label = "Maturing";
+  } else {
+    level = "mature";
+    label = "Mature";
+  }
+
+  return { level, label, ratio, windowDays, daysSince: clampedDays };
+};
+
+// Response Maturity Pill component
+const ResponseMaturityPill: React.FC<{ info: ResponseMaturityInfo; channel: ChannelType }> = ({
+  info,
+  channel,
+}) => {
+  if (info.level === "unknown") return null;
+
+  const base =
+    "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium";
+
+  let colorClasses = "";
+  let dotClasses = "";
+
+  switch (info.level) {
+    case "early":
+      colorClasses = "bg-amber-50 border-amber-100 text-amber-700";
+      dotClasses = "bg-amber-400";
+      break;
+    case "maturing":
+      colorClasses = "bg-sky-50 border-sky-100 text-sky-700";
+      dotClasses = "bg-sky-400";
+      break;
+    case "mature":
+      colorClasses = "bg-emerald-50 border-emerald-100 text-emerald-700";
+      dotClasses = "bg-emerald-400";
+      break;
+  }
+
+  const channelLabel =
+    channel === "postcard" ? "postcard" : channel === "email" ? "email" : "text";
+  const ratioPct = info.ratio != null ? Math.round(info.ratio * 100) : null;
+
+  const tooltipText =
+    info.windowDays && info.daysSince != null
+      ? `Throttle uses a ${info.windowDays}-day response window for ${channelLabel} touch points. This touch point is ${info.label.toLowerCase()} (${info.daysSince} days since last send, about ${
+          ratioPct ?? "?"
+        }% of the window). Response % may continue to change until the window is complete.`
+      : "Response maturity shows how far we are into Throttle's standard response window.";
+
+  return (
+    <div className="group relative inline-flex">
+      <div className={`${base} ${colorClasses}`}>
+        <span className={`h-1.5 w-1.5 rounded-full ${dotClasses}`} />
+        <span>{info.label}</span>
+      </div>
+
+      {/* Tooltip */}
+      <div className="pointer-events-none absolute right-0 top-full z-20 mt-1 hidden w-64 rounded-md bg-slate-900 px-2 py-1.5 text-[10px] leading-snug text-white shadow-lg group-hover:block">
+        {tooltipText}
+      </div>
+    </div>
+  );
 };
 
 const journeySummary = {
@@ -56,6 +166,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 9.5,
     sends: 1850,
     revenue: 22400,
+    daysSinceLastSend: 3,
   },
   {
     id: 2,
@@ -66,6 +177,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 9.5,
     sends: 1850,
     revenue: 22400,
+    daysSinceLastSend: 3,
   },
   {
     id: 3,
@@ -76,6 +188,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 12.1,
     sends: 1760,
     revenue: 21300,
+    daysSinceLastSend: 7,
   },
   {
     id: 4,
@@ -86,6 +199,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 10.3,
     sends: 900,
     revenue: 9270,
+    daysSinceLastSend: 12,
   },
   {
     id: 5,
@@ -96,6 +210,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 11.2,
     sends: 1640,
     revenue: 18400,
+    daysSinceLastSend: 15,
   },
   {
     id: 6,
@@ -106,6 +221,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 10.9,
     sends: 1520,
     revenue: 16600,
+    daysSinceLastSend: 14,
   },
   {
     id: 7,
@@ -116,6 +232,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 10.8,
     sends: 1380,
     revenue: 14900,
+    daysSinceLastSend: 11,
   },
   {
     id: 8,
@@ -126,6 +243,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 7.8,
     sends: 4200,
     revenue: 32800,
+    daysSinceLastSend: 5,
   },
   {
     id: 9,
@@ -137,9 +255,9 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     sends: 1380,
     revenue: 22600,
     channelBreakdown: [
-      { channel: "postcard", sends: 460, opened: 0, responses: 112, respPct: 24.3, roas: 18.2, revenue: 8380 },
-      { channel: "email", sends: 460, opened: 184, responses: 89, respPct: 19.3, roas: 15.1, revenue: 6950 },
-      { channel: "text", sends: 460, opened: 437, responses: 79, respPct: 17.2, roas: 15.8, revenue: 7270 },
+      { channel: "postcard", sends: 460, opened: 0, responses: 112, respPct: 24.3, roas: 18.2, revenue: 8380, daysSinceLastSend: 45 },
+      { channel: "email", sends: 460, opened: 184, responses: 89, respPct: 19.3, roas: 15.1, revenue: 6950, daysSinceLastSend: 8 },
+      { channel: "text", sends: 460, opened: 437, responses: 79, respPct: 17.2, roas: 15.8, revenue: 7270, daysSinceLastSend: 6 },
     ],
   },
   {
@@ -152,9 +270,9 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     sends: 980,
     revenue: 10500,
     channelBreakdown: [
-      { channel: "postcard", sends: 327, opened: 0, responses: 52, respPct: 15.9, roas: 11.4, revenue: 3730 },
-      { channel: "email", sends: 327, opened: 124, responses: 44, respPct: 13.5, roas: 10.2, revenue: 3340 },
-      { channel: "text", sends: 326, opened: 306, responses: 46, respPct: 14.1, roas: 10.5, revenue: 3430 },
+      { channel: "postcard", sends: 327, opened: 0, responses: 52, respPct: 15.9, roas: 11.4, revenue: 3730, daysSinceLastSend: 72 },
+      { channel: "email", sends: 327, opened: 124, responses: 44, respPct: 13.5, roas: 10.2, revenue: 3340, daysSinceLastSend: 12 },
+      { channel: "text", sends: 326, opened: 306, responses: 46, respPct: 14.1, roas: 10.5, revenue: 3430, daysSinceLastSend: 11 },
     ],
   },
   {
@@ -167,9 +285,9 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     sends: 860,
     revenue: 8400,
     channelBreakdown: [
-      { channel: "postcard", sends: 287, opened: 0, responses: 43, respPct: 15.0, roas: 10.2, revenue: 2930 },
-      { channel: "email", sends: 287, opened: 103, responses: 38, respPct: 13.2, roas: 9.5, revenue: 2730 },
-      { channel: "text", sends: 286, opened: 269, responses: 39, respPct: 13.6, roas: 9.6, revenue: 2740 },
+      { channel: "postcard", sends: 287, opened: 0, responses: 43, respPct: 15.0, roas: 10.2, revenue: 2930, daysSinceLastSend: 65 },
+      { channel: "email", sends: 287, opened: 103, responses: 38, respPct: 13.2, roas: 9.5, revenue: 2730, daysSinceLastSend: 14 },
+      { channel: "text", sends: 286, opened: 269, responses: 39, respPct: 13.6, roas: 9.6, revenue: 2740, daysSinceLastSend: 12 },
     ],
   },
   {
@@ -182,9 +300,9 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     sends: 740,
     revenue: 6950,
     channelBreakdown: [
-      { channel: "postcard", sends: 247, opened: 0, responses: 38, respPct: 15.4, roas: 9.8, revenue: 2420 },
-      { channel: "email", sends: 247, opened: 89, responses: 34, respPct: 13.8, roas: 9.1, revenue: 2250 },
-      { channel: "text", sends: 246, opened: 231, responses: 33, respPct: 13.4, roas: 9.3, revenue: 2280 },
+      { channel: "postcard", sends: 247, opened: 0, responses: 38, respPct: 15.4, roas: 9.8, revenue: 2420, daysSinceLastSend: 58 },
+      { channel: "email", sends: 247, opened: 89, responses: 34, respPct: 13.8, roas: 9.1, revenue: 2250, daysSinceLastSend: 10 },
+      { channel: "text", sends: 246, opened: 231, responses: 33, respPct: 13.4, roas: 9.3, revenue: 2280, daysSinceLastSend: 9 },
     ],
   },
   {
@@ -196,6 +314,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 8.2,
     sends: 620,
     revenue: 5100,
+    daysSinceLastSend: 18,
   },
   {
     id: 14,
@@ -206,6 +325,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 7.5,
     sends: 480,
     revenue: 3600,
+    daysSinceLastSend: 16,
   },
   {
     id: 15,
@@ -216,6 +336,7 @@ const TOUCH_POINTS: JourneyTouchPoint[] = [
     roas: 7.1,
     sends: 360,
     revenue: 2560,
+    daysSinceLastSend: 13,
   },
 ];
 
@@ -254,7 +375,7 @@ const CustomerJourneyPage: React.FC = () => {
     tpId: number;
     tpName: string;
     offsetLabel: string;
-    channel: "postcard" | "email" | "text";
+    channel: ChannelType;
     sends: number;
     opened: number;
     responses: number;
@@ -263,6 +384,7 @@ const CustomerJourneyPage: React.FC = () => {
     revenue: number;
     isFirstInGroup: boolean;
     groupSize: number;
+    daysSinceLastSend?: number;
   };
 
   const detailRows = useMemo(() => {
@@ -283,6 +405,7 @@ const CustomerJourneyPage: React.FC = () => {
             revenue: cb.revenue,
             isFirstInGroup: idx === 0,
             groupSize: tp.channelBreakdown!.length,
+            daysSinceLastSend: cb.daysSinceLastSend,
           });
         });
       } else {
@@ -298,7 +421,7 @@ const CustomerJourneyPage: React.FC = () => {
           tpId: tp.id,
           tpName: tp.name,
           offsetLabel: tp.offsetLabel,
-          channel: channelKey as "postcard" | "email" | "text",
+          channel: channelKey as ChannelType,
           sends: tp.sends,
           opened,
           responses,
@@ -307,6 +430,7 @@ const CustomerJourneyPage: React.FC = () => {
           revenue: tp.revenue,
           isFirstInGroup: true,
           groupSize: 1,
+          daysSinceLastSend: tp.daysSinceLastSend,
         });
       }
     });
@@ -501,6 +625,12 @@ const CustomerJourneyPage: React.FC = () => {
           {/* Touchpoint mix tile */}
           <JourneyTouchpointMixTile items={touchpointMixItems} />
 
+          {/* Response maturity note */}
+          <p className="text-[11px] text-slate-500">
+            Response maturity is based on Throttle standard windows: 60 days for
+            postcards and 10 days for email and text.
+          </p>
+
           {/* Touch point ghost pills */}
           <div className="space-y-4">
             {(() => {
@@ -638,9 +768,17 @@ const CustomerJourneyPage: React.FC = () => {
                               {row.responses.toLocaleString()}
                             </td>
 
-                            {/* Resp % */}
-                            <td className="py-2 px-2 text-right text-xs font-semibold text-emerald-600 whitespace-nowrap">
-                              {row.respPct.toFixed(1)}%
+                            {/* Resp % with maturity pill */}
+                            <td className="py-2 px-2 text-right align-middle whitespace-nowrap">
+                              <div className="text-xs font-semibold text-emerald-600">
+                                {row.respPct.toFixed(1)}%
+                              </div>
+                              <div className="mt-0.5 flex justify-end">
+                                <ResponseMaturityPill
+                                  channel={row.channel}
+                                  info={getResponseMaturity(row.channel, row.daysSinceLastSend)}
+                                />
+                              </div>
                             </td>
 
                             {/* ROAS */}
