@@ -38,11 +38,14 @@ type TicketGroupRow = {
 
 type StoreRow = {
   store: string;
-  customers: number;
   mailOnlyPct: number;
+  mailOnlyMomPct: number;
   emailOnlyPct: number;
+  emailOnlyMomPct: number;
   mailAndEmailPct: number;
+  mailAndEmailMomPct: number;
   blankPct: number;
+  blankMomPct: number;
 };
 
 
@@ -112,10 +115,13 @@ const formatSignedPercent = (value: number) => {
 };
 
 const STORES: StoreRow[] = [
-  { store: "Vallejo, CA", customers: 1850, mailOnlyPct: 17, emailOnlyPct: 12, mailAndEmailPct: 58, blankPct: 13 },
-  { store: "Napa, CA", customers: 1420, mailOnlyPct: 21, emailOnlyPct: 19, mailAndEmailPct: 46, blankPct: 14 },
-  { store: "Fairfield, CA", customers: 1310, mailOnlyPct: 13, emailOnlyPct: 11, mailAndEmailPct: 63, blankPct: 13 },
+  { store: "Vallejo, CA", mailOnlyPct: 17, mailOnlyMomPct: 1.2, emailOnlyPct: 12, emailOnlyMomPct: 0.8, mailAndEmailPct: 58, mailAndEmailMomPct: 2.1, blankPct: 13, blankMomPct: -1.5 },
+  { store: "Napa, CA", mailOnlyPct: 21, mailOnlyMomPct: -0.5, emailOnlyPct: 19, emailOnlyMomPct: 1.4, mailAndEmailPct: 46, mailAndEmailMomPct: 3.2, blankPct: 14, blankMomPct: 0.3 },
+  { store: "Fairfield, CA", mailOnlyPct: 13, mailOnlyMomPct: 0.0, emailOnlyPct: 11, emailOnlyMomPct: -0.2, mailAndEmailPct: 63, mailAndEmailMomPct: 4.8, blankPct: 13, blankMomPct: -2.1 },
 ];
+
+// Multi-location detection (hardcoded for demo; wire to filter state)
+const isMultiLocation = STORES.length > 1;
 
 /* ------------------------------------------------------------------ */
 /* KPI customization                                                   */
@@ -328,13 +334,18 @@ const DataCaptureLtvPage: React.FC = () => {
               <div className="text-[13px] font-semibold text-slate-900">
                 Avg Invoice by Communication Channel
               </div>
+              {isMultiLocation && (
+                <div className="text-[11px] text-slate-500">
+                  All locations combined
+                </div>
+              )}
             </header>
 
             {/* Column headers for the three right-side metrics */}
             <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
               <div className="w-16 text-right">Avg Invoice</div>
               <div className="w-24 text-right">Avg lift vs blank</div>
-              <div className="w-24 text-right">Data capture MoM</div>
+              <div className="w-24 text-right">MoM Trend</div>
             </div>
 
             <div className="mt-1 space-y-3">
@@ -391,29 +402,72 @@ const DataCaptureLtvPage: React.FC = () => {
                 Data Capture by location
               </div>
               <div className="text-[11px] text-slate-500">
-                Data capture mix by store to guide coaching and goals.
+                Data capture mix and MoM trends by store to guide coaching and goals.
               </div>
             </header>
 
             <div className="overflow-x-auto">
               <table className="min-w-full table-fixed text-[11px]">
+                <colgroup>
+                  <col className="w-[18%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[10%]" />
+                </colgroup>
                 <thead className="border-b border-slate-100 text-slate-500">
                   <tr>
                     <th className="py-2 pr-3 text-left font-medium">Store</th>
-                    <th className="py-2 pr-3 text-right font-medium">Mail only %</th>
-                    <th className="py-2 pr-3 text-right font-medium">Email only %</th>
-                    <th className="py-2 pr-3 text-right font-medium">Mail &amp; email %</th>
-                    <th className="py-2 pl-3 text-right font-medium">Blank %</th>
+                    <th className="py-2 pr-2 text-right font-medium">Mail only %</th>
+                    <th className="py-2 pr-3 text-right font-medium">MoM Trend</th>
+                    <th className="py-2 pr-2 text-right font-medium">Email only %</th>
+                    <th className="py-2 pr-3 text-right font-medium">MoM Trend</th>
+                    <th className="py-2 pr-2 text-right font-medium">Mail &amp; email %</th>
+                    <th className="py-2 pr-3 text-right font-medium">MoM Trend</th>
+                    <th className="py-2 pr-2 text-right font-medium">Blank %</th>
+                    <th className="py-2 pl-1 text-right font-medium">MoM Trend</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {STORES.map((s) => (
                     <tr key={s.store}>
                       <td className="py-2 pr-3 text-slate-800">{s.store}</td>
-                      <td className="py-2 pr-3 text-right text-slate-900">{s.mailOnlyPct}%</td>
-                      <td className="py-2 pr-3 text-right text-slate-900">{s.emailOnlyPct}%</td>
-                      <td className="py-2 pr-3 text-right text-slate-900">{s.mailAndEmailPct}%</td>
-                      <td className="py-2 pl-3 text-right text-slate-900">{s.blankPct}%</td>
+                      <td className="py-2 pr-2 text-right text-slate-900">{s.mailOnlyPct}%</td>
+                      <td className={
+                        s.mailOnlyMomPct > 0
+                          ? "py-2 pr-3 text-right font-semibold text-emerald-600"
+                          : s.mailOnlyMomPct < 0
+                          ? "py-2 pr-3 text-right font-semibold text-red-500"
+                          : "py-2 pr-3 text-right text-slate-900"
+                      }>{formatSignedPercent(s.mailOnlyMomPct)}</td>
+                      <td className="py-2 pr-2 text-right text-slate-900">{s.emailOnlyPct}%</td>
+                      <td className={
+                        s.emailOnlyMomPct > 0
+                          ? "py-2 pr-3 text-right font-semibold text-emerald-600"
+                          : s.emailOnlyMomPct < 0
+                          ? "py-2 pr-3 text-right font-semibold text-red-500"
+                          : "py-2 pr-3 text-right text-slate-900"
+                      }>{formatSignedPercent(s.emailOnlyMomPct)}</td>
+                      <td className="py-2 pr-2 text-right text-slate-900">{s.mailAndEmailPct}%</td>
+                      <td className={
+                        s.mailAndEmailMomPct > 0
+                          ? "py-2 pr-3 text-right font-semibold text-emerald-600"
+                          : s.mailAndEmailMomPct < 0
+                          ? "py-2 pr-3 text-right font-semibold text-red-500"
+                          : "py-2 pr-3 text-right text-slate-900"
+                      }>{formatSignedPercent(s.mailAndEmailMomPct)}</td>
+                      <td className="py-2 pr-2 text-right text-slate-900">{s.blankPct}%</td>
+                      <td className={
+                        s.blankMomPct > 0
+                          ? "py-2 pl-1 text-right font-semibold text-red-500"
+                          : s.blankMomPct < 0
+                          ? "py-2 pl-1 text-right font-semibold text-emerald-600"
+                          : "py-2 pl-1 text-right text-slate-900"
+                      }>{formatSignedPercent(s.blankMomPct)}</td>
                     </tr>
                   ))}
                 </tbody>
