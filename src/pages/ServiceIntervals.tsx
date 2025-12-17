@@ -169,7 +169,7 @@ const ServiceIntervalsPage: React.FC = () => {
                     className={`rounded-2xl border border-slate-200 p-3 shadow-sm ${seg.kpiBgClass}`}
                   >
                     <div className="space-y-1">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+                      <div className="text-[11px] font-semibold tracking-wide text-slate-600">
                         {seg.kpiTitle}
                       </div>
                       <div className="text-[11px] text-slate-500">
