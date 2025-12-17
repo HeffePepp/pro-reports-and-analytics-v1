@@ -260,7 +260,7 @@ const DataCaptureLtvPage: React.FC = () => {
       {/* Main layout */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* Left content: KPIs + charts */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4 self-start">
           {/* KPI row - draggable */}
           {selectedIds.length > 0 && (
             <DraggableKpiRow

@@ -368,7 +368,7 @@ const RoasPage: React.FC = () => {
       {/* Main layout: left content + right AI tile */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT: all ROAS tiles, charts & table */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4 self-start">
           {/* KPI tiles - draggable */}
           {selectedIds.length > 0 && (
             <DraggableKpiRow
