@@ -85,74 +85,74 @@ const ValidAddressPage: React.FC = () => {
         </div>
       </div>
 
+      {/* KPIs - above the grid */}
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {/* Total addresses */}
+        <section className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="text-[11px] font-medium text-slate-600">
+            Total addresses
+          </div>
+          <div className="mt-2 text-2xl font-semibold text-slate-900">
+            {addressSummary.totalAddresses.toLocaleString()}
+          </div>
+        </section>
+
+        {/* Valid – pastel green */}
+        <section className="flex flex-col justify-between rounded-2xl border border-emerald-100 bg-emerald-50 p-4 shadow-sm">
+          <div className="text-[11px] font-medium text-slate-600">
+            Valid
+          </div>
+          <div className="mt-2 text-2xl font-semibold text-slate-900">
+            {addressSummary.validPct.toFixed(1)}%
+          </div>
+          <div className="mt-1 text-[11px] text-slate-600">
+            {addressSummary.validCount.toLocaleString()} addresses
+          </div>
+        </section>
+
+        {/* Bad – pastel yellow */}
+        <section className="flex flex-col justify-between rounded-2xl border border-amber-100 bg-amber-50 p-4 shadow-sm">
+          <div className="text-[11px] font-medium text-slate-600">
+            Bad
+          </div>
+          <div className="mt-2 text-2xl font-semibold text-slate-900">
+            {addressSummary.badPct.toFixed(1)}%
+          </div>
+          <div className="mt-1 text-[11px] text-slate-600">
+            {addressSummary.badCount.toLocaleString()} addresses
+          </div>
+        </section>
+
+        {/* Blank – pastel red */}
+        <section className="flex flex-col justify-between rounded-2xl border border-rose-100 bg-rose-50 p-4 shadow-sm">
+          <div className="text-[11px] font-medium text-slate-600">
+            Blank
+          </div>
+          <div className="mt-2 text-2xl font-semibold text-slate-900">
+            {addressSummary.blankPct.toFixed(1)}%
+          </div>
+          <div className="mt-1 text-[11px] text-slate-600">
+            {addressSummary.blankCount.toLocaleString()} addresses
+          </div>
+        </section>
+
+        {/* Average bad address rate */}
+        <section className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="text-[11px] font-medium text-slate-600">
+            Average bad address rate
+          </div>
+          <div className="mt-2 text-2xl font-semibold text-slate-900">
+            {addressSummary.avgBadRate.toFixed(1)}%
+          </div>
+          <div className="mt-1 text-[11px] text-slate-600">
+            Per store
+          </div>
+        </section>
+      </div>
+
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4 self-start">
-          {/* KPIs - plain sections with standard Tailwind colors */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {/* Total addresses */}
-            <section className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="text-[11px] font-medium text-slate-600">
-                Total addresses
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-slate-900">
-                {addressSummary.totalAddresses.toLocaleString()}
-              </div>
-            </section>
-
-            {/* Valid – pastel green */}
-            <section className="flex flex-col justify-between rounded-2xl border border-emerald-100 bg-emerald-50 p-4 shadow-sm">
-              <div className="text-[11px] font-medium text-slate-600">
-                Valid
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-slate-900">
-                {addressSummary.validPct.toFixed(1)}%
-              </div>
-              <div className="mt-1 text-[11px] text-slate-600">
-                {addressSummary.validCount.toLocaleString()} addresses
-              </div>
-            </section>
-
-            {/* Bad – pastel yellow */}
-            <section className="flex flex-col justify-between rounded-2xl border border-amber-100 bg-amber-50 p-4 shadow-sm">
-              <div className="text-[11px] font-medium text-slate-600">
-                Bad
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-slate-900">
-                {addressSummary.badPct.toFixed(1)}%
-              </div>
-              <div className="mt-1 text-[11px] text-slate-600">
-                {addressSummary.badCount.toLocaleString()} addresses
-              </div>
-            </section>
-
-            {/* Blank – pastel red */}
-            <section className="flex flex-col justify-between rounded-2xl border border-rose-100 bg-rose-50 p-4 shadow-sm">
-              <div className="text-[11px] font-medium text-slate-600">
-                Blank
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-slate-900">
-                {addressSummary.blankPct.toFixed(1)}%
-              </div>
-              <div className="mt-1 text-[11px] text-slate-600">
-                {addressSummary.blankCount.toLocaleString()} addresses
-              </div>
-            </section>
-
-            {/* Average bad address rate */}
-            <section className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="text-[11px] font-medium text-slate-600">
-                Average bad address rate
-              </div>
-              <div className="mt-2 text-2xl font-semibold text-slate-900">
-                {addressSummary.avgBadRate.toFixed(1)}%
-              </div>
-              <div className="mt-1 text-[11px] text-slate-600">
-                Per store
-              </div>
-            </section>
-          </div>
-
           {/* AI Insights – mobile: below KPIs, above main content */}
           <div className="block lg:hidden">
             <AIInsightsTile
