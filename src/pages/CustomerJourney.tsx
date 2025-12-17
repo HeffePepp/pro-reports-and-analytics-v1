@@ -639,6 +639,11 @@ const CustomerJourneyPage: React.FC = () => {
             />
           )}
 
+          {/* AI Insights – mobile: below KPIs, above main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile {...aiInsightsProps} />
+          </div>
+
           {/* Touchpoint mix tile */}
           <JourneyTouchpointMixTile items={touchpointMixItems} />
 
@@ -871,10 +876,6 @@ const CustomerJourneyPage: React.FC = () => {
             })()}
           </div>
 
-          {/* AI stacked on small screens - after main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile {...aiInsightsProps} />
-          </div>
         </div>
 
         {/* RIGHT: AI insights - top aligned with KPI tiles */}

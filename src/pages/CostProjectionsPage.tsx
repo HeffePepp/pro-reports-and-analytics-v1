@@ -166,6 +166,16 @@ const CostProjectionsPage: React.FC = () => {
             />
           )}
 
+          {/* AI Insights – mobile: below KPIs, above main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on cost projection data"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
+          </div>
+
           {/* Cost mix */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
             <div className="flex items-center justify-between gap-2">
@@ -208,16 +218,6 @@ const CostProjectionsPage: React.FC = () => {
               })}
             </div>
           </section>
-
-          {/* AI Insights – stacked here on small/medium screens - after main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on cost projection data"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
         </div>
 
         {/* RIGHT: AI Insights – only on large screens */}

@@ -134,6 +134,16 @@ const CustomerDataPage: React.FC = () => {
             />
           )}
 
+          {/* AI Insights – mobile: below KPIs, above main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on customer & contactability data"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
+          </div>
+
           {/* Mail capture by location */}
           <CaptureByLocationTile
             title="Mail capture by location"
@@ -147,16 +157,6 @@ const CustomerDataPage: React.FC = () => {
             channelLabel="Email"
             rows={EMAIL_CAPTURE_ROWS}
           />
-
-          {/* AI Insights – stacked here on small/medium screens - after main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on customer & contactability data"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
         </div>
 
         {/* RIGHT: AI Insights – only on large screens */}

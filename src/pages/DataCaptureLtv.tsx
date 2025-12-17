@@ -274,6 +274,16 @@ const DataCaptureLtvPage: React.FC = () => {
             />
           )}
 
+          {/* AI Insights – mobile: below KPIs, above main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on data capture & LTV"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
+          </div>
+
           {/* Customers by capture group */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <header>
@@ -456,16 +466,6 @@ const DataCaptureLtvPage: React.FC = () => {
               })()}
             </div>
           </section>
-
-          {/* AI insights (mobile) - after main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on data capture & LTV"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
         </div>
 
         {/* AI Insights – desktop */}

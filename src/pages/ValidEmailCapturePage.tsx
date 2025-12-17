@@ -167,6 +167,16 @@ const ValidEmailCapturePage: React.FC = () => {
             />
           )}
 
+          {/* AI Insights – mobile: below KPIs, above main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on email capture & deliverability"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
+          </div>
+
           {/* Capture rate by store */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -236,16 +246,6 @@ const ValidEmailCapturePage: React.FC = () => {
               </ReportTable>
             </div>
           </section>
-
-          {/* AI Insights – stacked here on small/medium screens - after main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on email capture & deliverability"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
         </div>
 
         {/* RIGHT: AI Insights – only on large screens */}

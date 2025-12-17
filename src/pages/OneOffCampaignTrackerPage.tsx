@@ -300,10 +300,7 @@ const OneOffCampaignTrackerPage: React.FC = () => {
             />
           )}
 
-          {/* Campaign details */}
-          <DetailsTable />
-
-          {/* AI stacked on small screens - after main content */}
+          {/* AI Insights – mobile: below KPIs, above main content */}
           <div className="block lg:hidden">
             <AIInsightsTile
               title="AI Insights"
@@ -315,6 +312,9 @@ const OneOffCampaignTrackerPage: React.FC = () => {
               ]}
             />
           </div>
+
+          {/* Campaign details */}
+          <DetailsTable />
         </div>
 
         <div className="hidden lg:block lg:col-span-1 self-start">

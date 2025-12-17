@@ -72,15 +72,16 @@ const OilTypeSalesPage: React.FC = () => {
             <OilTypeUsageKpis selectedIds={selectedIds} />
           )}
 
+          {/* AI Insights – mobile: below KPIs, above main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile title="AI Insights" subtitle="Based on oil mix & revenue" bullets={insights} onRefresh={regenerateInsights} />
+          </div>
+
           <OilTypeMixSection />
 
           <OilTypeRevenueDetailsTable />
 
           <OilTypeInvoiceDetailTile />
-
-          <div className="block lg:hidden">
-            <AIInsightsTile title="AI Insights" subtitle="Based on oil mix & revenue" bullets={insights} onRefresh={regenerateInsights} />
-          </div>
         </div>
 
         <div className="hidden lg:block lg:col-span-1 self-start">
