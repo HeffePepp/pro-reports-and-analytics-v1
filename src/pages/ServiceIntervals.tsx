@@ -179,7 +179,10 @@ const ServiceIntervalsPage: React.FC = () => {
                         {seg.customers.toLocaleString()}
                       </div>
                       <div className="text-[11px] text-slate-600">
-                        {share.toFixed(1)}% of customers · {seg.vehicles.toLocaleString()} vehicles
+                        {share.toFixed(1)}% of customers
+                      </div>
+                      <div className="text-[11px] text-slate-600">
+                        {seg.vehicles.toLocaleString()} vehicles
                       </div>
                     </div>
                   </div>
