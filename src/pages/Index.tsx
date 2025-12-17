@@ -101,7 +101,7 @@ const REPORTS: Report[] = [
   // --- Customers ---
   {
     id: "service-intervals",
-    name: "Service Intervals",
+    name: "Customer Loyalty Segmentation",
     primaryCategory: "customers",
     type: "chart",
     purpose: "Retention snapshot: current, at-risk and lost customers by time since last visit.",

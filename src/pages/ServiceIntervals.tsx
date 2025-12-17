@@ -131,7 +131,7 @@ const ServiceIntervalsPage: React.FC = () => {
       breadcrumb={[
         { label: "Home", to: "/" },
         { label: "Reports & Insights", to: "/" },
-        { label: "Service Intervals" },
+        { label: "Customer Loyalty Segmentation" },
       ]}
       rightInfo={
         <span>
@@ -141,7 +141,7 @@ const ServiceIntervalsPage: React.FC = () => {
     >
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Service Intervals</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Customer Loyalty Segmentation</h1>
           <p className="mt-1 text-sm text-slate-500">
             Snapshot of current, at-risk and lost customers by time since last service visit.
           </p>
