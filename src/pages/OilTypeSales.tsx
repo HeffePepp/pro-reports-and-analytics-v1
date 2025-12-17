@@ -65,13 +65,15 @@ const OilTypeSalesPage: React.FC = () => {
         />
       </div>
 
+      {/* KPI tiles - above the grid when present */}
+      {selectedIds.length > 0 && (
+        <div className="mt-4">
+          <OilTypeUsageKpis selectedIds={selectedIds} />
+        </div>
+      )}
+
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <div className="lg:col-span-3 space-y-4 self-start">
-          {/* Oil type KPI tiles */}
-          {selectedIds.length > 0 && (
-            <OilTypeUsageKpis selectedIds={selectedIds} />
-          )}
-
           {/* AI Insights – mobile: below KPIs, above main content */}
           <div className="block lg:hidden">
             <AIInsightsTile title="AI Insights" subtitle="Based on oil mix & revenue" bullets={insights} onRefresh={regenerateInsights} />

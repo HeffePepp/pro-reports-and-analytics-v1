@@ -162,22 +162,24 @@ const ComprehensiveAccountAuditPage: React.FC = () => {
         </div>
       </div>
 
+      {/* KPI tiles - above the grid when present */}
+      {selectedIds.length > 0 && (
+        <div className="mt-4">
+          <DraggableKpiRow
+            reportKey="comprehensive-account-audit"
+            tiles={selectedIds
+              .map((id) => {
+                const tile = renderKpiTile(id);
+                return tile ? { id, element: tile } : null;
+              })
+              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
+          />
+        </div>
+      )}
+
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
         <div className="lg:col-span-3 space-y-4 self-start">
-          {/* KPIs - draggable */}
-          {selectedIds.length > 0 && (
-            <DraggableKpiRow
-              reportKey="comprehensive-account-audit"
-              tiles={selectedIds
-                .map((id) => {
-                  const tile = renderKpiTile(id);
-                  return tile ? { id, element: tile } : null;
-                })
-                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-            />
-          )}
-
           {/* AI Insights – mobile: below KPIs, above main content */}
           <div className="block lg:hidden">
             <AIInsightsTile

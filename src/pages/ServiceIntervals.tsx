@@ -154,41 +154,41 @@ const ServiceIntervalsPage: React.FC = () => {
         />
       </div>
 
+      {/* KPI tiles - above the grid when present */}
+      {selectedIds.length > 0 && (
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+          {selectedIds.map((id) => {
+            const seg = LOYALTY_SEGMENTS.find((s) => s.id === id);
+            if (!seg) return null;
+            const share = (seg.customers / TOTAL_CUSTOMERS) * 100;
+            return (
+              <div
+                key={seg.id}
+                className={`rounded-2xl border border-slate-200 p-3 shadow-sm ${seg.kpiBgClass}`}
+              >
+                <div className="space-y-1">
+                  <div className="text-[11px] font-semibold tracking-wide text-slate-600">
+                    {seg.kpiTitle}
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    {seg.kpiRange}
+                  </div>
+                  <div className={`mt-1 text-xl font-semibold tracking-tight ${seg.kpiTextClass}`}>
+                    {seg.customers.toLocaleString()}
+                  </div>
+                  <div className="text-[11px] text-slate-600 leading-tight">
+                    <div>{share.toFixed(1)}% of customers</div>
+                    <div>{seg.vehicles.toLocaleString()} vehicles</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <div className="lg:col-span-3 space-y-4 self-start">
-          {/* Segment KPI tiles with matching colors */}
-          {selectedIds.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
-              {selectedIds.map((id) => {
-                const seg = LOYALTY_SEGMENTS.find((s) => s.id === id);
-                if (!seg) return null;
-                const share = (seg.customers / TOTAL_CUSTOMERS) * 100;
-                return (
-                  <div
-                    key={seg.id}
-                    className={`rounded-2xl border border-slate-200 p-3 shadow-sm ${seg.kpiBgClass}`}
-                  >
-                    <div className="space-y-1">
-                      <div className="text-[11px] font-semibold tracking-wide text-slate-600">
-                        {seg.kpiTitle}
-                      </div>
-                      <div className="text-[11px] text-slate-500">
-                        {seg.kpiRange}
-                      </div>
-                      <div className={`mt-1 text-xl font-semibold tracking-tight ${seg.kpiTextClass}`}>
-                        {seg.customers.toLocaleString()}
-                      </div>
-                      <div className="text-[11px] text-slate-600 leading-tight">
-                        <div>{share.toFixed(1)}% of customers</div>
-                        <div>{seg.vehicles.toLocaleString()} vehicles</div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
           {/* AI Insights – mobile: below KPIs, above main content */}
           <div className="block lg:hidden">
             <AIInsightsTile
