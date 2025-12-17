@@ -168,7 +168,7 @@ const BillingCampaignTrackingPage: React.FC = () => {
       {/* Layout: left content + right AI tile */}
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4 self-start">
           {/* KPIs - draggable */}
           {selectedIds.length > 0 && (
             <DraggableKpiRow

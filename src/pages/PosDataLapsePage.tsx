@@ -109,7 +109,7 @@ const PosDataLapsePage: React.FC = () => {
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4 self-start">
           {/* Summary tiles - draggable */}
           {selectedIds.length > 0 && (
             <DraggableKpiRow

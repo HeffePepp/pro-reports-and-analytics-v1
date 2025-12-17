@@ -95,9 +95,9 @@ const CustomerJourneyTouchPointDetailPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         {/* LEFT COLUMN */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4 self-start">
           {/* KPIs: same metrics as CJ overview row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <MetricTile label="Msgs sent" value={sent.toLocaleString()} />
@@ -389,7 +389,7 @@ const CustomerJourneyTouchPointDetailPage: React.FC = () => {
         </div>
 
         {/* RIGHT: AI Insights on wide screens */}
-        <div className="hidden lg:block lg:col-span-1">
+        <div className="hidden lg:block lg:col-span-1 self-start">
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on this touch point"
