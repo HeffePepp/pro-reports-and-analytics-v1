@@ -176,16 +176,7 @@ const CouponDiscountPage: React.FC = () => {
             />
           )}
 
-          {/* Coupon mix bar */}
-          <CouponMixTile rows={COUPON_MIX_ROWS} />
-
-          {/* Coupon performance table (previous iteration) */}
-          <CouponPerformanceTile />
-
-          {/* Invoice detail */}
-          <CouponInvoiceDetailTile rows={COUPON_INVOICES} />
-
-          {/* AI Insights – mobile */}
+          {/* AI Insights – mobile: below KPIs, above main content */}
           <div className="block lg:hidden">
             <AIInsightsTile
               title="AI Insights"
@@ -194,6 +185,15 @@ const CouponDiscountPage: React.FC = () => {
               onRefresh={regenerateInsights}
             />
           </div>
+
+          {/* Coupon mix bar */}
+          <CouponMixTile rows={COUPON_MIX_ROWS} />
+
+          {/* Coupon performance table (previous iteration) */}
+          <CouponPerformanceTile />
+
+          {/* Invoice detail */}
+          <CouponInvoiceDetailTile rows={COUPON_INVOICES} />
         </div>
 
         {/* Right column – AI Insights desktop */}

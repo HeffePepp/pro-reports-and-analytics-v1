@@ -1231,16 +1231,6 @@ export default function CallbackReportPage() {
             </div>
           </div>
 
-          {/* AI stacked on small screens - after main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              bullets={[
-                "Lost customers represent 20% of your database—prioritize callback campaigns.",
-                "Customers with email have 3× higher reactivation rate than phone-only.",
-                "Lapsed segment shows highest callback conversion potential.",
-              ]}
-            />
-          </div>
 
           <CustomerDetailDialog open={detailOpen} onOpenChange={setDetailOpen} customer={selectedCustomer} />
         </div>

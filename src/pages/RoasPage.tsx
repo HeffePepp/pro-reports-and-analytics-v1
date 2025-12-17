@@ -384,6 +384,16 @@ const RoasPage: React.FC = () => {
             />
           )}
 
+          {/* AI Insights – mobile: below KPIs, above main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on recent campaign performance"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
+          </div>
+
           {/* ROAS by channel – full width */}
           <div className="mt-0">
             <RoasByChannelTile data={channelRoasData} />
@@ -394,16 +404,6 @@ const RoasPage: React.FC = () => {
 
           {/* ROAS by Customer Journey */}
           <RoasCustomerJourneyTile data={journeyTouchpointRoasData} />
-
-          {/* AI Insights – stacked here on small/medium screens */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on recent campaign performance"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
         </div>
 
         {/* RIGHT: AI Insights – only on large screens */}

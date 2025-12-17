@@ -512,6 +512,11 @@ const SuggestedServicesPage: React.FC = () => {
             />
           )}
 
+          {/* AI Insights – mobile: below KPIs, above main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile {...aiInsightsProps} />
+          </div>
+
           {/* MAIN TWO-TAB TILE: Touch Points / Active SS Items */}
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <header className="flex items-center justify-end gap-3">
@@ -770,11 +775,6 @@ const SuggestedServicesPage: React.FC = () => {
               );
             })()}
           </section>
-
-          {/* AI stacked on small screens */}
-          <div className="block lg:hidden">
-            <AIInsightsTile {...aiInsightsProps} />
-          </div>
         </div>
 
         {/* RIGHT: AI on large screens */}

@@ -189,6 +189,16 @@ const ServiceIntervalsPage: React.FC = () => {
             </div>
           )}
 
+          {/* AI Insights – mobile: below KPIs, above main content */}
+          <div className="block lg:hidden">
+            <AIInsightsTile
+              title="AI Insights"
+              subtitle="Based on interval & retention data"
+              bullets={insights}
+              onRefresh={regenerateInsights}
+            />
+          </div>
+
           {/* Customer Loyalty Segmentation chart tile */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             <header className="flex items-baseline justify-between gap-3">
@@ -234,15 +244,6 @@ const ServiceIntervalsPage: React.FC = () => {
               ))}
             </div>
           </section>
-
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on interval & retention data"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
         </div>
 
         <div className="hidden lg:block lg:col-span-1 self-start">
