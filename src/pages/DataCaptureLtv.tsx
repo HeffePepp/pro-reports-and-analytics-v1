@@ -92,10 +92,10 @@ type ChannelLtvRow = {
 };
 
 const LIFETIME_BY_CHANNEL: ChannelLtvRow[] = [
-  { id: "mail-only", label: "Mail only", lifetimeValue: 412, lifetimeVisits: 4.7, ltvLiftVsBlank: 254 },
+  { id: "mail-only", label: "Mail only", lifetimeValue: 412, lifetimeVisits: 4.9, ltvLiftVsBlank: 254 },
   { id: "email-only", label: "Email only", lifetimeValue: 438, lifetimeVisits: 4.9, ltvLiftVsBlank: 280 },
-  { id: "mail-email", label: "Mail & email", lifetimeValue: 586, lifetimeVisits: 6.0, ltvLiftVsBlank: 428 },
-  { id: "blank", label: "Blank", lifetimeValue: 158, lifetimeVisits: 3.8, ltvLiftVsBlank: 0 },
+  { id: "mail-email", label: "Mail & email", lifetimeValue: 586, lifetimeVisits: 4.9, ltvLiftVsBlank: 428 },
+  { id: "blank", label: "Blank", lifetimeValue: 158, lifetimeVisits: 4.9, ltvLiftVsBlank: 0 },
 ];
 
 const formatSignedCurrency = (value: number) => {
