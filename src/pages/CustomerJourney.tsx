@@ -596,8 +596,7 @@ const CustomerJourneyPage: React.FC = () => {
             Customer Journey
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Performance of the standard Throttle journey touch points for this
-            store: thank-you, suggested services, reminders and reactivation.
+            Active Customer Journey touch points for the stores and date range selected. Response maturity is based on Throttle standard windows: 60 days for postcards and 10 days for email and text.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -649,11 +648,6 @@ const CustomerJourneyPage: React.FC = () => {
           {/* Touchpoint mix tile */}
           <JourneyTouchpointMixTile items={touchpointMixItems} />
 
-          {/* Response maturity note */}
-          <p className="text-[11px] text-slate-500">
-            Response maturity is based on Throttle standard windows: 60 days for
-            postcards and 10 days for email and text.
-          </p>
 
           {/* Touch point ghost pills */}
           <div className="space-y-4">
