@@ -43,8 +43,14 @@ const CampaignClicksModal: React.FC<CampaignClicksModalProps> = ({
   } = data;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-slate-900/40 p-4">
-      <div className="mt-12 w-full max-w-3xl rounded-2xl bg-white shadow-xl">
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center bg-slate-900/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="mt-12 w-full max-w-3xl rounded-2xl bg-white shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Modal header */}
         <div className="flex items-start justify-between border-b border-slate-100 px-5 py-4">
           <div>
