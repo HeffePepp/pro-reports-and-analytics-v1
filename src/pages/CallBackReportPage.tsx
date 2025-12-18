@@ -151,6 +151,51 @@ function getOilTypePillClass(oilType: string): string {
   return "bg-slate-100 text-slate-700";
 }
 
+type VisitAverages = {
+  avgMileageInterval: number | null;
+  avgDaysBetweenVisits: number | null;
+};
+
+function computeVisitAverages(visits: { date: string; mileage: number }[]): VisitAverages {
+  if (!visits || visits.length < 2) {
+    return { avgMileageInterval: null, avgDaysBetweenVisits: null };
+  }
+
+  const sorted = [...visits].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  const mileageDiffs: number[] = [];
+  const dayDiffs: number[] = [];
+
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = sorted[i - 1];
+    const curr = sorted[i];
+
+    if (prev.mileage != null && curr.mileage != null) {
+      const diff = curr.mileage - prev.mileage;
+      if (diff > 0) mileageDiffs.push(diff);
+    }
+
+    const prevDate = new Date(prev.date).getTime();
+    const currDate = new Date(curr.date).getTime();
+    const dayDiff = (currDate - prevDate) / (1000 * 60 * 60 * 24);
+    if (dayDiff > 0) dayDiffs.push(dayDiff);
+  }
+
+  const avgMileageInterval =
+    mileageDiffs.length > 0
+      ? mileageDiffs.reduce((s, v) => s + v, 0) / mileageDiffs.length
+      : null;
+
+  const avgDaysBetweenVisits =
+    dayDiffs.length > 0
+      ? dayDiffs.reduce((s, v) => s + v, 0) / dayDiffs.length
+      : null;
+
+  return { avgMileageInterval, avgDaysBetweenVisits };
+}
+
 const Pill: React.FC<{ className: string; children: React.ReactNode }> = ({ className, children }) => (
   <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${className}`}>
     {children}
@@ -309,7 +354,7 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
         <DialogHeader>
           <DialogTitle className="flex flex-wrap items-center gap-2">
             <span className="text-lg font-semibold text-slate-900">
-              {customer.name} – {customer.phone ?? "No Phone"}
+              {customer.name}
             </span>
           </DialogTitle>
         </DialogHeader>
@@ -381,6 +426,33 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
                 <Pill className="bg-slate-100 text-slate-700">Prefers {customer.preferredContact}</Pill>
               )}
             </div>
+            
+            {/* Visit interval stats */}
+            {(() => {
+              const { avgMileageInterval, avgDaysBetweenVisits } = computeVisitAverages(
+                invoiceHistory.map(inv => ({ date: inv.date, mileage: inv.mileage }))
+              );
+              return (
+                <div className="mt-3 space-y-1 text-[11px] text-slate-600">
+                  {avgMileageInterval != null && avgDaysBetweenVisits != null ? (
+                    <>
+                      <div>
+                        <span className="font-medium text-slate-700">Avg mileage interval:</span>{" "}
+                        {Math.round(avgMileageInterval).toLocaleString()} miles
+                      </div>
+                      <div>
+                        <span className="font-medium text-slate-700">Avg days between visits:</span>{" "}
+                        {Math.round(avgDaysBetweenVisits)} days
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-slate-500">
+                      Not enough visit history yet to calculate average mileage or days between visits.
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Right column - Vehicle Info + Last Service Summary */}
