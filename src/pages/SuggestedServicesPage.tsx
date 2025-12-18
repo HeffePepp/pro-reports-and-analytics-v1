@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { SuggestedServiceResponseCard, type SuggestedServiceResponse } from "@/components/reports/SuggestedServiceResponseCard";
+import ClicksBreakdownModal, { ClicksBreakdownData, ClickTypeRow } from "@/components/reports/ClicksBreakdownModal";
 
 type SuggestedServicesSummary = {
   storeGroupName: string;
@@ -449,8 +450,66 @@ const KPI_OPTIONS: KpiOption[] = [
 
 const SuggestedServicesPage: React.FC = () => {
   const [ssTab, setSsTab] = useState<SsTab>("touchpoints");
-
   const { selectedIds, setSelectedIds } = useKpiPreferences("suggested-services", KPI_OPTIONS);
+  const [clicksModalData, setClicksModalData] = useState<ClicksBreakdownData | null>(null);
+
+  // Mock clicks data for SS touch points
+  const SS_CLICKS_BY_TP: Record<number, { totalClicks: number; clickTypes: ClickTypeRow[] }> = {
+    1: { // 1 week after service
+      totalClicks: 742,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 297, clickRate: 0.40 },
+        { id: "video", label: "Video", clicks: 148, clickRate: 0.20 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 111, clickRate: 0.15 },
+        { id: "preferences", label: "Preferences", clicks: 112, clickRate: 0.151 },
+        { id: "unsub", label: "Unsubscribed", clicks: 74, clickRate: 0.099 },
+      ],
+    },
+    2: { // 1 month after service
+      totalClicks: 634,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 254, clickRate: 0.40 },
+        { id: "video", label: "Video", clicks: 127, clickRate: 0.20 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 95, clickRate: 0.15 },
+        { id: "preferences", label: "Preferences", clicks: 95, clickRate: 0.15 },
+        { id: "unsub", label: "Unsubscribed", clicks: 63, clickRate: 0.10 },
+      ],
+    },
+    3: { // 3 months after service
+      totalClicks: 492,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 197, clickRate: 0.40 },
+        { id: "video", label: "Video", clicks: 98, clickRate: 0.20 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 74, clickRate: 0.15 },
+        { id: "preferences", label: "Preferences", clicks: 74, clickRate: 0.15 },
+        { id: "unsub", label: "Unsubscribed", clicks: 49, clickRate: 0.10 },
+      ],
+    },
+    4: { // 6 months after service
+      totalClicks: 553,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 221, clickRate: 0.40 },
+        { id: "video", label: "Video", clicks: 111, clickRate: 0.20 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 83, clickRate: 0.15 },
+        { id: "preferences", label: "Preferences", clicks: 83, clickRate: 0.15 },
+        { id: "unsub", label: "Unsubscribed", clicks: 55, clickRate: 0.10 },
+      ],
+    },
+  };
+
+  const handleOpenClicks = (tpId: number, tpName: string, timing: string) => {
+    const clickData = SS_CLICKS_BY_TP[tpId];
+    if (!clickData) return;
+    setClicksModalData({
+      id: String(tpId),
+      name: `${tpId}. ${tpName}`,
+      subtitle: `Click activity for "${timing}" email touch point.`,
+      totalClicks: clickData.totalClicks,
+      clickTypes: clickData.clickTypes,
+    });
+  };
+
+  const handleCloseClicks = () => setClicksModalData(null);
 
   const renderKpiTile = (id: string) => {
     switch (id) {
@@ -710,7 +769,7 @@ const SuggestedServicesPage: React.FC = () => {
                     key={tp.id}
                     className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
                   >
-                    {/* Header row: touch point name/timing + View proofs button */}
+                    {/* Header row: touch point name/timing + Clicks/View proofs buttons */}
                     <div className="mb-3 flex items-start justify-between gap-4">
                       <div className="flex items-start gap-2">
                         <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${getColor(index).dot}`} />
@@ -723,12 +782,24 @@ const SuggestedServicesPage: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                      >
-                        View proof
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {/* Show Clicks button for Email touch points */}
+                        {tp.channel === "Email" && SS_CLICKS_BY_TP[tp.id] && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenClicks(tp.id, tp.name, tp.timing)}
+                            className="inline-flex items-center rounded-full border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                          >
+                            Clicks
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                        >
+                          View proof
+                        </button>
+                      </div>
                     </div>
 
                     {/* Mini table for this touch point */}
@@ -879,6 +950,13 @@ const SuggestedServicesPage: React.FC = () => {
             );
           })()}
         </section>
+
+        {/* Clicks Breakdown Modal */}
+        <ClicksBreakdownModal
+          open={!!clicksModalData}
+          data={clicksModalData}
+          onClose={handleCloseClicks}
+        />
       </ReportPageLayout>
     </ShellLayout>
   );

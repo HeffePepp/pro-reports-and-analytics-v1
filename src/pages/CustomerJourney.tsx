@@ -11,6 +11,7 @@ import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { parseChannels, CHANNEL_LABELS } from "@/styles/channelColors";
 import { JourneyTouchpointMixTile } from "@/components/reports/JourneyTouchpointMixTile";
 import { ShareReportModal, ShareReportButton } from "@/components/layout/ShareReportModal";
+import ClicksBreakdownModal, { ClicksBreakdownData, ClickTypeRow } from "@/components/reports/ClicksBreakdownModal";
 type ChannelType = "postcard" | "email" | "text";
 
 type JourneyTouchPoint = {
@@ -367,6 +368,122 @@ const CHANNEL_SORT_ORDER: Record<string, number> = {
 const CustomerJourneyPage: React.FC = () => {
   const { selectedIds, setSelectedIds } = useKpiPreferences("customer-journey", KPI_OPTIONS);
   const [shareOpen, setShareOpen] = useState(false);
+  const [clicksModalData, setClicksModalData] = useState<ClicksBreakdownData | null>(null);
+
+  // Mock clicks data for touch points with email channel
+  const CLICKS_BY_TP: Record<number, { totalClicks: number; clickTypes: ClickTypeRow[] }> = {
+    2: { // Thank You Email
+      totalClicks: 892,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 312, clickRate: 0.35 },
+        { id: "video", label: "Video", clicks: 178, clickRate: 0.20 },
+        { id: "directions", label: "Directions", clicks: 134, clickRate: 0.15 },
+        { id: "reviews", label: "Google Reviews", clicks: 156, clickRate: 0.175 },
+        { id: "unsub", label: "Unsubscribed", clicks: 112, clickRate: 0.125 },
+      ],
+    },
+    3: { // Suggested Services 1 week
+      totalClicks: 645,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 258, clickRate: 0.40 },
+        { id: "video", label: "Video", clicks: 129, clickRate: 0.20 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 97, clickRate: 0.15 },
+        { id: "preferences", label: "Preferences", clicks: 96, clickRate: 0.149 },
+        { id: "unsub", label: "Unsubscribed", clicks: 65, clickRate: 0.101 },
+      ],
+    },
+    4: { // 2nd Vehicle Invitation
+      totalClicks: 412,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 185, clickRate: 0.449 },
+        { id: "double-opt", label: "Double Opt-In (TXT)", clicks: 124, clickRate: 0.301 },
+        { id: "directions", label: "Directions", clicks: 62, clickRate: 0.150 },
+        { id: "unsub", label: "Unsubscribed", clicks: 41, clickRate: 0.10 },
+      ],
+    },
+    5: { // Suggested Services 1 month
+      totalClicks: 523,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 209, clickRate: 0.40 },
+        { id: "video", label: "Video", clicks: 105, clickRate: 0.20 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 78, clickRate: 0.149 },
+        { id: "preferences", label: "Preferences", clicks: 79, clickRate: 0.151 },
+        { id: "unsub", label: "Unsubscribed", clicks: 52, clickRate: 0.10 },
+      ],
+    },
+    6: { // Suggested Services 3 months
+      totalClicks: 486,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 194, clickRate: 0.40 },
+        { id: "video", label: "Video", clicks: 97, clickRate: 0.20 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 73, clickRate: 0.15 },
+        { id: "preferences", label: "Preferences", clicks: 73, clickRate: 0.15 },
+        { id: "unsub", label: "Unsubscribed", clicks: 49, clickRate: 0.10 },
+      ],
+    },
+    7: { // Suggested Services 6 months
+      totalClicks: 442,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 177, clickRate: 0.40 },
+        { id: "video", label: "Video", clicks: 88, clickRate: 0.20 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 66, clickRate: 0.15 },
+        { id: "preferences", label: "Preferences", clicks: 67, clickRate: 0.151 },
+        { id: "unsub", label: "Unsubscribed", clicks: 44, clickRate: 0.099 },
+      ],
+    },
+    8: { // Monthly Newsletter
+      totalClicks: 1680,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 672, clickRate: 0.40 },
+        { id: "video", label: "Video", clicks: 336, clickRate: 0.20 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 252, clickRate: 0.15 },
+        { id: "reviews", label: "Google Reviews", clicks: 168, clickRate: 0.10 },
+        { id: "preferences", label: "Preferences", clicks: 168, clickRate: 0.10 },
+        { id: "unsub", label: "Unsubscribed", clicks: 84, clickRate: 0.05 },
+      ],
+    },
+    13: { // Reactivation 12 months
+      totalClicks: 248,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 99, clickRate: 0.40 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 74, clickRate: 0.30 },
+        { id: "directions", label: "Directions", clicks: 50, clickRate: 0.20 },
+        { id: "unsub", label: "Unsubscribed", clicks: 25, clickRate: 0.10 },
+      ],
+    },
+    14: { // Reactivation 18 months
+      totalClicks: 192,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 77, clickRate: 0.40 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 58, clickRate: 0.30 },
+        { id: "directions", label: "Directions", clicks: 38, clickRate: 0.20 },
+        { id: "unsub", label: "Unsubscribed", clicks: 19, clickRate: 0.10 },
+      ],
+    },
+    15: { // Reactivation 24 months
+      totalClicks: 144,
+      clickTypes: [
+        { id: "website", label: "Website", clicks: 58, clickRate: 0.40 },
+        { id: "coupons", label: "Coupons Redeemed", clicks: 43, clickRate: 0.30 },
+        { id: "directions", label: "Directions", clicks: 29, clickRate: 0.20 },
+        { id: "unsub", label: "Unsubscribed", clicks: 14, clickRate: 0.10 },
+      ],
+    },
+  };
+
+  const handleOpenClicks = (tpId: number, tpName: string, offsetLabel: string) => {
+    const clickData = CLICKS_BY_TP[tpId];
+    if (!clickData) return;
+    setClicksModalData({
+      id: String(tpId),
+      name: `${tpId}. ${tpName}`,
+      subtitle: `Click activity for "${offsetLabel}" email touch point.`,
+      totalClicks: clickData.totalClicks,
+      clickTypes: clickData.clickTypes,
+    });
+  };
+
+  const handleCloseClicks = () => setClicksModalData(null);
 
   const handleViewProofs = (tpId: number) => {
     console.log("View proofs for touch point:", tpId);
@@ -682,7 +799,7 @@ const CustomerJourneyPage: React.FC = () => {
                 key={group.tpId}
                 className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
               >
-                {/* Header row: touch point name/offset + View proofs button */}
+                {/* Header row: touch point name/offset + Clicks/View proofs buttons */}
                 <div className="mb-3 flex items-start justify-between gap-4">
                   <div className="flex items-start gap-2">
                     <span
@@ -697,13 +814,25 @@ const CustomerJourneyPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleViewProofs(group.tpId)}
-                    className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                  >
-                    View proof
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {/* Show Clicks button only if this touch point has email channel */}
+                    {group.rows.some((r) => r.channel === "email") && CLICKS_BY_TP[group.tpId] && (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenClicks(group.tpId, group.tpName, group.offsetLabel)}
+                        className="inline-flex items-center rounded-full border border-slate-200 px-3 py-1.5 text-[11px] font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                      >
+                        Clicks
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleViewProofs(group.tpId)}
+                      className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                    >
+                      View proof
+                    </button>
+                  </div>
                 </div>
 
                 {/* Grid-based layout for consistent column alignment */}
@@ -837,6 +966,13 @@ const CustomerJourneyPage: React.FC = () => {
             ));
           })()}
         </div>
+
+        {/* Clicks Breakdown Modal */}
+        <ClicksBreakdownModal
+          open={!!clicksModalData}
+          data={clicksModalData}
+          onClose={handleCloseClicks}
+        />
       </ReportPageLayout>
     </ShellLayout>
   );
