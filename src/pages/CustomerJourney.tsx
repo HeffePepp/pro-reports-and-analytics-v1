@@ -596,7 +596,9 @@ const CustomerJourneyPage: React.FC = () => {
             Customer Journey
           </h1>
           <p className="mt-1 text-sm text-slate-500 lg:max-w-[75%]">
-            Active Customer Journey touch points for the stores and date range selected. Response maturity is based on Throttle standard windows: 60 days for postcards and 10 days for email and text.
+            Active Customer Journey touch points for the stores and date range selected.
+            <br />
+            Response maturity is based on Throttle standard response windows: 60 days for postcards and 10 days for email and text.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
