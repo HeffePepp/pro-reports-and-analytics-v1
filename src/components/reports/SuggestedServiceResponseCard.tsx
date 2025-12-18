@@ -111,14 +111,14 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
           </div>
         </div>
 
-        {/* Middle: send/open + touchpoint timing (hidden on mobile) */}
-        <div className="hidden flex-col text-right text-[11px] text-slate-600 md:flex">
+        {/* Middle: send/open + touchpoint timing (hidden on mobile) - fixed width for alignment */}
+        <div className="hidden md:flex flex-col text-right text-[11px] text-slate-600 w-[180px] shrink-0">
           <div>
             {row.original.channelLabel} sent {row.original.sentDate}
           </div>
-          {row.original.openedDate && (
-            <div>Opened {row.original.openedDate}</div>
-          )}
+          <div className={row.original.openedDate ? "" : "invisible"}>
+            Opened {row.original.openedDate || "—"}
+          </div>
           <div className="mt-1 text-slate-500">{row.original.touchpointLabel}</div>
         </div>
 
