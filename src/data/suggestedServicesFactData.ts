@@ -399,10 +399,11 @@ export function aggregateTouchpointMetrics(factData: SsFactResponse[], configs: 
 
 /**
  * Convert fact data to the card format for the Responses tab.
+ * IMPORTANT: Only includes actual responses (with responseInvoiceId) to match Touch Points tab count.
  */
 export function convertFactToCardFormat(factData: SsFactResponse[]) {
   return factData
-    .filter((r) => r.isWithinWindow && (r.responseInvoiceId || r.openedDate))
+    .filter((r) => r.isWithinWindow && r.responseInvoiceId)
     .map((r) => ({
       id: r.id,
       customerName: r.customerName,
@@ -420,18 +421,16 @@ export function convertFactToCardFormat(factData: SsFactResponse[]) {
         openedDate: r.openedDate,
       },
       suggestions: r.suggestions,
-      response: r.responseInvoiceId
-        ? {
-            invoiceNumber: r.responseInvoiceId,
-            date: r.responseDate,
-            amount: r.responseAmount,
-            daysLater: r.responseDaysLater,
-            milesLater: r.responseMilesLater,
-            servicesPurchased: r.servicesPurchased,
-            offerType: r.offerType,
-            offerCode: r.offerCode,
-            offerDescription: r.offerDescription,
-          }
-        : {},
+      response: {
+        invoiceNumber: r.responseInvoiceId,
+        date: r.responseDate,
+        amount: r.responseAmount,
+        daysLater: r.responseDaysLater,
+        milesLater: r.responseMilesLater,
+        servicesPurchased: r.servicesPurchased,
+        offerType: r.offerType,
+        offerCode: r.offerCode,
+        offerDescription: r.offerDescription,
+      },
     }));
 }
