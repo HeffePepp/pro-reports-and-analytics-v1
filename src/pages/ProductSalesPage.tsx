@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import {
   ReportTable,
@@ -117,112 +117,97 @@ const ProductSalesPage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="product-sales"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
-
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on product & vendor sales"
-              bullets={insights}
-              onRefresh={regenerateInsights}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="product-sales"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
-          </div>
-
-          {/* Vendor mix */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Revenue by vendor
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Compare vendor vs house brand
-              </span>
-            </div>
-            <div className="space-y-2 text-xs text-slate-700">
-              {productVendors.map((v) => (
-                <div key={v.vendor}>
-                  <div className="flex justify-between text-[11px]">
-                    <span>{v.vendor}</span>
-                    <span>
-                      ${v.revenue.toLocaleString()} ·{" "}
-                      {v.invoices.toLocaleString()} invoices
-                    </span>
-                  </div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-tp-pastel-blue"
-                        style={{
-                          width: `${(v.revenue / maxRevenue) * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Table */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Vendor details
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Product revenue and invoices by vendor
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <ReportTable>
-                <ReportTableHead>
-                  <ReportTableRow>
-                    <ReportTableHeaderCell label="Vendor" />
-                    <ReportTableHeaderCell label="Invoices" align="right" />
-                    <ReportTableHeaderCell label="Revenue" align="right" />
-                  </ReportTableRow>
-                </ReportTableHead>
-                <ReportTableBody>
-                  {productVendors.map((v) => (
-                    <ReportTableRow key={v.vendor}>
-                      <ReportTableCell className="text-slate-800">{v.vendor}</ReportTableCell>
-                      <ReportTableCell align="right">{v.invoices.toLocaleString()}</ReportTableCell>
-                      <ReportTableCell align="right">${v.revenue.toLocaleString()}</ReportTableCell>
-                    </ReportTableRow>
-                  ))}
-                </ReportTableBody>
-              </ReportTable>
-            </div>
-          </section>
-        </div>
-
-        {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on product & vendor sales"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Vendor mix */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Revenue by vendor
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Compare vendor vs house brand
+            </span>
+          </div>
+          <div className="space-y-2 text-xs text-slate-700">
+            {productVendors.map((v) => (
+              <div key={v.vendor}>
+                <div className="flex justify-between text-[11px]">
+                  <span>{v.vendor}</span>
+                  <span>
+                    ${v.revenue.toLocaleString()} ·{" "}
+                    {v.invoices.toLocaleString()} invoices
+                  </span>
+                </div>
+                <div className="mt-1 flex items-center gap-2">
+                  <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className="h-full bg-tp-pastel-blue"
+                      style={{
+                        width: `${(v.revenue / maxRevenue) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Table */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Vendor details
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Product revenue and invoices by vendor
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <ReportTable>
+              <ReportTableHead>
+                <ReportTableRow>
+                  <ReportTableHeaderCell label="Vendor" />
+                  <ReportTableHeaderCell label="Invoices" align="right" />
+                  <ReportTableHeaderCell label="Revenue" align="right" />
+                </ReportTableRow>
+              </ReportTableHead>
+              <ReportTableBody>
+                {productVendors.map((v) => (
+                  <ReportTableRow key={v.vendor}>
+                    <ReportTableCell className="text-slate-800">{v.vendor}</ReportTableCell>
+                    <ReportTableCell align="right">{v.invoices.toLocaleString()}</ReportTableCell>
+                    <ReportTableCell align="right">${v.revenue.toLocaleString()}</ReportTableCell>
+                  </ReportTableRow>
+                ))}
+              </ReportTableBody>
+            </ReportTable>
+          </div>
+        </section>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };

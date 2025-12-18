@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { RoasCustomerJourneyTile } from "@/components/reports/RoasCustomerJourneyTile";
 import { JOURNEY_TOUCH_POINTS } from "@/data/customerJourney";
@@ -365,59 +365,41 @@ const RoasPage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="roas"
-            tiles={
-              selectedIds
-                .map((id) => {
-                  const tile = renderKpiTile(id);
-                  return tile ? { id, element: tile } : null;
-                })
-                .filter(Boolean) as { id: string; element: React.ReactNode }[]
-            }
-          />
-        </div>
-      )}
-
-      {/* Main layout: left content + right AI tile */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT: all ROAS tiles, charts & table */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on recent campaign performance"
-              bullets={insights}
-              onRefresh={regenerateInsights}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="roas"
+              tiles={
+                selectedIds
+                  .map((id) => {
+                    const tile = renderKpiTile(id);
+                    return tile ? { id, element: tile } : null;
+                  })
+                  .filter(Boolean) as { id: string; element: React.ReactNode }[]
+              }
             />
-          </div>
-
-          {/* ROAS by channel – full width */}
-          <div className="mt-0">
-            <RoasByChannelTile data={channelRoasData} />
-          </div>
-
-          {/* ROAS by campaign bar tile */}
-          <RoasByCampaignTile data={campaignRoasData} />
-
-          {/* ROAS by Customer Journey */}
-          <RoasCustomerJourneyTile data={journeyTouchpointRoasData} />
-        </div>
-
-        {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on recent campaign performance"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* ROAS by channel – full width */}
+        <RoasByChannelTile data={channelRoasData} />
+
+        {/* ROAS by campaign bar tile */}
+        <RoasByCampaignTile data={campaignRoasData} />
+
+        {/* ROAS by Customer Journey */}
+        <RoasCustomerJourneyTile data={journeyTouchpointRoasData} />
+      </ReportPageLayout>
     </ShellLayout>
   );
 };

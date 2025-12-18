@@ -3,6 +3,8 @@ import {
   ShellLayout,
   AIInsightsTile,
   KpiCustomizeButton,
+  DraggableKpiRow,
+  ReportPageLayout,
 } from "@/components/layout";
 import OilTypeMixSection from "@/components/reports/OilTypeMixSection";
 import OilTypeUsageKpis from "@/components/reports/OilTypeUsageKpis";
@@ -65,31 +67,21 @@ const OilTypeSalesPage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <OilTypeUsageKpis selectedIds={selectedIds} />
-        </div>
-      )}
-
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile title="AI Insights" subtitle="Based on oil mix & revenue" bullets={insights} onRefresh={regenerateInsights} />
-          </div>
-
-          <OilTypeMixSection />
-
-          <OilTypeRevenueDetailsTable />
-
-          <OilTypeInvoiceDetailTile />
-        </div>
-
-        <div className="hidden lg:block lg:col-span-1 self-start">
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <OilTypeUsageKpis selectedIds={selectedIds} />
+          ) : null
+        }
+        ai={
           <AIInsightsTile title="AI Insights" subtitle="Based on oil mix & revenue" bullets={insights} onRefresh={regenerateInsights} />
-        </div>
-      </div>
+        }
+      >
+        <OilTypeMixSection />
+        <OilTypeRevenueDetailsTable />
+        <OilTypeInvoiceDetailTile />
+      </ReportPageLayout>
     </ShellLayout>
   );
 };

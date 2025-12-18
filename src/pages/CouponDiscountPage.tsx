@@ -6,6 +6,7 @@ import {
   KpiCustomizeButton,
   CouponPerformanceTile,
   DraggableKpiRow,
+  ReportPageLayout,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { CouponMixTile } from "@/components/reports/CouponMixTile";
@@ -159,55 +160,39 @@ const CouponDiscountPage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="coupon-discount"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
-
-      {/* Main grid */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* Left column */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on coupon & discount data"
-              bullets={insights}
-              onRefresh={regenerateInsights}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="coupon-discount"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
-          </div>
-
-          {/* Coupon mix bar */}
-          <CouponMixTile rows={COUPON_MIX_ROWS} />
-
-          {/* Coupon performance table (previous iteration) */}
-          <CouponPerformanceTile />
-
-          {/* Invoice detail */}
-          <CouponInvoiceDetailTile rows={COUPON_INVOICES} />
-        </div>
-
-        {/* Right column – AI Insights desktop */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on coupon & discount data"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Coupon mix bar */}
+        <CouponMixTile rows={COUPON_MIX_ROWS} />
+
+        {/* Coupon performance table (previous iteration) */}
+        <CouponPerformanceTile />
+
+        {/* Invoice detail */}
+        <CouponInvoiceDetailTile rows={COUPON_INVOICES} />
+      </ReportPageLayout>
     </ShellLayout>
   );
 };
