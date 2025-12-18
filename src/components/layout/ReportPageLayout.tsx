@@ -90,8 +90,14 @@ const ReportPageLayout: React.FC<ReportPageLayoutProps> = ({
             <div className={cn("lg:hidden", kpis ? "mt-4" : "")}>{ai}</div>
           ) : null}
 
-          {/* Main left content - add top margin only if there's content above */}
-          <div className={cn("space-y-4", (kpis || (ai && mobileAiPlacement === "top")) ? "mt-4" : "")}>
+          {/* Main left content - margin logic:
+              - KPIs exist: always mt-4 (content is below KPIs)
+              - No KPIs + AI top: mt-4 on mobile only (AI shown above), no margin on desktop (AI is in separate column)
+              - No KPIs + no AI top: no margin */}
+          <div className={cn(
+            "space-y-4",
+            kpis ? "mt-4" : (ai && mobileAiPlacement === "top") ? "mt-4 lg:mt-0" : ""
+          )}>
             {children}
           </div>
 
