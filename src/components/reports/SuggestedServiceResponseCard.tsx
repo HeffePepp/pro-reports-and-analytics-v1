@@ -117,7 +117,7 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
             {row.original.channelLabel} sent {row.original.sentDate}
           </div>
           <div className={row.original.openedDate ? "" : "invisible"}>
-            Opened {row.original.openedDate || "—"}
+            Email Opened {row.original.openedDate || "—"}
           </div>
           <div className="mt-1 text-slate-500">{row.original.touchpointLabel}</div>
         </div>
