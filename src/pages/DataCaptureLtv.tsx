@@ -300,9 +300,9 @@ const DataCaptureLtvPage: React.FC = () => {
 
           {/* Column headers for the three right-side metrics */}
           <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
-            <div className="w-16 text-right">Avg Invoice</div>
-            <div className="w-24 text-right">Avg lift vs blank</div>
-            <div className="w-24 text-right">MoM Capture Trend</div>
+            <div className="w-16 text-right whitespace-nowrap">Avg Invoice</div>
+            <div className="w-24 text-right whitespace-nowrap">Avg lift vs blank</div>
+            <div className="w-24 text-right whitespace-nowrap">MoM Trend</div>
           </div>
 
           <div className="mt-1 space-y-3">
@@ -370,9 +370,9 @@ const DataCaptureLtvPage: React.FC = () => {
 
           {/* Column headers */}
           <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
-            <div className="w-20 text-right">LTV / customer</div>
-            <div className="w-14 text-right">Lifetime visits</div>
-            <div className="w-24 text-right">LTV lift vs blank</div>
+            <div className="w-20 text-right whitespace-nowrap">LTV / customer</div>
+            <div className="w-14 text-right whitespace-nowrap">Visits</div>
+            <div className="w-24 text-right whitespace-nowrap">LTV lift vs blank</div>
           </div>
 
           <div className="mt-1 space-y-3">
