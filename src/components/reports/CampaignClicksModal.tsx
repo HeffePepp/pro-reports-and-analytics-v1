@@ -44,8 +44,8 @@ const CampaignClicksModal: React.FC<CampaignClicksModalProps> = ({
         className="mt-6 w-full max-w-3xl rounded-2xl bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between border-b border-slate-100 px-5 py-4">
+        {/* Header – no dividing line */}
+        <div className="flex items-start justify-between px-5 pt-4 pb-3">
           <div>
             <div className="text-[13px] font-semibold text-slate-900">
               {campaignName}
