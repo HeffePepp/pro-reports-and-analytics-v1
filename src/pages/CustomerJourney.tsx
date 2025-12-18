@@ -134,26 +134,10 @@ const ResponseMaturityPill: React.FC<{ info: ResponseMaturityInfo; channel: Chan
 
   const colors = getMaturityColorClasses(info.level);
 
-  const channelLabel =
-    channel === "postcard" ? "postcard" : channel === "email" ? "email" : "text";
-  const ratioPct = info.ratio != null ? Math.round(info.ratio * 100) : null;
-
-  const tooltipText =
-    info.windowDays && info.daysSince != null
-      ? `Throttle uses a ${info.windowDays}-day response window for ${channelLabel} touch points. This touch point is at ${ratioPct}% maturity (${info.daysSince} days since last send). Response % may continue to change until the window is complete.`
-      : "Response maturity shows how far we are into Throttle's standard response window.";
-
   return (
-    <div className="group relative inline-flex">
-      <div className={`${base} ${colors.bg} ${colors.border} ${colors.text}`}>
-        <span className={`h-1.5 w-1.5 rounded-full ${colors.dot}`} />
-        <span>Maturity {info.label}</span>
-      </div>
-
-      {/* Tooltip - positioned above to avoid container overflow */}
-      <div className="pointer-events-none absolute right-0 bottom-full z-50 mb-1 hidden w-64 rounded-md bg-slate-900 px-2 py-1.5 text-[10px] leading-snug text-white shadow-lg group-hover:block">
-        {tooltipText}
-      </div>
+    <div className={`${base} ${colors.bg} ${colors.border} ${colors.text}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${colors.dot}`} />
+      <span>Maturity {info.label}</span>
     </div>
   );
 };
