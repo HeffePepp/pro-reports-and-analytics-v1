@@ -117,7 +117,7 @@ const REPORTS: Report[] = [
   },
   {
     id: "data-capture-ltv",
-    name: "Data Capture + Life Time Value",
+    name: "Customer Value Analysis",
     primaryCategory: "customers",
     secondaryCategories: ["internal"],
     type: "chart",
