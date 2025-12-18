@@ -77,7 +77,7 @@ const ReportPageLayout: React.FC<ReportPageLayoutProps> = ({
   mobileAiPlacement = "top",
 }) => {
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full mt-4", className)}>
       {/* Two-column grid starts at the very top so AI baseline is consistent */}
       <div className="flex flex-col lg:flex-row lg:gap-4 lg:items-start">
         {/* LEFT COLUMN */}
