@@ -1092,22 +1092,7 @@ export default function CallbackReportPage() {
                 <label htmlFor="reachable" className="text-[11px] text-teal-600">
                   Only show customers with phone or email
                 </label>
-              </div>
             </div>
-
-            {/* Second row: Search and Download */}
-            <div className="flex flex-wrap items-end gap-4 justify-between">
-              <div className="flex-1 min-w-[260px] max-w-lg">
-                <div className="relative">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <Input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 rounded-xl"
-                    placeholder="Name, email, phone, location..."
-                  />
-                </div>
-              </div>
 
               <div className="flex items-center gap-3">
                 {customDateMode ? (
@@ -1130,24 +1115,43 @@ export default function CallbackReportPage() {
 
           {/* Customers table */}
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
+            <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              {/* LEFT: title + subtitle */}
               <div>
                 <div className="text-[13px] font-semibold text-slate-900">Customers to call back</div>
                 <div className="text-[11px] text-slate-500">
                   Click any row for last-visit details, notes, invoice items and coupons.
                 </div>
               </div>
-              {filtered.length > 5 && (
-                <button
-                  type="button"
-                  onClick={() => setShowAll(!showAll)}
-                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-100 transition-colors"
-                >
-                  {showAll ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                  {showAll ? "Show less" : `Show all ${filtered.length}`}
-                </button>
-              )}
-            </div>
+
+              {/* RIGHT: search + Show all */}
+              <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center">
+                {/* Search bar */}
+                <div className="md:w-64">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Input
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-9 rounded-xl"
+                      placeholder="Name, email, phone, location..."
+                    />
+                  </div>
+                </div>
+
+                {/* Show all button */}
+                {filtered.length > 5 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAll(!showAll)}
+                    className="self-end inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-100 transition-colors md:self-auto"
+                  >
+                    {showAll ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                    {showAll ? "Show less" : `Show all ${filtered.length}`}
+                  </button>
+                )}
+              </div>
+            </header>
 
             <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200">
               <table className="w-full text-xs table-fixed">
