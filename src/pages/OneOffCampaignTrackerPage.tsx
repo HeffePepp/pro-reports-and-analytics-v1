@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { CHANNEL_BAR_CLASS, CampaignChannel } from "@/styles/channelColors";
 import { ChannelLegend } from "@/components/common/ChannelLegend";
 import CampaignCard, { CampaignCardProps, CampaignDropRow } from "@/components/reports/CampaignCard";
+import CampaignClicksModal, { CampaignClickBreakdown } from "@/components/reports/CampaignClicksModal";
 
 type Channel = "postcard" | "email" | "sms";
 
@@ -167,7 +168,77 @@ const CAMPAIGNS: Campaign[] = [
   },
 ];
 
-// Map local Channel type to shared CampaignChannel
+// Mock clicks data for campaigns with Email
+const CAMPAIGN_CLICKS: Record<string, CampaignClickBreakdown> = {
+  "spring-has-sprung": {
+    campaignId: "spring-has-sprung",
+    campaignName: "Spring Has Sprung",
+    totalClicks: 342,
+    uniqueClickers: 298,
+    clickRate: 0.228,
+    unsubscribeRate: 0.012,
+    clickTypes: [
+      { id: "website", label: "Website", clicks: 145, clickRate: 0.424 },
+      { id: "video", label: "Video", clicks: 67, clickRate: 0.196 },
+      { id: "directions", label: "Directions", clicks: 42, clickRate: 0.123 },
+      { id: "double-opt-in", label: "Double Opt-In (TXT)", clicks: 38, clickRate: 0.111 },
+      { id: "reviews", label: "Google Reviews", clicks: 28, clickRate: 0.082 },
+      { id: "preferences", label: "Preferences", clicks: 12, clickRate: 0.035 },
+      { id: "unsubscribed", label: "Unsubscribed", clicks: 10, clickRate: 0.029 },
+    ],
+  },
+  "tax-time-tune-up": {
+    campaignId: "tax-time-tune-up",
+    campaignName: "Tax Time Tune-Up",
+    totalClicks: 892,
+    uniqueClickers: 745,
+    clickRate: 0.178,
+    unsubscribeRate: 0.008,
+    clickTypes: [
+      { id: "website", label: "Website", clicks: 385, clickRate: 0.432 },
+      { id: "video", label: "Video", clicks: 156, clickRate: 0.175 },
+      { id: "directions", label: "Directions", clicks: 134, clickRate: 0.150 },
+      { id: "double-opt-in", label: "Double Opt-In (TXT)", clicks: 98, clickRate: 0.110 },
+      { id: "reviews", label: "Google Reviews", clicks: 72, clickRate: 0.081 },
+      { id: "preferences", label: "Preferences", clicks: 27, clickRate: 0.030 },
+      { id: "unsubscribed", label: "Unsubscribed", clicks: 20, clickRate: 0.022 },
+    ],
+  },
+  "reactivation-18-24": {
+    campaignId: "reactivation-18-24",
+    campaignName: "Reactivation 18–24 months",
+    totalClicks: 456,
+    uniqueClickers: 389,
+    clickRate: 0.240,
+    unsubscribeRate: 0.018,
+    clickTypes: [
+      { id: "website", label: "Website", clicks: 198, clickRate: 0.434 },
+      { id: "video", label: "Video", clicks: 89, clickRate: 0.195 },
+      { id: "directions", label: "Directions", clicks: 67, clickRate: 0.147 },
+      { id: "double-opt-in", label: "Double Opt-In (TXT)", clicks: 45, clickRate: 0.099 },
+      { id: "reviews", label: "Google Reviews", clicks: 32, clickRate: 0.070 },
+      { id: "preferences", label: "Preferences", clicks: 15, clickRate: 0.033 },
+      { id: "unsubscribed", label: "Unsubscribed", clicks: 10, clickRate: 0.022 },
+    ],
+  },
+  "holiday-thank-you": {
+    campaignId: "holiday-thank-you",
+    campaignName: "Holiday Thank You",
+    totalClicks: 287,
+    uniqueClickers: 251,
+    clickRate: 0.239,
+    unsubscribeRate: 0.006,
+    clickTypes: [
+      { id: "website", label: "Website", clicks: 124, clickRate: 0.432 },
+      { id: "video", label: "Video", clicks: 56, clickRate: 0.195 },
+      { id: "directions", label: "Directions", clicks: 41, clickRate: 0.143 },
+      { id: "double-opt-in", label: "Double Opt-In (TXT)", clicks: 32, clickRate: 0.111 },
+      { id: "reviews", label: "Google Reviews", clicks: 21, clickRate: 0.073 },
+      { id: "preferences", label: "Preferences", clicks: 8, clickRate: 0.028 },
+      { id: "unsubscribed", label: "Unsubscribed", clicks: 5, clickRate: 0.017 },
+    ],
+  },
+};
 const channelToShared: Record<Channel, CampaignChannel> = {
   postcard: "postcard",
   email: "email",
@@ -460,22 +531,42 @@ const buildCampaignCards = (): CampaignCardProps[] => {
 
 const DetailsTable: React.FC = () => {
   const campaignCards = React.useMemo(() => buildCampaignCards(), []);
+  const [selectedClicks, setSelectedClicks] = useState<CampaignClickBreakdown | null>(null);
 
   const handleViewProof = (campaignName: string) => {
     console.log("View proof for:", campaignName);
   };
 
+  const handleOpenClicks = (campaignId: string) => {
+    const clickData = CAMPAIGN_CLICKS[campaignId];
+    if (clickData) setSelectedClicks(clickData);
+  };
+
+  const handleCloseClicks = () => setSelectedClicks(null);
+
   return (
     <section className="space-y-4">
-      {campaignCards.map((card) => (
-        <CampaignCard
-          key={card.name}
-          name={card.name}
-          subtitle={card.subtitle}
-          drops={card.drops}
-          onViewProof={() => handleViewProof(card.name)}
-        />
-      ))}
+      {campaignCards.map((card) => {
+        // Find the campaign ID for this card
+        const campaign = CAMPAIGNS.find(c => c.name === card.name);
+        return (
+          <CampaignCard
+            key={card.name}
+            campaignId={campaign?.id}
+            name={card.name}
+            subtitle={card.subtitle}
+            drops={card.drops}
+            onViewProof={() => handleViewProof(card.name)}
+            onOpenClicks={handleOpenClicks}
+          />
+        );
+      })}
+      
+      <CampaignClicksModal
+        open={!!selectedClicks}
+        data={selectedClicks}
+        onClose={handleCloseClicks}
+      />
     </section>
   );
 };

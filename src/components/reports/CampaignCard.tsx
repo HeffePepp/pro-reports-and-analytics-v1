@@ -22,7 +22,9 @@ export type CampaignCardProps = {
   name: string;
   subtitle: string;
   drops: CampaignDropRow[];
+  campaignId?: string;
   onViewProof?: () => void;
+  onOpenClicks?: (campaignId: string) => void;
 };
 
 const formatCurrency0 = (value: number) =>
@@ -50,8 +52,13 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
   name,
   subtitle,
   drops,
+  campaignId,
   onViewProof,
+  onOpenClicks,
 }) => {
+  // Check if campaign has any Email drops
+  const hasEmail = drops.some((d) => d.channels.includes("Email"));
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       {/* Campaign header */}
@@ -63,13 +70,25 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
           <div className="text-[11px] text-slate-500">{subtitle}</div>
         </div>
 
-        <button
-          type="button"
-          onClick={onViewProof}
-          className="rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-        >
-          View proof
-        </button>
+        <div className="flex items-center gap-2">
+          {hasEmail && onOpenClicks && campaignId && (
+            <button
+              type="button"
+              onClick={() => onOpenClicks(campaignId)}
+              className="rounded-full border border-slate-200 px-3 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+            >
+              Clicks
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onViewProof}
+            className="rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+          >
+            View proof
+          </button>
+        </div>
       </header>
 
       {/* Column headers – SAME grid on every tile */}
