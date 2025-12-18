@@ -150,8 +150,8 @@ const ResponseMaturityPill: React.FC<{ info: ResponseMaturityInfo; channel: Chan
         <span>Maturity {info.label}</span>
       </div>
 
-      {/* Tooltip */}
-      <div className="pointer-events-none absolute right-0 top-full z-20 mt-1 hidden w-64 rounded-md bg-slate-900 px-2 py-1.5 text-[10px] leading-snug text-white shadow-lg group-hover:block">
+      {/* Tooltip - positioned above to avoid container overflow */}
+      <div className="pointer-events-none absolute right-0 bottom-full z-50 mb-1 hidden w-64 rounded-md bg-slate-900 px-2 py-1.5 text-[10px] leading-snug text-white shadow-lg group-hover:block">
         {tooltipText}
       </div>
     </div>
