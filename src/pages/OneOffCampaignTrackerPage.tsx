@@ -1,5 +1,5 @@
 import React from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { CHANNEL_BAR_CLASS, CampaignChannel } from "@/styles/channelColors";
 import { ChannelLegend } from "@/components/common/ChannelLegend";
@@ -285,41 +285,22 @@ const OneOffCampaignTrackerPage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="one-off-campaign-tracker"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
-
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on one-off campaigns"
-              bullets={[
-                "Summer A/C Tune-Up and Black Friday have the strongest ROAS and RESP %, ideal patterns for future offers.",
-                "Back to School underperforms on RESP %; consider stronger offer or more SMS.",
-                "Use Drops view to compare multi-drop campaigns and tune channel mix.",
-              ]}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="one-off-campaign-tracker"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
-          </div>
-
-          {/* Campaign details */}
-          <DetailsTable />
-        </div>
-
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on one-off campaigns"
@@ -329,8 +310,11 @@ const OneOffCampaignTrackerPage: React.FC = () => {
               "Use Drops view to compare multi-drop campaigns and tune channel mix.",
             ]}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Campaign details */}
+        <DetailsTable />
+      </ReportPageLayout>
     </ShellLayout>
   );
 };

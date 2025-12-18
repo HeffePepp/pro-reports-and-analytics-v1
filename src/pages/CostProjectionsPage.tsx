@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, SummaryTile, BarStack, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
+import { ShellLayout, SummaryTile, BarStack, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
 type CostProjectionSummary = {
@@ -150,88 +150,73 @@ const CostProjectionsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="cost-projections"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
-
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on cost projection data"
-              bullets={insights}
-              onRefresh={regenerateInsights}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="cost-projections"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
-          </div>
-
-          {/* Cost mix */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Journey cost mix
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Share of projected cost by step
-              </span>
-            </div>
-            <BarStack segments={segments} />
-          </section>
-
-          {/* Step details */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Step projections
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Est. cost, vehicles & revenue
-              </span>
-            </div>
-            <div className="space-y-2 text-xs text-slate-600">
-              {costSteps.map((s) => {
-                const roas = s.estRevenue / s.estCost;
-                return (
-                  <div key={s.name} className="border-b border-slate-100 pb-1 last:border-0">
-                    <div className="flex justify-between">
-                      <span>{s.name}</span>
-                      <span>{s.channel}</span>
-                    </div>
-                    <div className="flex justify-between mt-1 text-[11px]">
-                      <span>Cost: ${s.estCost.toLocaleString()}</span>
-                      <span>Vehicles: {s.estVehicles}</span>
-                      <span>ROAS: {roas.toFixed(1)}x</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        </div>
-
-        {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on cost projection data"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Cost mix */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Journey cost mix
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Share of projected cost by step
+            </span>
+          </div>
+          <BarStack segments={segments} />
+        </section>
+
+        {/* Step details */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Step projections
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Est. cost, vehicles & revenue
+            </span>
+          </div>
+          <div className="space-y-2 text-xs text-slate-600">
+            {costSteps.map((s) => {
+              const roas = s.estRevenue / s.estCost;
+              return (
+                <div key={s.name} className="border-b border-slate-100 pb-1 last:border-0">
+                  <div className="flex justify-between">
+                    <span>{s.name}</span>
+                    <span>{s.channel}</span>
+                  </div>
+                  <div className="flex justify-between mt-1 text-[11px]">
+                    <span>Cost: ${s.estCost.toLocaleString()}</span>
+                    <span>Vehicles: {s.estVehicles}</span>
+                    <span>ROAS: {roas.toFixed(1)}x</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };

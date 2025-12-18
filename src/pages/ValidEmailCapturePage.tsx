@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import {
   ReportTable,
@@ -150,116 +150,100 @@ const ValidEmailCapturePage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="valid-email-capture"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
-
-      {/* Layout: left content + right AI tile */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on email capture & deliverability"
-              bullets={insights}
-              onRefresh={regenerateInsights}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="valid-email-capture"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
-          </div>
-
-          {/* Capture rate by store */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Capture rate by store
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Valid email % by location
-              </span>
-            </div>
-            <div className="space-y-2 text-xs text-slate-700">
-              {emailRows.map((r) => (
-                <div key={r.storeName}>
-                  <div className="flex justify-between text-[11px]">
-                    <span>{r.storeName}</span>
-                    <span>{r.captureRate.toFixed(1)}% valid</span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-tp-pastel-green"
-                        style={{
-                          width: `${(r.captureRate / maxCaptureRate) * 100}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-slate-500 w-40 text-right">
-                      {r.validEmails.toLocaleString()} valid of{" "}
-                      {r.customers.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Table */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Email capture details
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Valid email rate by store
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <ReportTable>
-                <ReportTableHead>
-                  <ReportTableRow>
-                    <ReportTableHeaderCell label="Store" />
-                    <ReportTableHeaderCell label="Customers" align="right" />
-                    <ReportTableHeaderCell label="Valid emails" align="right" />
-                    <ReportTableHeaderCell label="Capture %" align="right" />
-                  </ReportTableRow>
-                </ReportTableHead>
-                <ReportTableBody>
-                  {emailRows.map((r) => (
-                    <ReportTableRow key={r.storeName}>
-                      <ReportTableCell className="text-slate-800">{r.storeName}</ReportTableCell>
-                      <ReportTableCell align="right">{r.customers.toLocaleString()}</ReportTableCell>
-                      <ReportTableCell align="right">{r.validEmails.toLocaleString()}</ReportTableCell>
-                      <ReportTableCell align="right">{r.captureRate.toFixed(1)}%</ReportTableCell>
-                    </ReportTableRow>
-                  ))}
-                </ReportTableBody>
-              </ReportTable>
-            </div>
-          </section>
-        </div>
-
-        {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on email capture & deliverability"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Capture rate by store */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Capture rate by store
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Valid email % by location
+            </span>
+          </div>
+          <div className="space-y-2 text-xs text-slate-700">
+            {emailRows.map((r) => (
+              <div key={r.storeName}>
+                <div className="flex justify-between text-[11px]">
+                  <span>{r.storeName}</span>
+                  <span>{r.captureRate.toFixed(1)}% valid</span>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className="h-full bg-tp-pastel-green"
+                      style={{
+                        width: `${(r.captureRate / maxCaptureRate) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-500 w-40 text-right">
+                    {r.validEmails.toLocaleString()} valid of{" "}
+                    {r.customers.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Table */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Email capture details
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Valid email rate by store
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <ReportTable>
+              <ReportTableHead>
+                <ReportTableRow>
+                  <ReportTableHeaderCell label="Store" />
+                  <ReportTableHeaderCell label="Customers" align="right" />
+                  <ReportTableHeaderCell label="Valid emails" align="right" />
+                  <ReportTableHeaderCell label="Capture %" align="right" />
+                </ReportTableRow>
+              </ReportTableHead>
+              <ReportTableBody>
+                {emailRows.map((r) => (
+                  <ReportTableRow key={r.storeName}>
+                    <ReportTableCell className="text-slate-800">{r.storeName}</ReportTableCell>
+                    <ReportTableCell align="right">{r.customers.toLocaleString()}</ReportTableCell>
+                    <ReportTableCell align="right">{r.validEmails.toLocaleString()}</ReportTableCell>
+                    <ReportTableCell align="right">{r.captureRate.toFixed(1)}%</ReportTableCell>
+                  </ReportTableRow>
+                ))}
+              </ReportTableBody>
+            </ReportTable>
+          </div>
+        </section>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };
