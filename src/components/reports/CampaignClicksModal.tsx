@@ -33,14 +33,7 @@ const CampaignClicksModal: React.FC<CampaignClicksModalProps> = ({
 }) => {
   if (!open || !data) return null;
 
-  const {
-    campaignName,
-    totalClicks,
-    uniqueClickers,
-    clickRate,
-    unsubscribeRate,
-    clickTypes,
-  } = data;
+  const { campaignName, totalClicks, clickTypes } = data;
 
   return (
     <div
@@ -48,14 +41,14 @@ const CampaignClicksModal: React.FC<CampaignClicksModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="mt-12 w-full max-w-3xl rounded-2xl bg-white shadow-xl"
+        className="mt-6 w-full max-w-3xl rounded-2xl bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal header */}
+        {/* Header */}
         <div className="flex items-start justify-between border-b border-slate-100 px-5 py-4">
           <div>
-            <div className="text-[14px] font-semibold text-slate-900">
-              {campaignName} – Clicks
+            <div className="text-[13px] font-semibold text-slate-900">
+              {campaignName}
             </div>
             <div className="text-[11px] text-slate-500">
               Click activity for this campaign's email drops.
@@ -63,49 +56,17 @@ const CampaignClicksModal: React.FC<CampaignClicksModalProps> = ({
           </div>
           <button
             type="button"
-            className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-full border border-slate-200 px-3 py-1 text-[11px] text-slate-600 hover:bg-slate-50"
             onClick={onClose}
           >
-            <X className="h-4 w-4" />
+            Close
           </button>
         </div>
 
-        {/* KPIs */}
-        <div className="grid gap-3 border-b border-slate-100 px-5 py-4 md:grid-cols-4">
-          <div className="rounded-xl bg-slate-50 px-3 py-2">
-            <div className="text-[10px] text-slate-500">Total clicks</div>
-            <div className="mt-1 text-[14px] font-semibold text-slate-900">
-              {totalClicks.toLocaleString("en-US")}
-            </div>
-          </div>
-          <div className="rounded-xl bg-slate-50 px-3 py-2">
-            <div className="text-[10px] text-slate-500">Unique clickers</div>
-            <div className="mt-1 text-[14px] font-semibold text-slate-900">
-              {uniqueClickers.toLocaleString("en-US")}
-            </div>
-          </div>
-          <div className="rounded-xl bg-slate-50 px-3 py-2">
-            <div className="text-[10px] text-slate-500">Click rate</div>
-            <div className="mt-1 text-[14px] font-semibold text-emerald-600">
-              {formatPercent1(clickRate)}
-            </div>
-          </div>
-          <div className="rounded-xl bg-slate-50 px-3 py-2">
-            <div className="text-[10px] text-slate-500">Unsubscribe rate</div>
-            <div className="mt-1 text-[14px] font-semibold text-red-500">
-              {formatPercent1(unsubscribeRate)}
-            </div>
-          </div>
-        </div>
-
-        {/* Click types table */}
+        {/* Click types table only */}
         <div className="px-5 py-4">
           <div className="text-[11px] font-semibold text-slate-700">
             Clicks by type
-          </div>
-          <div className="mt-1 text-[11px] text-slate-500">
-            Based on BASE-Clicks data: website, video, directions, double
-            opt-in (TXT), reviews, preferences, complaints and unsubscribes.
           </div>
 
           <div className="mt-3">
@@ -132,6 +93,17 @@ const CampaignClicksModal: React.FC<CampaignClicksModalProps> = ({
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Total clicks footer */}
+            <div className="grid grid-cols-[minmax(0,2fr)_repeat(2,minmax(0,1fr))] gap-4 border-t border-slate-100 py-2 text-[11px]">
+              <div className="text-right font-semibold text-slate-700">
+                Total clicks
+              </div>
+              <div className="text-right font-semibold text-slate-900">
+                {totalClicks.toLocaleString("en-US")}
+              </div>
+              <div className="text-right text-slate-500">100.0%</div>
             </div>
           </div>
         </div>
