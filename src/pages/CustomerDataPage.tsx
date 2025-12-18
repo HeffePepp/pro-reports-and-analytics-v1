@@ -55,7 +55,7 @@ const CustomerDataPage: React.FC = () => {
       case "vehicles":
         return <MetricTile key={id} label="Vehicles" value={customerDataSummary.vehicles.toLocaleString()} helpText="Total vehicles associated with customer records. Vehicles are the primary unit for journey targeting and service reminders." />;
       case "vehiclesPerCustomer":
-        return <MetricTile key={id} label="Vehicles / customer" value={customerDataSummary.avgVehiclesPerCustomer.toFixed(2)} helpText="Average number of vehicles per customer household. Higher ratios indicate multi-vehicle households with greater lifetime value potential." />;
+        return <MetricTile key={id} label="Vehicles / customer" value={customerDataSummary.avgVehiclesPerCustomer.toFixed(2)} helpText="Average number of vehicles per customer household. Higher ratios indicate multi-vehicle households with greater lifetime value (LTV) potential." />;
       case "reachableEmail":
         return <MetricTile key={id} label="Reachable by email" value={`${customerDataSummary.reachableEmailPct.toFixed(0)}%`} helpText="Percentage of customers with a valid email address on file. Email is typically the most cost-effective channel for regular communications." />;
       case "reachableMail":
@@ -105,7 +105,7 @@ const CustomerDataPage: React.FC = () => {
             Customer Data
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Customer/vehicle roster with visits, lifetime value and
+            Customer/vehicle roster with visits, lifetime value (LTV) and
             contactability by channel.
           </p>
         </div>

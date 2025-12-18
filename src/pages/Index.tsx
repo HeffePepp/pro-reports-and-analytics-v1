@@ -112,7 +112,7 @@ const REPORTS: Report[] = [
     name: "Customer Data",
     primaryCategory: "customers",
     type: "table",
-    purpose: "Customer/vehicle roster with visits, lifetime value and contactability.",
+    purpose: "Customer/vehicle roster with visits, lifetime value (LTV) and contactability.",
     previewMetric: "4,582 active customers",
   },
   {
