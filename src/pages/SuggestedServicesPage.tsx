@@ -64,6 +64,94 @@ const SS_SERVICE_TYPES: SuggestedServiceTypeRow[] = [
   { service: "Light Bulb", invoices: 1240, validEmailPct: 87, conversions: 3 },
 ];
 
+// Response maturity types and helpers (same as Customer Journey)
+type ChannelType = "email" | "text" | "postcard";
+type ResponseMaturityLevel = "early" | "maturing" | "mature" | "unknown";
+
+type ResponseMaturityInfo = {
+  level: ResponseMaturityLevel;
+  label: string;
+  ratio: number | null;
+  windowDays: number | null;
+  daysSince: number | null;
+};
+
+const RESPONSE_WINDOWS: Record<ChannelType, number> = {
+  postcard: 60,
+  email: 10,
+  text: 10,
+};
+
+const getResponseMaturity = (
+  channel: ChannelType,
+  daysSinceLastSend: number | null | undefined
+): ResponseMaturityInfo => {
+  const windowDays = RESPONSE_WINDOWS[channel];
+  if (!windowDays || daysSinceLastSend == null) {
+    return { level: "unknown", label: "", ratio: null, windowDays: null, daysSince: null };
+  }
+
+  const clampedDays = Math.max(0, daysSinceLastSend);
+  const ratio = Math.min(1, clampedDays / windowDays);
+  const pct = Math.round(ratio * 100);
+
+  let level: ResponseMaturityLevel;
+  if (ratio < 0.5) level = "early";
+  else if (ratio < 0.8) level = "maturing";
+  else level = "mature";
+
+  return { level, label: `${pct}%`, ratio, windowDays, daysSince: clampedDays };
+};
+
+const getMaturityColorClasses = (level: ResponseMaturityLevel) => {
+  switch (level) {
+    case "early":
+      return {
+        bg: "bg-rose-50",
+        border: "border-rose-200",
+        text: "text-rose-700",
+        dot: "bg-rose-500",
+      };
+    case "maturing":
+      return {
+        bg: "bg-amber-50",
+        border: "border-amber-200",
+        text: "text-amber-700",
+        dot: "bg-amber-500",
+      };
+    case "mature":
+      return {
+        bg: "bg-emerald-50",
+        border: "border-emerald-200",
+        text: "text-emerald-700",
+        dot: "bg-emerald-500",
+      };
+    default:
+      return {
+        bg: "bg-slate-50",
+        border: "border-slate-200",
+        text: "text-slate-600",
+        dot: "bg-slate-400",
+      };
+  }
+};
+
+// Response Maturity Pill component
+const ResponseMaturityPill: React.FC<{ info: ResponseMaturityInfo }> = ({ info }) => {
+  if (info.level === "unknown") return null;
+
+  const base =
+    "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium";
+  const colors = getMaturityColorClasses(info.level);
+
+  return (
+    <div className={`${base} ${colors.bg} ${colors.border} ${colors.text}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${colors.dot}`} />
+      <span>Maturity {info.label}</span>
+    </div>
+  );
+};
+
 type SuggestedServicesTouchPoint = {
   id: number;
   name: string;
@@ -75,6 +163,7 @@ type SuggestedServicesTouchPoint = {
   respPct: number;
   roas: number;
   revenue: number;
+  daysSinceLastSend?: number;
 };
 
 const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
@@ -89,6 +178,7 @@ const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
     respPct: 22.7,
     roas: 9.5,
     revenue: 199500,
+    daysSinceLastSend: 3,
   },
   {
     id: 2,
@@ -101,6 +191,7 @@ const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
     respPct: 17.6,
     roas: 12.1,
     revenue: 187550,
+    daysSinceLastSend: 7,
   },
   {
     id: 3,
@@ -113,6 +204,7 @@ const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
     respPct: 14.6,
     roas: 11.2,
     revenue: 134400,
+    daysSinceLastSend: 12,
   },
   {
     id: 4,
@@ -125,6 +217,7 @@ const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
     respPct: 20.3,
     roas: 16.4,
     revenue: 229600,
+    daysSinceLastSend: 15,
   },
 ];
 
@@ -668,8 +761,22 @@ const SuggestedServicesPage: React.FC = () => {
                               <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.sent.toLocaleString()}</td>
                               <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.opened.toLocaleString()}</td>
                               <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.responses.toLocaleString()}</td>
-                              <td className="py-2 px-2 text-right whitespace-nowrap">
-                                <span className="font-semibold text-emerald-600">{tp.respPct.toFixed(1)}%</span>
+                              <td className="py-2 px-2 text-right whitespace-nowrap align-middle">
+                                {(() => {
+                                  const channelKey = tp.channel.toLowerCase() as ChannelType;
+                                  const maturityInfo = getResponseMaturity(channelKey, tp.daysSinceLastSend);
+                                  const colors = getMaturityColorClasses(maturityInfo.level);
+                                  return (
+                                    <>
+                                      <div className={`font-semibold ${colors.text}`}>
+                                        {tp.respPct.toFixed(1)}%
+                                      </div>
+                                      <div className="mt-0.5 flex justify-end">
+                                        <ResponseMaturityPill info={maturityInfo} />
+                                      </div>
+                                    </>
+                                  );
+                                })()}
                               </td>
                               <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.roas.toFixed(1)}x</td>
                               <td className="py-2 pl-2 pr-1 text-right text-slate-900 whitespace-nowrap">
