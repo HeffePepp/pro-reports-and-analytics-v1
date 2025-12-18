@@ -234,7 +234,7 @@ const DataCaptureLtvPage: React.FC = () => {
       breadcrumb={[
         { label: "Home", to: "/" },
         { label: "Reports & Insights", to: "/" },
-        { label: "Data Capture + Lifetime Value" },
+        { label: "Customer Value Analysis" },
       ]}
       rightInfo={
         <span>
@@ -249,7 +249,7 @@ const DataCaptureLtvPage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-            Data Capture + Lifetime Value
+            Customer Value Analysis
           </h1>
           <p className="mt-1 text-sm text-slate-500">
             See how mail/email capture translates into customer value and ticket
