@@ -3,6 +3,7 @@ import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableK
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { CHANNEL_BAR_CLASS, CampaignChannel } from "@/styles/channelColors";
 import { ChannelLegend } from "@/components/common/ChannelLegend";
+import CampaignCard, { CampaignCardProps, CampaignDropRow } from "@/components/reports/CampaignCard";
 
 type Channel = "postcard" | "email" | "sms";
 
@@ -404,169 +405,76 @@ const groupDropsByCampaign = (rows: JourneyDropRow[]) => {
   });
 };
 
-const DetailsTable: React.FC = () => {
-  const grouped = React.useMemo(() => groupDropsByCampaign(JOURNEY_DROPS), []);
+// Build campaign cards data from grouped drops
+const buildCampaignCards = (): CampaignCardProps[] => {
+  const grouped = groupDropsByCampaign(JOURNEY_DROPS);
+  
+  return grouped.map((group) => {
+    const campaign = CAMPAIGNS.find(c => c.name === group.campaignName);
+    
+    // Build drop rows
+    const drops: CampaignDropRow[] = group.rows.map((row) => ({
+      id: row.id,
+      label: `Drop ${row.dropNumber}`,
+      date: row.dropDate,
+      sent: row.sent,
+      opened: row.opened,
+      respPct: row.respPct,
+      roas: row.roas,
+      revenue: row.revenue,
+      channels: row.channels.map(ch => 
+        ch === "postcard" ? "Postcard" : ch === "email" ? "Email" : "Text"
+      ) as ("Postcard" | "Email" | "Text")[],
+    }));
+    
+    // Add totals row for multi-drop campaigns
+    if (drops.length > 1) {
+      const totals = {
+        sent: drops.reduce((sum, d) => sum + d.sent, 0),
+        opened: drops.reduce((sum, d) => sum + d.opened, 0),
+        revenue: drops.reduce((sum, d) => sum + d.revenue, 0),
+      };
+      const avgRespPct = drops.reduce((sum, d) => sum + d.respPct, 0) / drops.length;
+      const avgRoas = drops.reduce((sum, d) => sum + d.roas, 0) / drops.length;
+      
+      drops.push({
+        id: `${group.campaignId}-total`,
+        label: "Campaign Totals",
+        sent: totals.sent,
+        opened: totals.opened,
+        respPct: avgRespPct,
+        roas: avgRoas,
+        revenue: totals.revenue,
+        channels: [],
+        isTotal: true,
+      });
+    }
+    
+    return {
+      name: group.campaignName,
+      subtitle: group.description,
+      drops,
+    };
+  });
+};
 
-  const handleViewProofs = (campaignId: string) => {
-    console.log("View proofs for:", campaignId);
+const DetailsTable: React.FC = () => {
+  const campaignCards = React.useMemo(() => buildCampaignCards(), []);
+
+  const handleViewProof = (campaignName: string) => {
+    console.log("View proof for:", campaignName);
   };
 
   return (
     <section className="space-y-4">
-      {grouped.map((group) => (
-        <div
-          key={group.campaignId}
-          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-        >
-          {/* Header row: campaign name/description + View proofs button */}
-          <div className="mb-3 flex items-start justify-between gap-4">
-            <div>
-              <div className="text-sm font-semibold text-slate-900">
-                {group.campaignName}
-              </div>
-              {group.description && (
-                <div className="mt-0.5 text-[11px] text-slate-500">
-                  {group.description}
-                </div>
-              )}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => handleViewProofs(group.campaignId)}
-              className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-            >
-              View proof
-            </button>
-          </div>
-
-          {/* Mini table for this campaign's drops */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs min-w-0">
-              <thead>
-                <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
-                  <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-                    Drop &amp; channels
-                  </th>
-                  <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                    Date
-                  </th>
-                  <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                    Sent
-                  </th>
-                  <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                    Opened
-                  </th>
-                  <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                    Resp %
-                  </th>
-                  <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                    ROAS
-                  </th>
-                  <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
-                    Revenue
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-slate-100">
-                {group.rows.map((row) => (
-                  <tr key={row.id} className="align-top">
-                    {/* Drop & channels – left aligned */}
-                    <td className="py-2 pr-3">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-700">
-                        Drop {row.dropNumber}
-                      </div>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {row.channels.map((ch) => (
-                          <span
-                            key={ch}
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${channelPillClass(ch)}`}
-                          >
-                            {channelDisplayName(ch)}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-
-                    {/* Date – right aligned */}
-                    <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                      {row.dropDate}
-                    </td>
-
-                    {/* Sent */}
-                    <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                      {row.sent.toLocaleString()}
-                    </td>
-
-                    {/* Opened */}
-                    <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                      {row.opened.toLocaleString()}
-                    </td>
-
-                    {/* Resp % */}
-                    <td className="py-2 px-2 text-right text-xs font-semibold text-emerald-600 whitespace-nowrap">
-                      {row.respPct.toFixed(1)}%
-                    </td>
-
-                    {/* ROAS */}
-                    <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                      {row.roas.toFixed(1)}×
-                    </td>
-
-                    {/* Revenue */}
-                    <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
-                      {row.revenue.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        maximumFractionDigits: 0,
-                      })}
-                    </td>
-                  </tr>
-                ))}
-
-                {/* Campaign totals row - only show for multi-drop campaigns */}
-                {group.rows.length > 1 && (() => {
-                  const totals = {
-                    sent: group.rows.reduce((sum, r) => sum + r.sent, 0),
-                    opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
-                    revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
-                  };
-                  const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
-                  const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
-                  
-                  return (
-                    <tr className="border-t border-slate-200 font-semibold">
-                      <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700 whitespace-nowrap">
-                        Campaign Totals
-                      </td>
-                      <td className="py-2 px-2 text-right text-xs text-slate-900"></td>
-                      <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                        {totals.sent.toLocaleString()}
-                      </td>
-                      <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                        {totals.opened.toLocaleString()}
-                      </td>
-                      <td className="py-2 px-2 text-right text-xs text-emerald-600 whitespace-nowrap">
-                        {avgRespPct.toFixed(1)}%
-                      </td>
-                      <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                        {avgRoas.toFixed(1)}×
-                      </td>
-                      <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
-                        {totals.revenue.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          maximumFractionDigits: 0,
-                        })}
-                      </td>
-                    </tr>
-                  );
-                })()}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      {campaignCards.map((card) => (
+        <CampaignCard
+          key={card.name}
+          name={card.name}
+          subtitle={card.subtitle}
+          drops={card.drops}
+          onViewProof={() => handleViewProof(card.name)}
+        />
       ))}
     </section>
   );
