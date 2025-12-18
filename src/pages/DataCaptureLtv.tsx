@@ -319,7 +319,7 @@ const DataCaptureLtvPage: React.FC = () => {
                   </div>
 
                   {/* bar */}
-                  <div className="flex-1">
+                  <div className="w-64">
                     <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
                       <div
                         className={`h-full ${color.bar}`}
@@ -392,7 +392,7 @@ const DataCaptureLtvPage: React.FC = () => {
                     </div>
 
                     {/* Bar */}
-                    <div className="flex-1">
+                    <div className="w-64">
                       <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
                         <div
                           className={`h-full ${color.bar}`}
