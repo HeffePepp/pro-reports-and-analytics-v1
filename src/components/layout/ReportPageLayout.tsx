@@ -2,6 +2,13 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 /**
+ * Shared AI Insights tile width for ALL report layouts.
+ * Use this constant for the Reports home page and any custom layouts
+ * to ensure consistent sizing across the app.
+ */
+export const AI_INSIGHTS_WIDTH_CLASSES = "w-full lg:w-[280px] xl:w-[320px] shrink-0";
+
+/**
  * ============================================================
  * GLOBAL FIX: AI Insights alignment (applies to ALL report pages)
  * ============================================================
@@ -73,7 +80,7 @@ const ReportPageLayout: React.FC<ReportPageLayoutProps> = ({
   className,
   leftClassName,
   rightClassName,
-  rightWidthClassName = "lg:w-[360px]",
+  rightWidthClassName = "lg:w-[280px] xl:w-[320px]",
   mobileAiPlacement = "top",
 }) => {
   return (

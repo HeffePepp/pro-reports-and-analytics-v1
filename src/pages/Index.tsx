@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ShellLayout, SummaryTile, DeepLink, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, SummaryTile, DeepLink, AIInsightsTile, AI_INSIGHTS_WIDTH_CLASSES } from "@/components/layout";
 import {
   Tooltip,
   TooltipContent,
@@ -398,10 +398,10 @@ const Index: React.FC = () => {
         </div>
       </div>
 
-      {/* Main area: cards + preview */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+      {/* Main area: cards + preview - flex layout matches report pages */}
+      <div className="mt-4 flex flex-col lg:flex-row lg:gap-4 lg:items-start">
         {/* Left: report cards grid */}
-        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-max items-start">
+        <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-max items-start">
           {visibleReports.map((report) => {
             const isSelected = selectedReport?.id === report.id;
             const badgeColors = categoryColors[report.primaryCategory];
@@ -477,8 +477,8 @@ const Index: React.FC = () => {
           )}
         </div>
 
-        {/* Right: report preview + AI insights */}
-        <div className="lg:col-span-1 space-y-4 self-start">
+        {/* Right: report preview + AI insights - uses shared width */}
+        <aside className={`${AI_INSIGHTS_WIDTH_CLASSES} hidden lg:block space-y-4 self-start`}>
           {/* Report Preview card */}
           <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
             {selectedReport ? (
@@ -542,7 +542,7 @@ const Index: React.FC = () => {
             }
             bullets={insightsBullets}
           />
-        </div>
+        </aside>
       </div>
     </ShellLayout>
   );
