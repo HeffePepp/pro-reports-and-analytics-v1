@@ -610,264 +610,250 @@ const CustomerJourneyPage: React.FC = () => {
         }}
       />
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="customer-journey"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
+      {/* Main content */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="customer-journey"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
+            />
+          ) : null
+        }
+        ai={<AIInsightsTile {...aiInsightsProps} />}
+        mobileAiPlacement="top"
+      >
+        {/* Touchpoint mix tile */}
+        <JourneyTouchpointMixTile items={touchpointMixItems} />
 
-      {/* Layout */}
-      <div className={`${selectedIds.length > 0 ? 'mt-4' : 'mt-4'} grid grid-cols-1 lg:grid-cols-4 gap-4 items-start`}>
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile {...aiInsightsProps} />
-          </div>
+        {/* Touch point ghost pills */}
+        <div className="space-y-4">
+          {(() => {
+            // Group rows by touch point
+            type GroupedTP = {
+              tpId: number;
+              tpName: string;
+              offsetLabel: string;
+              rows: typeof sortedDetailRows;
+            };
+            const groupedMap = new Map<number, GroupedTP>();
 
-          {/* Touchpoint mix tile */}
-          <JourneyTouchpointMixTile items={touchpointMixItems} />
+            sortedDetailRows.forEach((row) => {
+              if (!groupedMap.has(row.tpId)) {
+                groupedMap.set(row.tpId, {
+                  tpId: row.tpId,
+                  tpName: row.tpName,
+                  offsetLabel: row.offsetLabel,
+                  rows: [],
+                });
+              }
+              groupedMap.get(row.tpId)!.rows.push(row);
+            });
 
+            // Sort groups by touch point ID
+            const groups = Array.from(groupedMap.values()).sort((a, b) => a.tpId - b.tpId);
 
-          {/* Touch point ghost pills */}
-          <div className="space-y-4">
-            {(() => {
-              // Group rows by touch point
-              type GroupedTP = {
-                tpId: number;
-                tpName: string;
-                offsetLabel: string;
-                rows: typeof sortedDetailRows;
-              };
-              const groupedMap = new Map<number, GroupedTP>();
+            // Colors matching the mix tile
+            const SEGMENT_DOT_COLORS = [
+              "bg-tp-green",
+              "bg-tp-blue-light",
+              "bg-tp-purple",
+              "bg-tp-yellow",
+              "bg-tp-red",
+              "bg-emerald-500",
+              "bg-sky-500",
+              "bg-indigo-500",
+              "bg-amber-500",
+              "bg-rose-500",
+              "bg-teal-500",
+              "bg-violet-500",
+              "bg-orange-500",
+              "bg-cyan-500",
+              "bg-lime-500",
+            ];
 
-              sortedDetailRows.forEach((row) => {
-                if (!groupedMap.has(row.tpId)) {
-                  groupedMap.set(row.tpId, {
-                    tpId: row.tpId,
-                    tpName: row.tpName,
-                    offsetLabel: row.offsetLabel,
-                    rows: [],
-                  });
-                }
-                groupedMap.get(row.tpId)!.rows.push(row);
-              });
-
-              // Sort groups by touch point ID
-              const groups = Array.from(groupedMap.values()).sort((a, b) => a.tpId - b.tpId);
-
-              // Colors matching the mix tile
-              const SEGMENT_DOT_COLORS = [
-                "bg-tp-green",
-                "bg-tp-blue-light",
-                "bg-tp-purple",
-                "bg-tp-yellow",
-                "bg-tp-red",
-                "bg-emerald-500",
-                "bg-sky-500",
-                "bg-indigo-500",
-                "bg-amber-500",
-                "bg-rose-500",
-                "bg-teal-500",
-                "bg-violet-500",
-                "bg-orange-500",
-                "bg-cyan-500",
-                "bg-lime-500",
-              ];
-
-              return groups.map((group, groupIndex) => (
-                <div
-                  key={group.tpId}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                >
-                  {/* Header row: touch point name/offset + View proofs button */}
-                  <div className="mb-3 flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-2">
-                      <span
-                        className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${SEGMENT_DOT_COLORS[groupIndex % SEGMENT_DOT_COLORS.length]}`}
-                      />
-                      <div>
-                        <div className="text-sm font-semibold text-slate-900">
-                          {group.tpId}. {group.tpName}
-                        </div>
-                        <div className="mt-0.5 text-[11px] text-slate-500">
-                          {group.offsetLabel}
-                        </div>
+            return groups.map((group, groupIndex) => (
+              <div
+                key={group.tpId}
+                className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
+                {/* Header row: touch point name/offset + View proofs button */}
+                <div className="mb-3 flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-2">
+                    <span
+                      className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${SEGMENT_DOT_COLORS[groupIndex % SEGMENT_DOT_COLORS.length]}`}
+                    />
+                    <div>
+                      <div className="text-sm font-semibold text-slate-900">
+                        {group.tpId}. {group.tpName}
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-slate-500">
+                        {group.offsetLabel}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleViewProofs(group.tpId)}
-                      className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                    >
-                      View proof
-                    </button>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => handleViewProofs(group.tpId)}
+                    className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                  >
+                    View proof
+                  </button>
+                </div>
 
-                  {/* Mini table for this touch point's channels */}
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs min-w-0">
-                      <thead>
-                        <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
-                          <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-                            Channel
-                          </th>
-                          <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                            Sent
-                          </th>
-                          <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                            Opened
-                          </th>
-                          <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                            Responses
-                          </th>
-                          <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                            Resp %
-                          </th>
-                          <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                            ROAS
-                          </th>
-                          <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
-                            Revenue
-                          </th>
+                {/* Mini table for this touch point's channels */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs min-w-0">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
+                        <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
+                          Channel
+                        </th>
+                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                          Sent
+                        </th>
+                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                          Opened
+                        </th>
+                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                          Responses
+                        </th>
+                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                          Resp %
+                        </th>
+                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
+                          ROAS
+                        </th>
+                        <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
+                          Revenue
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-slate-100">
+                      {group.rows.map((row, idx) => (
+                        <tr key={`${row.tpId}-${row.channel}-${idx}`} className="align-top">
+                          {/* Channel pill */}
+                          <td className="py-2 pr-3">
+                            <span
+                              className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${
+                                row.channel === "postcard"
+                                  ? "bg-tp-pastel-blue text-sky-700"
+                                  : row.channel === "email"
+                                  ? "bg-tp-pastel-green text-emerald-700"
+                                  : "bg-tp-pastel-purple text-indigo-700"
+                              }`}
+                            >
+                              {CHANNEL_LABELS[row.channel]}
+                            </span>
+                          </td>
+
+                          {/* Sent */}
+                          <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                            {row.sends.toLocaleString()}
+                          </td>
+
+                          {/* Opened */}
+                          <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                            {row.channel === "postcard" ? "—" : row.opened.toLocaleString()}
+                          </td>
+
+                          {/* Responses */}
+                          <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                            {row.responses.toLocaleString()}
+                          </td>
+
+                          {/* Resp % with maturity pill */}
+                          <td className="py-2 px-2 text-right align-middle whitespace-nowrap">
+                            {(() => {
+                              const maturityInfo = getResponseMaturity(row.channel, row.daysSinceLastSend);
+                              const colors = getMaturityColorClasses(maturityInfo.level);
+                              return (
+                                <>
+                                  <div className={`text-xs font-semibold ${colors.text}`}>
+                                    {row.respPct.toFixed(1)}%
+                                  </div>
+                                  <div className="mt-0.5 flex justify-end">
+                                    <ResponseMaturityPill
+                                      channel={row.channel}
+                                      info={maturityInfo}
+                                    />
+                                  </div>
+                                </>
+                              );
+                            })()}
+                          </td>
+
+                          {/* ROAS */}
+                          <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                            {row.roas.toFixed(1)}x
+                          </td>
+
+                          {/* Revenue */}
+                          <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
+                            {row.revenue.toLocaleString("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                              maximumFractionDigits: 0,
+                            })}
+                          </td>
                         </tr>
-                      </thead>
+                      ))}
 
-                      <tbody className="divide-y divide-slate-100">
-                        {group.rows.map((row, idx) => (
-                          <tr key={`${row.tpId}-${row.channel}-${idx}`} className="align-top">
-                            {/* Channel pill */}
-                            <td className="py-2 pr-3">
-                              <span
-                                className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${
-                                  row.channel === "postcard"
-                                    ? "bg-tp-pastel-blue text-sky-700"
-                                    : row.channel === "email"
-                                    ? "bg-tp-pastel-green text-emerald-700"
-                                    : "bg-tp-pastel-purple text-indigo-700"
-                                }`}
-                              >
-                                {CHANNEL_LABELS[row.channel]}
-                              </span>
+                      {/* Touch point totals row - only show for multi-channel touch points */}
+                      {group.rows.length > 1 && (() => {
+                        const totals = {
+                          sent: group.rows.reduce((sum, r) => sum + r.sends, 0),
+                          opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
+                          responses: group.rows.reduce((sum, r) => sum + r.responses, 0),
+                          revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
+                        };
+                        const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
+                        const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
+
+                        return (
+                          <tr className="border-t border-slate-200 font-semibold">
+                            <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700 whitespace-nowrap">
+                              Touch Point Totals
                             </td>
-
-                            {/* Sent */}
                             <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                              {row.sends.toLocaleString()}
+                              {totals.sent.toLocaleString()}
                             </td>
-
-                            {/* Opened */}
                             <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                              {row.channel === "postcard" ? "—" : row.opened.toLocaleString()}
+                              {totals.opened.toLocaleString()}
                             </td>
-
-                            {/* Responses */}
                             <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                              {row.responses.toLocaleString()}
+                              {totals.responses.toLocaleString()}
                             </td>
-
-                            {/* Resp % with maturity pill */}
-                            <td className="py-2 px-2 text-right align-middle whitespace-nowrap">
-                              {(() => {
-                                const maturityInfo = getResponseMaturity(row.channel, row.daysSinceLastSend);
-                                const colors = getMaturityColorClasses(maturityInfo.level);
-                                return (
-                                  <>
-                                    <div className={`text-xs font-semibold ${colors.text}`}>
-                                      {row.respPct.toFixed(1)}%
-                                    </div>
-                                    <div className="mt-0.5 flex justify-end">
-                                      <ResponseMaturityPill
-                                        channel={row.channel}
-                                        info={maturityInfo}
-                                      />
-                                    </div>
-                                  </>
-                                );
-                              })()}
+                            <td className="py-2 px-2 text-right text-xs text-slate-600 whitespace-nowrap">
+                              {avgRespPct.toFixed(1)}%
                             </td>
-
-                            {/* ROAS */}
                             <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                              {row.roas.toFixed(1)}x
+                              {avgRoas.toFixed(1)}x
                             </td>
-
-                            {/* Revenue */}
                             <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
-                              {row.revenue.toLocaleString("en-US", {
+                              {totals.revenue.toLocaleString("en-US", {
                                 style: "currency",
                                 currency: "USD",
                                 maximumFractionDigits: 0,
                               })}
                             </td>
                           </tr>
-                        ))}
-
-                        {/* Touch point totals row - only show for multi-channel touch points */}
-                        {group.rows.length > 1 && (() => {
-                          const totals = {
-                            sent: group.rows.reduce((sum, r) => sum + r.sends, 0),
-                            opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
-                            responses: group.rows.reduce((sum, r) => sum + r.responses, 0),
-                            revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
-                          };
-                          const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
-                          const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
-
-                          return (
-                            <tr className="border-t border-slate-200 font-semibold">
-                              <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700 whitespace-nowrap">
-                                Touch Point Totals
-                              </td>
-                              <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                                {totals.sent.toLocaleString()}
-                              </td>
-                              <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                                {totals.opened.toLocaleString()}
-                              </td>
-                              <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                                {totals.responses.toLocaleString()}
-                              </td>
-                              <td className="py-2 px-2 text-right text-xs text-slate-600 whitespace-nowrap">
-                                {avgRespPct.toFixed(1)}%
-                              </td>
-                              <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                                {avgRoas.toFixed(1)}x
-                              </td>
-                              <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
-                                {totals.revenue.toLocaleString("en-US", {
-                                  style: "currency",
-                                  currency: "USD",
-                                  maximumFractionDigits: 0,
-                                })}
-                              </td>
-                            </tr>
-                          );
-                        })()}
-                      </tbody>
-                    </table>
-                  </div>
+                        );
+                      })()}
+                    </tbody>
+                  </table>
                 </div>
-              ));
-            })()}
-          </div>
-
+              </div>
+            ));
+          })()}
         </div>
-
-        {/* RIGHT: AI insights - top aligned with KPI tiles */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
-          <AIInsightsTile {...aiInsightsProps} />
-        </div>
-      </div>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };
