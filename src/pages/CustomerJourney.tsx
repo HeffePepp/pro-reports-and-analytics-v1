@@ -595,7 +595,7 @@ const CustomerJourneyPage: React.FC = () => {
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
             Customer Journey
           </h1>
-          <p className="mt-1 text-sm text-slate-500 lg:max-w-[75%]">
+          <p className="mt-1 text-sm text-slate-500">
             Active Customer Journey touch points for the stores and date range selected.
             <br />
             Response maturity is based on Throttle standard response windows:
