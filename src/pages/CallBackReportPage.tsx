@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ShellLayout from "@/components/layout/ShellLayout";
 import AIInsightsTile from "@/components/layout/AIInsightsTile";
+import ReportPageLayout from "@/components/layout/ReportPageLayout";
 
 type SegmentKey = "active" | "retained" | "lapsed" | "inactive" | "lost";
 
@@ -1049,11 +1050,9 @@ export default function CallbackReportPage() {
         </p>
       </div>
 
-      {/* Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* KPI tiles = preset timeframe buckets */}
+      {/* Main content */}
+      <ReportPageLayout
+        kpis={
           <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
             {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => (
               <SegmentTile
@@ -1067,251 +1066,8 @@ export default function CallbackReportPage() {
               />
             ))}
           </div>
-
-          {/* Segment mix visualization */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="text-[13px] font-semibold text-slate-900">Mix by segment</div>
-            <div className="text-[11px] text-slate-500">% of customers by recency</div>
-            
-            {/* Stacked bar */}
-            <div className="mt-3 flex h-3 w-full overflow-hidden rounded-full">
-              {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => {
-                const total = Object.values(counts).reduce((sum, v) => sum + v, 0);
-                const pct = total > 0 ? (counts[k] / total) * 100 : 0;
-                const barColors: Record<SegmentKey, string> = {
-                  active: "bg-emerald-200",
-                  retained: "bg-sky-200",
-                  lapsed: "bg-amber-200",
-                  inactive: "bg-orange-200",
-                  lost: "bg-rose-200",
-                };
-                return (
-                  <div
-                    key={k}
-                    className={`${barColors[k]} transition-all`}
-                    style={{ width: `${pct}%` }}
-                  />
-                );
-              })}
-            </div>
-
-            {/* Legend */}
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
-              {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => {
-                const total = Object.values(counts).reduce((sum, v) => sum + v, 0);
-                const pct = total > 0 ? (counts[k] / total) * 100 : 0;
-                const dotColors: Record<SegmentKey, string> = {
-                  active: "bg-emerald-200",
-                  retained: "bg-sky-200",
-                  lapsed: "bg-amber-200",
-                  inactive: "bg-orange-200",
-                  lost: "bg-rose-200",
-                };
-                return (
-                  <div key={k} className="flex items-center gap-1.5 text-[11px] text-slate-600">
-                    <span className={`h-2 w-2 rounded-full ${dotColors[k]}`} />
-                    {SEGMENTS[k].label.replace(" Customers", "")} · {pct.toFixed(0)}%
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Controls row */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
-            <div className="text-[13px] font-semibold text-slate-900">Custom date range</div>
-            
-            {/* First row: Start date, End date, Process button, Checkbox */}
-            <div className="flex flex-wrap items-end gap-4">
-              <div>
-                <div className="text-[11px] font-medium text-slate-500 mb-1">Start date</div>
-                <Input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-[150px] rounded-xl"
-                  placeholder="(optional)"
-                />
-              </div>
-
-              <div>
-                <div className="text-[11px] font-medium text-slate-500 mb-1">End date</div>
-                <Input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-[150px] rounded-xl"
-                />
-              </div>
-
-              <Button
-                className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100"
-                variant="ghost"
-                onClick={handleProcessCustomDates}
-              >
-                Process
-              </Button>
-
-              <div className="flex items-center gap-2">
-                <input
-                  id="reachable"
-                  type="checkbox"
-                  checked={onlyReachable}
-                  onChange={(e) => setOnlyReachable(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-teal-600"
-                />
-                <label htmlFor="reachable" className="text-[11px] text-teal-600">
-                  Only show customers with phone or email
-                </label>
-            </div>
-
-              <div className="flex items-center gap-3">
-                {customDateMode ? (
-                  <Pill className="bg-indigo-50 text-indigo-700">Custom Dates</Pill>
-                ) : (
-                  <Pill className={selectedSeg.pillClass}>{selectedSeg.label}</Pill>
-                )}
-                <Button
-                  className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100"
-                  variant="ghost"
-                  onClick={() => downloadCSV(`callback-report-${selectedSegment}-${endDate}.csv`, exportRows)}
-                  disabled={!exportRows.length}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download CSV
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Customers table */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              {/* LEFT: title + subtitle */}
-              <div>
-                <div className="text-[13px] font-semibold text-slate-900">Customers to call back</div>
-                <div className="text-[11px] text-slate-500">
-                  Click any row for last-visit details, notes, invoice items and coupons.
-                </div>
-              </div>
-
-              {/* RIGHT: search + Show all */}
-              <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center">
-                {/* Search bar */}
-                <div className="md:w-64">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                    <Input
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className="pl-9 rounded-xl"
-                      placeholder="Name, email, phone, location..."
-                    />
-                  </div>
-                </div>
-
-                {/* Show all button */}
-                {filtered.length > 5 && (
-                  <button
-                    type="button"
-                    onClick={() => setShowAll(!showAll)}
-                    className="self-end inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-100 transition-colors md:self-auto"
-                  >
-                    {showAll ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                    {showAll ? "Show less" : `Show all ${filtered.length}`}
-                  </button>
-                )}
-              </div>
-            </header>
-
-            <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200">
-              <table className="w-full text-xs table-fixed">
-                <colgroup>
-                  <col className="w-[35%]" />
-                  <col className="w-[22%]" />
-                  <col className="w-[22%]" />
-                  <col className="w-[21%]" />
-                </colgroup>
-                <thead>
-                  <tr className="border-b border-slate-200 bg-white text-[11px] text-slate-500">
-                    <th className="px-4 py-3 text-left font-medium">
-                      <button type="button" onClick={() => onSort("name")} className="hover:text-slate-700">
-                        Customer name{sortArrow("name")}
-                      </button>
-                    </th>
-                    <th className="px-4 py-3 text-right font-medium whitespace-nowrap">
-                      <button type="button" onClick={() => onSort("lastServiceDate")} className="hover:text-slate-700">
-                        Last service{sortArrow("lastServiceDate")}
-                      </button>
-                    </th>
-                    <th className="px-4 py-3 text-right font-medium">
-                      <button type="button" onClick={() => onSort("location")} className="hover:text-slate-700">
-                        Last loc visited{sortArrow("location")}
-                      </button>
-                    </th>
-                    <th className="px-4 py-3 text-right font-medium">
-                      <button type="button" onClick={() => onSort("phone")} className="hover:text-slate-700">
-                        Cust ph{sortArrow("phone")}
-                      </button>
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-slate-100">
-                  {(showAll ? filtered : filtered.slice(0, 5)).map((c) => {
-                    const seg = SEGMENTS[c.segment];
-                    const last = fmtDate(parseISODateOnly(c.lastServiceDate));
-                    const missingPhone = !c.phone;
-                    const missingEmail = !c.email;
-
-                    return (
-                      <tr
-                        key={c.id}
-                        className="cursor-pointer bg-white hover:bg-slate-50"
-                        onClick={() => {
-                          setSelectedCustomer(c);
-                          setDetailOpen(true);
-                        }}
-                      >
-                        <td className="px-4 py-3">
-                          <div className="text-[13px] font-semibold text-slate-900">{c.name}</div>
-                          <div className="mt-1 flex flex-wrap items-center gap-1">
-                            <Pill className={seg.pillClass}>{seg.label.replace(" Customers", "")}</Pill>
-                            {missingPhone && <Pill className="bg-slate-100 text-slate-700">Phone missing</Pill>}
-                            {missingEmail && <Pill className="bg-slate-100 text-slate-700">Email missing</Pill>}
-                            {c.doNotCall && <Pill className="bg-slate-100 text-slate-700">Do not call</Pill>}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-right text-slate-900 whitespace-nowrap">
-                          <div className="font-medium">{last}</div>
-                          <div className="text-[11px] text-slate-500">
-                            {c.lastInvoiceNumber ? `Inv ${c.lastInvoiceNumber}` : "—"}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-right text-slate-900 truncate">{c.lastLocationVisited}</td>
-                        <td className="px-4 py-3 text-right text-slate-900 truncate">{c.phone ?? "—"}</td>
-                      </tr>
-                    );
-                  })}
-
-                  {!filtered.length && (
-                    <tr>
-                      <td colSpan={4} className="px-4 py-10 text-center text-sm text-slate-500">
-                        No customers match this timeframe and filter selection.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-
-          <CustomerDetailDialog open={detailOpen} onOpenChange={setDetailOpen} customer={selectedCustomer} />
-        </div>
-
-        {/* RIGHT: AI insights - top aligned */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+        }
+        ai={
           <AIInsightsTile
             bullets={[
               "Lost customers represent 20% of your database—prioritize callback campaigns.",
@@ -1319,8 +1075,250 @@ export default function CallbackReportPage() {
               "Lapsed segment shows highest callback conversion potential.",
             ]}
           />
+        }
+        mobileAiPlacement="top"
+      >
+        {/* Segment mix visualization */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="text-[13px] font-semibold text-slate-900">Mix by segment</div>
+          <div className="text-[11px] text-slate-500">% of customers by recency</div>
+          
+          {/* Stacked bar */}
+          <div className="mt-3 flex h-3 w-full overflow-hidden rounded-full">
+            {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => {
+              const total = Object.values(counts).reduce((sum, v) => sum + v, 0);
+              const pct = total > 0 ? (counts[k] / total) * 100 : 0;
+              const barColors: Record<SegmentKey, string> = {
+                active: "bg-emerald-200",
+                retained: "bg-sky-200",
+                lapsed: "bg-amber-200",
+                inactive: "bg-orange-200",
+                lost: "bg-rose-200",
+              };
+              return (
+                <div
+                  key={k}
+                  className={`${barColors[k]} transition-all`}
+                  style={{ width: `${pct}%` }}
+                />
+              );
+            })}
+          </div>
+
+          {/* Legend */}
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
+            {(Object.keys(SEGMENTS) as SegmentKey[]).map((k) => {
+              const total = Object.values(counts).reduce((sum, v) => sum + v, 0);
+              const pct = total > 0 ? (counts[k] / total) * 100 : 0;
+              const dotColors: Record<SegmentKey, string> = {
+                active: "bg-emerald-200",
+                retained: "bg-sky-200",
+                lapsed: "bg-amber-200",
+                inactive: "bg-orange-200",
+                lost: "bg-rose-200",
+              };
+              return (
+                <div key={k} className="flex items-center gap-1.5 text-[11px] text-slate-600">
+                  <span className={`h-2 w-2 rounded-full ${dotColors[k]}`} />
+                  {SEGMENTS[k].label.replace(" Customers", "")} · {pct.toFixed(0)}%
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+
+        {/* Controls row */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+          <div className="text-[13px] font-semibold text-slate-900">Custom date range</div>
+          
+          {/* First row: Start date, End date, Process button, Checkbox */}
+          <div className="flex flex-wrap items-end gap-4">
+            <div>
+              <div className="text-[11px] font-medium text-slate-500 mb-1">Start date</div>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-[150px] rounded-xl"
+                placeholder="(optional)"
+              />
+            </div>
+
+            <div>
+              <div className="text-[11px] font-medium text-slate-500 mb-1">End date</div>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-[150px] rounded-xl"
+              />
+            </div>
+
+            <Button
+              className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100"
+              variant="ghost"
+              onClick={handleProcessCustomDates}
+            >
+              Process
+            </Button>
+
+            <div className="flex items-center gap-2">
+              <input
+                id="reachable"
+                type="checkbox"
+                checked={onlyReachable}
+                onChange={(e) => setOnlyReachable(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-teal-600"
+              />
+              <label htmlFor="reachable" className="text-[11px] text-teal-600">
+                Only show customers with phone or email
+              </label>
+          </div>
+
+            <div className="flex items-center gap-3">
+              {customDateMode ? (
+                <Pill className="bg-indigo-50 text-indigo-700">Custom Dates</Pill>
+              ) : (
+                <Pill className={selectedSeg.pillClass}>{selectedSeg.label}</Pill>
+              )}
+              <Button
+                className="rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100"
+                variant="ghost"
+                onClick={() => downloadCSV(`callback-report-${selectedSegment}-${endDate}.csv`, exportRows)}
+                disabled={!exportRows.length}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download CSV
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Customers table */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            {/* LEFT: title + subtitle */}
+            <div>
+              <div className="text-[13px] font-semibold text-slate-900">Customers to call back</div>
+              <div className="text-[11px] text-slate-500">
+                Click any row for last-visit details, notes, invoice items and coupons.
+              </div>
+            </div>
+
+            {/* RIGHT: search + Show all */}
+            <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center">
+              {/* Search bar */}
+              <div className="md:w-64">
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9 rounded-xl"
+                    placeholder="Name, email, phone, location..."
+                  />
+                </div>
+              </div>
+
+              {/* Show all button */}
+              {filtered.length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAll(!showAll)}
+                  className="self-end inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-100 transition-colors md:self-auto"
+                >
+                  {showAll ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  {showAll ? "Show less" : `Show all ${filtered.length}`}
+                </button>
+              )}
+            </div>
+          </header>
+
+          <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200">
+            <table className="w-full text-xs table-fixed">
+              <colgroup>
+                <col className="w-[35%]" />
+                <col className="w-[22%]" />
+                <col className="w-[22%]" />
+                <col className="w-[21%]" />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-slate-200 bg-white text-[11px] text-slate-500">
+                  <th className="px-4 py-3 text-left font-medium">
+                    <button type="button" onClick={() => onSort("name")} className="hover:text-slate-700">
+                      Customer name{sortArrow("name")}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                    <button type="button" onClick={() => onSort("lastServiceDate")} className="hover:text-slate-700">
+                      Last service{sortArrow("lastServiceDate")}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium">
+                    <button type="button" onClick={() => onSort("location")} className="hover:text-slate-700">
+                      Last loc visited{sortArrow("location")}
+                    </button>
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium">
+                    <button type="button" onClick={() => onSort("phone")} className="hover:text-slate-700">
+                      Cust ph{sortArrow("phone")}
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-slate-100">
+                {(showAll ? filtered : filtered.slice(0, 5)).map((c) => {
+                  const seg = SEGMENTS[c.segment];
+                  const last = fmtDate(parseISODateOnly(c.lastServiceDate));
+                  const missingPhone = !c.phone;
+                  const missingEmail = !c.email;
+
+                  return (
+                    <tr
+                      key={c.id}
+                      className="cursor-pointer bg-white hover:bg-slate-50"
+                      onClick={() => {
+                        setSelectedCustomer(c);
+                        setDetailOpen(true);
+                      }}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="text-[13px] font-semibold text-slate-900">{c.name}</div>
+                        <div className="mt-1 flex flex-wrap items-center gap-1">
+                          <Pill className={seg.pillClass}>{seg.label.replace(" Customers", "")}</Pill>
+                          {missingPhone && <Pill className="bg-slate-100 text-slate-700">Phone missing</Pill>}
+                          {missingEmail && <Pill className="bg-slate-100 text-slate-700">Email missing</Pill>}
+                          {c.doNotCall && <Pill className="bg-slate-100 text-slate-700">Do not call</Pill>}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right text-slate-900 whitespace-nowrap">
+                        <div className="font-medium">{last}</div>
+                        <div className="text-[11px] text-slate-500">
+                          {c.lastInvoiceNumber ? `Inv ${c.lastInvoiceNumber}` : "—"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right text-slate-900 truncate">{c.lastLocationVisited}</td>
+                      <td className="px-4 py-3 text-right text-slate-900 truncate">{c.phone ?? "—"}</td>
+                    </tr>
+                  );
+                })}
+
+                {!filtered.length && (
+                  <tr>
+                    <td colSpan={4} className="px-4 py-10 text-center text-sm text-slate-500">
+                      No customers match this timeframe and filter selection.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+        <CustomerDetailDialog open={detailOpen} onOpenChange={setDetailOpen} customer={selectedCustomer} />
+      </ReportPageLayout>
     </ShellLayout>
   );
 }

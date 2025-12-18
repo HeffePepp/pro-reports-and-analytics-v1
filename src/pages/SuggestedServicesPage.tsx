@@ -589,309 +589,297 @@ const SuggestedServicesPage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="suggested-services"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
+      {/* Main content */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="suggested-services"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
+            />
+          ) : null
+        }
+        ai={<AIInsightsTile {...aiInsightsProps} />}
+        mobileAiPlacement="top"
+      >
+        {/* MAIN TWO-TAB TILE: Touch Points / Active SS Items */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <header className="flex items-center justify-end gap-3">
 
-      {/* Layout */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile {...aiInsightsProps} />
-          </div>
+          {/* Three-tab pill */}
+            <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1 text-[11px]">
+              {(["touchpoints", "responses", "activess"] as SsTab[]).map((tab) => {
+                const isActive = ssTab === tab;
+                const label = tab === "touchpoints" ? "Touch Points" : tab === "responses" ? "Responses" : "Active SS Items";
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setSsTab(tab)}
+                    className={`rounded-full px-3 py-1 transition ${
+                      isActive ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-800"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </header>
 
-          {/* MAIN TWO-TAB TILE: Touch Points / Active SS Items */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <header className="flex items-center justify-end gap-3">
+          {/* TOUCH POINTS TAB (default) – ghost pill layout like Customer Journey */}
+          {ssTab === "touchpoints" && (() => {
+            // Mix data for the bar
+            const totalResponses = SS_TOUCHPOINTS.reduce((sum, tp) => sum + tp.responses, 0);
+            
+            // Segment colors matching CJ
+            const SEGMENT_COLORS = [
+              { bar: "bg-tp-pastel-green", dot: "bg-tp-green" },
+              { bar: "bg-tp-pastel-blue", dot: "bg-tp-blue-light" },
+              { bar: "bg-tp-pastel-purple", dot: "bg-tp-purple" },
+              { bar: "bg-tp-pastel-yellow", dot: "bg-tp-yellow" },
+            ];
 
-            {/* Three-tab pill */}
-              <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1 text-[11px]">
-                {(["touchpoints", "responses", "activess"] as SsTab[]).map((tab) => {
-                  const isActive = ssTab === tab;
-                  const label = tab === "touchpoints" ? "Touch Points" : tab === "responses" ? "Responses" : "Active SS Items";
-                  return (
-                    <button
-                      key={tab}
-                      type="button"
-                      onClick={() => setSsTab(tab)}
-                      className={`rounded-full px-3 py-1 transition ${
-                        isActive ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-800"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-            </header>
+            const getColor = (index: number) => SEGMENT_COLORS[index % SEGMENT_COLORS.length];
 
-            {/* TOUCH POINTS TAB (default) – ghost pill layout like Customer Journey */}
-            {ssTab === "touchpoints" && (() => {
-              // Mix data for the bar
-              const totalResponses = SS_TOUCHPOINTS.reduce((sum, tp) => sum + tp.responses, 0);
-              
-              // Segment colors matching CJ
-              const SEGMENT_COLORS = [
-                { bar: "bg-tp-pastel-green", dot: "bg-tp-green" },
-                { bar: "bg-tp-pastel-blue", dot: "bg-tp-blue-light" },
-                { bar: "bg-tp-pastel-purple", dot: "bg-tp-purple" },
-                { bar: "bg-tp-pastel-yellow", dot: "bg-tp-yellow" },
-              ];
+            const channelPillClass = (channel: string) => {
+              switch (channel) {
+                case "Email":
+                  return "bg-emerald-50 border-emerald-100 text-emerald-700";
+                case "Text":
+                  return "bg-indigo-50 border-indigo-100 text-indigo-700";
+                default:
+                  return "bg-slate-50 border-slate-200 text-slate-700";
+              }
+            };
 
-              const getColor = (index: number) => SEGMENT_COLORS[index % SEGMENT_COLORS.length];
+            return (
+              <div className="mt-4 space-y-4">
+                {/* Touchpoint mix by contribution */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <header>
+                    <h2 className="text-[13px] font-semibold text-slate-900">
+                      Touchpoint mix by contribution
+                    </h2>
+                    <p className="text-[11px] text-slate-500">
+                      Share of total responses by touch point.
+                    </p>
+                  </header>
 
-              const channelPillClass = (channel: string) => {
-                switch (channel) {
-                  case "Email":
-                    return "bg-emerald-50 border-emerald-100 text-emerald-700";
-                  case "Text":
-                    return "bg-indigo-50 border-indigo-100 text-indigo-700";
-                  default:
-                    return "bg-slate-50 border-slate-200 text-slate-700";
-                }
-              };
-
-              return (
-                <div className="mt-4 space-y-4">
-                  {/* Touchpoint mix by contribution */}
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <header>
-                      <h2 className="text-[13px] font-semibold text-slate-900">
-                        Touchpoint mix by contribution
-                      </h2>
-                      <p className="text-[11px] text-slate-500">
-                        Share of total responses by touch point.
-                      </p>
-                    </header>
-
-                    {/* Segmented bar */}
-                    <div className="mt-4 flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                      {SS_TOUCHPOINTS.map((tp, index) => {
-                        const share = totalResponses > 0 ? (tp.responses / totalResponses) * 100 : 0;
-                        if (share <= 0) return null;
-                        return (
-                          <div
-                            key={tp.id}
-                            className={`${getColor(index).bar} h-full`}
-                            style={{ width: `${share}%` }}
-                          />
-                        );
-                      })}
-                    </div>
-
-                    {/* Legend */}
-                    <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1.5">
-                      {SS_TOUCHPOINTS.map((tp, index) => {
-                        const share = totalResponses > 0 ? (tp.responses / totalResponses) * 100 : 0;
-                        return (
-                          <div
-                            key={tp.id}
-                            className="inline-flex items-center gap-1.5 text-[11px] text-slate-700"
-                          >
-                            <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${getColor(index).dot}`} />
-                            <span className="font-medium whitespace-nowrap">{tp.id}. {tp.name}</span>
-                            <span className="text-slate-500">· {share.toFixed(1)}%</span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                  {/* Segmented bar */}
+                  <div className="mt-4 flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                    {SS_TOUCHPOINTS.map((tp, index) => {
+                      const share = totalResponses > 0 ? (tp.responses / totalResponses) * 100 : 0;
+                      if (share <= 0) return null;
+                      return (
+                        <div
+                          key={tp.id}
+                          className={`${getColor(index).bar} h-full`}
+                          style={{ width: `${share}%` }}
+                        />
+                      );
+                    })}
                   </div>
 
-                  {/* Ghost pill cards for each touch point */}
-                  {SS_TOUCHPOINTS.map((tp, index) => (
-                    <div
-                      key={tp.id}
-                      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                    >
-                      {/* Header row: touch point name/timing + View proofs button */}
-                      <div className="mb-3 flex items-start justify-between gap-4">
-                        <div className="flex items-start gap-2">
-                          <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${getColor(index).dot}`} />
-                          <div>
-                            <div className="text-sm font-semibold text-slate-900">
-                              {tp.id}. {tp.name}
-                            </div>
-                            <div className="mt-0.5 text-[11px] text-slate-500">
-                              {tp.timing}
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                  {/* Legend */}
+                  <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1.5">
+                    {SS_TOUCHPOINTS.map((tp, index) => {
+                      const share = totalResponses > 0 ? (tp.responses / totalResponses) * 100 : 0;
+                      return (
+                        <div
+                          key={tp.id}
+                          className="inline-flex items-center gap-1.5 text-[11px] text-slate-700"
                         >
-                          View proof
-                        </button>
-                      </div>
-
-                      {/* Mini table for this touch point */}
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs min-w-0">
-                          <thead>
-                            <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
-                              <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">Channel</th>
-                              <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Sent</th>
-                              <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Opened</th>
-                              <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Responses</th>
-                              <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Resp %</th>
-                              <th className="py-2 px-2 text-right font-medium whitespace-nowrap">ROAS</th>
-                              <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">Revenue</th>
-                            </tr>
-                          </thead>
-
-                          <tbody>
-                            <tr>
-                              <td className="py-2 pr-3">
-                                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${channelPillClass(tp.channel)}`}>
-                                  {tp.channel}
-                                </span>
-                              </td>
-                              <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.sent.toLocaleString()}</td>
-                              <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.opened.toLocaleString()}</td>
-                              <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.responses.toLocaleString()}</td>
-                              <td className="py-2 px-2 text-right whitespace-nowrap align-middle">
-                                {(() => {
-                                  const channelKey = tp.channel.toLowerCase() as ChannelType;
-                                  const maturityInfo = getResponseMaturity(channelKey, tp.daysSinceLastSend);
-                                  const colors = getMaturityColorClasses(maturityInfo.level);
-                                  return (
-                                    <>
-                                      <div className={`font-semibold ${colors.text}`}>
-                                        {tp.respPct.toFixed(1)}%
-                                      </div>
-                                      <div className="mt-0.5 flex justify-end">
-                                        <ResponseMaturityPill info={maturityInfo} />
-                                      </div>
-                                    </>
-                                  );
-                                })()}
-                              </td>
-                              <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.roas.toFixed(1)}x</td>
-                              <td className="py-2 pl-2 pr-1 text-right text-slate-900 whitespace-nowrap">
-                                {tp.revenue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  ))}
+                          <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${getColor(index).dot}`} />
+                          <span className="font-medium whitespace-nowrap">{tp.id}. {tp.name}</span>
+                          <span className="text-slate-500">· {share.toFixed(1)}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              );
-            })()}
 
-            {/* ACTIVE SS ITEMS TAB */}
-            {ssTab === "activess" && (
-              <div className="mt-4">
-                <header>
-                  <h2 className="text-[13px] font-semibold text-slate-900">
-                    Active Suggested Service Items
-                  </h2>
-                </header>
-
-                <ul className="mt-4 divide-y divide-slate-100">
-                  {SS_SERVICE_TYPES.map((item) => (
-                    <li
-                      key={item.service}
-                      className="flex items-center justify-between gap-4 py-3"
-                    >
-                      {/* LEFT: service name - vertically centered */}
-                      <div className="min-w-0 flex-1 flex items-center">
-                        <div className="truncate text-[15px] font-semibold tracking-wide text-slate-900">
-                          {item.service}
-                        </div>
-                      </div>
-
-                      {/* RIGHT: both metrics side by side */}
-                      <div className="shrink-0 flex items-center gap-4">
-                        {/* Invoice stat pill */}
-                        <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-center min-w-[120px]">
-                          <div className="text-[18px] font-semibold text-slate-700 leading-none">
-                            {item.invoices.toLocaleString()}
+                {/* Ghost pill cards for each touch point */}
+                {SS_TOUCHPOINTS.map((tp, index) => (
+                  <div
+                    key={tp.id}
+                    className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                  >
+                    {/* Header row: touch point name/timing + View proofs button */}
+                    <div className="mb-3 flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-2">
+                        <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${getColor(index).dot}`} />
+                        <div>
+                          <div className="text-sm font-semibold text-slate-900">
+                            {tp.id}. {tp.name}
                           </div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
-                            Inv. w/ this SS
-                          </div>
-                        </div>
-
-                        {/* Conversions stat pill */}
-                        <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-center min-w-[120px]">
-                          <div className="text-[18px] font-semibold text-slate-700 leading-none">
-                            {item.conversions.toLocaleString()}
-                          </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            SS Inv. w/ email
+                            {tp.timing}
                           </div>
                         </div>
                       </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* RESPONSES TAB – card-based before/after layout */}
-            {ssTab === "responses" && (() => {
-              // Filter: only Converted OR Email Opened - No Response Yet
-              const filteredResponses = SS_RESPONSES.filter(r => 
-                r.response.invoiceNumber || r.original.openedDate
-              );
-              const convertedCount = filteredResponses.filter(r => r.response.invoiceNumber).length;
-              const totalRevenue = filteredResponses
-                .filter(r => r.response.amount)
-                .reduce((sum, r) => sum + (r.response.amount || 0), 0);
-              const conversionRate = filteredResponses.length > 0 
-                ? (convertedCount / filteredResponses.length) * 100 
-                : 0;
-
-              return (
-                <div className="mt-4 space-y-4">
-                  {/* Summary stats - colored pills evenly distributed */}
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="rounded-xl bg-sky-50 border border-sky-200 px-5 py-2.5 text-center flex-1">
-                      <div className="text-lg font-semibold text-sky-700">{filteredResponses.length}</div>
-                      <div className="text-[11px] text-sky-600">Responses</div>
+                      <button
+                        type="button"
+                        className="inline-flex items-center rounded-full border border-slate-200 px-4 py-1.5 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                      >
+                        View proof
+                      </button>
                     </div>
-                    <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-2.5 text-center flex-1">
-                      <div className="text-lg font-semibold text-emerald-700">
-                        {totalRevenue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
-                      </div>
-                      <div className="text-[11px] text-emerald-600">SS Revenue</div>
-                    </div>
-                    <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-2.5 text-center flex-1">
-                      <div className="text-lg font-semibold text-indigo-700">{conversionRate.toFixed(1)}%</div>
-                      <div className="text-[11px] text-indigo-600">Conversion Rate</div>
+
+                    {/* Mini table for this touch point */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs min-w-0">
+                        <thead>
+                          <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
+                            <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">Channel</th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Sent</th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Opened</th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Responses</th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Resp %</th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">ROAS</th>
+                            <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">Revenue</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <tr>
+                            <td className="py-2 pr-3">
+                              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${channelPillClass(tp.channel)}`}>
+                                {tp.channel}
+                              </span>
+                            </td>
+                            <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.sent.toLocaleString()}</td>
+                            <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.opened.toLocaleString()}</td>
+                            <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.responses.toLocaleString()}</td>
+                            <td className="py-2 px-2 text-right whitespace-nowrap align-middle">
+                              {(() => {
+                                const channelKey = tp.channel.toLowerCase() as ChannelType;
+                                const maturityInfo = getResponseMaturity(channelKey, tp.daysSinceLastSend);
+                                const colors = getMaturityColorClasses(maturityInfo.level);
+                                return (
+                                  <>
+                                    <div className={`font-semibold ${colors.text}`}>
+                                      {tp.respPct.toFixed(1)}%
+                                    </div>
+                                    <div className="mt-0.5 flex justify-end">
+                                      <ResponseMaturityPill info={maturityInfo} />
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </td>
+                            <td className="py-2 px-2 text-right text-slate-900 whitespace-nowrap">{tp.roas.toFixed(1)}x</td>
+                            <td className="py-2 pl-2 pr-1 text-right text-slate-900 whitespace-nowrap">
+                              {tp.revenue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
+                ))}
+              </div>
+            );
+          })()}
 
-                  {/* Response cards */}
-                  {filteredResponses.map((row) => (
-                    <SuggestedServiceResponseCard key={row.id} row={row} />
-                  ))}
+          {/* ACTIVE SS ITEMS TAB */}
+          {ssTab === "activess" && (
+            <div className="mt-4">
+              <header>
+                <h2 className="text-[13px] font-semibold text-slate-900">
+                  Active Suggested Service Items
+                </h2>
+              </header>
+
+              <ul className="mt-4 divide-y divide-slate-100">
+                {SS_SERVICE_TYPES.map((item) => (
+                  <li
+                    key={item.service}
+                    className="flex items-center justify-between gap-4 py-3"
+                  >
+                    {/* LEFT: service name - vertically centered */}
+                    <div className="min-w-0 flex-1 flex items-center">
+                      <div className="truncate text-[15px] font-semibold tracking-wide text-slate-900">
+                        {item.service}
+                      </div>
+                    </div>
+
+                    {/* RIGHT: both metrics side by side */}
+                    <div className="shrink-0 flex items-center gap-4">
+                      {/* Invoice stat pill */}
+                      <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-center min-w-[120px]">
+                        <div className="text-[18px] font-semibold text-slate-700 leading-none">
+                          {item.invoices.toLocaleString()}
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-slate-500">
+                          Inv. w/ this SS
+                        </div>
+                      </div>
+
+                      {/* Conversions stat pill */}
+                      <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-center min-w-[120px]">
+                        <div className="text-[18px] font-semibold text-slate-700 leading-none">
+                          {item.conversions.toLocaleString()}
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-slate-500">
+                          SS Inv. w/ email
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* RESPONSES TAB – card-based before/after layout */}
+          {ssTab === "responses" && (() => {
+            // Filter: only Converted OR Email Opened - No Response Yet
+            const filteredResponses = SS_RESPONSES.filter(r => 
+              r.response.invoiceNumber || r.original.openedDate
+            );
+            const convertedCount = filteredResponses.filter(r => r.response.invoiceNumber).length;
+            const totalRevenue = filteredResponses
+              .filter(r => r.response.amount)
+              .reduce((sum, r) => sum + (r.response.amount || 0), 0);
+            const conversionRate = filteredResponses.length > 0 
+              ? (convertedCount / filteredResponses.length) * 100 
+              : 0;
+
+            return (
+              <div className="mt-4 space-y-4">
+                {/* Summary stats - colored pills evenly distributed */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="rounded-xl bg-sky-50 border border-sky-200 px-5 py-2.5 text-center flex-1">
+                    <div className="text-lg font-semibold text-sky-700">{filteredResponses.length}</div>
+                    <div className="text-[11px] text-sky-600">Responses</div>
+                  </div>
+                  <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-2.5 text-center flex-1">
+                    <div className="text-lg font-semibold text-emerald-700">
+                      {totalRevenue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
+                    </div>
+                    <div className="text-[11px] text-emerald-600">SS Revenue</div>
+                  </div>
+                  <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-2.5 text-center flex-1">
+                    <div className="text-lg font-semibold text-indigo-700">{conversionRate.toFixed(1)}%</div>
+                    <div className="text-[11px] text-indigo-600">Conversion Rate</div>
+                  </div>
                 </div>
-              );
-            })()}
-          </section>
-        </div>
 
-        {/* RIGHT: AI on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
-          <AIInsightsTile {...aiInsightsProps} />
-        </div>
-      </div>
+                {/* Response cards */}
+                {filteredResponses.map((row) => (
+                  <SuggestedServiceResponseCard key={row.id} row={row} />
+                ))}
+              </div>
+            );
+          })()}
+        </section>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };
