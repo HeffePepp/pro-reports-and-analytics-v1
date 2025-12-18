@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import {
   ReportTable,
@@ -165,148 +165,126 @@ const BillingCampaignTrackingPage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="billing-campaign-tracking"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
-
-      {/* Layout: left content + right AI tile */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on billing & campaign data"
-              bullets={insights}
-              onRefresh={regenerateInsights}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="billing-campaign-tracking"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
-          </div>
-
-          {/* Status breakdown */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Billing by status
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Pending, posted and paid
-              </span>
-            </div>
-            <div className="flex flex-col md:flex-row gap-3 text-xs text-slate-700">
-              <div className="flex-1">
-                <div className="flex justify-between text-[11px]">
-                  <span>Pending</span>
-                  <span>${totalPending.toFixed(0)}</span>
-                </div>
-                <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full bg-tp-pastel-yellow"
-                    style={{
-                      width: `${
-                        (totalPending / billingSummary.totalBilling) * 100
-                      }%`,
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between text-[11px]">
-                  <span>Posted</span>
-                  <span>${totalPosted.toFixed(0)}</span>
-                </div>
-                <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full bg-tp-pastel-blue"
-                    style={{
-                      width: `${
-                        (totalPosted / billingSummary.totalBilling) * 100
-                      }%`,
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between text-[11px]">
-                  <span>Paid</span>
-                  <span>${totalPaid.toFixed(0)}</span>
-                </div>
-                <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full bg-tp-pastel-green"
-                    style={{
-                      width: `${
-                        (totalPaid / billingSummary.totalBilling) * 100
-                      }%`,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Billing details table */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Billing details
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Campaign-level billing entries
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <ReportTable>
-                <ReportTableHead>
-                  <ReportTableRow>
-                    <ReportTableHeaderCell label="Billing ID" />
-                    <ReportTableHeaderCell label="Campaign" />
-                    <ReportTableHeaderCell label="Store" />
-                    <ReportTableHeaderCell label="Channel" />
-                    <ReportTableHeaderCell label="Amount" align="right" />
-                    <ReportTableHeaderCell label="Status" />
-                    <ReportTableHeaderCell label="Billing date" />
-                  </ReportTableRow>
-                </ReportTableHead>
-                <ReportTableBody>
-                  {billingRows.map((b) => (
-                    <ReportTableRow key={b.billingId}>
-                      <ReportTableCell className="text-slate-800">{b.billingId}</ReportTableCell>
-                      <ReportTableCell className="text-slate-700">{b.campaignName}</ReportTableCell>
-                      <ReportTableCell className="text-slate-700">{b.storeName}</ReportTableCell>
-                      <ReportTableCell className="text-slate-600">{b.channel}</ReportTableCell>
-                      <ReportTableCell align="right">${b.amount.toFixed(0)}</ReportTableCell>
-                      <ReportTableCell className="text-slate-600">{b.status}</ReportTableCell>
-                      <ReportTableCell className="text-slate-600">{b.billingDate}</ReportTableCell>
-                    </ReportTableRow>
-                  ))}
-                </ReportTableBody>
-              </ReportTable>
-            </div>
-          </section>
-        </div>
-
-        {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on billing & campaign data"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Status breakdown */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Billing by status
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Pending, posted and paid
+            </span>
+          </div>
+          <div className="flex flex-col md:flex-row gap-3 text-xs text-slate-700">
+            <div className="flex-1">
+              <div className="flex justify-between text-[11px]">
+                <span>Pending</span>
+                <span>${totalPending.toFixed(0)}</span>
+              </div>
+              <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full bg-tp-pastel-yellow"
+                  style={{
+                    width: `${(totalPending / billingSummary.totalBilling) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex-1">
+              <div className="flex justify-between text-[11px]">
+                <span>Posted</span>
+                <span>${totalPosted.toFixed(0)}</span>
+              </div>
+              <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full bg-tp-pastel-blue"
+                  style={{
+                    width: `${(totalPosted / billingSummary.totalBilling) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex-1">
+              <div className="flex justify-between text-[11px]">
+                <span>Paid</span>
+                <span>${totalPaid.toFixed(0)}</span>
+              </div>
+              <div className="mt-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full bg-tp-pastel-green"
+                  style={{
+                    width: `${(totalPaid / billingSummary.totalBilling) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Billing details table */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Billing details
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Campaign-level billing entries
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <ReportTable>
+              <ReportTableHead>
+                <ReportTableRow>
+                  <ReportTableHeaderCell label="Billing ID" />
+                  <ReportTableHeaderCell label="Campaign" />
+                  <ReportTableHeaderCell label="Store" />
+                  <ReportTableHeaderCell label="Channel" />
+                  <ReportTableHeaderCell label="Amount" align="right" />
+                  <ReportTableHeaderCell label="Status" />
+                  <ReportTableHeaderCell label="Billing date" />
+                </ReportTableRow>
+              </ReportTableHead>
+              <ReportTableBody>
+                {billingRows.map((b) => (
+                  <ReportTableRow key={b.billingId}>
+                    <ReportTableCell className="text-slate-800">{b.billingId}</ReportTableCell>
+                    <ReportTableCell className="text-slate-700">{b.campaignName}</ReportTableCell>
+                    <ReportTableCell className="text-slate-700">{b.storeName}</ReportTableCell>
+                    <ReportTableCell className="text-slate-600">{b.channel}</ReportTableCell>
+                    <ReportTableCell align="right">${b.amount.toFixed(0)}</ReportTableCell>
+                    <ReportTableCell className="text-slate-600">{b.status}</ReportTableCell>
+                    <ReportTableCell className="text-slate-600">{b.billingDate}</ReportTableCell>
+                  </ReportTableRow>
+                ))}
+              </ReportTableBody>
+            </ReportTable>
+          </div>
+        </section>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };

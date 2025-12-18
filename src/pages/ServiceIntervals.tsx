@@ -3,6 +3,7 @@ import {
   ShellLayout,
   AIInsightsTile,
   KpiCustomizeButton,
+  ReportPageLayout,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
@@ -154,107 +155,96 @@ const ServiceIntervalsPage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
-          {selectedIds.map((id) => {
-            const seg = LOYALTY_SEGMENTS.find((s) => s.id === id);
-            if (!seg) return null;
-            const share = (seg.customers / TOTAL_CUSTOMERS) * 100;
-            return (
-              <div
-                key={seg.id}
-                className={`rounded-2xl border border-slate-200 p-3 shadow-sm ${seg.kpiBgClass}`}
-              >
-                <div className="space-y-1">
-                  <div className="text-[11px] font-semibold tracking-wide text-slate-600">
-                    {seg.kpiTitle}
-                  </div>
-                  <div className="text-[11px] text-slate-500">
-                    {seg.kpiRange}
-                  </div>
-                  <div className={`mt-1 text-xl font-semibold tracking-tight ${seg.kpiTextClass}`}>
-                    {seg.customers.toLocaleString()}
-                  </div>
-                  <div className="text-[11px] text-slate-600 leading-tight">
-                    <div>{share.toFixed(1)}% of customers</div>
-                    <div>{seg.vehicles.toLocaleString()} vehicles</div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on interval & retention data"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
-
-          {/* Customer Loyalty Segmentation chart tile */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <header className="flex items-baseline justify-between gap-3">
-              <div>
-                <h2 className="text-[13px] font-semibold text-slate-900">
-                  Customer Loyalty Segmentation
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  Buckets by time since last service visit
-                </p>
-              </div>
-            </header>
-
-            <div className="mt-4 space-y-3">
-              {LOYALTY_SEGMENTS.map((seg) => (
-                <div key={seg.id} className="space-y-1">
-                  <div className="flex items-start justify-between gap-4">
-                    {/* Left: segment label + range */}
-                    <div>
-                      <div className="text-xs font-semibold text-slate-900">{seg.label}</div>
-                      <div className="text-[11px] text-slate-500">{seg.rangeLabel}</div>
-                    </div>
-
-                    {/* Right: counts + avg ticket */}
-                    <div className="text-right text-[11px] text-slate-500">
-                      <div className="text-xs font-semibold text-slate-900">
-                        {seg.customers.toLocaleString()} customers · {seg.vehicles.toLocaleString()} vehicles
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+              {selectedIds.map((id) => {
+                const seg = LOYALTY_SEGMENTS.find((s) => s.id === id);
+                if (!seg) return null;
+                const share = (seg.customers / TOTAL_CUSTOMERS) * 100;
+                return (
+                  <div
+                    key={seg.id}
+                    className={`rounded-2xl border border-slate-200 p-3 shadow-sm ${seg.kpiBgClass}`}
+                  >
+                    <div className="space-y-1">
+                      <div className="text-[11px] font-semibold tracking-wide text-slate-600">
+                        {seg.kpiTitle}
                       </div>
                       <div className="text-[11px] text-slate-500">
-                        Avg ticket ${seg.avgTicket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                        {seg.kpiRange}
+                      </div>
+                      <div className={`mt-1 text-xl font-semibold tracking-tight ${seg.kpiTextClass}`}>
+                        {seg.customers.toLocaleString()}
+                      </div>
+                      <div className="text-[11px] text-slate-600 leading-tight">
+                        <div>{share.toFixed(1)}% of customers</div>
+                        <div>{seg.vehicles.toLocaleString()} vehicles</div>
                       </div>
                     </div>
                   </div>
-
-                  {/* Bar with segment-specific color */}
-                  <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100">
-                    <div
-                      className={`h-1.5 rounded-full ${seg.barColorClass}`}
-                      style={{ width: `${seg.barPct}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
-          </section>
-        </div>
-
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on interval & retention data"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Customer Loyalty Segmentation chart tile */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+          <header className="flex items-baseline justify-between gap-3">
+            <div>
+              <h2 className="text-[13px] font-semibold text-slate-900">
+                Customer Loyalty Segmentation
+              </h2>
+              <p className="text-[11px] text-slate-500">
+                Buckets by time since last service visit
+              </p>
+            </div>
+          </header>
+
+          <div className="mt-4 space-y-3">
+            {LOYALTY_SEGMENTS.map((seg) => (
+              <div key={seg.id} className="space-y-1">
+                <div className="flex items-start justify-between gap-4">
+                  {/* Left: segment label + range */}
+                  <div>
+                    <div className="text-xs font-semibold text-slate-900">{seg.label}</div>
+                    <div className="text-[11px] text-slate-500">{seg.rangeLabel}</div>
+                  </div>
+
+                  {/* Right: counts + avg ticket */}
+                  <div className="text-right text-[11px] text-slate-500">
+                    <div className="text-xs font-semibold text-slate-900">
+                      {seg.customers.toLocaleString()} customers · {seg.vehicles.toLocaleString()} vehicles
+                    </div>
+                    <div className="text-[11px] text-slate-500">
+                      Avg ticket ${seg.avgTicket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bar with segment-specific color */}
+                <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100">
+                  <div
+                    className={`h-1.5 rounded-full ${seg.barColorClass}`}
+                    style={{ width: `${seg.barPct}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
+import { ShellLayout, SummaryTile, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import {
   ReportTable,
@@ -162,79 +162,64 @@ const ComprehensiveAccountAuditPage: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="comprehensive-account-audit"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
-
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on audit results"
-              bullets={insights}
-              onRefresh={regenerateInsights}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="comprehensive-account-audit"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
-          </div>
-
-          {/* Table */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Audit checks
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Detailed pass/warn/fail by area
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <ReportTable>
-                <ReportTableHead>
-                  <ReportTableRow>
-                    <ReportTableHeaderCell label="Area" />
-                    <ReportTableHeaderCell label="Check" />
-                    <ReportTableHeaderCell label="Status" />
-                    <ReportTableHeaderCell label="Notes" />
-                  </ReportTableRow>
-                </ReportTableHead>
-                <ReportTableBody>
-                  {auditRows.map((row, idx) => (
-                    <ReportTableRow key={idx}>
-                      <ReportTableCell className="text-slate-800">{row.area}</ReportTableCell>
-                      <ReportTableCell className="text-slate-600">{row.check}</ReportTableCell>
-                      <ReportTableCell className="text-slate-600">{row.status}</ReportTableCell>
-                      <ReportTableCell className="text-slate-600">{row.notes}</ReportTableCell>
-                    </ReportTableRow>
-                  ))}
-                </ReportTableBody>
-              </ReportTable>
-            </div>
-          </section>
-        </div>
-
-        {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on audit results"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Table */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Audit checks
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Detailed pass/warn/fail by area
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <ReportTable>
+              <ReportTableHead>
+                <ReportTableRow>
+                  <ReportTableHeaderCell label="Area" />
+                  <ReportTableHeaderCell label="Check" />
+                  <ReportTableHeaderCell label="Status" />
+                  <ReportTableHeaderCell label="Notes" />
+                </ReportTableRow>
+              </ReportTableHead>
+              <ReportTableBody>
+                {auditRows.map((row, idx) => (
+                  <ReportTableRow key={idx}>
+                    <ReportTableCell className="text-slate-800">{row.area}</ReportTableCell>
+                    <ReportTableCell className="text-slate-600">{row.check}</ReportTableCell>
+                    <ReportTableCell className="text-slate-600">{row.status}</ReportTableCell>
+                    <ReportTableCell className="text-slate-600">{row.notes}</ReportTableCell>
+                  </ReportTableRow>
+                ))}
+              </ReportTableBody>
+            </ReportTable>
+          </div>
+        </section>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };
