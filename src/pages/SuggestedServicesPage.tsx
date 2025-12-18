@@ -1,8 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
-import { SuggestedServiceResponseCard, type SuggestedServiceResponse } from "@/components/reports/SuggestedServiceResponseCard";
+import { SuggestedServiceResponseCard } from "@/components/reports/SuggestedServiceResponseCard";
 import ClicksBreakdownModal, { ClicksBreakdownData, ClickTypeRow } from "@/components/reports/ClicksBreakdownModal";
+import {
+  SS_FACT_RESPONSES,
+  SS_TOUCHPOINT_CONFIGS,
+  aggregateTouchpointMetrics,
+  convertFactToCardFormat,
+  type ChannelType,
+} from "@/data/suggestedServicesFactData";
 
 type SuggestedServicesSummary = {
   storeGroupName: string;
@@ -65,8 +72,8 @@ const SS_SERVICE_TYPES: SuggestedServiceTypeRow[] = [
   { service: "Light Bulb", invoices: 1240, validEmailPct: 87, conversions: 3 },
 ];
 
-// Response maturity types and helpers (same as Customer Journey)
-type ChannelType = "email" | "text" | "postcard";
+// Response maturity types and helpers
+// ChannelType is imported from suggestedServicesFactData
 type ResponseMaturityLevel = "early" | "maturing" | "mature" | "unknown";
 
 type ResponseMaturityInfo = {
@@ -153,280 +160,9 @@ const ResponseMaturityPill: React.FC<{ info: ResponseMaturityInfo }> = ({ info }
   );
 };
 
-type SuggestedServicesTouchPoint = {
-  id: number;
-  name: string;
-  timing: string;
-  channel: "Email" | "Text";
-  sent: number;
-  opened: number;
-  responses: number;
-  respPct: number;
-  roas: number;
-  revenue: number;
-  daysSinceLastSend?: number;
-};
+// Touch point and response data now comes from unified fact layer (imported above)
 
-const SS_TOUCHPOINTS: SuggestedServicesTouchPoint[] = [
-  {
-    id: 1,
-    name: "Suggested Services",
-    timing: "1 week after service",
-    channel: "Email",
-    sent: 1850,
-    opened: 1295,
-    responses: 420,
-    respPct: 22.7,
-    roas: 9.5,
-    revenue: 199500,
-    daysSinceLastSend: 3,
-  },
-  {
-    id: 2,
-    name: "Suggested Services",
-    timing: "1 month after service",
-    channel: "Email",
-    sent: 1760,
-    opened: 1232,
-    responses: 310,
-    respPct: 17.6,
-    roas: 12.1,
-    revenue: 187550,
-    daysSinceLastSend: 7,
-  },
-  {
-    id: 3,
-    name: "Suggested Services",
-    timing: "3 months after service",
-    channel: "Email",
-    sent: 1640,
-    opened: 1148,
-    responses: 240,
-    respPct: 14.6,
-    roas: 11.2,
-    revenue: 134400,
-    daysSinceLastSend: 12,
-  },
-  {
-    id: 4,
-    name: "Suggested Services",
-    timing: "6 months after service",
-    channel: "Email",
-    sent: 1380,
-    opened: 966,
-    responses: 280,
-    respPct: 20.3,
-    roas: 16.4,
-    revenue: 229600,
-    daysSinceLastSend: 15,
-  },
-];
-
-// Mock response data for the new Responses tab
-const SS_RESPONSES: SuggestedServiceResponse[] = [
-  {
-    id: "r1",
-    customerName: "Sarah Johnson",
-    customerEmail: "sarah.j@email.com",
-    storeLabel: "0334 · GMF · Richmond, VA",
-    vehicleLabel: "2019 Honda Accord – VA-ABC1234",
-    original: {
-      invoiceNumber: "198001",
-      date: "10-01-2025",
-      amount: 89.95,
-      mileage: 52340,
-      touchpointLabel: "Suggested Services – 1 week",
-      channelLabel: "Email",
-      sentDate: "10-05-2025",
-      openedDate: "10-05-2025",
-    },
-    suggestions: [
-      { id: "s1", name: "Transmission Service", videoWatched: true, couponOpened: true, offerText: "$20 off" },
-      { id: "s2", name: "Cabin Air Filter", videoWatched: false, couponOpened: true },
-    ],
-    response: {
-      invoiceNumber: "198041",
-      date: "10-12-2025",
-      amount: 245.00,
-      daysLater: 7,
-      milesLater: 120,
-      servicesPurchased: ["Transmission Service", "Cabin Air Filter"],
-      offerType: "coupon",
-      offerCode: "TRANS20",
-      offerDescription: "$20 off transmission service",
-    },
-  },
-  {
-    id: "r2",
-    customerName: "Michael Chen",
-    customerEmail: "mchen@gmail.com",
-    storeLabel: "0221 · Express Lube · Arlington, VA",
-    vehicleLabel: "2017 Toyota Camry – VA-XYZ5678",
-    original: {
-      invoiceNumber: "197845",
-      date: "09-28-2025",
-      amount: 45.99,
-      mileage: 78200,
-      touchpointLabel: "Suggested Services – 1 month",
-      channelLabel: "Email",
-      sentDate: "10-28-2025",
-      openedDate: "10-29-2025",
-    },
-    suggestions: [
-      { id: "s3", name: "Brake Service", videoWatched: true, couponOpened: false, offerText: "$15 off" },
-      { id: "s4", name: "Serpentine Belt", videoWatched: false, couponOpened: false },
-    ],
-    response: {
-      invoiceNumber: "198102",
-      date: "11-02-2025",
-      amount: 189.00,
-      daysLater: 5,
-      milesLater: 85,
-      servicesPurchased: ["Brake Service"],
-      offerType: "discount",
-      offerCode: "BRAKE15",
-      offerDescription: "$15 off brake service",
-    },
-  },
-  {
-    id: "r3",
-    customerName: "Emily Rodriguez",
-    customerEmail: "emily.rod@yahoo.com",
-    storeLabel: "0445 · Quick Oil · Fairfax, VA",
-    vehicleLabel: "2020 Mazda CX-5 – VA-DEF9012",
-    original: {
-      invoiceNumber: "197990",
-      date: "10-15-2025",
-      amount: 62.50,
-      mileage: 34500,
-      touchpointLabel: "Suggested Services – 1 week",
-      channelLabel: "Email",
-      sentDate: "10-22-2025",
-      openedDate: "10-23-2025",
-    },
-    suggestions: [
-      { id: "s5", name: "Air Filter", videoWatched: false, couponOpened: false },
-      { id: "s6", name: "Wiper Blades", videoWatched: false, couponOpened: false },
-    ],
-    response: {},
-  },
-  {
-    id: "r4",
-    customerName: "David Thompson",
-    customerEmail: "dthompson@work.com",
-    storeLabel: "0334 · GMF · Richmond, VA",
-    vehicleLabel: "2016 Ford F-150 – VA-TRK4567",
-    original: {
-      invoiceNumber: "197802",
-      date: "09-20-2025",
-      amount: 125.00,
-      mileage: 95200,
-      touchpointLabel: "Suggested Services – 3 months",
-      channelLabel: "Email",
-      sentDate: "12-20-2025",
-      openedDate: "12-21-2025",
-    },
-    suggestions: [
-      { id: "s7", name: "Transfer Case Service", videoWatched: true, couponOpened: true, offerText: "$25 off" },
-      { id: "s8", name: "Rear Diff Service", videoWatched: true, couponOpened: false },
-      { id: "s9", name: "Front Diff Service", videoWatched: false, couponOpened: false },
-    ],
-    response: {
-      invoiceNumber: "198250",
-      date: "12-28-2025",
-      amount: 385.00,
-      daysLater: 8,
-      milesLater: 450,
-      servicesPurchased: ["Transfer Case Service", "Rear Diff Service"],
-      offerType: "coupon",
-      offerCode: "TRANSFER25",
-      offerDescription: "$25 off transfer case service",
-    },
-  },
-  {
-    id: "r5",
-    customerName: "Jennifer Martinez",
-    storeLabel: "0221 · Express Lube · Arlington, VA",
-    vehicleLabel: "2021 Hyundai Sonata – VA-HYU8901",
-    original: {
-      invoiceNumber: "198050",
-      date: "10-25-2025",
-      amount: 55.00,
-      mileage: 22100,
-      touchpointLabel: "Suggested Services – 1 week",
-      channelLabel: "Email",
-      sentDate: "11-01-2025",
-      openedDate: "11-02-2025",
-    },
-    suggestions: [
-      { id: "s10", name: "Fuel Injection Service", videoWatched: true, couponOpened: true, offerText: "$10 off" },
-    ],
-    response: {},
-  },
-  {
-    id: "r6",
-    customerName: "Robert Williams",
-    customerEmail: "rwilliams@mail.com",
-    storeLabel: "0445 · Quick Oil · Fairfax, VA",
-    vehicleLabel: "2018 Chevrolet Silverado – VA-SLV2468",
-    original: {
-      invoiceNumber: "197920",
-      date: "10-10-2025",
-      amount: 98.50,
-      mileage: 67800,
-      touchpointLabel: "Suggested Services – 1 month",
-      channelLabel: "Email",
-      sentDate: "11-10-2025",
-      openedDate: "11-11-2025",
-    },
-    suggestions: [
-      { id: "s11", name: "Power Steering Flush", videoWatched: true, couponOpened: true, offerText: "10% off" },
-      { id: "s12", name: "Radiator Service", videoWatched: false, couponOpened: false },
-    ],
-    response: {
-      invoiceNumber: "198320",
-      date: "11-18-2025",
-      amount: 275.00,
-      daysLater: 8,
-      milesLater: 180,
-      servicesPurchased: ["Power Steering Flush", "Radiator Service"],
-      offerType: "discount",
-      offerCode: "STEERING10",
-      offerDescription: "10% off power steering flush",
-    },
-  },
-  {
-    id: "r7",
-    customerName: "Amanda Foster",
-    customerEmail: "afoster@company.com",
-    storeLabel: "0334 · GMF · Richmond, VA",
-    vehicleLabel: "2022 Subaru Outback – VA-SUB1357",
-    original: {
-      invoiceNumber: "198100",
-      date: "10-30-2025",
-      amount: 72.00,
-      mileage: 18500,
-      touchpointLabel: "Suggested Services – 1 week",
-      channelLabel: "Email",
-      sentDate: "11-06-2025",
-      openedDate: "11-06-2025",
-    },
-    suggestions: [
-      { id: "s13", name: "Engine Air Filter", videoWatched: true, couponOpened: true, offerText: "$8 off" },
-    ],
-    response: {
-      invoiceNumber: "198380",
-      date: "11-12-2025",
-      amount: 45.00,
-      daysLater: 6,
-      milesLater: 95,
-      servicesPurchased: ["Engine Air Filter"],
-      offerType: "coupon",
-      offerCode: "AIRFILTER8",
-      offerDescription: "$8 off engine air filter",
-    },
-  },
-];
+// SS_RESPONSES removed - now derived from SS_FACT_RESPONSES via convertFactToCardFormat
 
 const getRespColorClass = (rate: number): string => {
   if (rate >= 15) return "text-emerald-600";
@@ -452,6 +188,15 @@ const SuggestedServicesPage: React.FC = () => {
   const [ssTab, setSsTab] = useState<SsTab>("touchpoints");
   const { selectedIds, setSelectedIds } = useKpiPreferences("suggested-services", KPI_OPTIONS);
   const [clicksModalData, setClicksModalData] = useState<ClicksBreakdownData | null>(null);
+
+  // Derive touch point metrics from unified fact data
+  const SS_TOUCHPOINTS = useMemo(
+    () => aggregateTouchpointMetrics(SS_FACT_RESPONSES, SS_TOUCHPOINT_CONFIGS),
+    []
+  );
+
+  // Derive response cards from unified fact data
+  const SS_RESPONSES = useMemo(() => convertFactToCardFormat(SS_FACT_RESPONSES), []);
 
   // Mock clicks data for SS touch points
   const SS_CLICKS_BY_TP: Record<number, { totalClicks: number; clickTypes: ClickTypeRow[] }> = {
@@ -728,6 +473,9 @@ const SuggestedServicesPage: React.FC = () => {
                     <p className="text-[11px] text-slate-500">
                       Share of total responses by touch point.
                     </p>
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      Matches total response invoices listed on the Responses tab for this store/date range.
+                    </p>
                   </header>
 
                   {/* Segmented bar */}
@@ -929,6 +677,9 @@ const SuggestedServicesPage: React.FC = () => {
                   <div className="rounded-xl bg-sky-50 border border-sky-200 px-5 py-2.5 text-center flex-1">
                     <div className="text-lg font-semibold text-sky-700">{filteredResponses.length}</div>
                     <div className="text-[11px] text-sky-600">Responses</div>
+                    <div className="mt-0.5 text-[9px] text-sky-400">
+                      Each row = one response invoice
+                    </div>
                   </div>
                   <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-2.5 text-center flex-1">
                     <div className="text-lg font-semibold text-emerald-700">

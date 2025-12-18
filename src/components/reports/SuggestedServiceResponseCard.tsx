@@ -5,8 +5,8 @@ import { ChevronDown } from "lucide-react";
 type Suggestion = {
   id: string;
   name: string;
-  videoWatched: boolean;
-  couponOpened: boolean;
+  videoWatched?: boolean;
+  couponOpened?: boolean;
   offerText?: string;
 };
 
@@ -203,9 +203,7 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
                         tone={s.videoWatched ? "yes" : "no"}
                       />
                       <Badge
-                        label={
-                          s.couponOpened ? "Coupon opened" : "Coupon not opened"
-                        }
+                        label={s.couponOpened ? "Coupon opened" : "Coupon not opened"}
                         tone={s.couponOpened ? "yes" : "no"}
                       />
                     </div>
