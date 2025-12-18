@@ -892,7 +892,7 @@ function generateMockCustomers(): CustomerRecord[] {
         emailVerified: hasEmail && Math.random() > 0.3,
         licensePlate,
         vehicleId: licensePlate,
-        vin: Math.random() > 0.5 ? undefined : `1HGBH41JXMN${String(Math.floor(Math.random() * 100000)).padStart(6, "0")}`,
+        vin: `1HGBH41JXMN${String(Math.floor(Math.random() * 100000)).padStart(6, "0")}`,
         vehicleYear,
         vehicleMake,
         vehicleModel: `${vehicleModel} ${["LX", "EX", "SE", "Limited"][Math.floor(Math.random() * 4)]}`,
