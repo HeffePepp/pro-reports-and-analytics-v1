@@ -81,25 +81,27 @@ const ReportPageLayout: React.FC<ReportPageLayoutProps> = ({
       {/* Two-column grid starts at the very top so AI baseline is consistent */}
       <div className="flex flex-col lg:flex-row lg:gap-4 lg:items-start">
         {/* LEFT COLUMN */}
-        <div className={cn("flex-1 space-y-4", leftClassName)}>
+        <div className={cn("flex-1 min-w-0", leftClassName)}>
           {/* KPI row sits INSIDE left column so it never affects AI vertical position */}
-          {kpis ? <div>{kpis}</div> : null}
+          {kpis}
 
           {/* Mobile AI placement (rendered ONCE here; do not duplicate in pages) */}
           {ai && mobileAiPlacement === "top" ? (
-            <div className="lg:hidden">{ai}</div>
+            <div className={cn("lg:hidden", kpis ? "mt-4" : "")}>{ai}</div>
           ) : null}
 
-          {/* Main left content */}
-          {children}
+          {/* Main left content - add top margin only if there's content above */}
+          <div className={cn("space-y-4", (kpis || (ai && mobileAiPlacement === "top")) ? "mt-4" : "")}>
+            {children}
+          </div>
 
           {/* Optional mobile AI at bottom */}
           {ai && mobileAiPlacement === "bottom" ? (
-            <div className="lg:hidden">{ai}</div>
+            <div className="lg:hidden mt-4">{ai}</div>
           ) : null}
         </div>
 
-        {/* RIGHT COLUMN (desktop only) */}
+        {/* RIGHT COLUMN (desktop only) - always aligns to top of left column */}
         {ai ? (
           <div
             className={cn(
