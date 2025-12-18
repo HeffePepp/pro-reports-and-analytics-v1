@@ -89,7 +89,7 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
       {/* COLLAPSIBLE HEADER (yellow summary strip) */}
       <button
         type="button"
-        className="flex w-full items-stretch justify-between gap-3 bg-amber-50 px-4 py-3 text-left md:items-center hover:bg-amber-100/70 transition-colors"
+        className="flex w-full items-stretch justify-between gap-3 bg-slate-50 px-4 py-3 text-left md:items-center hover:bg-slate-100 transition-colors"
         onClick={() => setExpanded((open) => !open)}
         aria-expanded={expanded}
       >
