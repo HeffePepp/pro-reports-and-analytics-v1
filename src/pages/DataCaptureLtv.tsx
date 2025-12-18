@@ -298,62 +298,76 @@ const DataCaptureLtvPage: React.FC = () => {
             </div>
           </header>
 
-          {/* Column headers for the three right-side metrics */}
+          {/* Column headers */}
           <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
-            <div className="w-16 text-right whitespace-nowrap">Avg Invoice</div>
-            <div className="w-24 text-right whitespace-nowrap">Avg lift vs blank</div>
-            <div className="w-24 text-right whitespace-nowrap">MoM Trend</div>
+            <div className="w-16 text-right">Avg Invoice</div>
+            <div className="w-24 text-right">Avg lift vs blank</div>
+            <div className="w-24 text-right">MoM Capture Trend</div>
           </div>
 
           <div className="mt-1 space-y-3">
-            {TICKET_GROUPS.map((g) => {
-              const color = CAPTURE_GROUP_COLORS[g.id] ?? CAPTURE_GROUP_COLORS.blank;
-              return (
-                <div key={g.id} className="flex items-center gap-3 text-[11px]">
-                  {/* label + capture % */}
-                  <div className="w-28">
-                    <div className="text-slate-700">{g.label}</div>
-                    <div className="text-[10px] text-slate-500">
-                      {(CAPTURE_PCT_BY_ID[g.id] ?? 0).toFixed(1)}% of customers
-                    </div>
-                  </div>
+            {(() => {
+              const max = Math.max(...TICKET_GROUPS.map((r) => r.ticket || 0));
 
-                  {/* bar */}
-                  <div className="w-64">
-                    <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+              return TICKET_GROUPS.map((g) => {
+                const color = CAPTURE_GROUP_COLORS[g.id] ?? CAPTURE_GROUP_COLORS.blank;
+                const widthPct = max > 0 ? (g.ticket / max) * 100 : 0;
+
+                return (
+                  <div key={g.id} className="flex items-center gap-3 text-[11px]">
+                    {/* label */}
+                    <div className="w-28 text-slate-700">
+                      {g.label}
+                      <div className="text-[10px] text-slate-500">
+                        {(CAPTURE_PCT_BY_ID[g.id] ?? 0).toFixed(1)}% of customers
+                      </div>
+                    </div>
+
+                    {/* bar */}
+                    <div className="flex-1">
+                      <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div
+                          className={`h-full ${color.bar}`}
+                          style={{ width: `${widthPct}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* RIGHT: three tight, right-aligned columns */}
+                    <div className="flex gap-6 pr-1 text-right">
+                      {/* Avg Invoice */}
+                      <div className="w-16 text-slate-900">
+                        ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                      </div>
+
+                      {/* Avg lift vs blank */}
                       <div
-                        className={`h-full ${color.bar}`}
-                        style={{ width: `${(g.ticket / maxTicket) * 100}%` }}
-                      />
+                        className={
+                          g.id === "mail-email"
+                            ? "w-24 font-semibold text-emerald-600"
+                            : "w-24 text-slate-900"
+                        }
+                      >
+                        {g.id === "blank" ? "$0" : formatSignedCurrency(g.liftVsBlank)}
+                      </div>
+
+                      {/* MoM Capture Trend */}
+                      <div
+                        className={
+                          g.captureMomPct > 0
+                            ? "w-24 font-semibold text-emerald-600"
+                            : g.captureMomPct < 0
+                            ? "w-24 font-semibold text-red-500"
+                            : "w-24 text-slate-900"
+                        }
+                      >
+                        {formatSignedPercent(g.captureMomPct)}
+                      </div>
                     </div>
                   </div>
-
-                  {/* RIGHT: 3 numeric columns */}
-                  <div className="flex justify-end gap-6 pr-1">
-                    {/* Avg Invoice */}
-                    <div className="w-16 text-right text-slate-900">
-                      ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                    </div>
-
-                    {/* Avg lift vs blank */}
-                    <div className={g.id === "mail-email" ? "w-24 text-right font-semibold text-emerald-600" : "w-24 text-right text-slate-900"}>
-                      {g.id === "blank" ? "$0" : formatSignedCurrency(g.liftVsBlank)}
-                    </div>
-
-                    {/* Data capture MoM */}
-                    <div className={
-                      g.captureMomPct > 0
-                        ? "w-24 text-right font-semibold text-emerald-600"
-                        : g.captureMomPct < 0
-                        ? "w-24 text-right font-semibold text-red-500"
-                        : "w-24 text-right text-slate-900"
-                    }>
-                      {formatSignedPercent(g.captureMomPct)}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              });
+            })()}
           </div>
         </section>
 
@@ -370,29 +384,31 @@ const DataCaptureLtvPage: React.FC = () => {
 
           {/* Column headers */}
           <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
-            <div className="w-20 text-right whitespace-nowrap">LTV / customer</div>
-            <div className="w-14 text-right whitespace-nowrap">Visits</div>
-            <div className="w-24 text-right whitespace-nowrap">LTV lift vs blank</div>
+            <div className="w-20 text-right">LTV / customer</div>
+            <div className="w-14 text-right">Visits</div>
+            <div className="w-24 text-right">LTV lift vs blank</div>
           </div>
 
           <div className="mt-1 space-y-3">
             {(() => {
               const maxLtv = Math.max(...LIFETIME_BY_CHANNEL.map((r) => r.lifetimeValue || 0));
+
               return LIFETIME_BY_CHANNEL.map((row) => {
                 const color = CAPTURE_GROUP_COLORS[row.id] ?? CAPTURE_GROUP_COLORS.blank;
                 const widthPct = maxLtv > 0 ? (row.lifetimeValue / maxLtv) * 100 : 0;
+
                 return (
                   <div key={row.id} className="flex items-center gap-3 text-[11px]">
-                    {/* Label + capture % */}
-                    <div className="w-28">
-                      <div className="text-slate-700">{row.label}</div>
+                    {/* label */}
+                    <div className="w-28 text-slate-700">
+                      {row.label}
                       <div className="text-[10px] text-slate-500">
                         {(CAPTURE_PCT_BY_ID[row.id] ?? 0).toFixed(1)}% of customers
                       </div>
                     </div>
 
-                    {/* Bar */}
-                    <div className="w-64">
+                    {/* bar (relative LTV) */}
+                    <div className="flex-1">
                       <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
                         <div
                           className={`h-full ${color.bar}`}
@@ -401,10 +417,10 @@ const DataCaptureLtvPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Right: numeric columns */}
-                    <div className="flex gap-6 pr-1">
+                    {/* RIGHT: three tight, right-aligned columns */}
+                    <div className="flex gap-6 pr-1 text-right">
                       {/* LTV / customer */}
-                      <div className="w-20 text-right text-slate-900">
+                      <div className="w-20 text-slate-900">
                         {row.lifetimeValue.toLocaleString("en-US", {
                           style: "currency",
                           currency: "USD",
@@ -412,8 +428,8 @@ const DataCaptureLtvPage: React.FC = () => {
                         })}
                       </div>
 
-                      {/* Lifetime visits */}
-                      <div className="w-14 text-right text-slate-900">
+                      {/* Visits */}
+                      <div className="w-14 text-slate-900">
                         {row.lifetimeVisits.toFixed(1)}
                       </div>
 
@@ -421,8 +437,8 @@ const DataCaptureLtvPage: React.FC = () => {
                       <div
                         className={
                           row.id === "mail-email"
-                            ? "w-24 text-right font-semibold text-emerald-600"
-                            : "w-24 text-right text-slate-900"
+                            ? "w-24 font-semibold text-emerald-600"
+                            : "w-24 text-slate-900"
                         }
                       >
                         {row.id === "blank" ? "$0" : formatSignedCurrency(row.ltvLiftVsBlank)}
