@@ -479,7 +479,7 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
               </div>
               <div className="space-y-1 text-sm">
                 <div>
-                  <span className="font-medium text-slate-500">Last LOF:</span>{" "}
+                  <span className="font-medium text-slate-500">Last Oil Change:</span>{" "}
                   <span className="text-amber-600">{fmtDate(parseISODateOnly(customer.lastServiceDate))}</span>
                 </div>
                 <div className="flex items-center gap-2">
