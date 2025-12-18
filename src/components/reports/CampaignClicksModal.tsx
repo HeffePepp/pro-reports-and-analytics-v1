@@ -92,7 +92,7 @@ const CampaignClicksModal: React.FC<CampaignClicksModalProps> = ({
               <tfoot>
                 <tr className="border-t border-slate-100">
                   <td className="py-2 pr-3 text-left font-semibold text-slate-700">
-                    Total clicks
+                    TOTAL CLICKS
                   </td>
                   <td className="py-2 pr-3 text-right font-semibold text-slate-900">
                     {totalClicks.toLocaleString("en-US")}
