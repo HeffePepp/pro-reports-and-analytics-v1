@@ -239,7 +239,7 @@ const DataCaptureLtvPage: React.FC = () => {
       }
     >
       {/* Header with title + KPI customize pill */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
             Data Capture + Lifetime Value

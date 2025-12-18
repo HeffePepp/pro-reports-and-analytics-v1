@@ -590,7 +590,7 @@ const CustomerJourneyPage: React.FC = () => {
       }
     >
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
             Customer Journey
@@ -599,7 +599,7 @@ const CustomerJourneyPage: React.FC = () => {
             Active Customer Journey touch points for the stores and date range selected. Response maturity is based on Throttle standard windows: 60 days for postcards and 10 days for email and text.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <ShareReportButton onClick={() => setShareOpen(true)} />
           <KpiCustomizeButton
             reportId="customer-journey"
