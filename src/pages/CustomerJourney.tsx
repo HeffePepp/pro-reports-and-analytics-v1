@@ -598,7 +598,9 @@ const CustomerJourneyPage: React.FC = () => {
           <p className="mt-1 text-sm text-slate-500 lg:max-w-[75%]">
             Active Customer Journey touch points for the stores and date range selected.
             <br />
-            Response maturity is based on Throttle standard response windows: 60 days for postcards and 10 days for email and text.
+            Response maturity is based on Throttle standard response windows:
+            <br />
+            <span className="font-semibold">60 days for postcards</span> + <span className="font-semibold">10 days for email and text</span>
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
