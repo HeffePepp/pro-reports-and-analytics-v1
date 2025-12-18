@@ -105,6 +105,9 @@ const LIFETIME_BY_CHANNEL: ChannelLtvRow[] = [
   { id: "blank", label: "Blank", lifetimeValue: 158, lifetimeVisits: 4.9, ltvLiftVsBlank: 0 },
 ];
 
+/* Shared metric column widths for consistent alignment across tiles */
+const METRIC_COL_WIDTHS = ["w-20", "w-20", "w-24"] as const;
+
 const formatSignedCurrency = (value: number) => {
   if (!value) return "$0";
   const sign = value > 0 ? "+" : "";
@@ -298,11 +301,11 @@ const DataCaptureLtvPage: React.FC = () => {
             </div>
           </header>
 
-          {/* Column headers */}
+          {/* Column headers (uses shared widths) */}
           <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
-            <div className="w-16 text-right">Avg Invoice</div>
-            <div className="w-24 text-right">Avg lift vs blank</div>
-            <div className="w-24 text-right">MoM Capture Trend</div>
+            <div className={`${METRIC_COL_WIDTHS[0]} text-right`}>Avg Invoice</div>
+            <div className={`${METRIC_COL_WIDTHS[1]} text-right`}>Avg lift vs blank</div>
+            <div className={`${METRIC_COL_WIDTHS[2]} text-right`}>MoM Capture Trend</div>
           </div>
 
           <div className="mt-1 space-y-3">
@@ -311,11 +314,11 @@ const DataCaptureLtvPage: React.FC = () => {
 
               return TICKET_GROUPS.map((g) => {
                 const color = CAPTURE_GROUP_COLORS[g.id] ?? CAPTURE_GROUP_COLORS.blank;
-                const widthPct = max > 0 ? (g.ticket / max) * 100 : 0;
+                const barPct = max > 0 ? (g.ticket / max) * 100 : 0;
 
                 return (
                   <div key={g.id} className="flex items-center gap-3 text-[11px]">
-                    {/* label */}
+                    {/* LEFT: label + share */}
                     <div className="w-28 text-slate-700">
                       {g.label}
                       <div className="text-[10px] text-slate-500">
@@ -323,20 +326,20 @@ const DataCaptureLtvPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* bar */}
+                    {/* MIDDLE: bar */}
                     <div className="flex-1">
                       <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
                         <div
                           className={`h-full ${color.bar}`}
-                          style={{ width: `${widthPct}%` }}
+                          style={{ width: `${barPct}%` }}
                         />
                       </div>
                     </div>
 
-                    {/* RIGHT: three tight, right-aligned columns */}
+                    {/* RIGHT: three tight, right-aligned metric columns */}
                     <div className="flex gap-6 pr-1 text-right">
                       {/* Avg Invoice */}
-                      <div className="w-16 text-slate-900">
+                      <div className={`${METRIC_COL_WIDTHS[0]} text-slate-900`}>
                         ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
                       </div>
 
@@ -344,8 +347,8 @@ const DataCaptureLtvPage: React.FC = () => {
                       <div
                         className={
                           g.id === "mail-email"
-                            ? "w-24 font-semibold text-emerald-600"
-                            : "w-24 text-slate-900"
+                            ? `${METRIC_COL_WIDTHS[1]} font-semibold text-emerald-600`
+                            : `${METRIC_COL_WIDTHS[1]} text-slate-900`
                         }
                       >
                         {g.id === "blank" ? "$0" : formatSignedCurrency(g.liftVsBlank)}
@@ -355,10 +358,10 @@ const DataCaptureLtvPage: React.FC = () => {
                       <div
                         className={
                           g.captureMomPct > 0
-                            ? "w-24 font-semibold text-emerald-600"
+                            ? `${METRIC_COL_WIDTHS[2]} font-semibold text-emerald-600`
                             : g.captureMomPct < 0
-                            ? "w-24 font-semibold text-red-500"
-                            : "w-24 text-slate-900"
+                            ? `${METRIC_COL_WIDTHS[2]} font-semibold text-red-500`
+                            : `${METRIC_COL_WIDTHS[2]} text-slate-900`
                         }
                       >
                         {formatSignedPercent(g.captureMomPct)}
@@ -382,11 +385,11 @@ const DataCaptureLtvPage: React.FC = () => {
             </div>
           </header>
 
-          {/* Column headers */}
+          {/* Column headers – same widths as above */}
           <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
-            <div className="w-20 text-right">LTV / customer</div>
-            <div className="w-14 text-right">Visits</div>
-            <div className="w-24 text-right">LTV lift vs blank</div>
+            <div className={`${METRIC_COL_WIDTHS[0]} text-right`}>LTV / customer</div>
+            <div className={`${METRIC_COL_WIDTHS[1]} text-right`}>Visits</div>
+            <div className={`${METRIC_COL_WIDTHS[2]} text-right`}>LTV lift vs blank</div>
           </div>
 
           <div className="mt-1 space-y-3">
@@ -395,11 +398,11 @@ const DataCaptureLtvPage: React.FC = () => {
 
               return LIFETIME_BY_CHANNEL.map((row) => {
                 const color = CAPTURE_GROUP_COLORS[row.id] ?? CAPTURE_GROUP_COLORS.blank;
-                const widthPct = maxLtv > 0 ? (row.lifetimeValue / maxLtv) * 100 : 0;
+                const barPct = maxLtv > 0 ? (row.lifetimeValue / maxLtv) * 100 : 0;
 
                 return (
                   <div key={row.id} className="flex items-center gap-3 text-[11px]">
-                    {/* label */}
+                    {/* LEFT: label + share */}
                     <div className="w-28 text-slate-700">
                       {row.label}
                       <div className="text-[10px] text-slate-500">
@@ -407,20 +410,20 @@ const DataCaptureLtvPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* bar (relative LTV) */}
+                    {/* MIDDLE: bar – same structure as Avg Invoice tile */}
                     <div className="flex-1">
                       <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
                         <div
                           className={`h-full ${color.bar}`}
-                          style={{ width: `${widthPct}%` }}
+                          style={{ width: `${barPct}%` }}
                         />
                       </div>
                     </div>
 
-                    {/* RIGHT: three tight, right-aligned columns */}
+                    {/* RIGHT: three tight, right-aligned metric columns */}
                     <div className="flex gap-6 pr-1 text-right">
                       {/* LTV / customer */}
-                      <div className="w-20 text-slate-900">
+                      <div className={`${METRIC_COL_WIDTHS[0]} text-slate-900`}>
                         {row.lifetimeValue.toLocaleString("en-US", {
                           style: "currency",
                           currency: "USD",
@@ -429,7 +432,7 @@ const DataCaptureLtvPage: React.FC = () => {
                       </div>
 
                       {/* Visits */}
-                      <div className="w-14 text-slate-900">
+                      <div className={`${METRIC_COL_WIDTHS[1]} text-slate-900`}>
                         {row.lifetimeVisits.toFixed(1)}
                       </div>
 
@@ -437,8 +440,8 @@ const DataCaptureLtvPage: React.FC = () => {
                       <div
                         className={
                           row.id === "mail-email"
-                            ? "w-24 font-semibold text-emerald-600"
-                            : "w-24 text-slate-900"
+                            ? `${METRIC_COL_WIDTHS[2]} font-semibold text-emerald-600`
+                            : `${METRIC_COL_WIDTHS[2]} text-slate-900`
                         }
                       >
                         {row.id === "blank" ? "$0" : formatSignedCurrency(row.ltvLiftVsBlank)}
