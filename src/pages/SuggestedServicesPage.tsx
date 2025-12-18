@@ -557,7 +557,7 @@ const SuggestedServicesPage: React.FC = () => {
                           <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
                             <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">Channel</th>
                             <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Sent</th>
-                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Email Opened</th>
+                            <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Opened</th>
                             <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Responses</th>
                             <th className="py-2 px-2 text-right font-medium whitespace-nowrap">Resp %</th>
                             <th className="py-2 px-2 text-right font-medium whitespace-nowrap">ROAS</th>
