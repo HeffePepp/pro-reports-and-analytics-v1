@@ -188,7 +188,7 @@ const DataCaptureLtvPage: React.FC = () => {
             label="Avg ticket – multi-channel"
             value={`$${CAPTURE_SUMMARY.multiTicket.toFixed(0)}`}
             helper="Mail + email customers"
-            helpText="Average repair order value for customers reachable by both mail and email. Multi-channel customers typically have higher lifetime value and spend more per visit."
+            helpText="Average repair order value for customers reachable by both mail and email. Multi-channel customers typically have higher lifetime value (LTV) and spend more per visit."
           />
         );
       case "blankTicket":
@@ -357,14 +357,14 @@ const DataCaptureLtvPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Lifetime value by Communication Channel */}
+        {/* Lifetime value (LTV) by Communication Channel */}
         <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
           <header>
             <div className="text-[13px] font-semibold text-slate-900">
-              Lifetime value by Communication Channel
+              Lifetime value (LTV) by Communication Channel
             </div>
             <div className="text-[11px] text-slate-500">
-              Avg lifetime value per customer by mail / email capture group, plus lift vs blank.
+              Avg lifetime value (LTV) per customer by mail / email capture group, plus lift vs blank.
             </div>
           </header>
 
