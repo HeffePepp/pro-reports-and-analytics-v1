@@ -122,11 +122,11 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
           <div className="mt-1 text-slate-500">{row.original.touchpointLabel}</div>
         </div>
 
-        {/* Right: status pill + chevron */}
-        <div className="flex flex-col items-end justify-between gap-2">
+        {/* Right: status pill + chevron - fixed width for consistent alignment */}
+        <div className="flex flex-col items-end justify-between gap-2 w-[110px] shrink-0">
           <span
             className={clsx(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
+              "inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold w-full text-center",
               hasResponse
                 ? "bg-emerald-100 text-emerald-700"
                 : "bg-amber-100 text-amber-700"
