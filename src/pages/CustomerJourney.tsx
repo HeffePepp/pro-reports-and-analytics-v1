@@ -706,40 +706,32 @@ const CustomerJourneyPage: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Mini table for this touch point's channels */}
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs min-w-0">
-                    <thead>
-                      <tr className="border-b border-slate-200 text-[11px] tracking-wide text-slate-500">
-                        <th className="py-2 pr-3 text-left font-medium whitespace-nowrap">
-                          Channel
-                        </th>
-                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                          Sent
-                        </th>
-                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                          Opened
-                        </th>
-                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                          Responses
-                        </th>
-                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                          Resp %
-                        </th>
-                        <th className="py-2 px-2 text-right font-medium whitespace-nowrap">
-                          ROAS
-                        </th>
-                        <th className="py-2 pl-2 pr-1 text-right font-medium whitespace-nowrap">
-                          Revenue
-                        </th>
-                      </tr>
-                    </thead>
+                {/* Grid-based layout for consistent column alignment */}
+                <div className="mt-2">
+                  {/* Column headers – same grid pattern for all cards */}
+                  <div className="grid grid-cols-[minmax(0,1.5fr)_repeat(6,minmax(0,1fr))] gap-4 border-b border-slate-200 pb-2 text-[11px] tracking-wide text-slate-500">
+                    <div className="font-medium">Channel</div>
+                    <div className="text-right font-medium">Sent</div>
+                    <div className="text-right font-medium">Opened</div>
+                    <div className="text-right font-medium">Responses</div>
+                    <div className="text-right font-medium">Resp %</div>
+                    <div className="text-right font-medium">ROAS</div>
+                    <div className="text-right font-medium">Revenue</div>
+                  </div>
 
-                    <tbody className="divide-y divide-slate-100">
-                      {group.rows.map((row, idx) => (
-                        <tr key={`${row.tpId}-${row.channel}-${idx}`} className="align-top">
+                  {/* Data rows */}
+                  <div className="mt-1 space-y-2">
+                    {group.rows.map((row, idx) => {
+                      const maturityInfo = getResponseMaturity(row.channel, row.daysSinceLastSend);
+                      const colors = getMaturityColorClasses(maturityInfo.level);
+                      
+                      return (
+                        <div
+                          key={`${row.tpId}-${row.channel}-${idx}`}
+                          className="grid grid-cols-[minmax(0,1.5fr)_repeat(6,minmax(0,1fr))] gap-4 items-center py-1.5 text-[11px]"
+                        >
                           {/* Channel pill */}
-                          <td className="py-2 pr-3">
+                          <div>
                             <span
                               className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${
                                 row.channel === "postcard"
@@ -751,103 +743,95 @@ const CustomerJourneyPage: React.FC = () => {
                             >
                               {CHANNEL_LABELS[row.channel]}
                             </span>
-                          </td>
+                          </div>
 
                           {/* Sent */}
-                          <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                          <div className="text-right text-slate-900">
                             {row.sends.toLocaleString()}
-                          </td>
+                          </div>
 
                           {/* Opened */}
-                          <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                          <div className="text-right text-slate-900">
                             {row.channel === "postcard" ? "—" : row.opened.toLocaleString()}
-                          </td>
+                          </div>
 
                           {/* Responses */}
-                          <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                          <div className="text-right text-slate-900">
                             {row.responses.toLocaleString()}
-                          </td>
+                          </div>
 
                           {/* Resp % with maturity pill */}
-                          <td className="py-2 px-2 text-right align-middle whitespace-nowrap">
-                            {(() => {
-                              const maturityInfo = getResponseMaturity(row.channel, row.daysSinceLastSend);
-                              const colors = getMaturityColorClasses(maturityInfo.level);
-                              return (
-                                <>
-                                  <div className={`text-xs font-semibold ${colors.text}`}>
-                                    {row.respPct.toFixed(1)}%
-                                  </div>
-                                  <div className="mt-0.5 flex justify-end">
-                                    <ResponseMaturityPill
-                                      channel={row.channel}
-                                      info={maturityInfo}
-                                    />
-                                  </div>
-                                </>
-                              );
-                            })()}
-                          </td>
+                          <div className="text-right">
+                            <div className={`font-semibold ${colors.text}`}>
+                              {row.respPct.toFixed(1)}%
+                            </div>
+                            <div className="mt-0.5 flex justify-end">
+                              <ResponseMaturityPill
+                                channel={row.channel}
+                                info={maturityInfo}
+                              />
+                            </div>
+                          </div>
 
                           {/* ROAS */}
-                          <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
+                          <div className="text-right text-slate-900">
                             {row.roas.toFixed(1)}x
-                          </td>
+                          </div>
 
                           {/* Revenue */}
-                          <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
+                          <div className="text-right text-slate-900">
                             {row.revenue.toLocaleString("en-US", {
                               style: "currency",
                               currency: "USD",
                               maximumFractionDigits: 0,
                             })}
-                          </td>
-                        </tr>
-                      ))}
+                          </div>
+                        </div>
+                      );
+                    })}
 
-                      {/* Touch point totals row - only show for multi-channel touch points */}
-                      {group.rows.length > 1 && (() => {
-                        const totals = {
-                          sent: group.rows.reduce((sum, r) => sum + r.sends, 0),
-                          opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
-                          responses: group.rows.reduce((sum, r) => sum + r.responses, 0),
-                          revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
-                        };
-                        const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
-                        const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
+                    {/* Touch point totals row - only show for multi-channel touch points */}
+                    {group.rows.length > 1 && (() => {
+                      const totals = {
+                        sent: group.rows.reduce((sum, r) => sum + r.sends, 0),
+                        opened: group.rows.reduce((sum, r) => sum + r.opened, 0),
+                        responses: group.rows.reduce((sum, r) => sum + r.responses, 0),
+                        revenue: group.rows.reduce((sum, r) => sum + r.revenue, 0),
+                      };
+                      const avgRespPct = group.rows.reduce((sum, r) => sum + r.respPct, 0) / group.rows.length;
+                      const avgRoas = group.rows.reduce((sum, r) => sum + r.roas, 0) / group.rows.length;
 
-                        return (
-                          <tr className="border-t border-slate-200 font-semibold">
-                            <td className="py-2 pr-3 text-[11px] uppercase tracking-wide text-slate-700 whitespace-nowrap">
-                              Touch Point Totals
-                            </td>
-                            <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                              {totals.sent.toLocaleString()}
-                            </td>
-                            <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                              {totals.opened.toLocaleString()}
-                            </td>
-                            <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                              {totals.responses.toLocaleString()}
-                            </td>
-                            <td className="py-2 px-2 text-right text-xs text-slate-600 whitespace-nowrap">
-                              {avgRespPct.toFixed(1)}%
-                            </td>
-                            <td className="py-2 px-2 text-right text-xs text-slate-900 whitespace-nowrap">
-                              {avgRoas.toFixed(1)}x
-                            </td>
-                            <td className="py-2 pl-2 pr-1 text-right text-xs text-slate-900 whitespace-nowrap">
-                              {totals.revenue.toLocaleString("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                                maximumFractionDigits: 0,
-                              })}
-                            </td>
-                          </tr>
-                        );
-                      })()}
-                    </tbody>
-                  </table>
+                      return (
+                        <div className="grid grid-cols-[minmax(0,1.5fr)_repeat(6,minmax(0,1fr))] gap-4 items-center border-t border-slate-200 pt-3 mt-2 text-[11px] font-semibold">
+                          <div className="uppercase tracking-wide text-slate-700">
+                            Touch Point Totals
+                          </div>
+                          <div className="text-right text-slate-900">
+                            {totals.sent.toLocaleString()}
+                          </div>
+                          <div className="text-right text-slate-900">
+                            {totals.opened.toLocaleString()}
+                          </div>
+                          <div className="text-right text-slate-900">
+                            {totals.responses.toLocaleString()}
+                          </div>
+                          <div className="text-right text-slate-600">
+                            {avgRespPct.toFixed(1)}%
+                          </div>
+                          <div className="text-right text-slate-900">
+                            {avgRoas.toFixed(1)}x
+                          </div>
+                          <div className="text-right text-slate-900">
+                            {totals.revenue.toLocaleString("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                              maximumFractionDigits: 0,
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
             ));
