@@ -77,6 +77,12 @@ const CAPTURE_SEGMENTS: CaptureGroupSegment[] = [
   { id: "blank", label: "Blank", percentage: 11, colorClass: "bg-slate-200" },
 ];
 
+// Lookup for capture % by channel ID
+const CAPTURE_PCT_BY_ID: Record<string, number> = CAPTURE_SEGMENTS.reduce((acc, seg) => {
+  acc[seg.id] = seg.percentage;
+  return acc;
+}, {} as Record<string, number>);
+
 const TICKET_GROUPS: TicketGroupRow[] = [
   { id: "mail-only", label: "Mail only", ticket: 88, liftVsBlank: 46, captureMomPct: 1.2 },
   { id: "email-only", label: "Email only", ticket: 90, liftVsBlank: 48, captureMomPct: 2.8 },
@@ -281,51 +287,6 @@ const DataCaptureLtvPage: React.FC = () => {
           />
         }
       >
-        {/* Customers by capture group */}
-        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-          <header>
-            <div className="text-[13px] font-semibold text-slate-900">
-              Data Capture by Communication Channel
-            </div>
-            <div className="text-[11px] text-slate-500">
-              % of customers by Communication Channel
-            </div>
-          </header>
-
-          {/* Stacked bar */}
-          <div className="mt-3 flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
-            {CAPTURE_SEGMENTS.map((seg) => {
-              const color = CAPTURE_GROUP_COLORS[seg.id] ?? CAPTURE_GROUP_COLORS.blank;
-              return (
-                <div
-                  key={seg.id}
-                  className={`h-full ${color.bar}`}
-                  style={{ width: `${seg.percentage}%` }}
-                />
-              );
-            })}
-          </div>
-
-          {/* Ghost pill legend */}
-          <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-slate-600">
-            {CAPTURE_SEGMENTS.map((seg) => {
-              const color = CAPTURE_GROUP_COLORS[seg.id] ?? CAPTURE_GROUP_COLORS.blank;
-              return (
-                <span
-                  key={seg.id}
-                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 ${color.pill}`}
-                >
-                  <span className={`mr-1 h-2 w-2 rounded-full ${color.dot}`} />
-                  <span className="font-medium">{seg.label}</span>
-                  <span className="ml-1 text-slate-500">
-                    – {seg.percentage.toFixed(1)}%
-                  </span>
-                </span>
-              );
-            })}
-          </div>
-        </section>
-
         {/* Avg Invoice by capture group */}
         <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
           <header>
@@ -349,8 +310,13 @@ const DataCaptureLtvPage: React.FC = () => {
               const color = CAPTURE_GROUP_COLORS[g.id] ?? CAPTURE_GROUP_COLORS.blank;
               return (
                 <div key={g.id} className="flex items-center gap-3 text-[11px]">
-                  {/* label */}
-                  <div className="w-28 text-slate-700">{g.label}</div>
+                  {/* label + capture % */}
+                  <div className="w-28">
+                    <div className="text-slate-700">{g.label}</div>
+                    <div className="text-[10px] text-slate-500">
+                      {(CAPTURE_PCT_BY_ID[g.id] ?? 0).toFixed(1)}% of customers
+                    </div>
+                  </div>
 
                   {/* bar */}
                   <div className="flex-1">
@@ -417,8 +383,13 @@ const DataCaptureLtvPage: React.FC = () => {
                 const widthPct = maxLtv > 0 ? (row.lifetimeValue / maxLtv) * 100 : 0;
                 return (
                   <div key={row.id} className="flex items-center gap-3 text-[11px]">
-                    {/* Label */}
-                    <div className="w-28 text-slate-700">{row.label}</div>
+                    {/* Label + capture % */}
+                    <div className="w-28">
+                      <div className="text-slate-700">{row.label}</div>
+                      <div className="text-[10px] text-slate-500">
+                        {(CAPTURE_PCT_BY_ID[row.id] ?? 0).toFixed(1)}% of customers
+                      </div>
+                    </div>
 
                     {/* Bar */}
                     <div className="flex-1">
