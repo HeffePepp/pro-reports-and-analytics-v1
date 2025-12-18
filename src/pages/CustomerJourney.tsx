@@ -600,7 +600,7 @@ const CustomerJourneyPage: React.FC = () => {
             <br />
             Response maturity is based on Throttle standard response windows:
             <br />
-            <span className="font-semibold">60 days for postcards</span> + <span className="font-semibold">10 days for email and text</span>
+            <span className="font-semibold">60 days for postcards + 10 days for email and text</span>
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
