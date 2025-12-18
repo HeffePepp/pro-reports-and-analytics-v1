@@ -5,6 +5,7 @@ import {
   AIInsightsTile,
   KpiCustomizeButton,
   DraggableKpiRow,
+  ReportPageLayout,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 
@@ -256,230 +257,213 @@ const DataCaptureLtvPage: React.FC = () => {
           onChangeSelected={setSelectedIds}
         />
       </div>
-
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="data-capture-ltv"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
-
-      {/* Main layout */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* Left content: KPIs + charts */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on data capture & LTV"
-              bullets={insights}
-              onRefresh={regenerateInsights}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="data-capture-ltv"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
-          </div>
-
-          {/* Customers by capture group */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <header>
-              <div className="text-[13px] font-semibold text-slate-900">
-                Data Capture by Communication Channel
-              </div>
-              <div className="text-[11px] text-slate-500">
-                % of customers by Communication Channel
-              </div>
-            </header>
-
-            {/* Stacked bar */}
-            <div className="mt-3 flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
-              {CAPTURE_SEGMENTS.map((seg) => {
-                const color = CAPTURE_GROUP_COLORS[seg.id] ?? CAPTURE_GROUP_COLORS.blank;
-                return (
-                  <div
-                    key={seg.id}
-                    className={`h-full ${color.bar}`}
-                    style={{ width: `${seg.percentage}%` }}
-                  />
-                );
-              })}
-            </div>
-
-            {/* Ghost pill legend */}
-            <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-slate-600">
-              {CAPTURE_SEGMENTS.map((seg) => {
-                const color = CAPTURE_GROUP_COLORS[seg.id] ?? CAPTURE_GROUP_COLORS.blank;
-                return (
-                  <span
-                    key={seg.id}
-                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 ${color.pill}`}
-                  >
-                    <span className={`mr-1 h-2 w-2 rounded-full ${color.dot}`} />
-                    <span className="font-medium">{seg.label}</span>
-                    <span className="ml-1 text-slate-500">
-                      – {seg.percentage.toFixed(1)}%
-                    </span>
-                  </span>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Avg Invoice by capture group */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <header>
-              <div className="text-[13px] font-semibold text-slate-900">
-                Avg Invoice by Communication Channel
-              </div>
-              <div className="text-[11px] text-slate-500">
-                All locations combined
-              </div>
-            </header>
-
-            {/* Column headers for the three right-side metrics */}
-            <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
-              <div className="w-16 text-right">Avg Invoice</div>
-              <div className="w-24 text-right">Avg lift vs blank</div>
-              <div className="w-24 text-right">MoM Capture Trend</div>
-            </div>
-
-            <div className="mt-1 space-y-3">
-              {TICKET_GROUPS.map((g) => {
-                const color = CAPTURE_GROUP_COLORS[g.id] ?? CAPTURE_GROUP_COLORS.blank;
-                return (
-                  <div key={g.id} className="flex items-center gap-3 text-[11px]">
-                    {/* label */}
-                    <div className="w-28 text-slate-700">{g.label}</div>
-
-                    {/* bar */}
-                    <div className="flex-1">
-                      <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                        <div
-                          className={`h-full ${color.bar}`}
-                          style={{ width: `${(g.ticket / maxTicket) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* RIGHT: 3 numeric columns */}
-                    <div className="flex justify-end gap-6 pr-1 text-right">
-                      {/* Avg Invoice */}
-                      <div className="w-16 text-slate-900">
-                        ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                      </div>
-
-                      {/* Avg lift vs blank */}
-                      <div className={g.id === "mail-email" ? "w-24 font-semibold text-emerald-600" : "w-24 text-slate-900"}>
-                        {g.id === "blank" ? "$0" : formatSignedCurrency(g.liftVsBlank)}
-                      </div>
-
-                      {/* Data capture MoM */}
-                      <div className={
-                        g.captureMomPct > 0
-                          ? "w-24 font-semibold text-emerald-600"
-                          : g.captureMomPct < 0
-                          ? "w-24 font-semibold text-red-500"
-                          : "w-24 text-slate-900"
-                      }>
-                        {formatSignedPercent(g.captureMomPct)}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Lifetime value by Communication Channel */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <header>
-              <div className="text-[13px] font-semibold text-slate-900">
-                Lifetime value by Communication Channel
-              </div>
-              <div className="text-[11px] text-slate-500">
-                Avg lifetime value per customer by mail / email capture group, plus lift vs blank.
-              </div>
-            </header>
-
-            {/* Column headers */}
-            <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
-              <div className="w-20 text-right">LTV / customer</div>
-              <div className="w-14 text-right">Lifetime visits</div>
-              <div className="w-24 text-right">LTV lift vs blank</div>
-            </div>
-
-            <div className="mt-1 space-y-3">
-              {(() => {
-                const maxLtv = Math.max(...LIFETIME_BY_CHANNEL.map((r) => r.lifetimeValue || 0));
-                return LIFETIME_BY_CHANNEL.map((row) => {
-                  const color = CAPTURE_GROUP_COLORS[row.id] ?? CAPTURE_GROUP_COLORS.blank;
-                  const widthPct = maxLtv > 0 ? (row.lifetimeValue / maxLtv) * 100 : 0;
-                  return (
-                    <div key={row.id} className="flex items-center gap-3 text-[11px]">
-                      {/* Label */}
-                      <div className="w-28 text-slate-700">{row.label}</div>
-
-                      {/* Bar */}
-                      <div className="flex-1">
-                        <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                          <div
-                            className={`h-full ${color.bar}`}
-                            style={{ width: `${widthPct}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Right: numeric columns */}
-                      <div className="flex gap-6 pr-1 text-right">
-                        {/* LTV / customer */}
-                        <div className="w-20 text-slate-900">
-                          {row.lifetimeValue.toLocaleString("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            maximumFractionDigits: 0,
-                          })}
-                        </div>
-
-                        {/* Lifetime visits */}
-                        <div className="w-14 text-slate-900">
-                          {row.lifetimeVisits.toFixed(1)}
-                        </div>
-
-                        {/* LTV lift vs blank */}
-                        <div
-                          className={
-                            row.id === "mail-email"
-                              ? "w-24 font-semibold text-emerald-600"
-                              : "w-24 text-slate-900"
-                          }
-                        >
-                          {row.id === "blank" ? "$0" : formatSignedCurrency(row.ltvLiftVsBlank)}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                });
-              })()}
-            </div>
-          </section>
-        </div>
-
-        {/* AI Insights – desktop */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on data capture & LTV"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Customers by capture group */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+          <header>
+            <div className="text-[13px] font-semibold text-slate-900">
+              Data Capture by Communication Channel
+            </div>
+            <div className="text-[11px] text-slate-500">
+              % of customers by Communication Channel
+            </div>
+          </header>
+
+          {/* Stacked bar */}
+          <div className="mt-3 flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+            {CAPTURE_SEGMENTS.map((seg) => {
+              const color = CAPTURE_GROUP_COLORS[seg.id] ?? CAPTURE_GROUP_COLORS.blank;
+              return (
+                <div
+                  key={seg.id}
+                  className={`h-full ${color.bar}`}
+                  style={{ width: `${seg.percentage}%` }}
+                />
+              );
+            })}
+          </div>
+
+          {/* Ghost pill legend */}
+          <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-slate-600">
+            {CAPTURE_SEGMENTS.map((seg) => {
+              const color = CAPTURE_GROUP_COLORS[seg.id] ?? CAPTURE_GROUP_COLORS.blank;
+              return (
+                <span
+                  key={seg.id}
+                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 ${color.pill}`}
+                >
+                  <span className={`mr-1 h-2 w-2 rounded-full ${color.dot}`} />
+                  <span className="font-medium">{seg.label}</span>
+                  <span className="ml-1 text-slate-500">
+                    – {seg.percentage.toFixed(1)}%
+                  </span>
+                </span>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Avg Invoice by capture group */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+          <header>
+            <div className="text-[13px] font-semibold text-slate-900">
+              Avg Invoice by Communication Channel
+            </div>
+            <div className="text-[11px] text-slate-500">
+              All locations combined
+            </div>
+          </header>
+
+          {/* Column headers for the three right-side metrics */}
+          <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
+            <div className="w-16 text-right">Avg Invoice</div>
+            <div className="w-24 text-right">Avg lift vs blank</div>
+            <div className="w-24 text-right">MoM Capture Trend</div>
+          </div>
+
+          <div className="mt-1 space-y-3">
+            {TICKET_GROUPS.map((g) => {
+              const color = CAPTURE_GROUP_COLORS[g.id] ?? CAPTURE_GROUP_COLORS.blank;
+              return (
+                <div key={g.id} className="flex items-center gap-3 text-[11px]">
+                  {/* label */}
+                  <div className="w-28 text-slate-700">{g.label}</div>
+
+                  {/* bar */}
+                  <div className="flex-1">
+                    <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className={`h-full ${color.bar}`}
+                        style={{ width: `${(g.ticket / maxTicket) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* RIGHT: 3 numeric columns */}
+                  <div className="flex justify-end gap-6 pr-1 text-right">
+                    {/* Avg Invoice */}
+                    <div className="w-16 text-slate-900">
+                      ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                    </div>
+
+                    {/* Avg lift vs blank */}
+                    <div className={g.id === "mail-email" ? "w-24 font-semibold text-emerald-600" : "w-24 text-slate-900"}>
+                      {g.id === "blank" ? "$0" : formatSignedCurrency(g.liftVsBlank)}
+                    </div>
+
+                    {/* Data capture MoM */}
+                    <div className={
+                      g.captureMomPct > 0
+                        ? "w-24 font-semibold text-emerald-600"
+                        : g.captureMomPct < 0
+                        ? "w-24 font-semibold text-red-500"
+                        : "w-24 text-slate-900"
+                    }>
+                      {formatSignedPercent(g.captureMomPct)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Lifetime value by Communication Channel */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+          <header>
+            <div className="text-[13px] font-semibold text-slate-900">
+              Lifetime value by Communication Channel
+            </div>
+            <div className="text-[11px] text-slate-500">
+              Avg lifetime value per customer by mail / email capture group, plus lift vs blank.
+            </div>
+          </header>
+
+          {/* Column headers */}
+          <div className="mt-3 flex justify-end gap-6 pr-1 text-[11px] text-slate-500">
+            <div className="w-20 text-right">LTV / customer</div>
+            <div className="w-14 text-right">Lifetime visits</div>
+            <div className="w-24 text-right">LTV lift vs blank</div>
+          </div>
+
+          <div className="mt-1 space-y-3">
+            {(() => {
+              const maxLtv = Math.max(...LIFETIME_BY_CHANNEL.map((r) => r.lifetimeValue || 0));
+              return LIFETIME_BY_CHANNEL.map((row) => {
+                const color = CAPTURE_GROUP_COLORS[row.id] ?? CAPTURE_GROUP_COLORS.blank;
+                const widthPct = maxLtv > 0 ? (row.lifetimeValue / maxLtv) * 100 : 0;
+                return (
+                  <div key={row.id} className="flex items-center gap-3 text-[11px]">
+                    {/* Label */}
+                    <div className="w-28 text-slate-700">{row.label}</div>
+
+                    {/* Bar */}
+                    <div className="flex-1">
+                      <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                        <div
+                          className={`h-full ${color.bar}`}
+                          style={{ width: `${widthPct}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Right: numeric columns */}
+                    <div className="flex gap-6 pr-1 text-right">
+                      {/* LTV / customer */}
+                      <div className="w-20 text-slate-900">
+                        {row.lifetimeValue.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                          maximumFractionDigits: 0,
+                        })}
+                      </div>
+
+                      {/* Lifetime visits */}
+                      <div className="w-14 text-slate-900">
+                        {row.lifetimeVisits.toFixed(1)}
+                      </div>
+
+                      {/* LTV lift vs blank */}
+                      <div
+                        className={
+                          row.id === "mail-email"
+                            ? "w-24 font-semibold text-emerald-600"
+                            : "w-24 text-slate-900"
+                        }
+                      >
+                        {row.id === "blank" ? "$0" : formatSignedCurrency(row.ltvLiftVsBlank)}
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+        </section>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };

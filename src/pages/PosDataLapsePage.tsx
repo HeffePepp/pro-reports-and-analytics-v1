@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import {
   ReportTable,
@@ -107,112 +107,97 @@ const PosDataLapsePage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="pos-data-lapse"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
-
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on POS file freshness"
-              bullets={insights}
-              onRefresh={regenerateInsights}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="pos-data-lapse"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
-          </div>
-
-          {/* Bars by store */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Days since last POS file
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Threshold: 3 days (warning), 7 days (critical)
-              </span>
-            </div>
-            <div className="space-y-2 text-xs text-slate-700">
-              {posLapseRows.map((r) => (
-                <div key={r.storeName}>
-                  <div className="flex justify-between text-[11px]">
-                    <span>{r.storeName}</span>
-                    <span>{r.daysSince} days</span>
-                  </div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-tp-pastel-green"
-                        style={{
-                          width: `${(r.daysSince / maxDays) * 100}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-slate-500 w-32 text-right">
-                      Last file {r.lastPosDate}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Table */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Store details
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Last POS date by store
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <ReportTable>
-                <ReportTableHead>
-                  <ReportTableRow>
-                    <ReportTableHeaderCell label="Store" />
-                    <ReportTableHeaderCell label="Last POS date" />
-                    <ReportTableHeaderCell label="Days since" align="right" />
-                  </ReportTableRow>
-                </ReportTableHead>
-                <ReportTableBody>
-                  {posLapseRows.map((r) => (
-                    <ReportTableRow key={r.storeName}>
-                      <ReportTableCell className="text-slate-800">{r.storeName}</ReportTableCell>
-                      <ReportTableCell className="text-slate-700">{r.lastPosDate}</ReportTableCell>
-                      <ReportTableCell align="right">{r.daysSince}</ReportTableCell>
-                    </ReportTableRow>
-                  ))}
-                </ReportTableBody>
-              </ReportTable>
-            </div>
-          </section>
-        </div>
-
-        {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on POS file freshness"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Bars by store */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Days since last POS file
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Threshold: 3 days (warning), 7 days (critical)
+            </span>
+          </div>
+          <div className="space-y-2 text-xs text-slate-700">
+            {posLapseRows.map((r) => (
+              <div key={r.storeName}>
+                <div className="flex justify-between text-[11px]">
+                  <span>{r.storeName}</span>
+                  <span>{r.daysSince} days</span>
+                </div>
+                <div className="mt-1 flex items-center gap-2">
+                  <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className="h-full bg-tp-pastel-green"
+                      style={{
+                        width: `${(r.daysSince / maxDays) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-500 w-32 text-right">
+                    Last file {r.lastPosDate}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Table */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Store details
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Last POS date by store
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <ReportTable>
+              <ReportTableHead>
+                <ReportTableRow>
+                  <ReportTableHeaderCell label="Store" />
+                  <ReportTableHeaderCell label="Last POS date" />
+                  <ReportTableHeaderCell label="Days since" align="right" />
+                </ReportTableRow>
+              </ReportTableHead>
+              <ReportTableBody>
+                {posLapseRows.map((r) => (
+                  <ReportTableRow key={r.storeName}>
+                    <ReportTableCell className="text-slate-800">{r.storeName}</ReportTableCell>
+                    <ReportTableCell className="text-slate-700">{r.lastPosDate}</ReportTableCell>
+                    <ReportTableCell align="right">{r.daysSince}</ReportTableCell>
+                  </ReportTableRow>
+                ))}
+              </ReportTableBody>
+            </ReportTable>
+          </div>
+        </section>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };

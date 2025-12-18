@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShellLayout, AIInsightsTile } from "@/components/layout";
+import { ShellLayout, AIInsightsTile, ReportPageLayout } from "@/components/layout";
 
 type AddressSummary = {
   totalAddresses: number;
@@ -150,94 +150,81 @@ const ValidAddressPage: React.FC = () => {
         </section>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on address quality"
-              bullets={insights}
-              onRefresh={regenerateInsights}
-            />
-          </div>
-
-          {/* Store quality bars */}
-          <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">
-                Address quality by store
-              </h2>
-              <span className="text-[11px] text-slate-500">
-                Valid vs bad vs blank
-              </span>
-            </div>
-
-            {/* Bars per store */}
-            {addressStoreRows.map((row) => (
-              <div key={row.storeName} className="mt-3 flex items-center gap-3">
-                {/* Store name */}
-                <div className="w-40 text-[11px] text-slate-700">
-                  {row.storeName}
-                </div>
-
-                {/* Pastel stacked bar */}
-                <div className="flex-1">
-                  <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                    {/* Valid (green) */}
-                    <div
-                      className="h-full bg-emerald-200"
-                      style={{ width: `${row.validPct}%` }}
-                    />
-                    {/* Bad (yellow) */}
-                    <div
-                      className="h-full bg-amber-200"
-                      style={{ width: `${row.badPct}%` }}
-                    />
-                    {/* Blank (red) */}
-                    <div
-                      className="h-full bg-rose-200"
-                      style={{ width: `${row.blankPct}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Right-side label */}
-                <div className="w-24 text-right text-[11px] text-slate-700">
-                  {row.validPct.toFixed(1)}% valid
-                </div>
-              </div>
-            ))}
-
-            {/* Legend */}
-            <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-slate-600">
-              <span className="inline-flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-emerald-200" />
-                <span>Valid</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-amber-200" />
-                <span>Bad</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-rose-200" />
-                <span>Blank</span>
-              </span>
-            </div>
-          </section>
-        </div>
-
-        {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on address quality"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Store quality bars */}
+        <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Address quality by store
+            </h2>
+            <span className="text-[11px] text-slate-500">
+              Valid vs bad vs blank
+            </span>
+          </div>
+
+          {/* Bars per store */}
+          {addressStoreRows.map((row) => (
+            <div key={row.storeName} className="mt-3 flex items-center gap-3">
+              {/* Store name */}
+              <div className="w-40 text-[11px] text-slate-700">
+                {row.storeName}
+              </div>
+
+              {/* Pastel stacked bar */}
+              <div className="flex-1">
+                <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                  {/* Valid (green) */}
+                  <div
+                    className="h-full bg-emerald-200"
+                    style={{ width: `${row.validPct}%` }}
+                  />
+                  {/* Bad (yellow) */}
+                  <div
+                    className="h-full bg-amber-200"
+                    style={{ width: `${row.badPct}%` }}
+                  />
+                  {/* Blank (red) */}
+                  <div
+                    className="h-full bg-rose-200"
+                    style={{ width: `${row.blankPct}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Right-side label */}
+              <div className="w-24 text-right text-[11px] text-slate-700">
+                {row.validPct.toFixed(1)}% valid
+              </div>
+            </div>
+          ))}
+
+          {/* Legend */}
+          <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-slate-600">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-200" />
+              <span>Valid</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-amber-200" />
+              <span>Bad</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-rose-200" />
+              <span>Blank</span>
+            </span>
+          </div>
+        </section>
+      </ReportPageLayout>
     </ShellLayout>
   );
 };

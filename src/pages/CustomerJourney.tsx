@@ -5,6 +5,7 @@ import {
   AIInsightsTile,
   KpiCustomizeButton,
   DraggableKpiRow,
+  ReportPageLayout,
 } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { parseChannels, CHANNEL_LABELS } from "@/styles/channelColors";

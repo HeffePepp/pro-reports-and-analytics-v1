@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow } from "@/components/layout";
+import { ShellLayout, MetricTile, AIInsightsTile, KpiCustomizeButton, DraggableKpiRow, ReportPageLayout } from "@/components/layout";
 import { useKpiPreferences, KpiOption } from "@/hooks/useKpiPreferences";
 import { CaptureByLocationTile, CaptureByLocationRow } from "@/components/layout/CaptureByLocationTile";
 
@@ -117,60 +117,44 @@ const CustomerDataPage: React.FC = () => {
         />
       </div>
 
-      {/* KPI tiles - above the grid when present */}
-      {selectedIds.length > 0 && (
-        <div className="mt-4">
-          <DraggableKpiRow
-            reportKey="customer-data"
-            tiles={selectedIds
-              .map((id) => {
-                const tile = renderKpiTile(id);
-                return tile ? { id, element: tile } : null;
-              })
-              .filter(Boolean) as { id: string; element: React.ReactNode }[]}
-          />
-        </div>
-      )}
-
-      {/* Layout */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        {/* LEFT */}
-        <div className="lg:col-span-3 space-y-4 self-start">
-          {/* AI Insights – mobile: below KPIs, above main content */}
-          <div className="block lg:hidden">
-            <AIInsightsTile
-              title="AI Insights"
-              subtitle="Based on customer & contactability data"
-              bullets={insights}
-              onRefresh={regenerateInsights}
+      {/* Main content using ReportPageLayout */}
+      <ReportPageLayout
+        kpis={
+          selectedIds.length > 0 ? (
+            <DraggableKpiRow
+              reportKey="customer-data"
+              tiles={selectedIds
+                .map((id) => {
+                  const tile = renderKpiTile(id);
+                  return tile ? { id, element: tile } : null;
+                })
+                .filter(Boolean) as { id: string; element: React.ReactNode }[]}
             />
-          </div>
-
-          {/* Mail capture by location */}
-          <CaptureByLocationTile
-            title="Mail capture by location"
-            channelLabel="Mail"
-            rows={MAIL_CAPTURE_ROWS}
-          />
-
-          {/* Email capture by location */}
-          <CaptureByLocationTile
-            title="Email capture by location"
-            channelLabel="Email"
-            rows={EMAIL_CAPTURE_ROWS}
-          />
-        </div>
-
-        {/* RIGHT: AI Insights – only on large screens */}
-        <div className="hidden lg:block lg:col-span-1 self-start">
+          ) : null
+        }
+        ai={
           <AIInsightsTile
             title="AI Insights"
             subtitle="Based on customer & contactability data"
             bullets={insights}
             onRefresh={regenerateInsights}
           />
-        </div>
-      </div>
+        }
+      >
+        {/* Mail capture by location */}
+        <CaptureByLocationTile
+          title="Mail capture by location"
+          channelLabel="Mail"
+          rows={MAIL_CAPTURE_ROWS}
+        />
+
+        {/* Email capture by location */}
+        <CaptureByLocationTile
+          title="Email capture by location"
+          channelLabel="Email"
+          rows={EMAIL_CAPTURE_ROWS}
+        />
+      </ReportPageLayout>
     </ShellLayout>
   );
 };
