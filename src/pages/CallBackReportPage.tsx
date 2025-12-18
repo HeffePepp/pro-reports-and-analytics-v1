@@ -464,9 +464,8 @@ const [expandedInvoices, setExpandedInvoices] = React.useState<Set<number>>(new 
                 Vehicle Information
               </div>
               <div className="space-y-1 text-sm">
-                <div><span className="font-medium text-slate-500">Vehicle ID:</span> <span className="text-sky-600">{customer.licensePlate ?? "—"}</span></div>
-                <div><span className="font-medium text-slate-500">VIN:</span> <span className="text-slate-900">{customer.vin ?? "(none)"}</span></div>
                 <div><span className="font-medium text-slate-500">License Plate:</span> <span className="text-sky-600">{customer.licensePlate ?? "—"}</span></div>
+                <div><span className="font-medium text-slate-500">VIN:</span> <span className="text-slate-900">{customer.vin ?? "(none)"}</span></div>
                 <div className="text-slate-900">{vehicleDesc || "—"}</div>
               </div>
             </div>
