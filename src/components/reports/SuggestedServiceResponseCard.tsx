@@ -93,8 +93,8 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
         onClick={() => setExpanded((open) => !open)}
         aria-expanded={expanded}
       >
-        {/* Left: customer + store + vehicle */}
-        <div className="min-w-0 flex-1">
+        {/* Left: customer + store + vehicle - fixed width for consistent alignment */}
+        <div className="md:w-[280px] md:shrink-0">
           <div className="text-[13px] font-semibold text-slate-900">
             {row.customerName}
             {row.customerEmail && (
@@ -111,8 +111,8 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
           </div>
         </div>
 
-        {/* Middle: send/open + touchpoint timing (hidden on mobile) - fixed width for alignment */}
-        <div className="hidden md:flex flex-col text-right text-[11px] text-slate-600 w-[180px] shrink-0">
+        {/* Middle: send/open + touchpoint timing (hidden on mobile) - left aligned */}
+        <div className="hidden md:flex flex-col text-[11px] text-slate-600 flex-1">
           <div>
             {row.original.channelLabel} sent {row.original.sentDate}
           </div>
