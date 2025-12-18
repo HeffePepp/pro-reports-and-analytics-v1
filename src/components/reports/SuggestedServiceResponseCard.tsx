@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
+import { ChevronDown } from "lucide-react";
 
 type Suggestion = {
   id: string;
@@ -28,7 +29,6 @@ type ResponseVisit = {
   milesLater?: number;
   servicesPurchased?: string[];
   discountText?: string;
-  // Either coupon OR discount, not both
   offerType?: "coupon" | "discount";
   offerCode?: string;
   offerDescription?: string;
@@ -63,7 +63,6 @@ const Badge: React.FC<BadgeProps> = ({ label, tone }) => {
   return <span className={clsx(base, color)}>{label}</span>;
 };
 
-// Offer type pill matching Coupons/Discounts page
 const OfferPill: React.FC<{ type: "coupon" | "discount"; code: string }> = ({ type, code }) => {
   const pillClass =
     type === "coupon"
@@ -82,207 +81,228 @@ type Props = {
 };
 
 export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
+  const [expanded, setExpanded] = useState(false);
   const hasResponse = !!row.response.invoiceNumber;
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      {/* HEADER */}
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="space-y-0.5">
+    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      {/* COLLAPSIBLE HEADER (yellow summary strip) */}
+      <button
+        type="button"
+        className="flex w-full items-stretch justify-between gap-3 bg-amber-50 px-4 py-3 text-left md:items-center hover:bg-amber-100/70 transition-colors"
+        onClick={() => setExpanded((open) => !open)}
+        aria-expanded={expanded}
+      >
+        {/* Left: customer + store + vehicle */}
+        <div className="min-w-0 flex-1">
           <div className="text-[13px] font-semibold text-slate-900">
             {row.customerName}
             {row.customerEmail && (
-              <span className="text-[11px] font-normal text-sky-700">
-                {" "}
+              <span className="ml-1 text-[11px] font-normal text-sky-700">
                 · {row.customerEmail}
               </span>
             )}
           </div>
-          <div className="text-[11px] text-slate-500">{row.storeLabel}</div>
-          <div className="text-[11px] text-slate-500">{row.vehicleLabel}</div>
+          <div className="mt-0.5 text-[11px] text-slate-600">
+            {row.storeLabel}
+          </div>
+          <div className="text-[11px] text-slate-500">
+            {row.vehicleLabel}
+          </div>
         </div>
 
-        <div className="flex flex-col items-end gap-1 text-right">
+        {/* Middle: send/open + touchpoint timing (hidden on mobile) */}
+        <div className="hidden flex-col text-right text-[11px] text-slate-600 md:flex">
+          <div>
+            {row.original.channelLabel} sent {row.original.sentDate}
+          </div>
+          {row.original.openedDate && (
+            <div>Opened {row.original.openedDate}</div>
+          )}
+          <div className="mt-1 text-slate-500">{row.original.touchpointLabel}</div>
+        </div>
+
+        {/* Right: status pill + chevron */}
+        <div className="flex flex-col items-end justify-between gap-2">
           <span
             className={clsx(
               "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
               hasResponse
-                ? "bg-emerald-50 text-emerald-700"
-                : "bg-amber-50 text-amber-700"
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-amber-100 text-amber-700"
             )}
           >
             {hasResponse ? "Converted" : "Email Opened – No Response Yet"}
           </span>
-          {/* Email sent/opened info moved to header */}
-          <span className="text-[11px] text-slate-600">
-            {row.original.channelLabel} sent {row.original.sentDate}
-            {row.original.openedDate ? (
-              <> · Opened {row.original.openedDate}</>
-            ) : (
-              <> · Not yet opened</>
+          <span
+            className={clsx(
+              "inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-transform",
+              expanded && "rotate-180"
             )}
-          </span>
-          <span className="text-[11px] text-slate-500">
-            {row.original.touchpointLabel}
+          >
+            <ChevronDown className="h-3 w-3" />
           </span>
         </div>
-      </header>
+      </button>
 
-      {/* BODY: original vs response */}
-      <div className="mt-4 flex flex-col gap-4 border-t border-slate-100 pt-4 md:flex-row md:gap-6">
-        {/* Original visit */}
-        <div className="flex-1 flex flex-col">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            Original visit
-          </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-slate-600">
-            <div>Invoice #</div>
-            <div className="font-medium text-slate-900">
-              {row.original.invoiceNumber}
-            </div>
-            <div>Date</div>
-            <div className="font-medium text-slate-900">
-              {row.original.date}
-            </div>
-            <div>Amount</div>
-            <div className="font-medium text-slate-900">
-              {row.original.amount.toLocaleString("en-US", {
-                style: "currency",
-                currency: "USD",
-              })}
-            </div>
-            <div>Mileage</div>
-            <div className="font-medium text-slate-900">
-              {row.original.mileage.toLocaleString()} mi
-            </div>
-          </div>
-
-
-          {/* Suggested services - with mt-auto equivalent via flex-grow for alignment */}
-          <div className="mt-4 space-y-2">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-              Suggested services
-            </div>
-            {row.suggestions.map((s, idx) => (
-              <div
-                key={s.id}
-                className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="text-[12px] font-semibold text-slate-900">
-                    {idx + 1}. {s.name}
-                  </div>
-                  {s.offerText && (
-                    <span className="text-[11px] font-medium text-slate-500">
-                      {s.offerText}
-                    </span>
-                  )}
-                </div>
-                <div className="mt-1 flex flex-wrap gap-2">
-                  <Badge
-                    label={s.videoWatched ? "Video watched" : "Video not watched"}
-                    tone={s.videoWatched ? "yes" : "no"}
-                  />
-                  <Badge
-                    label={
-                      s.couponOpened ? "Coupon opened" : "Coupon not opened"
-                    }
-                    tone={s.couponOpened ? "yes" : "no"}
-                  />
-                </div>
+      {/* DETAIL SECTION – only visible when expanded */}
+      {expanded && (
+        <div className="border-t border-slate-200 px-4 py-4">
+          <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+            {/* Original visit */}
+            <div className="flex-1 flex flex-col">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Original visit
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Response visit */}
-        <div className="flex-1 flex flex-col border-t border-slate-100 pt-4 md:border-l md:border-t-0 md:pl-6 md:pt-0">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            Response invoice
-          </div>
-
-          {hasResponse ? (
-            <>
               <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-slate-600">
                 <div>Invoice #</div>
                 <div className="font-medium text-slate-900">
-                  {row.response.invoiceNumber}
+                  {row.original.invoiceNumber}
                 </div>
                 <div>Date</div>
                 <div className="font-medium text-slate-900">
-                  {row.response.date}
+                  {row.original.date}
                 </div>
                 <div>Amount</div>
                 <div className="font-medium text-slate-900">
-                  {row.response.amount?.toLocaleString("en-US", {
+                  {row.original.amount.toLocaleString("en-US", {
                     style: "currency",
                     currency: "USD",
                   })}
                 </div>
-                {row.response.daysLater != null && (
-                  <>
-                    <div>Timing</div>
-                    <div className="font-medium text-slate-900">
-                      {row.response.daysLater} days later
-                    </div>
-                  </>
-                )}
-                {row.response.milesLater != null && (
-                  <>
-                    <div>Mileage</div>
-                    <div className="font-medium text-slate-900">
-                      {row.response.milesLater.toLocaleString()} mi later
-                    </div>
-                  </>
-                )}
+                <div>Mileage</div>
+                <div className="font-medium text-slate-900">
+                  {row.original.mileage.toLocaleString()} mi
+                </div>
               </div>
 
-              {/* Services purchased - aligned with Suggested services header on left */}
+              {/* Suggested services */}
               <div className="mt-4 space-y-2">
                 <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Services purchased
+                  Suggested services
                 </div>
-                {row.response.servicesPurchased &&
-                  row.response.servicesPurchased.length > 0 ? (
-                    <ul className="list-disc pl-4 text-[11px] text-slate-600">
-                      {row.response.servicesPurchased.map((svc) => (
-                        <li key={svc}>{svc}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="text-[11px] text-slate-500">—</div>
-                  )}
-
-                {/* Coupon/Discount code and description */}
-                {row.response.offerType && row.response.offerCode && (
-                  <div className="space-y-1 text-[11px] text-slate-600">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-semibold">
-                        {row.response.offerType === "coupon" ? "Coupon:" : "Discount:"}
-                      </span>
-                      <OfferPill type={row.response.offerType} code={row.response.offerCode} />
-                    </div>
-                    {row.response.offerDescription && (
-                      <div>
-                        <span className="font-semibold">
-                          {row.response.offerType === "coupon" ? "Coupon Description: " : "Discount Description: "}
+                {row.suggestions.map((s, idx) => (
+                  <div
+                    key={s.id}
+                    className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="text-[12px] font-semibold text-slate-900">
+                        {idx + 1}. {s.name}
+                      </div>
+                      {s.offerText && (
+                        <span className="text-[11px] font-medium text-slate-500">
+                          {s.offerText}
                         </span>
-                        {row.response.offerDescription}
+                      )}
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      <Badge
+                        label={s.videoWatched ? "Video watched" : "Video not watched"}
+                        tone={s.videoWatched ? "yes" : "no"}
+                      />
+                      <Badge
+                        label={
+                          s.couponOpened ? "Coupon opened" : "Coupon not opened"
+                        }
+                        tone={s.couponOpened ? "yes" : "no"}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Response visit */}
+            <div className="flex-1 flex flex-col border-t border-slate-100 pt-4 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Response invoice
+              </div>
+
+              {hasResponse ? (
+                <>
+                  <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-slate-600">
+                    <div>Invoice #</div>
+                    <div className="font-medium text-slate-900">
+                      {row.response.invoiceNumber}
+                    </div>
+                    <div>Date</div>
+                    <div className="font-medium text-slate-900">
+                      {row.response.date}
+                    </div>
+                    <div>Amount</div>
+                    <div className="font-medium text-slate-900">
+                      {row.response.amount?.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </div>
+                    {row.response.daysLater != null && (
+                      <>
+                        <div>Timing</div>
+                        <div className="font-medium text-slate-900">
+                          {row.response.daysLater} days later
+                        </div>
+                      </>
+                    )}
+                    {row.response.milesLater != null && (
+                      <>
+                        <div>Mileage</div>
+                        <div className="font-medium text-slate-900">
+                          {row.response.milesLater.toLocaleString()} mi later
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Services purchased */}
+                  <div className="mt-4 space-y-2">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      Services purchased
+                    </div>
+                    {row.response.servicesPurchased &&
+                      row.response.servicesPurchased.length > 0 ? (
+                        <ul className="list-disc pl-4 text-[11px] text-slate-600">
+                          {row.response.servicesPurchased.map((svc) => (
+                            <li key={svc}>{svc}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="text-[11px] text-slate-500">—</div>
+                      )}
+
+                    {/* Coupon/Discount code and description */}
+                    {row.response.offerType && row.response.offerCode && (
+                      <div className="space-y-1 text-[11px] text-slate-600">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold">
+                            {row.response.offerType === "coupon" ? "Coupon:" : "Discount:"}
+                          </span>
+                          <OfferPill type={row.response.offerType} code={row.response.offerCode} />
+                        </div>
+                        {row.response.offerDescription && (
+                          <div>
+                            <span className="font-semibold">
+                              {row.response.offerType === "coupon" ? "Coupon Description: " : "Discount Description: "}
+                            </span>
+                            {row.response.offerDescription}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="mt-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-4 text-[11px] text-slate-500">
-              No response invoice yet. This record will update automatically if
-              the customer returns from this Suggested Services touch point.
+                </>
+              ) : (
+                <div className="mt-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-4 text-[11px] text-slate-500">
+                  No response invoice yet. This record will update automatically if
+                  the customer returns from this Suggested Services touch point.
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 };
