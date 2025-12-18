@@ -576,8 +576,9 @@ const SuggestedServicesPage: React.FC = () => {
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Suggested Services</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Track how Suggested Services communications drive completed jobs and revenue by service type and touch
-            point.
+            Track how Suggested Services communications drive customers back on Declined Services.<br />
+            Response maturity is based on Throttle standard response windows:<br />
+            <span className="font-semibold">60 days for postcards</span> and <span className="font-semibold">10 days for email and text</span>
           </p>
         </div>
         <KpiCustomizeButton
