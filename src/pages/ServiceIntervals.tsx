@@ -132,7 +132,7 @@ const ServiceIntervalsPage: React.FC = () => {
       breadcrumb={[
         { label: "Home", to: "/" },
         { label: "Reports & Insights", to: "/" },
-        { label: "Customer Loyalty Segmentation" },
+        { label: "Customer Lifecycle" },
       ]}
       rightInfo={
         <span>
@@ -142,7 +142,7 @@ const ServiceIntervalsPage: React.FC = () => {
     >
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Customer Loyalty Segmentation</h1>
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Customer Lifecycle</h1>
           <p className="mt-1 text-sm text-slate-500">
             Snapshot of current, at-risk and lost customers by time since last service visit.
           </p>
@@ -199,12 +199,12 @@ const ServiceIntervalsPage: React.FC = () => {
           />
         }
       >
-        {/* Customer Loyalty Segmentation chart tile */}
+        {/* Customer Lifecycle chart tile */}
         <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
           <header className="flex items-baseline justify-between gap-3">
             <div>
               <h2 className="text-[13px] font-semibold text-slate-900">
-                Customer Loyalty Segmentation
+                Customer Lifecycle
               </h2>
               <p className="text-[11px] text-slate-500">
                 Buckets by time since last service visit
