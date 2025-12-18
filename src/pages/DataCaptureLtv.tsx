@@ -329,24 +329,24 @@ const DataCaptureLtvPage: React.FC = () => {
                   </div>
 
                   {/* RIGHT: 3 numeric columns */}
-                  <div className="flex justify-end gap-6 pr-1 text-right">
+                  <div className="flex justify-end gap-6 pr-1">
                     {/* Avg Invoice */}
-                    <div className="w-16 text-slate-900">
+                    <div className="w-16 text-right text-slate-900">
                       ${g.ticket.toLocaleString("en-US", { maximumFractionDigits: 0 })}
                     </div>
 
                     {/* Avg lift vs blank */}
-                    <div className={g.id === "mail-email" ? "w-24 font-semibold text-emerald-600" : "w-24 text-slate-900"}>
+                    <div className={g.id === "mail-email" ? "w-24 text-right font-semibold text-emerald-600" : "w-24 text-right text-slate-900"}>
                       {g.id === "blank" ? "$0" : formatSignedCurrency(g.liftVsBlank)}
                     </div>
 
                     {/* Data capture MoM */}
                     <div className={
                       g.captureMomPct > 0
-                        ? "w-24 font-semibold text-emerald-600"
+                        ? "w-24 text-right font-semibold text-emerald-600"
                         : g.captureMomPct < 0
-                        ? "w-24 font-semibold text-red-500"
-                        : "w-24 text-slate-900"
+                        ? "w-24 text-right font-semibold text-red-500"
+                        : "w-24 text-right text-slate-900"
                     }>
                       {formatSignedPercent(g.captureMomPct)}
                     </div>
@@ -402,9 +402,9 @@ const DataCaptureLtvPage: React.FC = () => {
                     </div>
 
                     {/* Right: numeric columns */}
-                    <div className="flex gap-6 pr-1 text-right">
+                    <div className="flex gap-6 pr-1">
                       {/* LTV / customer */}
-                      <div className="w-20 text-slate-900">
+                      <div className="w-20 text-right text-slate-900">
                         {row.lifetimeValue.toLocaleString("en-US", {
                           style: "currency",
                           currency: "USD",
@@ -413,7 +413,7 @@ const DataCaptureLtvPage: React.FC = () => {
                       </div>
 
                       {/* Lifetime visits */}
-                      <div className="w-14 text-slate-900">
+                      <div className="w-14 text-right text-slate-900">
                         {row.lifetimeVisits.toFixed(1)}
                       </div>
 
@@ -421,8 +421,8 @@ const DataCaptureLtvPage: React.FC = () => {
                       <div
                         className={
                           row.id === "mail-email"
-                            ? "w-24 font-semibold text-emerald-600"
-                            : "w-24 text-slate-900"
+                            ? "w-24 text-right font-semibold text-emerald-600"
+                            : "w-24 text-right text-slate-900"
                         }
                       >
                         {row.id === "blank" ? "$0" : formatSignedCurrency(row.ltvLiftVsBlank)}
