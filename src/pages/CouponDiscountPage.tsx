@@ -142,7 +142,7 @@ const CouponDiscountPage: React.FC = () => {
       rightInfo={<span>Period: <span className="font-medium">Last 90 days</span></span>}
     >
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
             Coupon / Discount Analysis

@@ -52,7 +52,7 @@ const OilTypeSalesPage: React.FC = () => {
       ]}
       rightInfo={<span>Period: <span className="font-medium">{oilMixSummary.periodLabel}</span></span>}
     >
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-slate-900">Oil Type Sales</h1>
           <p className="mt-1 text-sm text-slate-500">Volume and revenue mix across conventional, blend, synthetic and high mileage oils.</p>
