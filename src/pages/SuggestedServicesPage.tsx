@@ -186,6 +186,7 @@ const KPI_OPTIONS: KpiOption[] = [
 
 const SuggestedServicesPage: React.FC = () => {
   const [ssTab, setSsTab] = useState<SsTab>("touchpoints");
+  const [responsesMode, setResponsesMode] = useState<"converted" | "opened">("converted");
   const { selectedIds, setSelectedIds } = useKpiPreferences("suggested-services", KPI_OPTIONS);
   const [clicksModalData, setClicksModalData] = useState<ClicksBreakdownData | null>(null);
 
@@ -424,7 +425,10 @@ const SuggestedServicesPage: React.FC = () => {
                   <button
                     key={tab}
                     type="button"
-                    onClick={() => setSsTab(tab)}
+                    onClick={() => {
+                      setSsTab(tab);
+                      if (tab === "responses") setResponsesMode("converted");
+                    }}
                     className={`rounded-full px-3 py-1 transition ${
                       isActive ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-800"
                     }`}
@@ -658,40 +662,72 @@ const SuggestedServicesPage: React.FC = () => {
 
           {/* RESPONSES TAB – card-based before/after layout */}
           {ssTab === "responses" && (() => {
-            // Filter: only Converted OR Email Opened - No Response Yet
-            const filteredResponses = SS_RESPONSES.filter(r => 
-              r.response.invoiceNumber || r.original.openedDate
+            // Base set: customers who opened an email OR converted (purchase recorded)
+            const openedOrConverted = SS_RESPONSES.filter(
+              (r) => r.original.openedDate || r.response.invoiceNumber
             );
-            const convertedCount = filteredResponses.filter(r => r.response.invoiceNumber).length;
-            const totalRevenue = filteredResponses
-              .filter(r => r.response.amount)
-              .reduce((sum, r) => sum + (r.response.amount || 0), 0);
-            const conversionRate = filteredResponses.length > 0 
-              ? (convertedCount / filteredResponses.length) * 100 
-              : 0;
+
+            const convertedOnly = openedOrConverted.filter((r) => !!r.response.invoiceNumber);
+
+            const openedCount = openedOrConverted.length;
+            const convertedCount = convertedOnly.length;
+
+            const totalRevenue = convertedOnly.reduce((sum, r) => sum + (r.response.amount || 0), 0);
+
+            // Meaningful rate: conversions out of open-or-convert population
+            const conversionRate = openedCount > 0 ? (convertedCount / openedCount) * 100 : 0;
+
+            const rowsToShow = responsesMode === "converted" ? convertedOnly : openedOrConverted;
 
             return (
               <div className="mt-4 space-y-4">
-                {/* Summary stats - colored pills evenly distributed */}
-                <div className="flex items-center justify-between gap-3">
-                  <div className="rounded-xl bg-sky-50 border border-sky-200 px-5 py-2.5 text-center flex-1">
-                    <div className="text-lg font-semibold text-sky-700">{filteredResponses.length}</div>
-                    <div className="text-[11px] text-sky-600">Responses</div>
-                  </div>
-                  <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-2.5 text-center flex-1">
+                {/* Summary stats (click to filter) */}
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  <button
+                    type="button"
+                    onClick={() => setResponsesMode("converted")}
+                    className={`rounded-xl border px-5 py-2.5 text-center transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      responsesMode === "converted"
+                        ? "bg-sky-50 border-sky-200 ring-2 ring-sky-200"
+                        : "bg-white border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="text-lg font-semibold text-sky-700">{convertedCount}</div>
+                    <div className="text-[11px] text-sky-600">Converted</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setResponsesMode("opened")}
+                    className={`rounded-xl border px-5 py-2.5 text-center transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      responsesMode === "opened"
+                        ? "bg-amber-50 border-amber-200 ring-2 ring-amber-200"
+                        : "bg-white border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="text-lg font-semibold text-amber-700">{openedCount}</div>
+                    <div className="text-[11px] text-amber-600">Emails opened</div>
+                  </button>
+
+                  <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-2.5 text-center">
                     <div className="text-lg font-semibold text-emerald-700">
-                      {totalRevenue.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
+                      {totalRevenue.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 0,
+                      })}
                     </div>
                     <div className="text-[11px] text-emerald-600">SS Revenue</div>
                   </div>
-                  <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-2.5 text-center flex-1">
+
+                  <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-2.5 text-center">
                     <div className="text-lg font-semibold text-indigo-700">{conversionRate.toFixed(1)}%</div>
                     <div className="text-[11px] text-indigo-600">Conversion Rate</div>
                   </div>
                 </div>
 
                 {/* Response cards */}
-                {filteredResponses.map((row) => (
+                {rowsToShow.map((row) => (
                   <SuggestedServiceResponseCard key={row.id} row={row} />
                 ))}
               </div>

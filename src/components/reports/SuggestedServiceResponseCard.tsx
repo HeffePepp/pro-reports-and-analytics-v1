@@ -132,7 +132,7 @@ export const SuggestedServiceResponseCard: React.FC<Props> = ({ row }) => {
                 : "bg-amber-100 text-amber-700"
             )}
           >
-            {hasResponse ? "Converted" : "Email Opened"}
+            {hasResponse ? "Converted" : "Email opened"}
           </span>
           <span
             className={clsx(
