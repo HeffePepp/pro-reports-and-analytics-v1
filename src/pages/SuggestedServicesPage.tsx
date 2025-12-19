@@ -677,9 +677,6 @@ const SuggestedServicesPage: React.FC = () => {
                   <div className="rounded-xl bg-sky-50 border border-sky-200 px-5 py-2.5 text-center flex-1">
                     <div className="text-lg font-semibold text-sky-700">{filteredResponses.length}</div>
                     <div className="text-[11px] text-sky-600">Responses</div>
-                    <div className="mt-0.5 text-[9px] text-sky-400">
-                      Each row = one response invoice
-                    </div>
                   </div>
                   <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-2.5 text-center flex-1">
                     <div className="text-lg font-semibold text-emerald-700">
