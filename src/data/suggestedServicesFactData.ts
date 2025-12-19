@@ -358,6 +358,122 @@ export const SS_FACT_RESPONSES: SsFactResponse[] = [
     responseWindowDays: 10,
     isWithinWindow: true,
   },
+  // --- OPENED ONLY (no conversion) ---
+  {
+    id: "open_01",
+    customerName: "Jamie Carter",
+    customerEmail: "jcarter@gmail.com",
+    storeId: "0334",
+    storeLabel: "0334 · GMF · Richmond, VA",
+    vehicleLabel: "2017 Honda Civic – VA-BC9123",
+    touchpointId: 1,
+    touchpointName: "Suggested Services",
+    touchpointTiming: "1 week after service",
+    channel: "email",
+    sendDate: "10-12-2025",
+    openedDate: "10-12-2025",
+    originalInvoiceId: "198500",
+    originalInvoiceDate: "10-05-2025",
+    originalInvoiceAmount: 58.00,
+    originalMileage: 48200,
+    suggestions: [
+      { id: "s20", name: "Tire Rotation", videoWatched: true, couponOpened: false },
+    ],
+    responseWindowDays: 10,
+    isWithinWindow: true,
+  },
+  {
+    id: "open_02",
+    customerName: "Olivia Reyes",
+    customerEmail: "oreyes@yahoo.com",
+    storeId: "0445",
+    storeLabel: "0445 · Quick Oil · Fairfax, VA",
+    vehicleLabel: "2016 Ford Escape – VA-XJ7712",
+    touchpointId: 2,
+    touchpointName: "Suggested Services",
+    touchpointTiming: "1 month after service",
+    channel: "email",
+    sendDate: "10-19-2025",
+    openedDate: "10-20-2025",
+    originalInvoiceId: "198510",
+    originalInvoiceDate: "09-19-2025",
+    originalInvoiceAmount: 72.50,
+    originalMileage: 61000,
+    suggestions: [
+      { id: "s21", name: "Timing Belt", videoWatched: false, couponOpened: true, offerText: "$30 off" },
+    ],
+    responseWindowDays: 10,
+    isWithinWindow: true,
+  },
+  {
+    id: "open_03",
+    customerName: "Daniel Kim",
+    customerEmail: "dkim@work.com",
+    storeId: "0221",
+    storeLabel: "0221 · Express Lube · Arlington, VA",
+    vehicleLabel: "2018 Toyota Corolla – VA-QP2290",
+    touchpointId: 3,
+    touchpointName: "Suggested Services",
+    touchpointTiming: "3 months after service",
+    channel: "email",
+    sendDate: "11-02-2025",
+    openedDate: "11-02-2025",
+    originalInvoiceId: "198520",
+    originalInvoiceDate: "08-02-2025",
+    originalInvoiceAmount: 45.00,
+    originalMileage: 39500,
+    suggestions: [
+      { id: "s22", name: "Spark Plugs", videoWatched: true, couponOpened: true, offerText: "$15 off" },
+    ],
+    responseWindowDays: 10,
+    isWithinWindow: true,
+  },
+  {
+    id: "open_04",
+    customerName: "Mia Thompson",
+    customerEmail: "mia.t@gmail.com",
+    storeId: "0334",
+    storeLabel: "0334 · GMF · Richmond, VA",
+    vehicleLabel: "2015 Chevrolet Equinox – VA-RM4411",
+    touchpointId: 2,
+    touchpointName: "Suggested Services",
+    touchpointTiming: "1 month after service",
+    channel: "email",
+    sendDate: "11-09-2025",
+    openedDate: "11-10-2025",
+    originalInvoiceId: "198530",
+    originalInvoiceDate: "10-09-2025",
+    originalInvoiceAmount: 55.00,
+    originalMileage: 82000,
+    suggestions: [
+      { id: "s23", name: "CV Axle Inspection", videoWatched: false, couponOpened: false },
+    ],
+    responseWindowDays: 10,
+    isWithinWindow: true,
+  },
+  {
+    id: "open_05",
+    customerName: "Chris Patel",
+    customerEmail: "cpatel@gmail.com",
+    storeId: "0445",
+    storeLabel: "0445 · Quick Oil · Fairfax, VA",
+    vehicleLabel: "2019 Nissan Altima – VA-ZK5520",
+    touchpointId: 1,
+    touchpointName: "Suggested Services",
+    touchpointTiming: "1 week after service",
+    channel: "email",
+    sendDate: "11-16-2025",
+    openedDate: "11-16-2025",
+    originalInvoiceId: "198540",
+    originalInvoiceDate: "11-09-2025",
+    originalInvoiceAmount: 68.00,
+    originalMileage: 27800,
+    suggestions: [
+      { id: "s24", name: "Battery Test", videoWatched: true, couponOpened: false },
+    ],
+    responseWindowDays: 10,
+    isWithinWindow: true,
+  },
 ];
 
 /**
@@ -399,11 +515,11 @@ export function aggregateTouchpointMetrics(factData: SsFactResponse[], configs: 
 
 /**
  * Convert fact data to the card format for the Responses tab.
- * IMPORTANT: Only includes actual responses (with responseInvoiceId) to match Touch Points tab count.
+ * Includes records that have openedDate (for "Emails opened" filter) OR responseInvoiceId (for "Converted" filter).
  */
 export function convertFactToCardFormat(factData: SsFactResponse[]) {
   return factData
-    .filter((r) => r.isWithinWindow && r.responseInvoiceId)
+    .filter((r) => r.isWithinWindow && (r.openedDate || r.responseInvoiceId))
     .map((r) => ({
       id: r.id,
       customerName: r.customerName,
