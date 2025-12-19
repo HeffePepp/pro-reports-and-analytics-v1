@@ -24,17 +24,25 @@ type SuggestedServicesSummary = {
   invoicesWithSsPct: number;
 };
 
+// One realistic month for one location (derived from Jan–May report averages)
+const SS_LOCATION_LABEL = "0009 :: GMF :: Denver, CO";
+const SS_PERIOD_LABEL = "Apr 2024"; // display label only; values are monthly avg from Jan–May
+
 const ssSummary: SuggestedServicesSummary = {
-  storeGroupName: "All Stores",
-  periodLabel: "Last 12 months",
-  invoices: 21500,
-  suggestedServices: 8420,
-  emailsSent: 18200,
-  emailsOpened: 12740,
-  responses: 4331,
-  ssRevenue: 186400,
-  totalRevenue: 742000,
-  invoicesWithSsPct: 34.5,
+  storeGroupName: SS_LOCATION_LABEL,
+  periodLabel: SS_PERIOD_LABEL,
+
+  // Monthly totals (avg of Jan–May from the XLSX)
+  emailsSent: 1337,
+  emailsOpened: 649,
+  responses: 30,
+  ssRevenue: 3980.77,
+
+  // Keep your existing fields if used elsewhere (set reasonable values)
+  invoices: 0,
+  suggestedServices: 0,
+  totalRevenue: 0,
+  invoicesWithSsPct: 0,
 };
 
 type SuggestedServiceTypeRow = {
@@ -669,12 +677,12 @@ const SuggestedServicesPage: React.FC = () => {
 
             const convertedOnly = openedOrConverted.filter((r) => !!r.response.invoiceNumber);
 
-            const openedCount = openedOrConverted.length;
-            const convertedCount = convertedOnly.length;
+            // Use monthly totals from ssSummary for KPIs (so counts look realistic)
+            const openedCount = ssSummary.emailsOpened;     // 649
+            const convertedCount = ssSummary.responses;     // 30
+            const totalRevenue = ssSummary.ssRevenue;       // 3980.77
 
-            const totalRevenue = convertedOnly.reduce((sum, r) => sum + (r.response.amount || 0), 0);
-
-            // Meaningful rate: conversions out of open-or-convert population
+            // Meaningful rate: conversions out of opened population
             const conversionRate = openedCount > 0 ? (convertedCount / openedCount) * 100 : 0;
 
             const rowsToShow = responsesMode === "converted" ? convertedOnly : openedOrConverted;
@@ -724,6 +732,11 @@ const SuggestedServicesPage: React.FC = () => {
                     <div className="text-lg font-semibold text-indigo-700">{conversionRate.toFixed(1)}%</div>
                     <div className="text-[11px] text-indigo-600">Conversion Rate</div>
                   </div>
+                </div>
+
+                {/* Sample note */}
+                <div className="text-[11px] text-slate-500">
+                  Showing sample customers (counts above reflect monthly totals).
                 </div>
 
                 {/* Response cards */}
